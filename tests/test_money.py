@@ -3,23 +3,24 @@ from decimal import Decimal
 
 import pytest
 
+from automated_trading_bot.domain.currency import Currency
 from automated_trading_bot.domain.money import Money
 
 
 def test_money_stores_decimal_amount() -> None:
-    money = Money(amount=Decimal("10.50"), currency="GBP")
+    money = Money(amount=Decimal("10.50"), currency=Currency("GBP"))
 
     assert money.amount == Decimal("10.50")
 
 
 def test_money_stores_currency() -> None:
-    money = Money(amount=Decimal("10.50"), currency="GBP")
+    money = Money(amount=Decimal("10.50"), currency=Currency("GBP"))
 
-    assert money.currency == "GBP"
+    assert money.currency == Currency("GBP")
 
 
 def test_money_is_immutable() -> None:
-    money = Money(amount=Decimal("10.50"), currency="GBP")
+    money = Money(amount=Decimal("10.50"), currency=Currency("GBP"))
 
     try:
         money.amount = Decimal("20.00")
@@ -32,33 +33,35 @@ def test_money_is_immutable() -> None:
 @pytest.mark.parametrize("invalid_value", [0.1, 1, True, "0.1", None])
 def test_money_rejects_non_decimal_values(invalid_value: object) -> None:
     with pytest.raises(TypeError, match="^amount must be a Decimal$"):
-        Money(amount=invalid_value, currency="GBP")
+        Money(amount=invalid_value, currency=Currency("GBP"))
 
 
 @pytest.mark.parametrize("value", [Decimal("0"), Decimal("-2.50"), Decimal("0.12345678901234567890123456789")])
 def test_money_preserves_decimal_input(value: Decimal) -> None:
-    result = Money(amount=value, currency="GBP")
+    result = Money(amount=value, currency=Currency("GBP"))
 
     assert result.amount is value
 
 
-@pytest.mark.parametrize("invalid_currency", [None, 1, True, 1.0, Decimal("1"), b"GBP", []])
-def test_money_rejects_non_string_currency(invalid_currency: object) -> None:
-    with pytest.raises(TypeError, match="^currency must be a str$"):
+@pytest.mark.parametrize("invalid_currency", [None, 1, True, 1.0, Decimal("1"), b"GBP", [], "GBP", "gbp", "", "  GBP  ", "custom-unit"])
+def test_money_rejects_non_currency(invalid_currency: object) -> None:
+    with pytest.raises(TypeError, match="^currency must be a Currency$"):
         Money(amount=Decimal("10.50"), currency=invalid_currency)
 
 
-@pytest.mark.parametrize("currency", ["GBP", "gbp", "", "  GBP  ", "custom-unit"])
-def test_money_preserves_currency_string(currency: str) -> None:
+@pytest.mark.parametrize("code", ["GBP", "USD", "EUR", "AAA", "ZZZ"])
+def test_money_preserves_currency_object(code: str) -> None:
+    currency = Currency(code)
     money = Money(amount=Decimal("10.50"), currency=currency)
 
-    assert money.currency == currency
+    assert money.currency is currency
+    assert money.currency.code == code
 
 
 def test_money_currency_is_immutable() -> None:
-    money = Money(amount=Decimal("10.50"), currency="GBP")
+    money = Money(amount=Decimal("10.50"), currency=Currency("GBP"))
 
     with pytest.raises(FrozenInstanceError):
-        money.currency = "USD"
+        money.currency = Currency("USD")
 
-    assert money.currency == "GBP"
+    assert money.currency == Currency("GBP")
