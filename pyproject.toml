@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "automated-trading-bot"
+version = "0.0.0"
+description = "Automated Trading Bot repository bootstrap"
+readme = "README.md"
+dependencies = []
+# Python compatibility policy is pending review of the audited baseline.
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["automated_trading_bot", "automated_trading_bot.*"]
+namespaces = false
