@@ -10,3 +10,5 @@ class Money:
     def __post_init__(self) -> None:
         if not isinstance(self.amount, Decimal):
             raise TypeError("amount must be a Decimal")
+        if not isinstance(self.currency, str):
+            raise TypeError("currency must be a str")
