@@ -21,6 +21,33 @@ class TradeId:
 
 
 @dataclass(frozen=True, slots=True)
+class EventId:
+    value: UUID
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.value, UUID):
+            raise TypeError("value must be a UUID")
+
+
+@dataclass(frozen=True, slots=True)
+class CorrelationId:
+    value: UUID
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.value, UUID):
+            raise TypeError("value must be a UUID")
+
+
+@dataclass(frozen=True, slots=True)
+class CausationId:
+    value: UUID
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.value, UUID):
+            raise TypeError("value must be a UUID")
+
+
+@dataclass(frozen=True, slots=True)
 class StrategyId:
     value: str
 
@@ -31,6 +58,15 @@ class StrategyId:
 
 @dataclass(frozen=True, slots=True)
 class InstrumentId:
+    value: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.value, str):
+            raise TypeError("value must be a str")
+
+
+@dataclass(frozen=True, slots=True)
+class IdempotencyKey:
     value: str
 
     def __post_init__(self) -> None:
