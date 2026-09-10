@@ -19,14 +19,14 @@ Empty directories contain `.gitkeep` placeholders so Git can track them.
 
 ## Bootstrap environment
 
-The local checkpoint uses CPython 3.14.7 on Windows. Supported Python versions
+The local checkpoint uses CPython 3.13.14 on Windows. Supported Python versions
 and application dependencies remain pending baseline review. Version `0.0.0`
 is placeholder package metadata, not an application release.
 
 To create an isolated environment and install the scaffold in PowerShell:
 
 ```powershell
-python -m venv .venv
+py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e .
 .\.venv\Scripts\python.exe -c "import automated_trading_bot; print(automated_trading_bot.__file__)"
 ```

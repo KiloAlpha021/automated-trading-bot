@@ -8,6 +8,8 @@ version = "0.0.0"
 description = "Automated Trading Bot repository bootstrap"
 readme = "README.md"
 dependencies = []
+[project.optional-dependencies]
+dev = ["pytest"]
 # Python compatibility policy is pending review of the audited baseline.
 
 [tool.setuptools.packages.find]
