@@ -60,12 +60,15 @@ def _validate(data: dict) -> None:
     record_ids = [record["id"] for record in records]
     assert len(row_ids) == len(set(row_ids)) == 30
     assert set(row_ids) == set(record_ids)
-    assert all(record["status"] == "VERIFIED" for record in records)
-    assert checkpoint["complete"] is True
-    assert checkpoint["assessment_status"] == "COMPLETED"
+    assert checkpoint["complete"] is False
+    assert checkpoint["assessment_status"] == "BLOCKED"
     assert checkpoint["authorization"] == "NONE"
     assert checkpoint["unassessed_requirement_ids"] == []
-    assert checkpoint["unresolved_traceability_ids"] == []
+    assert checkpoint["unresolved_traceability_ids"] == ["IMP-001-M1-01"]
+    assert checkpoint["post_closure_audit"]["classification"] == "REOPEN_M1"
+    assert checkpoint["post_closure_audit"]["historical_completion_manifest"] == (
+        "docs/m1-closure/closure-manifest.json"
+    )
 
     implemented = sorted(r["id"] for r in records if r["applicability"] == "M1_REQUIRED")
     deferred = {r["id"]: r for r in records if r["applicability"] == "EXPLICITLY_DEFERRED"}

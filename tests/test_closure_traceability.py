@@ -213,11 +213,17 @@ def _verify_complete_atomic_mapping(data, checkpoint):
         assert row["requirement"] == record["requirement"]
         assert row["source"].strip() and record["source"].strip()
         assert row["provenance_status"] == "INFERRED"
-        assert record["status"] == "VERIFIED"
+        expected_status = ("INSUFFICIENT_EVIDENCE"
+                           if row["id"] == "IMP-001-M1-01" else "VERIFIED")
+        assert record["status"] == expected_status
         assert record["verification_evidence"]
         if row["disposition"] == "M1":
             assert record["applicability"] == "M1_REQUIRED"
-            assert row["artifacts"] and row["tests"] and row["residual_gap"] == ""
+            assert row["artifacts"] and row["tests"]
+            if row["id"] == "IMP-001-M1-01":
+                assert row["residual_gap"]
+            else:
+                assert row["residual_gap"] == ""
             for reference in row["artifacts"]:
                 _check_reference(Path(__file__).resolve().parents[1], reference)
             for reference in row["tests"]:
@@ -255,7 +261,8 @@ def test_complete_atomic_mapping_rejects_invalid_coverage(mutation):
     elif mutation == "duplicate":
         data["rows"].append(copy.deepcopy(data["rows"][0]))
     elif mutation == "status":
-        checkpoint["records"][0]["status"] = "INSUFFICIENT_EVIDENCE"
+        target = next(row for row in checkpoint["records"] if row["id"] == "IMP-001-M1-01")
+        target["status"] = "VERIFIED"
     elif mutation == "deferral":
         target = next(row for row in checkpoint["records"] if row["applicability"] == "EXPLICITLY_DEFERRED")
         target["explicit_deferral_source"] = None

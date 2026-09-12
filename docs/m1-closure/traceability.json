@@ -17,7 +17,7 @@
       "tests": [
         "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions"
       ],
-      "residual_gap": ""
+      "residual_gap": "The canonical hash-matched Implementation Specification artifact is not repository-contained; independent semantic completeness cannot be proven from committed content alone."
     },
     {
       "id": "IMP-001-M1-02",
