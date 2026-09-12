@@ -1,7 +1,7 @@
 {
-  "assessment": "M1 reopened post-closure assessment checkpoint",
-  "complete": false,
-  "stop_reason": "All 50 M1 atoms are verified. M1 remains formally reopened pending a separate final exit-gate verification; authorization remains NONE and Stage 2 is not authorized.",
+  "assessment": "COMPLETED",
+  "complete": true,
+  "stop_reason": "Formal M1 re-closure recorded against db1cd10d3aaf9d20a90b043fd754e4e65145bf3f after independent final exit-gate PASS; authorization remains NONE.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -1153,8 +1153,8 @@
       "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
     }
   ],
-  "remaining_assessment": "Run the separate final M1 exit-gate verification without changing authorization or starting Stage 2.",
-  "manifest_validation": "docs/m1-closure/closure-manifest.json remains immutable historical evidence of the prior closure event; it is not current completion authority after REOPEN_M1.",
+  "remaining_assessment": "",
+  "manifest_validation": "Current completion authority: docs/m1-closure/closure-manifest.json. Prior closure preserved at docs/m1-closure/closure-manifest-historical-2026-09-12.json.",
   "historical_assessments": [
     {
       "assessment": "M1 atomic coverage checkpoint",
@@ -35168,7 +35168,7 @@
       ]
     }
   ],
-  "assessment_status": "BLOCKED",
+  "assessment_status": "COMPLETED",
   "authorization": "NONE",
   "current_evidence": {
     "selection": [
@@ -36380,7 +36380,7 @@
   "post_closure_audit": {
     "classification": "REOPEN_M1",
     "audited_completion_revision": "789d7a19d474e77f9b8f1956dea02aea74d7ddd0",
-    "historical_completion_manifest": "docs/m1-closure/closure-manifest.json",
+    "historical_completion_manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
     "resolved_findings": [
       {
         "id": "M1-AUDIT-ARCH-DYNAMIC-IMPORT",
@@ -36404,5 +36404,14 @@
       "evidence": "docs/baseline/specification-provenance.json",
       "claim": "The exact governing DOCX and deterministic machine-readable extraction are repository-contained and hash-bound."
     }
+  },
+  "reclosure": {
+    "status": "COMPLETED",
+    "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
+    "exit_gate": "PASS",
+    "current_manifest": "docs/m1-closure/closure-manifest.json",
+    "historical_manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
+    "authorization": "NONE",
+    "stage2_authorized": false
   }
 }

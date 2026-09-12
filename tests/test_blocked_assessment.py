@@ -106,8 +106,8 @@ def _run_evidence() -> dict:
 
 
 def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
-    assert checkpoint["complete"] is False
-    assert checkpoint["assessment_status"] == "BLOCKED"
+    assert checkpoint["complete"] is True
+    assert checkpoint["assessment_status"] == "COMPLETED"
     assert checkpoint["authorization"] == "NONE"
     assert checkpoint["current_evidence"] == actual, "Recorded evidence differs from fresh execution"
     assert checkpoint["historical_assessments"], "Historical observations lost"
@@ -137,8 +137,10 @@ def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
         for key, record in assessed.items()
         if key not in unresolved
     )
-    assert "separate final exit-gate verification" in checkpoint["stop_reason"]
+    assert "Formal M1 re-closure recorded" in checkpoint["stop_reason"]
     assert (ROOT / "docs/m1-closure/closure-manifest.json").is_file()
+    assert checkpoint["reclosure"]["status"] == "COMPLETED"
+    assert checkpoint["reclosure"]["stage2_authorized"] is False
     assert checkpoint["post_closure_audit"]["classification"] == "REOPEN_M1"
     assert checkpoint["post_closure_audit"]["resolved_findings_provenance"]["status"] == "REPAIRED"
 
@@ -184,7 +186,7 @@ def test_blocked_checkpoint_rejects_false_observation(evidence, mutation):
     checkpoint, traceability = _inputs()
     checkpoint = copy.deepcopy(checkpoint)
     if mutation == "completion":
-        checkpoint["complete"] = True
+        checkpoint["complete"] = False
     elif mutation == "blocker":
         checkpoint["unresolved_traceability_ids"] = (
             [] if checkpoint["unresolved_traceability_ids"] else ["IMP-001-M1-02"]
