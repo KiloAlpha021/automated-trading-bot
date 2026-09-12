@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -15,6 +16,9 @@ BASELINE = "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f"
 HISTORICAL_BASELINE = "8470735a37372a1c5060c59adfcd44d3348f35bb"
 SOURCE = "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7"
 HISTORICAL_SHA256 = "bd201775ed5d9fd9d7cd1f42bfe0f5418259622071f1102f1cfd71a6c84ce3d0"
+ORIGINAL_SOURCE = (
+    "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f:docs/m1-closure/closure-manifest.json"
+)
 
 
 def _load(path: Path) -> dict:
@@ -169,6 +173,31 @@ def _validate(data: dict) -> None:
         "recovery of original r39",
     ):
         assert denied in restrictions
+
+
+def _git_bytes(*args: str) -> bytes:
+    return subprocess.run(
+        ["git", *args], cwd=ROOT, check=True, capture_output=True
+    ).stdout
+
+
+def test_historical_manifest_byte_identity_is_checkout_invariant() -> None:
+    historical_path = HISTORICAL.relative_to(ROOT).as_posix()
+    working = HISTORICAL.read_bytes()
+    original = _git_bytes("show", ORIGINAL_SOURCE)
+    committed = _git_bytes("show", f"HEAD:{historical_path}")
+    assert working == original == committed
+    assert hashlib.sha256(working).hexdigest() == HISTORICAL_SHA256
+    attributes = _git_bytes(
+        "check-attr", "binary", "text", "--", historical_path
+    ).decode()
+    assert f"{historical_path}: binary: set" in attributes
+    assert f"{historical_path}: text: unset" in attributes
+    changed = working[:-1] + bytes([working[-1] ^ 1])
+    assert hashlib.sha256(changed).hexdigest() != HISTORICAL_SHA256
+    crlf = working.replace(b"\n", b"\r\n")
+    assert crlf != working
+    assert hashlib.sha256(crlf).hexdigest() != HISTORICAL_SHA256
 
 
 def test_m1_completion_manifest_is_valid_and_attributable() -> None:
