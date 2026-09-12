@@ -1,7 +1,7 @@
 {
   "assessment": "M1 reopened post-closure assessment checkpoint",
   "complete": false,
-  "stop_reason": "M1 remains reopened and BLOCKED: IMP-001-M1-01 remains blocked by the Stage 0B/Master Invariant Register semantic-coverage gap; IMP-001-M1-14 lacks hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
+  "stop_reason": "M1 remains reopened and BLOCKED solely because IMP-001-M1-14 lacks attributable hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -45,19 +45,18 @@
       "implementation_evidence": [
         "docs/M1.8-evidence.md",
         "docs/m1-closure/traceability.json",
-        "docs/m1-closure/M1-scope-clarification.md"
+        "docs/m1-closure/M1-phase-39-67-forward-governance.md",
+        "docs/m1-closure/stage0b-phase39-67-coverage.json"
       ],
       "verification_evidence": [
-        "Authoritative specification and owner attachment SHA-256 verified; owner clarification compared verbatim.",
-        "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions PASSED",
-        "tests/test_closure_traceability.py::test_identity_precedence_rejects_changed_evidence: 3 cases PASSED",
-        "The exact canonical DOCX and deterministic text extraction are repository-contained, cryptographically bound and independently reproducible; semantic audit found separate mapping/completeness gaps."
+        "tests/test_stage0b_phase39.py::test_stage0b_model_is_complete_and_zero_orphan",
+        "tests/test_stage0b_phase39.py::test_stage0b_validator_rejects_weakened_models"
       ],
       "invalid_verification_references": [],
-      "status": "INSUFFICIENT_EVIDENCE",
+      "status": "VERIFIED",
       "explicit_deferral_source": null,
-      "smallest_corrective_action": "Correct only the independently identified atomic mapping gaps and establish attributable Stage 0B/Master Invariant Register completeness evidence; then reassess without changing scope.",
-      "verification_limits": "Canonical specification identity, repository provenance and extraction reproducibility are verified. IMP-001-M1-01 remains INSUFFICIENT_EVIDENCE because semantic coverage gaps and Stage 0B/Master Invariant Register completeness remain unresolved."
+      "smallest_corrective_action": null,
+      "verification_limits": "PASS_WITH_CONTROLLED_LEGACY_PROVENANCE proves complete current forward-governance control and transparent retention of 36 legacy IDs. It does not recover or reconstruct their individual semantics or claim semantic equivalence."
     },
     {
       "id": "IMP-029-M1-01",
@@ -1136,7 +1135,7 @@
       "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
     }
   ],
-  "remaining_assessment": "Resolve hosted branch protection and Stage 0B/Master Invariant Register completeness without changing authorization.",
+  "remaining_assessment": "Resolve hosted branch protection without changing authorization or treating repository workflow configuration as hosted enforcement evidence.",
   "manifest_validation": "docs/m1-closure/closure-manifest.json remains immutable historical evidence of the prior closure event; it is not current completion authority after REOPEN_M1.",
   "historical_assessments": [
     {
@@ -36341,14 +36340,13 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "271fcee1e113bd0d6dbfdfb3a07d9ccb424376caae18bfbb7e28ddcc44eea690",
+      "tests/test_closure_traceability.py": "ebc27f5942bcafaf14293caa16de113ccc3ca3b27b65b5c1e3be5301130d0de5",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "a7f5c44899e0633e88a8e178c4b730c9ed4977aa72e5706d674e00f233303b36"
+      "docs/m1-closure/traceability.json": "4228c4e8854408a59181a977ebe13b200545175c30aae94c16462d4ac7c99cc6"
     }
   },
   "unresolved_traceability_ids": [
-    "IMP-001-M1-01",
     "IMP-001-M1-14"
   ],
   "unassessed_requirement_ids": [],
@@ -36360,7 +36358,8 @@
     "M1-SCOPE-2026-09-11-05",
     "M1-SCOPE-2026-09-12-01",
     "M1-SCOPE-2026-09-12-02",
-    "M1-SCOPE-2026-09-12-03"
+    "M1-SCOPE-2026-09-12-03",
+    "M1-SCOPE-2026-09-12-04"
   ],
   "post_closure_audit": {
     "classification": "REOPEN_M1",
@@ -36373,16 +36372,16 @@
         "status": "REPAIRED",
         "evidence": "tests/test_architecture.py",
         "claim": "Statically resolvable strategy references to automated_trading_bot.broker and automated_trading_bot.oms namespaces are rejected."
-      }
-    ],
-    "active_blockers": [
+      },
       {
         "id": "M1-AUDIT-SEMANTIC-COVERAGE",
         "mapped_requirement": "IMP-001-M1-01",
-        "status": "INSUFFICIENT_EVIDENCE",
-        "reason": "M1.1, M1.2, M1.3 and M1.7 obligations are not completely represented in the atomic mapping, and Stage 0B/Master Invariant Register completeness remains unresolved."
+        "status": "REPAIRED",
+        "evidence": "docs/m1-closure/stage0b-phase39-67-coverage.json; tests/test_stage0b_phase39.py",
+        "claim": "M1.1, M1.2, M1.3 and M1.7 are atomically represented, and the owner-approved Phase 39.67 replacement provides controlled forward governance for the unrecovered Stage 0B R39 records without claiming recovered wording or semantic equivalence."
       }
     ],
+    "active_blockers": [],
     "resolved_findings_provenance": {
       "id": "M1-AUDIT-SPECIFICATION-PROVENANCE",
       "status": "REPAIRED",

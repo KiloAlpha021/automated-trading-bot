@@ -82,6 +82,16 @@
       "historical_attachment_id": "b0ebce3d-b816-4bc5-8c1e-2351e28fb839",
       "historical_attachment_sha256": null,
       "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-12-04",
+      "artifact": "docs/m1-closure/M1-phase-39-67-forward-governance.md",
+      "canonical_text_sha256": "15ca98139e605ac06e1ed0d15aa2cd9227f637d9a1959210a4a8bbd3d08c875e",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "33259a24-ed10-4557-972e-1a7cdd5e7018",
+      "historical_attachment_sha256": null,
+      "historical_attachment_is_normative": false
     }
   ]
 }

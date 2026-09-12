@@ -93,7 +93,7 @@ def _validate(data: dict) -> None:
     assert current["assessment_status"] == "BLOCKED"
     assert checkpoint["authorization"] == "NONE"
     assert checkpoint["unassessed_requirement_ids"] == []
-    assert "IMP-001-M1-01" in current["unresolved_traceability_ids"]
+    assert "IMP-001-M1-14" in current["unresolved_traceability_ids"]
     assert current["post_closure_audit"]["classification"] == "REOPEN_M1"
     assert current["post_closure_audit"]["historical_completion_manifest"] == (
         "docs/m1-closure/closure-manifest.json"

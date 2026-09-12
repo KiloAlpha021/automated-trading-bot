@@ -15,12 +15,20 @@
       "source": "Sections 3.1, 18.3",
       "artifacts": [
         "docs/M1.8-evidence.md",
-        "docs/m1-closure/traceability.json"
+        "docs/m1-closure/traceability.json",
+        "docs/m1-closure/M1-phase-39-67-forward-governance.md",
+        "docs/m1-closure/stage0b-phase39-67-coverage.json"
       ],
       "tests": [
-        "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions"
+        "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions",
+        "tests/test_stage0b_phase39.py::test_stage0b_model_is_complete_and_zero_orphan",
+        "tests/test_stage0b_phase39.py::test_stage0b_validator_rejects_weakened_models"
       ],
-      "residual_gap": "The canonical specification is repository-contained and hash-bound. Stage 0B/Master Invariant Register completeness remains unresolved; no status advancement is claimed."
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json",
+        "docs/m1-closure/stage0b-phase39-67-coverage.json"
+      ]
     },
     {
       "id": "IMP-001-M1-02",

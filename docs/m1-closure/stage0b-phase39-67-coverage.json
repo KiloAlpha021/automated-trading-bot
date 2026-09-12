@@ -1,0 +1,1573 @@
+{
+  "schema_version": 1,
+  "model_id": "STAGE-0B-P39R-2026-09-12-01",
+  "owner_decision": "M1-SCOPE-2026-09-12-04",
+  "owner_decision_canonical_sha256": "15ca98139e605ac06e1ed0d15aa2cd9227f637d9a1959210a4a8bbd3d08c875e",
+  "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+  "classification": "PASS_WITH_CONTROLLED_LEGACY_PROVENANCE",
+  "historical_disclosure": "ORIGINAL R39 INDIVIDUAL SEMANTICS NOT RECOVERED",
+  "zero_orphan_definition": {
+    "current_mandatory_requirements": [
+      "P39R-001",
+      "P39R-002",
+      "P39R-003",
+      "P39R-004",
+      "P39R-005",
+      "P39R-006",
+      "P39R-007",
+      "P39R-008"
+    ],
+    "required_legacy_ids": [
+      "R39-I353",
+      "R39-I354",
+      "R39-I355",
+      "R39-I356",
+      "R39-I357",
+      "R39-I358",
+      "R39-I359",
+      "R39-I360",
+      "R39-I361",
+      "R39-I362",
+      "R39-I363",
+      "R39-I364",
+      "R39-I365",
+      "R39-I366",
+      "R39-I367",
+      "R39-I368",
+      "R39-I369",
+      "R39-I370",
+      "R39-I371",
+      "R39-I372",
+      "R39-I373",
+      "R39-I374",
+      "R39-I375",
+      "R39-I376",
+      "R39-I377",
+      "R39-I378",
+      "R39-I379",
+      "R39-I380",
+      "R39-I381",
+      "R39-I382",
+      "R39-I383",
+      "R39-I384",
+      "R39-I385",
+      "R39-I386",
+      "R39-I387",
+      "R39-I388"
+    ],
+    "required_m1_status": "VERIFIED_EXISTING",
+    "required_future_status": "NOT_YET_IMPLEMENTED",
+    "orphan_current_requirement_count": 0
+  },
+  "legacy_provenance": [
+    {
+      "historical_id": "R39-I353",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I354",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I355",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I356",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I357",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I358",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I359",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I360",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I361",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I362",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I363",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I364",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I365",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I366",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I367",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I368",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I369",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I370",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I371",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I372",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I373",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I374",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I375",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I376",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I377",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I378",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I379",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I380",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I381",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I382",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I383",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I384",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I385",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I386",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I387",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    },
+    {
+      "historical_id": "R39-I388",
+      "wording_status": "UNRECOVERED",
+      "domain": "Phase 39.67 \u2014 Strategy State, Model Integrity, Signal Staleness & Decision-Recovery Adversarial Audit",
+      "source_references": [
+        "Master Audit Closure v1.3 range-level binding statement",
+        "Implementation Specification v1.0 section 1.1",
+        "M1-SCOPE-2026-09-12-04"
+      ],
+      "disposition": [
+        "LEGACY_SEMANTICS_UNRECOVERABLE",
+        "RETAINED_HISTORICAL_PROVENANCE",
+        "RANGE_REMAINS_BINDING",
+        "FORWARD_GOVERNANCE_REPLACED_BY_APPROVED_PHASE_39_67_REQUIREMENT_SET"
+      ],
+      "semantic_equivalence_claimed": false,
+      "blanket_r41_supersession_claimed": false,
+      "forward_governance_set": [
+        "P39R-001",
+        "P39R-002",
+        "P39R-003",
+        "P39R-004",
+        "P39R-005",
+        "P39R-006",
+        "P39R-007",
+        "P39R-008"
+      ]
+    }
+  ],
+  "forward_governance_requirements": [
+    {
+      "requirement_id": "P39R-001",
+      "title": "Strategy state identity and safety",
+      "requirement": "Every strategy-state record used by a proposal shall carry immutable strategy, configuration, model, feature-schema, and state-version identities. Strategy state is evidence only and cannot grant execution authority. Missing or unverifiable identity fails closed.",
+      "surviving_authority": [
+        "CORE-001",
+        "CORE-007",
+        "R41-CI001",
+        "R41-CI029",
+        "R41-CI040"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-002",
+      "title": "Strategy-state transitions",
+      "requirement": "Strategy-state transitions shall be explicit, attributable, deterministic for identical inputs, and monotonic in version. Stale, conflicting, invalid, or superseded state shall not silently become current. Restart shall not reactivate state without current validation.",
+      "surviving_authority": [
+        "R41-CI001",
+        "R41-CI004",
+        "R41-CI041",
+        "R41-CI095",
+        "R41-CI103",
+        "R41-CI105",
+        "R41-CI110"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-003",
+      "title": "Model integrity and compatibility",
+      "requirement": "Every decision using model output shall bind exact model/artifact, configuration, feature-schema, preprocessing, universe, and material dependency identities. Incompatible, stale, missing, unknown, or silently substituted model evidence shall be rejected.",
+      "surviving_authority": [
+        "CORE-007",
+        "CORE-013",
+        "R41-CI026",
+        "R41-CI029",
+        "R41-CI030",
+        "R41-CI038",
+        "R41-CI042",
+        "R41-CI095"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-004",
+      "title": "Signal lineage, freshness and expiry",
+      "requirement": "A signal used as decision evidence shall carry attributable source/data lineage and observation time. Evaluation shall use injected UTC time and an explicit applicable freshness/expiry policy. Expired, stale, superseded, invalid, or temporally ambiguous signal evidence shall remain non-authoritative and result in NO-TRADE or restriction.",
+      "surviving_authority": [
+        "CORE-007",
+        "CORE-013",
+        "R41-CI025",
+        "R41-CI026",
+        "R41-CI027",
+        "R41-CI031",
+        "R41-CI071"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-005",
+      "title": "Decision authority",
+      "requirement": "Proposals, model outputs, signals, approvals, and historical decisions remain non-executable evidence. Increased exposure requires current, scoped, matching authorization. UNKNOWN, NO-TRADE, expired, invalidated, mismatched, or stale evidence cannot acquire authority.",
+      "surviving_authority": [
+        "CORE-001",
+        "CORE-002",
+        "CORE-004",
+        "R41-CI001",
+        "R41-CI015",
+        "R41-CI031",
+        "R41-CI032",
+        "R41-CI033",
+        "R41-CI096",
+        "R41-CI097"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-006",
+      "title": "Recovery and replay safety",
+      "requirement": "Replay and forensic reconstruction remain observational and cannot create financial effects. Recovered proposals, decisions, approvals, and historical evidence cannot regain current authority through restart, restoration, retry, or replay. Later resumption requires current validation against applicable evidence, configuration, restrictions, and authorization.",
+      "surviving_authority": [
+        "CORE-004",
+        "CORE-005",
+        "CORE-011",
+        "R41-CI004",
+        "R41-CI022",
+        "R41-CI041",
+        "R41-CI055",
+        "R41-CI061",
+        "R41-CI103",
+        "R41-CI104",
+        "R41-CI105",
+        "R41-CI111"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-007",
+      "title": "Fail-closed uncertainty",
+      "requirement": "Across strategy state, model evidence, signal evidence, and recovery evidence, missing, stale, invalid, conflicting, incompatible, or unverifiable input must never be interpreted as current or authorized. The result must preserve UNKNOWN, NO-TRADE, or an appropriately restrictive operational state.",
+      "surviving_authority": [
+        "CORE-002",
+        "CORE-013",
+        "R41-CI001",
+        "R41-CI027",
+        "R41-CI030",
+        "R41-CI074",
+        "R41-CI103",
+        "R41-CI106",
+        "R41-CI110"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "requirement_id": "P39R-008",
+      "title": "Causal evidence",
+      "requirement": "State, model, signal, proposal, decision, invalidation, and recovery records shall preserve sufficient immutable identity, correlation, causation, schema/version, and UTC-time evidence to distinguish current from historical evidence. Logs and metrics remain observational and cannot replace canonical evidence.",
+      "surviving_authority": [
+        "R41-CI017",
+        "R41-CI025",
+        "R41-CI029",
+        "R41-CI058",
+        "R41-CI061",
+        "R41-CI095"
+      ],
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    }
+  ],
+  "atoms": [
+    {
+      "atom_id": "P39R-001-M1-01",
+      "parent_id": "P39R-001",
+      "requirement": "Bind inert decision lineage identities and prevent strategy evidence from granting authority.",
+      "applicable_stage": "M1",
+      "owner": "contracts.decision / strategies.api",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_decision.py::test_matching_approval_is_only_a_contract_check"
+      ],
+      "negative_acceptance": [
+        "tests/test_decision.py::test_each_lineage_change_invalidates_match",
+        "tests/test_architecture.py::test_current_strategy_import_boundary"
+      ],
+      "control_evidence": "DecisionLineage and strategy dependency boundary",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-001-S04-01",
+      "parent_id": "P39R-001",
+      "requirement": "Implement runtime strategy-state records with immutable state-version identity.",
+      "applicable_stage": "Stage 4",
+      "owner": "strategies.state",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "strategy-state identity round trip"
+      ],
+      "negative_acceptance_plan": [
+        "missing/mutable identity rejected"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S04-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-002-M1-01",
+      "parent_id": "P39R-002",
+      "requirement": "Saved or persisted state cannot manufacture operational or financial authority.",
+      "applicable_stage": "M1",
+      "owner": "operations.modes",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/operational_mode.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_operational_mode.py::test_restrictive_mode_can_be_recorded_without_granting_authority"
+      ],
+      "negative_acceptance": [
+        "tests/test_operational_mode.py::test_external_evidence_cannot_create_mode_authority"
+      ],
+      "control_evidence": "fail-closed OperationalState",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-002-S04-01",
+      "parent_id": "P39R-002",
+      "requirement": "Implement explicit deterministic monotonic strategy-state transitions.",
+      "applicable_stage": "Stage 4",
+      "owner": "strategies.state",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "identical inputs yield identical transition"
+      ],
+      "negative_acceptance_plan": [
+        "stale/conflicting transition rejected"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S04-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-002-S08-01",
+      "parent_id": "P39R-002",
+      "requirement": "Require current validation before restart reactivates strategy state.",
+      "applicable_stage": "Stage 8",
+      "owner": "runtime.recovery",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "validated current state restored"
+      ],
+      "negative_acceptance_plan": [
+        "restart cannot reactivate stale state"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S08-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-003-M1-01",
+      "parent_id": "P39R-003",
+      "requirement": "Bind decision-level model, feature, configuration, and release identities and fail closed on mismatch.",
+      "applicable_stage": "M1",
+      "owner": "contracts.decision",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_decision.py::test_matching_approval_is_only_a_contract_check"
+      ],
+      "negative_acceptance": [
+        "tests/test_decision.py::test_each_lineage_change_invalidates_match",
+        "tests/test_decision.py::test_lineage_rejects_missing_or_mutable_identities"
+      ],
+      "control_evidence": "DecisionLineage equality and validation",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-003-S04-01",
+      "parent_id": "P39R-003",
+      "requirement": "Implement executable model loading and feature/schema compatibility validation.",
+      "applicable_stage": "Stage 4",
+      "owner": "models / features",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "compatible model inference accepted"
+      ],
+      "negative_acceptance_plan": [
+        "missing/stale/incompatible/substituted model rejected"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S04-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-004-M1-01",
+      "parent_id": "P39R-004",
+      "requirement": "Use injected UTC time for deterministic decision expiry; expired evidence remains non-authoritative.",
+      "applicable_stage": "M1",
+      "owner": "contracts.decision / time.clock",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/decision.py",
+        "src/automated_trading_bot/domain/clock.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_decision.py::test_matching_approval_is_only_a_contract_check"
+      ],
+      "negative_acceptance": [
+        "tests/test_decision.py::test_expiry_across_utc_date_boundary",
+        "tests/test_decision.py::test_invalid_decision_cannot_match"
+      ],
+      "control_evidence": "proposal/approval issued_at and expires_at",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-004-S04-01",
+      "parent_id": "P39R-004",
+      "requirement": "Implement signal production, lineage, observation time, and strategy-specific freshness policy without invented thresholds.",
+      "applicable_stage": "Stage 4",
+      "owner": "strategies.signals",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "fresh attributable signal accepted"
+      ],
+      "negative_acceptance_plan": [
+        "stale/unknown/ambiguous signal produces NO-TRADE or restriction"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S04-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-005-M1-01",
+      "parent_id": "P39R-005",
+      "requirement": "Keep proposals, approvals and NO-TRADE inert; only current scoped matching evidence may match.",
+      "applicable_stage": "M1",
+      "owner": "contracts.decision",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_decision.py::test_matching_approval_is_only_a_contract_check"
+      ],
+      "negative_acceptance": [
+        "tests/test_decision.py::test_nonapproved_status_cannot_match",
+        "tests/test_decision.py::test_no_trade_is_terminal_and_cannot_match_approval",
+        "tests/test_decision.py::test_approval_cannot_transfer_to_another_decision"
+      ],
+      "control_evidence": "Approval.matches_current_proposal",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-005-S05-01",
+      "parent_id": "P39R-005",
+      "requirement": "Implement executable exposure authorization through independent portfolio/risk controls.",
+      "applicable_stage": "Stage 5",
+      "owner": "portfolio / risk",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "current scoped authorization permits bounded action"
+      ],
+      "negative_acceptance_plan": [
+        "unknown/stale/mismatched evidence cannot authorize exposure"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S05-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-006-M1-01",
+      "parent_id": "P39R-006",
+      "requirement": "Hard-deny financial effects in replay and prevent activation overrides.",
+      "applicable_stage": "M1",
+      "owner": "runtime.replay",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/recovery/replay.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_replay.py::test_replay_financial_attempt_is_hard_denied"
+      ],
+      "negative_acceptance": [
+        "tests/test_replay.py::test_permissive_replay_mutation_fails_acceptance",
+        "tests/test_replay.py::test_replay_has_no_activation_override"
+      ],
+      "control_evidence": "ReplayContext denial boundary",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-006-S08-01",
+      "parent_id": "P39R-006",
+      "requirement": "Implement recovery/resumption as new validation against current evidence, configuration, restrictions and authorization.",
+      "applicable_stage": "Stage 8",
+      "owner": "runtime.recovery",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "current recovery barriers permit separately authorized resumption"
+      ],
+      "negative_acceptance_plan": [
+        "historical/incomplete evidence cannot regain authority"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S08-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-007-M1-01",
+      "parent_id": "P39R-007",
+      "requirement": "Preserve UNKNOWN, NO-TRADE or restrictive state when M1 authority evidence is missing, invalid or mismatched.",
+      "applicable_stage": "M1",
+      "owner": "contracts.decision / operations.modes",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/decision.py",
+        "src/automated_trading_bot/domain/operational_mode.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_decision.py::test_approval_defaults_to_unknown"
+      ],
+      "negative_acceptance": [
+        "tests/test_decision.py::test_unknown_check_inputs_rejected_explicitly",
+        "tests/test_operational_mode.py::test_invalid_or_unknown_mode_is_not_coerced"
+      ],
+      "control_evidence": "fail-closed decision and operational-mode contracts",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-007-S05-01",
+      "parent_id": "P39R-007",
+      "requirement": "Integrate fail-closed uncertainty across strategy, model, signal, portfolio, risk and recovery inputs.",
+      "applicable_stage": "Stage 5",
+      "owner": "risk / operations",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "complete current evidence evaluated"
+      ],
+      "negative_acceptance_plan": [
+        "missing/stale/invalid/conflicting evidence restricts authority"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S05-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-008-M1-01",
+      "parent_id": "P39R-008",
+      "requirement": "Preserve immutable event/decision identity, correlation, causation, schema/version and UTC-time evidence.",
+      "applicable_stage": "M1",
+      "owner": "contracts.events / contracts.decision",
+      "implementation_status": "VERIFIED_EXISTING",
+      "implementation": [
+        "src/automated_trading_bot/domain/event.py",
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "positive_acceptance": [
+        "tests/test_event.py::test_event_envelope_round_trip"
+      ],
+      "negative_acceptance": [
+        "tests/test_event.py::test_event_envelope_rejects_wrong_contract_types",
+        "tests/test_decision.py::test_lineage_rejects_missing_or_mutable_identities"
+      ],
+      "control_evidence": "EventEnvelope and DecisionLineage",
+      "lifecycle_gate": "M1 exit gate / GATE-S01-02",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    },
+    {
+      "atom_id": "P39R-008-S07-01",
+      "parent_id": "P39R-008",
+      "requirement": "Implement durable lifecycle evidence preserving causal and current-versus-historical truth.",
+      "applicable_stage": "Stage 7",
+      "owner": "persistence.events / audit.evidence",
+      "implementation_status": "NOT_YET_IMPLEMENTED",
+      "disposition": "CONTROLLED_FUTURE_OBLIGATION",
+      "deferral_authority": "M1-SCOPE-2026-09-12-04; Implementation Specification v1.0 staged build order",
+      "implementation": [],
+      "positive_acceptance_plan": [
+        "durable causal history reconstructs"
+      ],
+      "negative_acceptance_plan": [
+        "loss/mutation/duplicate causal evidence rejected"
+      ],
+      "control_evidence": [
+        "future stage evidence manifest"
+      ],
+      "lifecycle_gate": "GATE-S07-01",
+      "provenance": "M1-SCOPE-2026-09-12-04"
+    }
+  ]
+}

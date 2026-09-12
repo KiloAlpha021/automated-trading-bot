@@ -260,7 +260,7 @@ def _verify_complete_atomic_mapping(data, checkpoint):
         assert row["provenance_status"] == "INFERRED"
         expected_status = (
             "INSUFFICIENT_EVIDENCE"
-            if row["id"] in {"IMP-001-M1-01", "IMP-001-M1-14"}
+            if row["id"] in {"IMP-001-M1-14"}
             else "VERIFIED"
         )
         assert record["status"] == expected_status
@@ -309,7 +309,7 @@ def test_complete_atomic_mapping_rejects_invalid_coverage(mutation):
     elif mutation == "duplicate":
         data["rows"].append(copy.deepcopy(data["rows"][0]))
     elif mutation == "status":
-        target = next(row for row in checkpoint["records"] if row["id"] == "IMP-001-M1-01")
+        target = next(row for row in checkpoint["records"] if row["id"] == "IMP-001-M1-14")
         target["status"] = "VERIFIED"
     elif mutation == "deferral":
         target = next(row for row in checkpoint["records"] if row["applicability"] == "EXPLICITLY_DEFERRED")
