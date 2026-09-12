@@ -1,4 +1,4 @@
-"""Verify a blocked assessment using fresh evidence, never a completion gate."""
+"""Verify the M1 assessment state using fresh, non-authoritative evidence."""
 
 import copy
 import hashlib
@@ -99,8 +99,8 @@ def _run_evidence() -> dict:
 
 
 def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
-    assert checkpoint["complete"] is False
-    assert checkpoint["assessment_status"] == "BLOCKED"
+    assert checkpoint["complete"] is True
+    assert checkpoint["assessment_status"] == "COMPLETED"
     assert checkpoint["authorization"] == "NONE"
     assert checkpoint["current_evidence"] == actual, "Recorded evidence differs from fresh execution"
     assert checkpoint["historical_assessments"], "Historical observations lost"
@@ -115,7 +115,7 @@ def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
            if row["status"] in {"INSUFFICIENT_EVIDENCE", "NOT_IMPLEMENTED"}}
     )
     assert checkpoint["unresolved_traceability_ids"] == unresolved, "Unresolved blocker omitted"
-    assert unresolved or "final M1 gate" in checkpoint["stop_reason"], "Blocked checkpoint lacks an unresolved atom or explicit final-gate boundary"
+    assert not unresolved, "Completed checkpoint retains an unresolved atom"
     expected_unassessed = sorted(rows.keys() - assessed.keys())
     assert checkpoint["unassessed_requirement_ids"] == expected_unassessed
     assert checkpoint["parent_set_is_assessed"] is (not expected_unassessed)
@@ -123,11 +123,9 @@ def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
         assert key in checkpoint["stop_reason"], "Stop reason lost actual blocker"
         if key in assessed:
             assert assessed[key]["status"] in {"INSUFFICIENT_EVIDENCE", "NOT_IMPLEMENTED"}
-    if unresolved:
-        assert assessed["IMP-001-M1-02"]["status"] == "INSUFFICIENT_EVIDENCE"
-    else:
-        assert all(record["status"] == "VERIFIED" for record in assessed.values())
-    assert not (ROOT / "docs/m1-closure/closure-manifest.json").exists()
+    assert all(record["status"] == "VERIFIED" for record in assessed.values())
+    assert "M1 exit gate PASS" in checkpoint["stop_reason"]
+    assert (ROOT / "docs/m1-closure/closure-manifest.json").is_file()
 
 
 @pytest.fixture(scope="module")
@@ -166,12 +164,12 @@ def test_evidence_input_hash_rejects_non_text(content, error, tmp_path):
         _checkout_independent_text_sha256(evidence_input)
 
 
-@pytest.mark.parametrize("mutation", ["completion", "blocker", "test_count", "test_outcome", "unassessed", "authority", "promoted_blocker"])
+@pytest.mark.parametrize("mutation", ["completion", "blocker", "test_count", "test_outcome", "unassessed", "authority", "unverified"])
 def test_blocked_checkpoint_rejects_false_observation(evidence, mutation):
     checkpoint, traceability = _inputs()
     checkpoint = copy.deepcopy(checkpoint)
     if mutation == "completion":
-        checkpoint["complete"] = True
+        checkpoint["complete"] = False
     elif mutation == "blocker":
         checkpoint["unresolved_traceability_ids"] = (
             [] if checkpoint["unresolved_traceability_ids"] else ["IMP-001-M1-02"]
@@ -186,7 +184,6 @@ def test_blocked_checkpoint_rejects_false_observation(evidence, mutation):
         checkpoint["authorization"] = "APPROVED"
     else:
         target = next(row for row in checkpoint["records"] if row["id"] == "IMP-001-M1-02")
-        target["status"] = ("VERIFIED" if target["status"] != "VERIFIED"
-                            else "INSUFFICIENT_EVIDENCE")
+        target["status"] = "INSUFFICIENT_EVIDENCE"
     with pytest.raises(AssertionError):
         _verify(checkpoint, traceability, evidence)

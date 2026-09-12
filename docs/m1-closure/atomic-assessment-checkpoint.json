@@ -1,7 +1,7 @@
 {
-  "assessment": "M1 atomic coverage checkpoint",
-  "complete": false,
-  "stop_reason": "All 30 M1 atomic mappings are assessed VERIFIED. This checkpoint remains non-complete because final M1 gate verification is a separate, unauthorized task.",
+  "assessment": "Formal M1 completion checkpoint",
+  "complete": true,
+  "stop_reason": "M1 exit gate PASS. Formal M1 completion is recorded by docs/m1-closure/closure-manifest.json; authorization remains NONE and Stage 2 is not authorized.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -616,7 +616,7 @@
       "status": "VERIFIED",
       "explicit_deferral_source": "Owner decision M1-SCOPE-2026-09-11-01 in docs/m1-closure/M1-scope-clarification.md",
       "smallest_corrective_action": null,
-      "verification_limits": "VERIFIED records only the explicit M1 deferral. It does not claim structured causal telemetry for an executable financial workflow, persistent reconstruction lineage, trace-completeness SLO evidence, runtime transport, or any financial execution capability. IMP-030-M1-07 remains independently unresolved.",
+      "verification_limits": "VERIFIED records only the explicit M1 deferral. It does not claim structured causal telemetry for an executable financial workflow, persistent reconstruction lineage, trace-completeness SLO evidence, runtime transport, or any financial execution capability. IMP-030-M1-07 is independently verified for its separately approved two-source M1 scope.",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
@@ -662,8 +662,8 @@
       "verification_limits": "VERIFIED records only the explicit M1 deferral and enforced non-authority boundary. It does not authenticate evidence, approve a gate, promote a lifecycle stage, validate semantic closure, authorize Stage 2, or claim M1 completion."
     }
   ],
-  "remaining_assessment": "No unresolved atomic findings remain. Final M1 gate verification has not been performed or authorized.",
-  "manifest_validation": "Not run; this checkpoint is not a completion manifest.",
+  "remaining_assessment": "None. All 30 M1 atoms are VERIFIED and the M1 exit gate is PASS.",
+  "manifest_validation": "Required: tests/test_m1_completion.py validates the formal completion manifest, baseline/source binding, complete coverage, deferrals, provenance, reproducibility evidence and non-authority boundary.",
   "historical_assessments": [
     {
       "assessment": "M1 atomic coverage checkpoint",
@@ -34677,7 +34677,7 @@
       ]
     }
   ],
-  "assessment_status": "BLOCKED",
+  "assessment_status": "COMPLETED",
   "authorization": "NONE",
   "current_evidence": {
     "selection": [
