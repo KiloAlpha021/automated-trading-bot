@@ -1,7 +1,7 @@
 {
-  "assessment": "COMPLETED",
-  "complete": true,
-  "stop_reason": "Formal M1 re-closure recorded against db1cd10d3aaf9d20a90b043fd754e4e65145bf3f after independent final exit-gate PASS; authorization remains NONE.",
+  "assessment": "REOPENED",
+  "complete": false,
+  "stop_reason": "M1 reopened after post-closure audit: IMP-001-M1-14 lacks independent hosted enforcement preventing pull-request self-modification of the required CI evaluator.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -939,10 +939,10 @@
         "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence_rejects_weakened_control"
       ],
       "invalid_verification_references": [],
-      "status": "VERIFIED",
+      "status": "INSUFFICIENT_EVIDENCE",
       "explicit_deferral_source": null,
-      "smallest_corrective_action": null,
-      "verification_limits": "Point-in-time hosted observation. This artifact does not itself prevent a later settings change and grants no M1 completion or trading authority.",
+      "smallest_corrective_action": "Configure and prove an independent GitHub-hosted rule that prevents a pull request from modifying the required evaluator and then using that modified evaluator to satisfy the merge gate.",
+      "verification_limits": "Repository workflow tests and least-privilege settings do not solve self-modification. IMP-001-M1-14 remains blocked until independent hosted enforcement is observed and negatively proven.",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json",
         "docs/m1-closure/hosted-branch-protection-evidence.json"
@@ -35168,7 +35168,7 @@
       ]
     }
   ],
-  "assessment_status": "COMPLETED",
+  "assessment_status": "BLOCKED",
   "authorization": "NONE",
   "current_evidence": {
     "selection": [
@@ -36358,13 +36358,15 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "8ec3a34ba149b2dcb1d4218e925ca17ff7f64940d2d7562163462e32d40a7900",
+      "tests/test_closure_traceability.py": "d649660b4554825934b0795001fb34bda7a845204ea8c001f6f9255c548e5fe3",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "2b04208ab871aef2458d24c63f7d2a81b0d919773b4cea5e6971bdbc52848444"
+      "docs/m1-closure/traceability.json": "a69521730320b6357327b9500fc5ee3f7c24fd7168b29490505ba0de37a05bcc"
     }
   },
-  "unresolved_traceability_ids": [],
+  "unresolved_traceability_ids": [
+    "IMP-001-M1-14"
+  ],
   "unassessed_requirement_ids": [],
   "scope_decisions": [
     "M1-SCOPE-2026-09-11-01",
@@ -36379,7 +36381,7 @@
   ],
   "post_closure_audit": {
     "classification": "REOPEN_M1",
-    "audited_completion_revision": "789d7a19d474e77f9b8f1956dea02aea74d7ddd0",
+    "audited_completion_revision": "4a4bfb6879624b1f78cff69b06bba56a8707e66f",
     "historical_completion_manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
     "resolved_findings": [
       {
@@ -36397,7 +36399,15 @@
         "claim": "M1.1, M1.2, M1.3 and M1.7 are atomically represented, and the owner-approved Phase 39.67 replacement provides controlled forward governance for the unrecovered Stage 0B R39 records without claiming recovered wording or semantic equivalence."
       }
     ],
-    "active_blockers": [],
+    "active_blockers": [
+      {
+        "id": "M1-AUDIT-CI-SELF-MODIFICATION",
+        "mapped_requirement": "IMP-001-M1-14",
+        "status": "OPEN",
+        "evidence": "docs/m1-closure/M1-ci-trust-boundary-threat-model.md",
+        "claim": "The required pull-request workflow can currently approve a change that weakened that same evaluator; independent hosted path protection is absent."
+      }
+    ],
     "resolved_findings_provenance": {
       "id": "M1-AUDIT-SPECIFICATION-PROVENANCE",
       "status": "REPAIRED",
@@ -36406,12 +36416,13 @@
     }
   },
   "reclosure": {
-    "status": "COMPLETED",
+    "status": "REOPENED_BY_POST_CLOSURE_AUDIT",
     "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
-    "exit_gate": "PASS",
-    "current_manifest": "docs/m1-closure/closure-manifest.json",
+    "exit_gate": "NOT_PASS",
+    "current_manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json",
     "historical_manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
     "authorization": "NONE",
-    "stage2_authorized": false
+    "stage2_authorized": false,
+    "reopened_manifest": "docs/m1-closure/closure-manifest.json"
   }
 }

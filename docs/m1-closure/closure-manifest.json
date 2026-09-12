@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "milestone_id": "M1",
-  "lifecycle_state": "COMPLETE",
-  "exit_gate": "PASS",
+  "lifecycle_state": "REOPENED",
+  "exit_gate": "NOT_PASS",
   "completed_at": "2026-09-12T19:29:20Z",
   "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
   "governing_specification": {
@@ -15,8 +15,8 @@
     "traceability_atoms": 50,
     "assessment_records": 50,
     "assessment_totals": {
-      "VERIFIED": 50,
-      "INSUFFICIENT_EVIDENCE": 0,
+      "VERIFIED": 49,
+      "INSUFFICIENT_EVIDENCE": 1,
       "FAILED": 0,
       "unassessed": 0
     },
@@ -141,7 +141,7 @@
     "required_approving_review_count": 0,
     "required_status_check": "m1-engineering-foundation",
     "strict": true,
-    "ordinary_contributor_bypass_allowed": false,
+    "ordinary_contributor_bypass_allowed": true,
     "force_pushes_allowed": false,
     "deletions_allowed": false,
     "evidence": "docs/m1-closure/hosted-branch-protection-evidence.json"
@@ -272,17 +272,27 @@
     },
     "current_reclosure": {
       "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
-      "authority": "CURRENT_M1_COMPLETION"
+      "authority": "HISTORICAL_RECLOSURE_REOPENED",
+      "preserved_manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json"
     }
   },
   "future_controlled_obligations_implemented": false,
-  "residual_blockers": [],
+  "residual_blockers": [
+    {
+      "id": "M1-AUDIT-CI-SELF-MODIFICATION",
+      "requirement_id": "IMP-001-M1-14",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "finding": "The pull-request revision can modify the workflow that emits the required m1-engineering-foundation status; zero required approvals and no independent hosted workflow-path control permit the weakened evaluator to satisfy its own merge gate.",
+      "required_resolution": "Add independently hosted enforcement preventing a pull request from both weakening the required evaluator and using that evaluator to satisfy protected-master merge requirements."
+    }
+  ],
   "restrictions": [
     "M1 completion does not authorize Stage 2.",
     "M1 completion does not authorize paper trading.",
     "M1 completion does not authorize live trading.",
     "M1 completion does not authorize broker execution.",
     "M1 completion does not authorize lifecycle promotion or controlled future functionality.",
-    "M1 completion does not claim recovery of original R39 individual semantics."
+    "M1 completion does not claim recovery of original R39 individual semantics.",
+    "M1 is reopened and remains blocked on the hosted CI trust boundary."
   ]
 }

@@ -10,8 +10,10 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "docs/m1-closure/closure-manifest.json"
+MANIFEST = ROOT / "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json"
+REOPENED = ROOT / "docs/m1-closure/closure-manifest.json"
 HISTORICAL = ROOT / "docs/m1-closure/closure-manifest-historical-2026-09-12.json"
+AUDITED_COMPLETION = "4a4bfb6879624b1f78cff69b06bba56a8707e66f"
 BASELINE = "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f"
 HISTORICAL_BASELINE = "8470735a37372a1c5060c59adfcd44d3348f35bb"
 SOURCE = "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7"
@@ -25,11 +27,21 @@ def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _load_at_audited_completion(path: str) -> dict:
+    return json.loads(_git_bytes("show", f"{AUDITED_COMPLETION}:{path}"))
+
+
 def _validate(data: dict) -> None:
-    checkpoint = _load(ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json")
-    traceability = _load(ROOT / "docs/m1-closure/traceability.json")
-    stage0b = _load(ROOT / "docs/m1-closure/stage0b-phase39-67-coverage.json")
-    hosted = _load(ROOT / "docs/m1-closure/hosted-branch-protection-evidence.json")
+    checkpoint = _load_at_audited_completion(
+        "docs/m1-closure/atomic-assessment-checkpoint.json"
+    )
+    traceability = _load_at_audited_completion("docs/m1-closure/traceability.json")
+    stage0b = _load_at_audited_completion(
+        "docs/m1-closure/stage0b-phase39-67-coverage.json"
+    )
+    hosted = _load_at_audited_completion(
+        "docs/m1-closure/hosted-branch-protection-evidence.json"
+    )
     assert data["schema_version"] == 2
     assert data["milestone_id"] == "M1"
     assert data["lifecycle_state"] == "COMPLETE"
@@ -130,7 +142,9 @@ def _validate(data: dict) -> None:
     assert exact["run_id"] == 34711110258
     assert exact["source"].startswith("Authenticated GitHub REST API")
 
-    owner_manifest = _load(ROOT / "docs/m1-closure/owner-dispositions.json")
+    owner_manifest = _load_at_audited_completion(
+        "docs/m1-closure/owner-dispositions.json"
+    )
     assert data["evidence"]["owner_dispositions"] == [
         item["decision_id"] for item in owner_manifest["decisions"]
     ]
@@ -201,7 +215,31 @@ def test_historical_manifest_byte_identity_is_checkout_invariant() -> None:
 
 
 def test_m1_completion_manifest_is_valid_and_attributable() -> None:
+    assert MANIFEST.read_bytes() == _git_bytes(
+        "show", f"{AUDITED_COMPLETION}:docs/m1-closure/closure-manifest.json"
+    )
     _validate(_load(MANIFEST))
+
+
+def test_current_manifest_truthfully_records_reopened_m1() -> None:
+    data = _load(REOPENED)
+    checkpoint = _load(ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json")
+    assert data["lifecycle_state"] == "REOPENED"
+    assert data["exit_gate"] == "NOT_PASS"
+    assert data["authorization"] == "NONE"
+    assert data["coverage"]["assessment_totals"] == {
+        "VERIFIED": 49,
+        "INSUFFICIENT_EVIDENCE": 1,
+        "FAILED": 0,
+        "unassessed": 0,
+    }
+    assert data["residual_blockers"][0]["requirement_id"] == "IMP-001-M1-14"
+    assert data["hosted_protection"]["ordinary_contributor_bypass_allowed"] is True
+    assert checkpoint["complete"] is False
+    assert checkpoint["assessment_status"] == "BLOCKED"
+    assert checkpoint["authorization"] == "NONE"
+    assert checkpoint["unresolved_traceability_ids"] == ["IMP-001-M1-14"]
+    assert checkpoint["reclosure"]["stage2_authorized"] is False
 
 
 @pytest.mark.parametrize(

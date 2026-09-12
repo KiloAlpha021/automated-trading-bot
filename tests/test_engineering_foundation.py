@@ -12,6 +12,9 @@ from scripts import m1_engineering_foundation as foundation
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CHECKOUT = "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2"
+SETUP_PYTHON = "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0"
+UPLOAD_ARTIFACT = "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2"
 
 
 def _configuration() -> tuple[str, str, str, str]:
@@ -38,12 +41,16 @@ def _validate(version: str, project: str, bootstrap: str, workflow: str) -> None
     assert ".venv\\Scripts" not in bootstrap
     assert not re.search(r"[A-Z]:\\Users\\", bootstrap)
     assert "name: m1-engineering-foundation" in workflow
+    assert re.search(r"(?m)^permissions:\r?\n  contents: read\r?$", workflow)
+    assert not re.search(r"(?m)^\s+[a-z-]+: write\s*(?:#.*)?$", workflow)
     assert re.search(
-        r"(?m)^      - uses: actions/checkout@v4\r?\n"
+        rf"(?m)^      - uses: {re.escape(CHECKOUT)}\r?\n"
         r"        with:\r?\n"
         r"          fetch-depth: 0\r?$",
         workflow,
     )
+    assert f"uses: {SETUP_PYTHON}" in workflow
+    assert f"uses: {UPLOAD_ARTIFACT}" in workflow
     assert "python-version: 3.12.10" in workflow
     assert "./scripts/bootstrap.ps1" in workflow
     assert "continue-on-error" not in workflow
@@ -64,6 +71,11 @@ def test_engineering_foundation_contract() -> None:
         (3, "python-version: 3.12.10", "python-version: 3.13"),
         (3, "fetch-depth: 0", "fetch-depth: 1"),
         (3, "          fetch-depth: 0\n", ""),
+        (3, "permissions:\n  contents: read\n", ""),
+        (3, "contents: read", "contents: write"),
+        (3, CHECKOUT, "actions/checkout@v4"),
+        (3, SETUP_PYTHON, "actions/setup-python@v5"),
+        (3, UPLOAD_ARTIFACT, "actions/upload-artifact@v4"),
         (3, "name: m1-engineering-foundation", "name: checks"),
         (3, "run: ./scripts/bootstrap.ps1", "continue-on-error: true\n        run: ./scripts/bootstrap.ps1"),
     ],
@@ -82,13 +94,38 @@ def test_lock_rejects_unhashed_or_machine_local_dependencies() -> None:
     assert not any(token in lock for token in ("file:", "-e ", "C:\\Users\\"))
 
 
-def test_required_control_invocations_are_fatal() -> None:
-    runner = (ROOT / "scripts/m1_engineering_foundation.py").read_text()
+def _validate_runner(runner: str) -> None:
     assert "check=True" in runner
-    for invocation in ('"ruff"', '"mypy"', '"coverage"', '"pytest"', '"pip_audit"'):
+    for invocation in (
+        '"ruff"', '"mypy"', '"coverage", "run"', '"pytest"', '"pip_audit"'
+    ):
         assert invocation in runner
     assert '"coverage", "xml"' in runner
     assert "tests/test_closure_security.py" in runner
+
+
+def test_required_control_invocations_are_fatal() -> None:
+    _validate_runner((ROOT / "scripts/m1_engineering_foundation.py").read_text())
+
+
+@pytest.mark.parametrize(
+    ("required", "replacement"),
+    [
+        ('"ruff"', '"python"'),
+        ('"mypy"', '"python"'),
+        ('"coverage", "run"', '"coverage", "erase"'),
+        ('"pip_audit"', '"pip"'),
+        ('"tests/test_closure_security.py"', '"tests/test_smoke.py"'),
+    ],
+)
+def test_engineering_runner_rejects_removed_required_control(
+    required: str, replacement: str
+) -> None:
+    runner = (ROOT / "scripts/m1_engineering_foundation.py").read_text()
+    weakened = runner.replace(required, replacement)
+    assert weakened != runner
+    with pytest.raises(AssertionError):
+        _validate_runner(weakened)
 
 
 def test_bootstrap_checks_every_native_command() -> None:
