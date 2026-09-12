@@ -1,0 +1,288 @@
+{
+  "schema_version": 2,
+  "milestone_id": "M1",
+  "lifecycle_state": "COMPLETE",
+  "exit_gate": "PASS",
+  "completed_at": "2026-09-12T19:29:20Z",
+  "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
+  "governing_specification": {
+    "title": "Implementation Specification v1.0",
+    "sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7"
+  },
+  "authorization": "NONE",
+  "authority_statement": "M1 completion records evidence only. It grants no trading authority, no broker authority, no execution authority, no Stage 2 authority, and no later-stage lifecycle authority.",
+  "coverage": {
+    "traceability_atoms": 50,
+    "assessment_records": 50,
+    "assessment_totals": {
+      "VERIFIED": 50,
+      "INSUFFICIENT_EVIDENCE": 0,
+      "FAILED": 0,
+      "unassessed": 0
+    },
+    "required_parent_imps": [
+      "IMP-001",
+      "IMP-002",
+      "IMP-003",
+      "IMP-004",
+      "IMP-009",
+      "IMP-010",
+      "IMP-026",
+      "IMP-029",
+      "IMP-030",
+      "IMP-033"
+    ],
+    "atom_ids": [
+      "IMP-001-M1-01",
+      "IMP-001-M1-02",
+      "IMP-001-M1-03",
+      "IMP-001-M1-04",
+      "IMP-001-M1-05",
+      "IMP-001-M1-06",
+      "IMP-001-M1-07",
+      "IMP-001-M1-08",
+      "IMP-001-M1-09",
+      "IMP-001-M1-10",
+      "IMP-001-M1-11",
+      "IMP-001-M1-12",
+      "IMP-001-M1-13",
+      "IMP-001-M1-14",
+      "IMP-001-M1-15",
+      "IMP-001-M1-16",
+      "IMP-001-M1-17",
+      "IMP-001-M1-18",
+      "IMP-001-M1-19",
+      "IMP-001-M1-20",
+      "IMP-001-M1-21",
+      "IMP-001-M1-22",
+      "IMP-002-M1-01",
+      "IMP-002-M1-02",
+      "IMP-003-M1-01",
+      "IMP-003-M1-02",
+      "IMP-004-M1-01",
+      "IMP-004-M1-02",
+      "IMP-004-M1-03",
+      "IMP-009-M1-01",
+      "IMP-009-M1-02",
+      "IMP-010-M1-01",
+      "IMP-026-M1-01",
+      "IMP-026-M1-02",
+      "IMP-026-M1-03",
+      "IMP-026-M1-04",
+      "IMP-029-M1-01",
+      "IMP-029-M1-02",
+      "IMP-029-M1-03",
+      "IMP-029-M1-04",
+      "IMP-030-M1-01",
+      "IMP-030-M1-02",
+      "IMP-030-M1-03",
+      "IMP-030-M1-04",
+      "IMP-030-M1-05",
+      "IMP-030-M1-06",
+      "IMP-030-M1-07",
+      "IMP-033-M1-01",
+      "IMP-033-M1-02",
+      "IMP-033-M1-03"
+    ],
+    "explicitly_deferred_atoms": [
+      {
+        "id": "IMP-029-M1-04",
+        "requirement": "Implement executable secret providers, production credential paths, and production/service-identity least-privilege lifecycle controls.",
+        "source": "Owner M1-SCOPE-2026-09-11-01 IMP-029; Implementation Specification section 18.5.",
+        "limits": "Verified disposition only. No executable provider, production credential integration, service identity, or credential lifecycle is implemented or claimed."
+      },
+      {
+        "id": "IMP-004-M1-03",
+        "requirement": "Implement production exchange calendar/session/holiday/early-close service.",
+        "source": "M1-SCOPE-2026-09-11-02; Implementation Specification v1.0 section 9 Stage 3 and GATE-S03-01",
+        "limits": "VERIFIED records only the attributable M1 scope disposition. It does not claim that any exchange calendar, session, holiday, early-close, DST-session, freshness, quarantine or point-in-time integrity functionality is implemented or tested."
+      },
+      {
+        "id": "IMP-009-M1-02",
+        "requirement": "Persist/revoke/revalidate executable authority against current external evidence.",
+        "source": "Implementation Specification v1.0 sections 4.1, 8, 9 and 11 M1.6",
+        "limits": "VERIFIED records only the explicit M1 scope disposition. It does not claim persistence, runtime revocation, current external-evidence acquisition/revalidation, risk/compliance approval, OMS authority or executable permission. Those later controls remain required at their canonical stages."
+      },
+      {
+        "id": "IMP-026-M1-02",
+        "requirement": "Implement transactional outbox and restart-safe event history.",
+        "source": "Owner decision M1-SCOPE-2026-09-11-01 in docs/m1-closure/M1-scope-clarification.md",
+        "limits": "VERIFIED records only the explicit M1 deferral. It does not claim a transactional outbox/inbox, persistent EventId history, restart/failover durability, handler-version consumption recording, reconstruction, resumption or runtime database enforcement."
+      },
+      {
+        "id": "IMP-030-M1-02",
+        "requirement": "Emit structured causal telemetry for running financial workflows.",
+        "source": "Owner decision M1-SCOPE-2026-09-11-01 in docs/m1-closure/M1-scope-clarification.md",
+        "limits": "VERIFIED records only the explicit M1 deferral. It does not claim structured causal telemetry for an executable financial workflow, persistent reconstruction lineage, trace-completeness SLO evidence, runtime transport, or any financial execution capability. IMP-030-M1-07 is independently verified for its separately approved two-source M1 scope."
+      },
+      {
+        "id": "IMP-033-M1-03",
+        "requirement": "Authenticate evidence and implement lifecycle promotion authority.",
+        "source": "Implementation Specification v1.0 section 10.1 and accepted M1.8 scope in docs/M1.8-evidence.md",
+        "limits": "VERIFIED records only the explicit M1 deferral and enforced non-authority boundary. It does not authenticate evidence, approve a gate, promote a lifecycle stage, validate semantic closure, authorize Stage 2, or claim M1 completion."
+      }
+    ]
+  },
+  "stage0b": {
+    "classification": "PASS_WITH_CONTROLLED_LEGACY_PROVENANCE",
+    "mandatory_disclosure": "ORIGINAL R39 INDIVIDUAL SEMANTICS NOT RECOVERED",
+    "legacy_id_count": 36,
+    "forward_governance_parent_count": 8,
+    "forward_governance_atom_count": 17,
+    "m1_verified_atoms": 8,
+    "future_not_implemented_atoms": 9,
+    "original_r39_semantics_recovered": false,
+    "semantic_equivalence_claimed": false
+  },
+  "hosted_protection": {
+    "repository": "KiloAlpha21/automated-trading-bot",
+    "branch": "master",
+    "pull_request_required": true,
+    "required_approving_review_count": 0,
+    "required_status_check": "m1-engineering-foundation",
+    "strict": true,
+    "ordinary_contributor_bypass_allowed": false,
+    "force_pushes_allowed": false,
+    "deletions_allowed": false,
+    "evidence": "docs/m1-closure/hosted-branch-protection-evidence.json"
+  },
+  "hosted_exact_head_ci": {
+    "head_sha": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
+    "check": "m1-engineering-foundation",
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 34711110258,
+    "job_id": 103599959040,
+    "url": "https://github.com/KiloAlpha21/automated-trading-bot/actions/runs/34711110258/job/103599959040",
+    "observed_at": "2026-09-12T19:29:20Z",
+    "source": "Authenticated GitHub REST API final exit-gate observation"
+  },
+  "verification": {
+    "engineering_foundation": "PASS",
+    "fresh_environment": {
+      "result": "PASS",
+      "python": "3.12.10",
+      "lockfile": "requirements-dev.lock",
+      "index": "https://pypi.org/simple",
+      "require_hashes": true,
+      "no_cache": true,
+      "exact_revision": true
+    },
+    "dependencies": {
+      "ast-serialize": "0.11.1",
+      "boolean-py": "5.0",
+      "cachecontrol": "0.14.4",
+      "certifi": "2026.7.22",
+      "charset-normalizer": "3.5.1",
+      "colorama": "0.4.6",
+      "coverage": "7.16.0",
+      "cyclonedx-python-lib": "11.12.0",
+      "defusedxml": "0.7.1",
+      "filelock": "3.32.6",
+      "idna": "3.19",
+      "iniconfig": "2.3.0",
+      "librt": "0.15.0",
+      "license-expression": "30.4.4",
+      "markdown-it-py": "4.2.0",
+      "mdurl": "0.1.2",
+      "msgpack": "1.2.2",
+      "mypy": "2.3.1",
+      "mypy-extensions": "1.1.0",
+      "packageurl-python": "0.17.6",
+      "packaging": "26.3",
+      "pathspec": "1.1.1",
+      "pip": "26.2.1",
+      "pip-api": "0.0.35",
+      "pip-audit": "2.10.1",
+      "pip-requirements-parser": "32.0.1",
+      "platformdirs": "4.11.8",
+      "pluggy": "1.6.0",
+      "py-serializable": "2.1.0",
+      "pygments": "2.21.0",
+      "pyparsing": "3.3.2",
+      "pytest": "9.1.1",
+      "requests": "2.34.2",
+      "rich": "15.0.0",
+      "ruff": "0.16.7",
+      "setuptools": "84.0.0",
+      "sortedcontainers": "2.4.0",
+      "tomli": "2.4.1",
+      "tomli-w": "1.2.0",
+      "typing-extensions": "4.16.0",
+      "urllib3": "2.7.0"
+    },
+    "pip_check": "PASS",
+    "pip_audit": "PASS",
+    "m1_3": {
+      "passed": 152,
+      "failed": 0
+    },
+    "m1_7": {
+      "passed": 33,
+      "failed": 0
+    },
+    "safety_authority": "PASS",
+    "m1_acceptance": {
+      "passed": 758,
+      "failed": 0
+    },
+    "full_regression": {
+      "passed": 791,
+      "failed": 0
+    },
+    "closure_provenance": {
+      "passed": 116,
+      "failed": 0
+    },
+    "ruff": "PASS",
+    "strict_mypy": "PASS"
+  },
+  "evidence": {
+    "repository_artifacts": [
+      "docs/baseline/specification-provenance.json",
+      "docs/m1-closure/traceability.json",
+      "docs/m1-closure/atomic-assessment-checkpoint.json",
+      "docs/m1-closure/owner-dispositions.json",
+      "docs/m1-closure/stage0b-phase39-67-coverage.json",
+      "docs/m1-closure/hosted-branch-protection-evidence.json",
+      "requirements-dev.lock"
+    ],
+    "owner_dispositions": [
+      "M1-SCOPE-2026-09-11-01",
+      "M1-SCOPE-2026-09-11-02",
+      "M1-SCOPE-2026-09-11-03",
+      "M1-SCOPE-2026-09-11-04",
+      "M1-SCOPE-2026-09-11-05",
+      "M1-SCOPE-2026-09-12-01",
+      "M1-SCOPE-2026-09-12-02",
+      "M1-SCOPE-2026-09-12-03",
+      "M1-SCOPE-2026-09-12-04"
+    ]
+  },
+  "lineage": {
+    "original_closure": {
+      "manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
+      "baseline_revision": "8470735a37372a1c5060c59adfcd44d3348f35bb",
+      "sha256": "bd201775ed5d9fd9d7cd1f42bfe0f5418259622071f1102f1cfd71a6c84ce3d0",
+      "status": "HISTORICAL_SUPERSEDED"
+    },
+    "reopened_remediation": {
+      "audit_revision": "789d7a19d474e77f9b8f1956dea02aea74d7ddd0",
+      "classification": "REOPEN_M1"
+    },
+    "current_reclosure": {
+      "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
+      "authority": "CURRENT_M1_COMPLETION"
+    }
+  },
+  "future_controlled_obligations_implemented": false,
+  "residual_blockers": [],
+  "restrictions": [
+    "M1 completion does not authorize Stage 2.",
+    "M1 completion does not authorize paper trading.",
+    "M1 completion does not authorize live trading.",
+    "M1 completion does not authorize broker execution.",
+    "M1 completion does not authorize lifecycle promotion or controlled future functionality.",
+    "M1 completion does not claim recovery of original R39 individual semantics."
+  ]
+}
