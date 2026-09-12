@@ -28,6 +28,17 @@ SELECTION = [
     "tests/test_closure_traceability.py::test_identity_precedence_rejects_changed_evidence",
 ]
 
+INPUT_HASH_MODEL = "sha256:utf8:newlines-lf:v1"
+
+
+def _checkout_independent_text_sha256(path: Path) -> str:
+    raw = path.read_bytes()
+    if b"\x00" in raw:
+        raise ValueError(f"Evidence input is not text: {path}")
+    text = raw.decode("utf-8")
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
 
 def _run_evidence() -> dict:
     with tempfile.TemporaryDirectory(prefix="m1-evidence-") as directory:
@@ -79,7 +90,11 @@ def _run_evidence() -> dict:
         "selection": SELECTION,
         "test_cases": sorted(cases),
         "passed": len(cases), "failed": 0,
-        "input_sha256": {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs},
+        "input_hash_model": INPUT_HASH_MODEL,
+        "input_sha256": {
+            p.relative_to(ROOT).as_posix(): _checkout_independent_text_sha256(p)
+            for p in inputs
+        },
     }
 
 
@@ -129,6 +144,26 @@ def _inputs():
 
 def test_blocked_checkpoint_matches_current_evidence(evidence):
     _verify(*_inputs(), evidence)
+
+
+def test_evidence_input_hash_is_checkout_independent_and_content_sensitive(tmp_path):
+    lf = tmp_path / "lf.txt"
+    crlf = tmp_path / "crlf.txt"
+    changed = tmp_path / "changed.txt"
+    lf.write_bytes(b"first\nsecond\n")
+    crlf.write_bytes(b"first\r\nsecond\r\n")
+    changed.write_bytes(b"first\nchanged\n")
+
+    assert _checkout_independent_text_sha256(lf) == _checkout_independent_text_sha256(crlf)
+    assert _checkout_independent_text_sha256(lf) != _checkout_independent_text_sha256(changed)
+
+
+@pytest.mark.parametrize("content,error", [(b"bad\x00text", ValueError), (b"\xff", UnicodeDecodeError)])
+def test_evidence_input_hash_rejects_non_text(content, error, tmp_path):
+    evidence_input = tmp_path / "input"
+    evidence_input.write_bytes(content)
+    with pytest.raises(error):
+        _checkout_independent_text_sha256(evidence_input)
 
 
 @pytest.mark.parametrize("mutation", ["completion", "blocker", "test_count", "test_outcome", "unassessed", "authority", "promoted_blocker"])
