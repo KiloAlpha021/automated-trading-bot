@@ -4,6 +4,7 @@ import copy
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -19,9 +20,17 @@ def _load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _locked_dependencies() -> dict[str, str]:
+def _baseline_locked_dependencies() -> dict[str, str]:
     result = {}
-    for line in (ROOT / "requirements-dev.lock").read_text(encoding="utf-8").splitlines():
+    lock = subprocess.run(
+        ["git", "show", f"{BASELINE}:requirements-dev.lock"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    ).stdout
+    for line in lock.splitlines():
         if not line or line.startswith("#"):
             continue
         name, version = line.split()[0].split("==", 1)
@@ -96,7 +105,7 @@ def _validate(data: dict) -> None:
         assert (ROOT / reference).is_file()
     assert data["reproducibility"]["python"] == "3.12.10"
     assert data["reproducibility"]["lockfile"] == "requirements-dev.lock"
-    assert data["reproducibility"]["dependencies"] == _locked_dependencies()
+    assert data["reproducibility"]["dependencies"] == _baseline_locked_dependencies()
     assert data["reproducibility"]["pip_check"] == "PASS"
     assert data["test_results"] == {
         "m1_acceptance": {"passed": 585, "failed": 0},
