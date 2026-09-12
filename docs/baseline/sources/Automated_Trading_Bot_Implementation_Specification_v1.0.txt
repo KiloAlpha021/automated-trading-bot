@@ -1,0 +1,1134 @@
+AUTOMATED TRADING BOT
+Implementation Specification v1.0
+Baseline and Build Decomposition
+Controlled engineering translation of Technical Design v1.3Master Audit Closure v1.4 CorrectedMaster Invariant Register v1.4 (R41-CI001-R41-CI113)
+STATUS: STAGE 0A BASELINE ESTABLISHED • STAGE 0B TRACEABILITY CLOSURE PENDING
+LIVE TRADING NOT AUTHORIZED
+Version 1.0 • 9 September 2026 • Controlled baseline
+Document Control
+Field
+Value
+Document
+Automated Trading Bot Implementation Specification v1.0
+Deliverable
+Baseline and Build Decomposition
+Canonical lineage
+Technical Design v1.3 → Master Audit Closure v1.4 Corrected → Master Invariant Register v1.4
+Audit status
+Phases through 41 completed and accepted; no Phase 42 required absent a defined reopen trigger
+Certification boundary
+Architectural consistency PASS; implementation verification PENDING EVIDENCE
+Permitted lifecycle state
+Governed, isolated, non-executable research preparation only
+Not authorized
+Shadow, paper, canary, production and live-capital execution
+Initial trading scope
+Liquid US-listed equities; broad-market and sector ETFs; daily primary timeframe
+Implementation language
+Python
+Storage direction
+PostgreSQL operational/event state; immutable Parquet/Arrow analytical datasets
+Review cadence
+At each milestone gate and upon a material change trigger
+Precedence and change rule
+Later canonical corrective wording supersedes weaker predecessor wording while preserving historical provenance. Implementation discoveries reopen only the affected scope unless they invalidate broad architectural assumptions. A new conceptual audit phase is not created merely because implementation begins.
+Document status legend
+Status
+Meaning
+CONFIRMED
+Directly supported by the accepted canonical baseline.
+RECONSTRUCTED
+Consistent consolidation where exact historical wording is unavailable; not represented as verbatim.
+INFERRED
+Engineering detail required to make a confirmed requirement implementable.
+UNRESOLVED
+Requires future evidence or a material user/external decision.
+1. Accepted Baseline and Implementation Boundary
+1.1 Baseline acceptance
+Implementation begins from the accepted design and audit baseline. Earlier audit work is not restarted, repeated, renumbered or treated as incomplete solely because all verbatim historical text is not immediately available. R41-CI001-R41-CI113 form the mandatory cross-cutting invariant layer and supplement all surviving earlier audit invariants, including R39-I353-R39-I388.
+1.2 In scope
+Engineering contracts, Python package boundaries and dependency rules.
+Canonical domain and event models, state machines and persistence ownership.
+Market data, time/calendar, corporate actions and point-in-time research controls.
+Strategy-proposal, economics, portfolio, risk, capital, OMS, broker, ledger and reconciliation components.
+Runtime, recovery, security, observability, audit evidence, deployment and lifecycle gates.
+Concurrent test design: unit, property, component, integration, failure, recovery, idempotency, race and acceptance tests.
+1.3 Explicitly out of scope for this baseline
+Real-money broker credentials, live submissions or any live-capital transaction.
+Final broker selection or production account configuration. IBKR remains a leading candidate, not a binding implementation dependency.
+A claim of profitability, legal/regulatory clearance, broker certification or production readiness.
+Premature expansion beyond the initial liquid US equities and ETF universe or into high-frequency trading.
+Strategy sophistication before the platform safety, accounting and evidence chain is verified.
+2. Core Implementation Invariants
+ID
+Short name
+Canonical implementation rule
+Source
+IMPL-I001
+Positive authority
+Every exposure-increasing financial action requires current, scoped, independently enforceable and evidence-backed authorization; absence of failure is insufficient.
+R41-CI001
+IMPL-I002
+UNKNOWN fails safe
+UNKNOWN, stale, incomplete, conflicting or unverifiable critical state cannot authorize; it triggers NO-TRADE, rejection, quarantine or restriction.
+R41-CI001, CI027
+IMPL-I003
+Intent is not execution
+Signal, decision, portfolio intent, approval, reservation or internal order never proves broker submission, acceptance or execution.
+R41-CI015
+IMPL-I004
+Authority separation
+Strategies only propose. Exposure increase passes data, integrity, economics, portfolio, capital, risk/compliance, account and operational gates.
+R41-CI029-CI036
+IMPL-I005
+Dual truth and reconciliation
+Internal history governs intent/audit; broker evidence governs external execution/account reality; reconciliation joins them without manufacturing agreement.
+R41-CI011-CI013
+IMPL-I006
+End-to-end idempotency
+Financial identity and deduplication survive retries, queues, services, restarts and failovers.
+R41-CI017, CI020
+IMPL-I007
+Submission ambiguity persists
+Unknown submission, cancel, replace or fill state is durable and blocks economically equivalent resubmission or uncertain exposure increase.
+40.02-I003, R41-CI016-CI019
+IMPL-I008
+Reservations follow uncertainty
+Capital and risk reservations follow maximum unresolved liability and cannot be released on local timeout or failure alone.
+R41-CI003, CI021
+IMPL-I009
+Replay is non-executable
+Recovery and replay rebuild evidence/state but cannot create fresh financial authority or resubmit historical work.
+R41-CI022
+IMPL-I010
+Recovery requires current truth
+Restart, failover or restore requires integrity, fencing, time, broker and financial reconciliation before exposure increase.
+R41-CI004, CI041
+IMPL-I011
+Effectively-once authoritative accounting consequence
+Delivery may be at-least-once. Every fill, fee, cash movement, FX conversion and corporate action must produce one attributable authoritative accounting effect through durable identity, deduplication, idempotent application, fencing and reconciliation.
+R41-CI008-CI010
+IMPL-I012
+Corrections preserve history
+Corrections are linked additive/reversing evidence; authoritative financial history is never silently overwritten.
+R41-CI010
+IMPL-I013
+Decision-bound lineage
+Executable decisions bind exact data, calendar, corporate-action, strategy, model, feature, config and release identities.
+R41-CI025, CI029, CI040
+IMPL-I014
+Freshness is dependency-wide
+Expiry or material dependency change invalidates authority; economic permission is recalculated when assumptions change.
+R41-CI026, CI031, CI034
+IMPL-I015
+NO-TRADE is terminally preserved
+A valid NO-TRADE cannot become a trade through retry, fallback, downstream expectation or operator pressure.
+R41-CI035
+IMPL-I016
+Containment remains bounded
+Kill, cancel, restriction and de-risk actions are idempotent and cannot assume broker effects disappeared.
+R41-CI002, CI006-CI007
+IMPL-I017
+Security and finance are independent
+Financial agreement does not prove software, identity or credential integrity; credible compromise revokes affected authority.
+R41-CI037-CI045
+IMPL-I018
+Environment non-executability
+Development, research, backtest and replay cannot possess usable production trading authority.
+R41-CI043
+IMPL-I019
+Current fenced writer only
+Financial writes and side-effect requests require monotonic fencing/authority evidence; stale or unfenced writers are rejected.
+40.04-I001
+IMPL-I020
+Promotion is evidence-gated
+No lifecycle stage approves the next; promotion requires current machine-checkable evidence and explicit authorization.
+40.07-I002, R41-CI001
+3. Requirement Identification and Traceability
+Stable requirement IDs use IMP-NNN. Implementation invariants use IMPL-INNN and never replace or renumber audit invariants. Tests use TST-<component>-NNN; schemas EVT- or DB-; architectural decisions ADR-NNN; risks RISK-NNN; gates GATE-S<n>-NN. Every mandatory requirement terminates in a control, verification method, objective evidence and lifecycle gate.
+Identifier
+Purpose
+Example
+IMP-NNN
+Atomic implementation requirement
+IMP-047 implements R41-CI016.
+IMPL-INNN
+Cross-cutting machine-enforced invariant
+IMPL-I007: submission ambiguity persists.
+TST-AREA-NNN
+Test case or property
+TST-OMS-014: timeout-after-acceptance.
+EVT-NNN
+Versioned event contract
+EVT-021 OrderSubmissionUnknown v1.
+DB-NNN
+Table/schema/migration contract
+DB-014 broker_submission_attempt.
+ADR-NNN
+Governed implementation decision
+ADR-003 Decimal representation.
+GATE-SN-NN
+Lifecycle promotion criterion
+GATE-S01-04 CI green.
+EVID-NNN
+Objective evidence artifact
+EVID-008 property-test report.
+3.1 Required traceability record
+Field
+Rule
+Requirement/invariant ID
+Stable and never reused.
+Source
+Canonical section/invariant or status qualifier.
+Requirement
+Atomic, testable plain-language statement.
+Component/module
+Single owner; dependencies separately recorded.
+Schema impact
+Event, table, migration and version.
+Tests
+Positive, negative and failure-path coverage.
+Monitoring/control
+Metric, alert, mode restriction or runbook.
+Evidence
+Machine-generated or independently reviewable artifact.
+Status
+Proposed → Specified → Implemented → Verified → Accepted; Blocked allowed.
+Dependencies
+Explicit requirement, component or external decision.
+4. Implementation Architecture
+The default is a modular monolith with strict package boundaries and an in-process durable event workflow for early stages. This reduces distributed-systems failure modes while preserving contracts that permit later service extraction. No package may call a broker SDK except the broker adapter; no strategy may call OMS or broker directly.
+Layer
+Responsibilities
+May depend on
+Must not do
+Contracts
+IDs, money, quantities, timestamps, enums, commands/events
+Standard library, validation primitives
+I/O or business orchestration
+Data
+Instrument master, calendars, bars, corporate actions, quality
+Contracts, persistence ports
+Authorize trading
+Research
+Datasets, features, experiments, backtest
+Contracts, data, economics simulation
+Possess production authority
+Decision
+Strategy proposals, economics, portfolio construction
+Contracts, validated snapshots
+Call broker or mutate ledger
+Authorization
+Capital reservations, risk/compliance/operational gates
+Contracts, current portfolio/account state
+Assume UNKNOWN is safe
+Execution
+OMS state machines and broker adapter
+Contracts, authorization evidence
+Bypass current authorization
+Financial truth
+Positions, lots, ledger, reconciliation
+Broker evidence, contracts, persistence
+Rewrite history to force agreement
+Platform
+Runtime, persistence, audit, observability, security, config
+Contracts
+Embed strategy-specific authority
+4.1 Exposure-increase authorization chain
+Validated point-in-time market/reference snapshot and trustworthy clock.
+Verified strategy/model/feature/config/release identity; fresh proposal.
+Economic evaluation with expected net edge, costs, liquidity, capacity and uncertainty.
+Current portfolio construction using positions, pending orders, unresolved effects and opportunity cost.
+Atomic capital/risk reservation and independent risk/compliance/operational approval.
+OMS order creation with idempotency key, bound approvals and final pre-submit revalidation.
+Broker submission through the sole adapter, followed by durable lifecycle evidence.
+Fill → position/lot → ledger → broker/account reconciliation.
+Any failed or unknown mandatory gate produces NO-TRADE, rejection, quarantine or an operational restriction. Containment/de-risk actions follow a separate bounded authority path and do not require positive economic edge.
+5. Repository and Package Structure
+automated-trading-bot/
+  pyproject.toml              # Python/tooling policy; locked by uv.lock
+  uv.lock
+  README.md  SECURITY.md  CONTRIBUTING.md
+  .python-version             # Python 3.12.x baseline
+  .pre-commit-config.yaml
+  config/                     # typed non-secret defaults and schemas
+    development/ test/ research/ paper/ production/
+  migrations/                 # Alembic; forward and tested recovery plans
+  src/trading_bot/
+    contracts/                # IDs, Money, Quantity, enums, commands, events
+    time/                     # Clock protocol, UTC, sessions, calendars
+    instruments/              # security master and venue metadata
+    market_data/              # ingest, normalize, validate, quality
+    corporate_actions/        # point-in-time actions and adjustments
+    research/                 # dataset/experiment registry, PIT builders
+    features/                 # versioned feature contracts/pipelines
+    strategies/               # proposal-only interface and benchmarks
+    models/                   # artifacts, compatibility and inference
+    economics/                # edge, costs, liquidity, capacity, uncertainty
+    portfolio/                # targets, allocation, constraints, attribution
+    risk/                     # independent authorization and vetoes
+    capital/                  # cash, BP, margin, collateral, reservations
+    oms/                      # orders, submissions, cancel/replace, fencing
+    broker/                   # canonical port; deterministic simulator/mock/fault-injection adapters through Stage 10
+    positions/                # quantities, lots, cost basis, P&L
+    ledger/                   # immutable postings and conservation
+    reconciliation/           # discrepancies, confidence, corrections
+    runtime/                  # event loop, scheduling, checkpoint, replay
+    persistence/              # repositories, UoW, PostgreSQL, Parquet
+    audit/                    # causal lineage and evidence manifests
+    observability/            # logs, metrics, traces, health, alerts
+    security/                 # policy, RBAC, secrets ports, integrity
+    operations/               # modes, kill/restrict, controlled commands
+    config/                   # typed/versioned settings and epochs
+  tests/
+    unit/ property/ contract/ component/ integration/
+    recovery/ concurrency/ fault_injection/ simulation/ acceptance/
+  tools/                      # non-production admin and evidence tooling
+  docs/                       # specs, ADRs, runbooks and catalogues
+  deploy/                     # containers, CI, manifests; no secrets
+5.1 Foundation defaults
+Area
+Baseline decision
+Control
+Python
+CPython 3.12.x, pinned patch in CI/release
+Version drift fails preflight.
+Packaging
+pyproject.toml plus uv lockfile
+Frozen hashes in release evidence.
+Quality
+Ruff formatting/linting, mypy strict core, pytest
+CI blocking checks.
+Models
+Frozen dataclasses or Pydantic v2 at trust boundaries
+Versioned schemas and rejection of unknown invalid data.
+Money
+Decimal with explicit currency and rounding policy
+No binary floating point for authoritative finance.
+Database
+PostgreSQL; Alembic migrations
+Transactional outbox and append-only constraints.
+Analytics
+Immutable versioned Parquet/Arrow datasets
+Content hashes and point-in-time manifests.
+Secrets
+Injected secret-provider interface; never config/source
+Environment- and privilege-scoped.
+Local profile
+Resource-conscious single-process services
+Production remains separately deployable.
+6. Canonical Contracts and State Ownership
+6.1 Identity primitives
+Primitive
+Representation/constraint
+AggregateId
+UUIDv7 preferred; globally unique and time-sortable without implying event order.
+IdempotencyKey
+Opaque, stable across retries; scoped by operation and authority epoch.
+CorrelationId / CausationId
+Required on financially material commands/events.
+EventId
+Globally unique; durable deduplication key.
+BrokerOrderRef / BrokerFillRef
+Broker-native identity plus broker/account/venue scope.
+VersionId
+Immutable content-addressed or explicit semantic identity.
+AuthorityEpoch / FenceToken
+Monotonic per protected side-effect domain.
+Timestamp
+Timezone-aware UTC instant; source, precision and uncertainty recorded where material.
+Money
+Decimal amount plus ISO currency; explicit rounding.
+Quantity
+Decimal with instrument-specific increment/precision.
+6.2 Authoritative ownership
+State
+Authority
+Persistence rule
+Decision/NO-TRADE
+Internal decision history
+Append-only, exact lineage and expiry.
+Authorization
+Independent gateway evidence
+Immutable decision plus scope and validity window.
+Order intent/lifecycle
+OMS internal history
+State transition events; no destructive rewrites.
+External order/fill
+Broker evidence
+Ingested verbatim + normalized canonical record.
+Position/cash/account reality
+Broker for external reality; ledger for internal accounting
+Reconciled snapshots and evidence.
+Ledger
+Internal financial event ledger
+Append-only postings and linked reversals.
+Derived P&L/metrics
+Reconstructible projection
+Versioned calculation policy.
+Cache/runtime checkpoint
+Ephemeral/derived
+Never sufficient to authorize after recovery.
+6.3 Minimum lifecycle states
+Aggregate
+States (minimum)
+Signal
+PROPOSED, VALID, STALE, EXPIRED, SUPERSEDED, INVALID
+Decision
+TRADE_PROPOSED, NO_TRADE, REJECTED, EXPIRED, INVALIDATED
+Authorization
+PENDING, APPROVED, REJECTED, UNKNOWN, EXPIRED, REVOKED, SUPERSEDED
+Reservation
+PENDING, ACTIVE, PARTIALLY_CONSUMED, HELD_UNKNOWN, RELEASED, EXPIRED_AUTHORITY
+Order
+DRAFT, VALIDATED, AUTHORIZED, SUBMISSION_PENDING, SUBMISSION_UNKNOWN, ACKNOWLEDGED, PARTIALLY_FILLED, FILLED, CANCEL_PENDING, CANCEL_UNKNOWN, CANCELLED, REPLACE_PENDING, REJECTED, EXPIRED, ORPHANED, RECONCILIATION_REQUIRED
+Operational mode
+NORMAL, DEGRADED, NO_NEW_ORDERS, READ_ONLY, CANCEL_ONLY, STRATEGY_DISABLED, INSTRUMENT_DISABLED, BROKER_DISABLED, HALTED
+Reconciliation case
+OPEN, INVESTIGATING, CONTAINED, CORRECTION_PENDING, RESOLVED, ESCALATED
+Reservation-state clarification: expiry of reservation authority never by itself releases unresolved financial liability. Where broker/order effects remain unresolved, liability remains conservatively held (HELD_UNKNOWN or equivalent) until authoritative lifecycle/reconciliation evidence permits release.
+7. Initial Requirements Traceability Framework
+ID
+Requirement
+Source
+Owner
+Verification
+Evidence/control
+Status
+IMP-001
+Canonical baseline registry with precedence and source status
+Closure v1.4 §1; R41 layer
+audit.baseline
+TST-AUD-001
+Baseline manifest hash
+Specified
+IMP-002
+Typed globally unique identifiers and causal linkage
+R41-CI017
+contracts.ids
+TST-CON-001/002
+Schema registry
+Specified
+IMP-003
+UTC Clock port and deterministic TestClock
+R41-CI027
+time.clock
+TST-TIM-001-006
+Clock-health metric
+Specified
+IMP-004
+Exchange calendar/session/holiday/early-close service
+R41-CI025-CI027
+time.calendar
+TST-TIM-010-019
+Calendar version alarm
+Specified
+IMP-005
+Versioned instrument master and tradability state
+R41-CI025
+instruments
+TST-INS-001-010
+Stale-master block
+Specified
+IMP-006
+Point-in-time corporate-action model and propagation
+R41-CI028
+corporate_actions
+TST-CA-001-020
+CA consistency alert
+Specified
+IMP-007
+Market-data source identity, validation and quarantine
+R41-CI025-CI027
+market_data.validation
+TST-MD-001-030
+Quality/freshness SLO
+Specified
+IMP-008
+Strategy interface returns proposal only
+R41-CI015, CI032
+strategies.api
+TST-STR-001-008
+Forbidden dependency test
+Specified
+IMP-009
+Decision binds full immutable lineage and expiry
+R41-CI025, CI029-CI031
+contracts.decision
+TST-DEC-001-015
+Expired-decision counter
+Specified
+IMP-010
+NO-TRADE is explicit, reasoned and immutable
+R41-CI035
+contracts.decision
+TST-DEC-016-022
+NO-TRADE audit metric
+Specified
+IMP-011
+Economic engine calculates gross/net edge and uncertainty
+R41-CI034-CI035
+economics
+TST-ECO-001-030
+Forecast-vs-realized metrics
+Specified
+IMP-012
+Capital feasibility scenarios £5k/£10k/£25k/£50k
+Canonical capital requirement
+economics.feasibility
+TST-ECO-031-042
+Feasibility report
+Specified
+IMP-013
+Portfolio construction includes positions, pending and unresolved effects
+R41-CI032
+portfolio
+TST-PORT-001-025
+Exposure dashboard
+Specified
+IMP-014
+Atomic reservation prevents concurrent overcommit
+R41-CI003, CI021
+capital.reservations
+TST-CAP-001-030
+Reservation invariant alert
+Specified
+IMP-015
+Independent risk approval is scoped and expiring
+R41-CI033, CI036
+risk.gateway
+TST-RSK-001-040
+Approval/denial telemetry
+Specified
+IMP-016
+Operational state is an independent authorization input
+R41-CI001, CI038
+operations.modes
+TST-OPS-001-020
+Mode-transition audit
+Specified
+IMP-017
+OMS implements explicit order/submission state machines
+R41-CI015-CI024
+oms
+TST-OMS-001-080
+Illegal-transition alarm
+Specified
+IMP-018
+Unknown broker outcome persists and forbids blind resubmission
+40.02-I003; R41-CI016
+oms.submission
+TST-OMS-081-100
+Unknown-age alert
+Specified
+IMP-019
+Monotonic fencing guards financial side effects
+40.04-I001
+runtime.fencing
+TST-RUN-001-020
+Stale-writer rejection
+Specified
+IMP-020
+Broker port isolates SDK and normalizes representations
+Canonical broker boundary
+broker.ports
+TST-BRK-001-025
+Adapter conformance
+Specified
+IMP-021
+Fill deduplication yields effectively-once authoritative financial/economic effects under at-least-once delivery
+R41-CI020
+oms.fills / ledger
+Duplicate-fill metric plus deduplication/idempotency evidence
+Duplicate-fill metric
+Specified
+IMP-022
+Positions/lots/P&L update consistently per partial fill
+R41-CI009, CI013
+positions
+TST-POS-001-040
+Position invariant alert
+Specified
+IMP-023
+Append-only balanced ledger with linked corrections
+R41-CI008-CI010
+ledger
+TST-LED-001-060
+Unbalanced-posting halt
+Specified
+IMP-024
+Reconciliation covers orders through account/collateral state
+R41-CI011-CI014
+reconciliation
+TST-REC-001-070
+Discrepancy severity SLO
+Specified
+IMP-025
+External manual activity is detected and contained
+R41-CI012
+reconciliation.external
+TST-REC-071-080
+External-activity alert
+Specified
+IMP-026
+Transactional outbox and durable event deduplication
+40.03-I003; R41-CI017
+persistence.events
+TST-EVT-001-040
+Lag/integrity metrics
+Specified
+IMP-027
+Replay runtime is technically non-executable
+R41-CI022, CI043
+runtime.replay
+TST-RUN-021-040
+Credential-absence proof
+Specified
+IMP-028
+Recovery gate re-establishes integrity and reconciliation
+R41-CI004, CI041
+runtime.recovery
+TST-RCV-001-050
+Recovery evidence manifest
+Specified
+IMP-029
+Environment-scoped secrets and least privilege
+R41-CI042-CI044
+security.secrets
+TST-SEC-001-030
+Secret scan/access logs
+Specified
+IMP-030
+Structured causal telemetry for every financial workflow
+Canonical observability
+observability
+TST-OBS-001-020
+Trace completeness SLO
+Specified
+IMP-031
+Kill/restrict/cancel actions are idempotent and broker-aware
+R41-CI002, CI006-CI007
+operations.controls
+TST-OPS-021-050
+Kill rehearsal evidence
+Specified
+IMP-032
+Immutable release/config/model identity is decision-bound
+R41-CI029, CI040-CI042
+config / deployment
+TST-REL-001-030
+Drift alert
+Specified
+IMP-033
+Lifecycle evidence manifests are machine-checkable
+Closure v1.4 §6
+audit.evidence
+TST-AUD-010-030
+Gate evaluator
+Specified
+IMP-034
+Material changes invalidate affected evidence
+Closure v1.4 change control
+audit.change_control
+TST-AUD-031-040
+Evidence invalidation log
+Specified
+IMP-035
+Production code paths cannot run without explicit positive live gate
+40.07-I002
+operations.live_gate
+TST-LIVE-001-020
+Non-bypass proof
+Specified
+8. Persistence Baseline
+Store/object
+Category
+Key control
+PostgreSQL event_history
+Authoritative append-only
+Event ID uniqueness, stream version, causation, schema version, hash/integrity metadata.
+PostgreSQL command_inbox/outbox
+Authoritative workflow
+Transactional consume/publish, durable deduplication, retry status.
+Decisions/approvals
+Authoritative evidence
+Immutable lineage, scope, expiry, authority/control epochs.
+OMS aggregates
+Authoritative internal lifecycle
+Optimistic concurrency; legal transition constraints; submission ambiguity durable.
+Broker observations
+Authoritative external evidence copy
+Raw payload retention plus canonical normalization; source/time identity.
+Ledger entries/postings
+Authoritative financial history
+Balanced transaction; append-only; linked reversal/correction.
+Reconciliation cases
+Authoritative discrepancy workflow
+Evidence, severity, confidence, containment, correction lineage.
+Projections/caches
+Derived
+Rebuildable from authoritative sources; never sole recovery authority.
+Parquet/Arrow datasets
+Immutable analytical evidence
+Point-in-time manifest, content hash, source/version/licence metadata.
+Secrets
+External secret manager
+References only; no secret value in DB, logs, source or artifacts.
+8.1 Transaction boundaries
+A business state change and its outgoing event are committed atomically through the transactional outbox.
+A consumed event is recorded with its handler/version before an economic consequence can be committed.
+Ledger transaction and postings are atomic and balanced; an imbalance is rejected, never temporarily accepted.
+Broker network calls cannot share a database transaction; the OMS records a durable submission attempt before calling and records result/ambiguity afterward.
+Reservation release requires authoritative lifecycle/reconciliation evidence and an optimistic-concurrency check.
+9. Staged Build Order and Dependencies
+Stage
+Name
+Primary output
+Depends on
+Exit gate
+0
+Baseline 0A/0B
+0A: canonical registry, DoD, ADR/risk/progress frameworks; 0B: complete machine-readable invariant traceability and zero-orphan coverage report
+Accepted architecture
+0A permits Stage 1 bootstrap only; 0B closure is required before formal Stage 1 completion/promotion
+1
+Engineering foundation
+Repository, Python, lockfile, CI, config, logging, tests
+Stage 0A for bootstrap; Stage 0B must close before Stage 1 completion/promotion
+Reproducible green pipeline plus confirmed Stage 0B traceability closure
+2
+Domain contracts
+IDs, money, states, events, persistence ports
+Stage 1
+Contract/property tests green
+3
+Market/data
+Instruments, time/calendar, bars, corporate actions, quality
+Stage 2
+Point-in-time dataset evidence
+4
+Research/strategy
+Features, proposal interface, benchmark, backtester, economics port
+Stage 3
+Deterministic isolated backtest gate
+5
+Portfolio/risk
+Portfolio, sizing, capital reservations, risk/operational gateway
+Stages 2-4
+Concurrent reservation and veto tests
+6
+Financial truth
+Positions, lots, ledger, P&L, conservation
+Stages 2,5
+Property and reconstruction evidence
+7
+OMS/broker
+OMS, deterministic simulator/mock/fault-injection adapters, submission/fill lifecycle
+Stages 2,5,6
+Ambiguity/idempotency/fencing evidence
+8
+Reconciliation/recovery
+Full broker reconciliation, startup/replay/recovery
+Stages 6,7
+Crash/restart and discrepancy evidence
+9
+Security/operations hardening
+Cross-cutting security integration, RBAC, secrets hardening, supply-chain assurance, alerts, kill/incident controls and adversarial validation
+Stages 1-8 (security controls apply throughout)
+Integrated security, threat, incident and kill-rehearsal evidence
+10
+System simulation
+Integrated historical simulation, fault/chaos suite
+Stages 3-9
+Deterministic adversarial evidence
+11
+Shadow/paper
+Production-like non-live runtime
+Explicit later gate
+Sustained evidence; not currently authorized
+12
+Live readiness
+Independent evidence review; no live execution
+Stage 11
+Explicit readiness decision
+13
+Canary
+Tiny enforced bounds
+Explicit user authorization
+Canary exit evidence
+14
+Production
+Controlled live operation
+Successful canary + explicit promotion
+Continuous authorization
+10. Definition of Done
+A component is Done only when every applicable item below is evidenced. “Not applicable” requires an attributable rationale and review; it is not the default.
+Requirement and source traceability complete.
+Code implemented behind a narrow typed interface and reviewed.
+Static analysis, formatting, lint and dependency checks pass.
+Unit, property/invariant and boundary tests pass.
+Component, contract and applicable integration tests pass.
+Failure-path, restart, idempotency and concurrency tests pass where applicable.
+Schema and migrations are implemented, reviewed and reversibility/roll-forward strategy tested.
+Security trust-boundary review and secret/log exposure checks pass.
+Structured logs, metrics, health and alert conditions are implemented.
+Audit evidence, correlation and causality are complete.
+Operational restriction/recovery procedure is documented and exercised.
+Traceability, decision log, risk register and progress register are updated.
+No unresolved blocker or unjustified skipped control remains.
+Objective evidence is stored in a machine-checkable milestone manifest.
+10.1 Promotion rule
+Passing a component DoD does not authorize the next lifecycle stage. Stage promotion requires the applicable GATE-S<n>-<nn> evidence set, independent approver separation where required, current external assumptions, and explicit authorization. Evidence invalidated by material code, configuration, model, broker, data, market, regulatory or infrastructure change cannot be reused silently.
+11. First Executable Implementation Milestone
+Milestone M1: Safe Engineering Kernel
+M1 creates an executable but financially inert foundation. It contains no production broker credentials, no live adapter and no route capable of external financial side effects.
+Work package
+Deliverable
+Acceptance evidence
+M1.1 Repository
+Python 3.12 project, lockfile, source/test layout
+Clean bootstrap from documented command.
+M1.2 CI quality
+Ruff, mypy, pytest, coverage, dependency/secret scan
+Protected green CI on clean clone.
+M1.3 Core contracts
+Typed IDs, UTC timestamps, Money, Quantity, Currency
+Serialization and property tests.
+M1.4 Time
+Clock/TestClock and UTC enforcement
+Deterministic expiry/calendar tests.
+M1.5 Events
+Event envelope, causality, schema version, idempotency
+Round-trip and duplicate rejection tests.
+M1.6 Decision contracts
+Proposal, NO-TRADE, approval scope and expiry
+Invalid/stale/unknown negative tests.
+M1.7 Operational mode
+Mode model defaults to NO_NEW_ORDERS without authorization
+Fail-closed startup tests.
+M1.8 Evidence
+Traceability exporter and milestone manifest skeleton
+Machine-validated manifest.
+M1 hard exclusions
+No broker network SDK dependency and no network-capable production broker adapter.
+No live credentials or production secret paths.
+No callable/configurable route capable of submitting a live order; production broker capability must be absent or technically non-executable.
+No acceptance criterion based only on a successful happy-path test.
+No use of floating point for authoritative monetary values.
+M1 exit criteria
+All M1-scoped atomic requirements derived from IMP-001 through IMP-004, IMP-009, IMP-010, IMP-026, IMP-029, IMP-030 and IMP-033 are implemented and verified. Where an IMP requirement would otherwise be only partially applicable, it must first be decomposed into separately identified atomic subrequirements; vague partial implementation is not permitted.
+A negative architecture test proves strategies cannot import broker or OMS submission modules.
+A replay-mode test proves all financial side-effect ports are absent or hard-denied.
+A clean machine can reproduce the environment and obtain identical locked dependencies.
+Stage 2 may begin after M1 review; shadow, paper and live permissions remain unchanged.
+12. Blockers, Deferred Assumptions and Decisions
+12.1 Genuine blockers
+ID
+Blocker
+Blocks
+Disposition
+BLK-001
+F40.02-F40.06 corrective implementation evidence is not yet produced.
+Relevant later integration/promotion gates
+Translate each correction into code, tests and evidence during Stages 2-10.
+BLK-002
+F40.07-1/2 live stage-gate and rollback/kill evidence absent.
+Canary and production
+Non-waivable until rehearsed and independently reviewed.
+BLK-003
+Separated approval roles and evidence invalidation workflow not implemented.
+Paper/live promotions where applicable
+Implement governance model and machine-checkable gate evaluator.
+BLK-004
+Broker, legal/regulatory, tax and data-entitlement assumptions not current/final.
+Live readiness
+Versioned external review near Stage 12; does not block M1.
+12.2 Safely deferred assumptions
+Decision
+Current default
+Decision deadline
+Broker
+Canonical broker interface; mock first; IBKR candidate only
+Before paper adapter commitment.
+Research data
+Provider-neutral contracts; Databento leading candidate
+Before production research dataset ingestion.
+Deployment topology
+Local modular monolith for development
+Before shadow environment design.
+Cloud/provider
+No binding provider
+Before Stage 9 deployment implementation.
+First strategy
+Simple benchmark with no direct authority
+Stage 4 planning.
+Compliance ruleset
+Pluggable gateway with deny/unknown states
+Before paper/live scope approval.
+Retention durations
+Policy-driven, no destructive default
+Before operational evidence rollout.
+Base currency/account structure
+Explicit config, GBP feasibility reporting
+Before broker/account integration.
+12.3 Initial ADRs
+ADR
+Decision
+Status
+ADR-001
+Begin as a modular monolith with extraction-ready ports.
+Accepted baseline
+ADR-002
+Use Python 3.12.x and a hash-locked dependency graph.
+Proposed for M1
+ADR-003
+Use Decimal plus explicit currency/rounding for authoritative finance.
+Accepted baseline
+ADR-004
+Use PostgreSQL for operational/event state and immutable Parquet/Arrow for analytics.
+Accepted direction
+ADR-005
+Use transactional outbox/inbox and optimistic concurrency.
+Proposed for Stage 2
+ADR-006
+Default process startup to NO_NEW_ORDERS until authorization/reconciliation gates pass.
+Accepted safety default
+ADR-007
+Exclude all production broker capabilities through Stage 10.
+Accepted safety default
+13. Test and Failure-Injection Baseline
+Category
+Mandatory examples
+Contract/property
+Money arithmetic, quantity precision, IDs, state transition legality, balanced ledger, reservation conservation.
+Time
+DST boundary, holiday, early close, leap date, clock rollback/drift, stale dependency, expiry.
+Data
+Missing/duplicate/outlier/reordered bars, late corrections, symbol change, split/dividend timing.
+Concurrency
+Two decisions competing for capital; stale writer; duplicate event consumers; cancel/replace race.
+Broker ambiguity
+Timeout after acceptance, delayed ACK, duplicate fill, out-of-order fill, malformed response, rate limit.
+Recovery
+Crash after durable attempt/before response, partial fill then crash, replay, checkpoint corruption, backup restore.
+Financial truth
+Partial fills/closes, fees, FX, external cash/trades, bust/correction, corporate-action adjustment.
+Security
+Credential failure/rotation, dependency integrity failure, privilege misuse, config/release drift.
+Operational
+Kill activation, repeated kill/cancel, alert failure, DB outage, queue backpressure, broker disconnect.
+Economic
+Insufficient net edge, cost shock, liquidity/capacity breach, decay, model uncertainty, capital tiers.
+Each scenario must assert both the visible response and the absence of forbidden side effects. Safety-critical negative tests prove that invalid, stale, duplicate, unauthorized, economically insufficient or inadequately evidenced actions are blocked.
+14. Initial Operational and Evidence Gates
+Gate
+Minimum evidence
+Promotion effect
+GATE-S00-01
+Canonical lineage and precedence recorded; no unresolved architecture contradiction.
+Allows Stage 1 specification/build.
+GATE-S01-01
+Reproducible environment and locked dependencies.
+Allows contract implementation.
+GATE-S01-02
+CI quality/security checks green.
+Allows merge to main development branch.
+GATE-S02-01
+Versioned contracts, compatibility tests and state-machine properties green.
+Allows data subsystem integration.
+GATE-S04-01
+Point-in-time/leakage controls and deterministic backtests validated.
+Allows governed backtest experiments only.
+GATE-S07-01
+OMS ambiguity, fencing, idempotency and duplicate-side-effect tests green.
+Prerequisite only; does not authorize paper.
+GATE-S08-01
+Reconciliation and restart/recovery evidence complete.
+Prerequisite only; does not authorize paper.
+GATE-S10-01
+Integrated adversarial/fault suite and evidence manifest pass.
+Eligible for separate shadow review.
+GATE-S11-01
+Explicit authorization plus sustained shadow/paper evidence.
+Eligible for live-readiness assessment only.
+GATE-S12-01
+Current independent review; critical findings closed; kill/rollback rehearsed.
+May permit separately authorized canary.
+GATE-S13-01
+Canary bounded-loss and exit evidence accepted.
+May permit separately authorized production.
+GATE-S03-01
+Instrument, calendar, market-data and corporate-action point-in-time integrity; freshness/quarantine tests green.
+Allows Stage 4 research/strategy integration only.
+GATE-S05-01
+Portfolio, risk, capital reservation, concurrency, veto and UNKNOWN/fail-safe properties green.
+Allows Stage 6 financial-truth integration only.
+GATE-S06-01
+Ledger balance/conservation, positions/lots/P&L reconstruction, correction and deduplication evidence green.
+Allows Stage 7 OMS/broker integration only.
+GATE-S09-01
+Cross-cutting security controls, RBAC/secrets/supply-chain checks, observability, kill/incident rehearsals and recovery controls pass.
+Allows Stage 10 integrated system simulation only.
+15. Implementation Document Set and Control
+No.
+Artifact
+Initial owner/status
+1
+Implementation Specification v1.0
+Implementation programme / initiated
+2
+Architecture-to-Code Traceability Matrix
+Implementation programme / initiated
+3
+Repository & Package Structure
+Implementation programme / initiated
+4
+Canonical Data Model Specification
+Planned in dependency order
+5
+API / Interface Contracts
+Planned in dependency order
+6
+Database & Persistence Specification
+Planned in dependency order
+7
+Event Schema Catalogue
+Planned in dependency order
+8
+State Machine Catalogue
+Planned in dependency order
+9
+Configuration & Secrets Specification
+Planned in dependency order
+10
+Testing & Verification Plan
+Planned in dependency order
+11
+Failure-Injection Catalogue
+Planned in dependency order
+12
+Security Implementation Plan
+Planned in dependency order
+13
+Observability & Alerting Specification
+Planned in dependency order
+14
+Deployment & Environment Specification
+Planned in dependency order
+15
+Recovery & Reconciliation Runbooks
+Planned in dependency order
+16
+Paper-Trading Readiness Checklist
+Planned in dependency order
+17
+Live-Readiness Checklist
+Planned in dependency order
+18
+Implementation Risk Register
+Planned in dependency order
+19
+Implementation Decision Log
+Implementation programme / initiated
+20
+Implementation Progress Register
+Implementation programme / initiated
+Mutual consistency is enforced by stable identifiers, generated cross-references where practical, schema/version registries, milestone evidence manifests and change-impact checks. A change to an invariant, contract, state machine or authority boundary must identify every affected artifact and invalidate stale verification evidence.
+16. Initial Risk Register
+ID
+Risk
+Severity
+Control
+RISK-001
+Incomplete mapping of historical invariants
+High
+Import Master Invariant Register as authoritative traceability source; mark provenance, never fabricate.
+RISK-002
+Framework complexity outruns initial hardware
+Medium
+Resource-conscious modular monolith and test profiles; production topology separate.
+RISK-003
+Broker SDK semantics leak into core
+High
+Canonical broker port and adapter conformance tests.
+RISK-004
+False exactly-once assumptions
+Critical
+At-least-once delivery plus durable idempotency, fencing and reconciliation.
+RISK-005
+Local state treated as broker truth
+Critical
+Dual authority model and mandatory discrepancy containment.
+RISK-006
+Backtest/live semantic divergence
+High
+Shared contracts/calculations, point-in-time data and versioned execution model.
+RISK-007
+Economic model underestimates costs
+High
+Uncertainty margins, sensitivity tests and forecast-vs-realized monitoring.
+RISK-008
+Premature lifecycle promotion
+Critical
+Machine-checkable non-bypass gates and explicit authorization.
+RISK-009
+Credential leakage or environment crossover
+Critical
+No live capabilities early; secret-provider/RBAC and scans.
+RISK-010
+Evidence becomes stale after change
+High
+Dependency-based evidence invalidation and current manifests.
+17. Build Programme Start State
+Item
+Status
+Baseline frozen for implementation
+CONTROLLED BUT NOT FINAL-FROZEN. Architecture/baseline content is controlled; final implementation-baseline freeze requires Stage 0B traceability closure. Only controlled affected-scope amendment is permitted thereafter.
+Master Audit restart required
+NO.
+Phase 42 required
+NO, absent defined reopen trigger.
+Stage 0 baseline
+0A ESTABLISHED. 0B PENDING: full Master Invariant Register must be imported and machine-checked for zero orphan mandatory invariants before formal Stage 1 exit/promotion.
+Stage 1 engineering work
+BOOTSTRAP MAY BEGIN under non-executable constraints; formal Stage 1 completion/promotion requires Stage 0B traceability closure.
+Research execution
+Only isolated, governed and non-executable.
+Backtest
+Conditional on point-in-time and experiment controls.
+Shadow/paper
+NOT AUTHORIZED.
+Canary/production/live capital
+NOT AUTHORIZED.
+First executable milestone
+M1 Safe Engineering Kernel.
+17.1 Immediate next specification sequence
+1.  Create the machine-readable architecture-to-code traceability matrix and import the full Master Invariant Register.
+2.  Specify repository bootstrap, CI policy, environment matrix and dependency governance for M1.
+3.  Specify canonical ID, time, Money, Quantity, event-envelope, decision and NO-TRADE contracts.
+4.  Specify the initial PostgreSQL event/outbox/inbox schema and migrations.
+5.  Implement M1 with tests and produce its evidence manifest.
+This sequence advances implementation evidence without changing any authorization status. No live-trading path is created.
+18. Controlled Corrections and Baseline Closure Conditions
+18.1 Stage 0 split
+Stage 0A (baseline architecture and implementation framework) is established. Stage 0B (complete audit/invariant-to-implementation traceability) remains pending until the full Master Invariant Register is imported and a machine-readable coverage report demonstrates zero orphan mandatory invariants. Repository and CI bootstrap may proceed, but Stage 1 may not be formally completed or promoted while Stage 0B is open.
+18.2 Traceability closure
+Every mandatory canonical invariant must map to one or more atomic implementation requirements, an owning component/module, affected contract/schema/state machine where applicable, positive and negative/failure-path tests, monitoring/control, objective evidence and lifecycle gate. A reviewed NOT_APPLICABLE disposition is permitted only with attributable rationale. Missing historical wording must not be fabricated.
+18.3 Provenance status
+Every traceability record must carry provenance_status = CONFIRMED, RECONSTRUCTED, INFERRED or UNRESOLVED. Engineering inference must never silently acquire canonical/audit status.
+18.4 Security lifecycle
+Security is cross-cutting from Stage 1 onward. Stage 9 is the integrated hardening, adversarial validation and operational-readiness stage; it is not the first point at which security controls are implemented.
+18.5 Broker capability boundary
+Through Stage 10, broker work is limited to canonical ports, deterministic simulators, mocks, fault-injection adapters and conformance fixtures. A network-capable production broker adapter, production credential path or live submission capability is prohibited unless a later explicit lifecycle authorization permits it.
+18.6 Delivery versus accounting semantics
+Message/event delivery may be at-least-once. Authoritative financial effects must be effectively-once through durable identity, deduplication, idempotent application, fencing and reconciliation. No infrastructure component may be assumed to provide magical end-to-end exactly-once delivery.
+18.7 Reservation expiry
+Expiry of reservation authority does not prove that unresolved external liability disappeared. Unresolved order/broker effects retain conservative capital/risk holds until authoritative lifecycle/reconciliation evidence permits release.
+18.8 Broker observation freshness
+Broker evidence is authoritative for external reality as observed, but is never timeless. Every authorization-relevant broker/account observation must carry source, observation time, freshness/quality state and applicable authority epoch; stale, conflicting or unverifiable observations cannot satisfy a current exposure-increase gate.
+18.9 Atomic requirement rule
+IMP requirements used for implementation acceptance must be atomic. If only part of a requirement belongs to a milestone, decompose it into stable child requirements rather than marking an undefined 'portion' complete.
+18.10 Gate completeness
+Every build stage must have an explicit evidence gate or an explicitly documented non-promotional completion gate. Passing a stage gate never by itself grants paper, canary, production or live-capital authority.
+18.11 Corrected baseline decision
+Implementation Specification v1.0 Corrected - Final is internally verified as the controlled engineering baseline, with final implementation-baseline freeze pending Stage 0B traceability closure. No Master Audit restart or Phase 42 is required by these corrections. The architecture remains accepted; the remaining mandatory pre-freeze action is Stage 0B traceability closure against the complete Master Invariant Register. LIVE TRADING, CANARY, PAPER AND SHADOW EXECUTION REMAIN UNAUTHORIZED unless separately promoted through their defined evidence and authorization gates.

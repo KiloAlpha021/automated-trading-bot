@@ -25,6 +25,7 @@ SELECTION = [
     "tests/test_timestamp.py",
     "tests/test_closure_security.py",
     "tests/test_architecture.py",
+    "tests/test_specification_provenance.py",
     "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions",
     "tests/test_closure_traceability.py::test_identity_precedence_rejects_changed_evidence",
 ]
@@ -83,6 +84,10 @@ def _run_evidence() -> dict:
         ROOT / "docs/m1-closure/M1-calendar-scope-clarification.md",
         ROOT / "tests/test_closure_security.py",
         ROOT / "tests/test_architecture.py",
+        ROOT / "tests/test_specification_provenance.py",
+        ROOT / "scripts/extract_specification_text.py",
+        ROOT / "docs/baseline/specification-provenance.json",
+        ROOT / "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt",
         ROOT / "tests/test_closure_traceability.py",
         ROOT / "docs/M1.8-evidence.md",
         ROOT / "docs/m1-closure/M1-scope-clarification.md",
@@ -128,9 +133,10 @@ def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
     assert assessed["IMP-001-M1-01"]["status"] == "INSUFFICIENT_EVIDENCE"
     assert all(record["status"] == "VERIFIED" for key, record in assessed.items()
                if key != "IMP-001-M1-01")
-    assert "specification-provenance" in checkpoint["stop_reason"]
+    assert "semantic-coverage" in checkpoint["stop_reason"]
     assert (ROOT / "docs/m1-closure/closure-manifest.json").is_file()
     assert checkpoint["post_closure_audit"]["classification"] == "REOPEN_M1"
+    assert checkpoint["post_closure_audit"]["resolved_findings_provenance"]["status"] == "REPAIRED"
 
 
 @pytest.fixture(scope="module")

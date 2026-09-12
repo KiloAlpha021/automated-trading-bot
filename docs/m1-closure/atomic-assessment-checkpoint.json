@@ -1,7 +1,7 @@
 {
   "assessment": "M1 reopened post-closure assessment checkpoint",
   "complete": false,
-  "stop_reason": "Post-closure audit REOPEN_M1. IMP-001-M1-01 remains blocked by the repository-contained specification-provenance gap. The strategy dynamic-import architecture defect is repaired; authorization remains NONE and Stage 2 is not authorized.",
+  "stop_reason": "Post-closure audit REOPEN_M1. The canonical specification-provenance gap is repaired, but IMP-001-M1-01 remains blocked by semantic-coverage gaps identified against the repository-contained specification and unresolved Stage 0B/Master Invariant Register completeness. Authorization remains NONE and Stage 2 is not authorized.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -51,13 +51,13 @@
         "Authoritative specification and owner attachment SHA-256 verified; owner clarification compared verbatim.",
         "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions PASSED",
         "tests/test_closure_traceability.py::test_identity_precedence_rejects_changed_evidence: 3 cases PASSED",
-        "Post-closure audit confirmed the expected specification SHA-256 is recorded, but the authoritative specification artifact is absent from the committed tree."
+        "The exact canonical DOCX and deterministic text extraction are repository-contained, cryptographically bound and independently reproducible; semantic audit found separate mapping/completeness gaps."
       ],
       "invalid_verification_references": [],
       "status": "INSUFFICIENT_EVIDENCE",
       "explicit_deferral_source": null,
-      "smallest_corrective_action": "Add a provenance-bound canonical specification artifact, or an owner-authorized repository-contained canonical extraction sufficient for independent semantic coverage review; then reassess without changing scope.",
-      "verification_limits": "Recorded identity and precedence remain intact. Repository-only evidence cannot independently compare all atomic mappings and deferrals to the governing specification text."
+      "smallest_corrective_action": "Correct only the independently identified atomic mapping gaps and establish attributable Stage 0B/Master Invariant Register completeness evidence; then reassess without changing scope.",
+      "verification_limits": "Canonical specification identity, repository provenance and extraction reproducibility are verified. IMP-001-M1-01 remains INSUFFICIENT_EVIDENCE because semantic coverage gaps and Stage 0B/Master Invariant Register completeness remain unresolved."
     },
     {
       "id": "IMP-029-M1-01",
@@ -664,7 +664,7 @@
       "verification_limits": "VERIFIED records only the explicit M1 deferral and enforced non-authority boundary. It does not authenticate evidence, approve a gate, promote a lifecycle stage, validate semantic closure, authorize Stage 2, or claim M1 completion."
     }
   ],
-  "remaining_assessment": "IMP-001-M1-01 requires repository-contained authoritative specification provenance before independent semantic completeness can be reassessed.",
+  "remaining_assessment": "IMP-001-M1-01 requires correction and reassessment of the identified M1.1, M1.2, M1.3 and M1.7 mapping gaps, plus attributable Stage 0B/Master Invariant Register completeness evidence.",
   "manifest_validation": "docs/m1-closure/closure-manifest.json remains immutable historical evidence of the prior closure event; it is not current completion authority after REOPEN_M1.",
   "historical_assessments": [
     {
@@ -34695,6 +34695,7 @@
       "tests/test_timestamp.py",
       "tests/test_closure_security.py",
       "tests/test_architecture.py",
+      "tests/test_specification_provenance.py",
       "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions",
       "tests/test_closure_traceability.py::test_identity_precedence_rejects_changed_evidence"
     ],
@@ -34765,6 +34766,10 @@
       ],
       [
         "0c97ee70986db902f449903bde3fc1826025c79d5316209cab7ca4e8024068a6",
+        "passed"
+      ],
+      [
+        "0e5ff45ba60c379d075b144ea5d0cc7b763b0a1faaff1f2a42d5123236092a0a",
         "passed"
       ],
       [
@@ -35148,6 +35153,10 @@
         "passed"
       ],
       [
+        "6d30f661082b699b85d46ac2a6867395cecd9bdbd87306186ce420edd164b777",
+        "passed"
+      ],
+      [
         "6db27087a4218f019a3ea849f16127227e2d36367f1717602712c6a054bedcb4",
         "passed"
       ],
@@ -35245,6 +35254,10 @@
       ],
       [
         "7db8594739bd700315fdc268872210efdf55002748aa7258acb4f5e060e1827a",
+        "passed"
+      ],
+      [
+        "87112dd783f3d809301e4dc685ff05b9a9a12551b214da12f97ec0b639530c9a",
         "passed"
       ],
       [
@@ -35413,6 +35426,10 @@
       ],
       [
         "a54b430d2f9401116ec164ae3e971d2c9a2ad53d41b5c4f59304defd2e74f5e2",
+        "passed"
+      ],
+      [
+        "a87c87bb3fedcf1646710fa4c09b5fe5d30a7affc320b3e25775097435019922",
         "passed"
       ],
       [
@@ -35664,6 +35681,10 @@
         "passed"
       ],
       [
+        "ddc63f210bd5a6d920386c9879f2b33bc23d990fcb1f19f4be78448c6de7a8e1",
+        "passed"
+      ],
+      [
         "dded078da9d934ae780bd0266aea5311276ca2868bc550c90ee67611d0c6f6a4",
         "passed"
       ],
@@ -35784,7 +35805,7 @@
         "passed"
       ]
     ],
-    "passed": 271,
+    "passed": 276,
     "failed": 0,
     "input_hash_model": "sha256:utf8:newlines-lf:v1",
     "input_sha256": {
@@ -35844,10 +35865,14 @@
       "docs/m1-closure/M1-calendar-scope-clarification.md": "806b2e08d0b59c4bd2f6a5802a1e7cb25b8b3c7e35e698629cafc3d53ef21fb1",
       "tests/test_closure_security.py": "24ae6667547a83f9ffd5201ce94518f559a5f82752be0bd45f1584cbb198692d",
       "tests/test_architecture.py": "3a6cc68c9e2153c44fb4e2f366dfbdfe81fbe3fa343ed7358082c614fc806ab8",
+      "tests/test_specification_provenance.py": "a97fdf4e646532db505317c5c658c81ba42efec3c5d264ecd44b114c50933f89",
+      "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
+      "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
+      "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
       "tests/test_closure_traceability.py": "0aca986ae712dcc68bc45089d291adec3bffe7da658688330cfc975cd07f2eb8",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "0813cbbf978dd3601b8bda1cfa9a5450675670c4c9a8535a2ac890e59febc5a0"
+      "docs/m1-closure/traceability.json": "2a812785c2d3d26572fb72cae28af962cb9943c16cbdb45bd4af392075647fcb"
     }
   },
   "unresolved_traceability_ids": [
@@ -35877,11 +35902,17 @@
     ],
     "active_blockers": [
       {
-        "id": "M1-AUDIT-SPECIFICATION-PROVENANCE",
+        "id": "M1-AUDIT-SEMANTIC-COVERAGE",
         "mapped_requirement": "IMP-001-M1-01",
         "status": "INSUFFICIENT_EVIDENCE",
-        "reason": "The canonical hash-matched Implementation Specification artifact is absent from committed repository content."
+        "reason": "M1.1, M1.2, M1.3 and M1.7 obligations are not completely represented in the atomic mapping, and Stage 0B/Master Invariant Register completeness remains unresolved."
       }
-    ]
+    ],
+    "resolved_findings_provenance": {
+      "id": "M1-AUDIT-SPECIFICATION-PROVENANCE",
+      "status": "REPAIRED",
+      "evidence": "docs/baseline/specification-provenance.json",
+      "claim": "The exact governing DOCX and deterministic machine-readable extraction are repository-contained and hash-bound."
+    }
   }
 }

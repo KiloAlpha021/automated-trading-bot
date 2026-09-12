@@ -2,6 +2,9 @@
   "schema_version": 1,
   "baseline_revision": "12b0ec4b8f1575c6283b50f592024b54a91474b1",
   "source_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+  "source_artifact": "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx",
+  "source_extraction": "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt",
+  "source_provenance": "docs/baseline/specification-provenance.json",
   "rows": [
     {
       "id": "IMP-001-M1-01",
@@ -17,7 +20,7 @@
       "tests": [
         "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions"
       ],
-      "residual_gap": "The canonical hash-matched Implementation Specification artifact is not repository-contained; independent semantic completeness cannot be proven from committed content alone."
+      "residual_gap": "The canonical specification is repository-contained and hash-bound. Independent semantic review identified unmapped M1.1, M1.2, M1.3 and M1.7 obligations and unresolved Stage 0B/Master Invariant Register completeness; no status advancement is claimed."
     },
     {
       "id": "IMP-001-M1-02",
