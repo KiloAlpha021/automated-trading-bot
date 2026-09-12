@@ -1,0 +1,570 @@
+{
+  "schema_version": 1,
+  "baseline_revision": "12b0ec4b8f1575c6283b50f592024b54a91474b1",
+  "source_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+  "rows": [
+    {
+      "id": "IMP-001-M1-01",
+      "parent": "IMP-001",
+      "requirement": "Record canonical specification identity and precedence without changing historical provenance.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Sections 3.1, 18.3",
+      "artifacts": [
+        "docs/M1.8-evidence.md",
+        "docs/m1-closure/traceability.json"
+      ],
+      "tests": [
+        "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-001-M1-02",
+      "parent": "IMP-001",
+      "requirement": "Map each M1 atomic requirement to attributable artifacts and tests.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Sections 11, 18.9",
+      "artifacts": [
+        "docs/m1-closure/traceability.json"
+      ],
+      "tests": [
+        "tests/test_closure_traceability.py::test_m1_references_exist",
+        "tests/test_closure_traceability.py::test_complete_atomic_mapping_is_attributable_and_consistent",
+        "tests/test_closure_traceability.py::test_complete_atomic_mapping_rejects_invalid_coverage"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-002-M1-01",
+      "parent": "IMP-002",
+      "requirement": "Keep UUID identifiers typed, distinct and immutable.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 7 IMP-002",
+      "artifacts": [
+        "src/automated_trading_bot/domain/identifiers.py"
+      ],
+      "tests": [
+        "tests/test_identifiers.py::test_uuid_identifier_classes_remain_distinct",
+        "tests/test_identifiers.py::test_identifiers_remain_immutable"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-002-M1-02",
+      "parent": "IMP-002",
+      "requirement": "Preserve typed causal identities through event serialization.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 7 IMP-002",
+      "artifacts": [
+        "src/automated_trading_bot/domain/event.py"
+      ],
+      "tests": [
+        "tests/test_event.py::test_event_envelope_round_trip",
+        "tests/test_event.py::test_event_envelope_rejects_wrong_contract_types"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-003-M1-01",
+      "parent": "IMP-003",
+      "requirement": "Supply UTC Clock and deterministic TestClock.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 7 IMP-003",
+      "artifacts": [
+        "src/automated_trading_bot/domain/clock.py"
+      ],
+      "tests": [
+        "tests/test_clock.py::test_test_clock_advances_deterministically",
+        "tests/test_clock.py::test_test_clock_rejects_negative_advance_without_mutating_state"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-003-M1-02",
+      "parent": "IMP-003",
+      "requirement": "Reject naive and non-UTC timestamps.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 6.1",
+      "artifacts": [
+        "src/automated_trading_bot/domain/timestamp.py"
+      ],
+      "tests": [
+        "tests/test_timestamp.py::test_timestamp_rejects_naive_datetime",
+        "tests/test_timestamp.py::test_timestamp_rejects_non_utc_datetime"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-004-M1-01",
+      "parent": "IMP-004",
+      "requirement": "Demonstrate deterministic UTC date-boundary advance without claiming an exchange calendar.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 11 M1.4",
+      "artifacts": [
+        "src/automated_trading_bot/domain/clock.py"
+      ],
+      "tests": [
+        "tests/test_clock.py::test_test_clock_can_advance_across_day_boundary"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-004-M1-02",
+      "parent": "IMP-004",
+      "requirement": "Prove deterministic decision expiry across a UTC date boundary using the existing UTC clock and expiry contracts.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 11 M1.4; owner decision M1-SCOPE-2026-09-11-02 in docs/m1-closure/M1-calendar-scope-clarification.md",
+      "artifacts": [
+        "docs/m1-closure/M1-calendar-scope-clarification.md",
+        "src/automated_trading_bot/domain/clock.py",
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "tests": [
+        "tests/test_decision.py::test_expiry_across_utc_date_boundary"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-004-M1-03",
+      "parent": "IMP-004",
+      "requirement": "Implement production exchange calendar/session/holiday/early-close service.",
+      "disposition": "DEFERRED",
+      "provenance_status": "INFERRED",
+      "source": "Section 9 Stage 3",
+      "artifacts": [],
+      "tests": [],
+      "residual_gap": "No exchange-calendar service is claimed or introduced."
+    },
+    {
+      "id": "IMP-009-M1-01",
+      "parent": "IMP-009",
+      "requirement": "Bind immutable proposal lineage and deterministic expiry.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 7 IMP-009",
+      "artifacts": [
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "tests": [
+        "tests/test_decision.py::test_each_lineage_change_invalidates_match",
+        "tests/test_decision.py::test_proposal_expiry_independently_limits_approval"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-009-M1-02",
+      "parent": "IMP-009",
+      "requirement": "Persist/revoke/revalidate executable authority against current external evidence.",
+      "disposition": "DEFERRED",
+      "provenance_status": "INFERRED",
+      "source": "Sections 4.1, 8",
+      "artifacts": [],
+      "tests": [],
+      "residual_gap": "M1 contracts do not implement runtime authorization or persistence."
+    },
+    {
+      "id": "IMP-010-M1-01",
+      "parent": "IMP-010",
+      "requirement": "Preserve explicit reasoned immutable NO-TRADE.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 7 IMP-010",
+      "artifacts": [
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "tests": [
+        "tests/test_decision.py::test_no_trade_is_terminal_and_cannot_match_approval",
+        "tests/test_decision.py::test_no_trade_rejects_invalid_fields"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-026-M1-01",
+      "parent": "IMP-026",
+      "requirement": "Reject duplicate EventId observations process-locally.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 11 M1.5; user clarification of process-local scope",
+      "artifacts": [
+        "src/automated_trading_bot/domain/event.py"
+      ],
+      "tests": [
+        "tests/test_event.py::test_registry_rejects_round_tripped_identity",
+        "tests/test_event.py::test_registry_accepts_otherwise_identical_events_with_distinct_ids"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-026-M1-02",
+      "parent": "IMP-026",
+      "requirement": "Implement transactional outbox and restart-safe event history.",
+      "disposition": "DEFERRED",
+      "provenance_status": "INFERRED",
+      "source": "Hash-bound Implementation Specification v1.0 SHA-256 4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7, accepted direction: Use transactional outbox/inbox and optimistic concurrency; owner M1-SCOPE-2026-09-11-01 governs the M1-specific runtime-persistence deferral. The original standalone ADR-005 artifact was not recovered and is not relied upon.",
+      "artifacts": [],
+      "tests": [],
+      "residual_gap": "Persistence is explicitly outside the accepted M1.5 slice.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-029-M1-01",
+      "parent": "IMP-029",
+      "requirement": "Keep tracked M1 source free of credential files and recognizable private-key/access-token literals.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Section 11 hard exclusions",
+      "artifacts": [
+        "tests/test_closure_security.py"
+      ],
+      "tests": [
+        "tests/test_closure_security.py::test_project_has_no_credential_artifacts",
+        "tests/test_closure_security.py::test_scanner_rejects_synthetic_secret"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-029-M1-02",
+      "parent": "IMP-029",
+      "requirement": "Enforce M1 application- and authority-level least privilege so configuration, administrative privilege, development, research, replay, or unverified dependency state cannot confer production trading authority.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-029 application/authority-level least privilege; Implementation Specification sections 5.1, 11, 18.4 and 18.5",
+      "artifacts": [
+        "docs/m1-closure/M1-scope-clarification.md",
+        "docs/m1-closure/M1-secret-provider-contract.md",
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "src/automated_trading_bot/recovery/replay.py"
+      ],
+      "tests": [
+        "tests/test_closure_traceability.py::test_imp_029_atomic_scope_decomposition",
+        "tests/test_secret_provider_contract.py::test_secret_provider_contract_controls",
+        "tests/test_secret_provider_contract.py::test_contract_rejects_insecure_capability",
+        "tests/test_operational_mode.py::test_startup_has_no_authorization_shortcut",
+        "tests/test_operational_mode.py::test_modes_requiring_authorization_are_rejected",
+        "tests/test_replay.py::test_replay_financial_attempt_is_hard_denied",
+        "tests/test_replay.py::test_current_financial_packages_expose_no_ports",
+        "tests/test_architecture.py::test_current_strategy_import_boundary",
+        "tests/test_architecture.py::test_deliberate_prohibited_strategy_import_fails"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-030-M1-01",
+      "parent": "IMP-030",
+      "requirement": "Preserve causal event metadata as the inert workflow contract.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Sections 6.1, 11 M1.5",
+      "artifacts": [
+        "src/automated_trading_bot/domain/event.py"
+      ],
+      "tests": [
+        "tests/test_event.py::test_event_envelope_preserves_values",
+        "tests/test_event.py::test_event_envelope_round_trip"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-030-M1-02",
+      "parent": "IMP-030",
+      "requirement": "Emit structured causal telemetry for running financial workflows.",
+      "disposition": "DEFERRED",
+      "provenance_status": "INFERRED",
+      "source": "Section 7 IMP-030; section 11 financially inert boundary",
+      "artifacts": [],
+      "tests": [],
+      "residual_gap": "There are no financial workflows in M1; no runtime telemetry completeness is claimed."
+    },
+    {
+      "id": "IMP-033-M1-01",
+      "parent": "IMP-033",
+      "requirement": "Validate manifest structure, explicit coverage and source/baseline binding.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Sections 7, 11 M1.8",
+      "artifacts": [
+        "src/automated_trading_bot/audit/evidence.py"
+      ],
+      "tests": [
+        "tests/test_evidence.py::test_export_round_trip",
+        "tests/test_evidence.py::test_required_coverage_cannot_be_assumed_from_skeleton",
+        "tests/test_evidence.py::test_stale_binding_rejected"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-033-M1-02",
+      "parent": "IMP-033",
+      "requirement": "Record actual closure observations without promoting unresolved criteria.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Sections 10, 10.1",
+      "artifacts": [
+        "docs/m1-closure/atomic-assessment-checkpoint.json"
+      ],
+      "tests": [
+        "tests/test_blocked_assessment.py::test_blocked_checkpoint_matches_current_evidence",
+        "tests/test_blocked_assessment.py::test_blocked_checkpoint_rejects_false_observation"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-033-M1-03",
+      "parent": "IMP-033",
+      "requirement": "Authenticate evidence and implement lifecycle promotion authority.",
+      "disposition": "DEFERRED",
+      "provenance_status": "INFERRED",
+      "source": "Section 10.1; accepted M1.8 scope",
+      "artifacts": [],
+      "tests": [],
+      "residual_gap": "Structure validation does not grant authenticity or promotion."
+    },
+    {
+      "id": "IMP-026-M1-03",
+      "parent": "IMP-026",
+      "requirement": "Specify the initial event/outbox/inbox schema.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner decision M1-SCOPE-2026-09-11-01; Implementation Specification section 17.1",
+      "artifacts": [
+        "docs/m1-closure/M1-event-storage-design.md"
+      ],
+      "tests": [
+        "tests/test_event_storage_design.py::test_initial_event_storage_design_controls",
+        "tests/test_event_storage_design.py::test_design_rejects_weakened_control"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-026-M1-04",
+      "parent": "IMP-026",
+      "requirement": "Specify the initial migration plan.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01; Implementation Specification section 17.1",
+      "artifacts": [
+        "docs/m1-closure/M1-initial-migration-specification.md"
+      ],
+      "tests": [
+        "tests/test_initial_migration_specification.py::test_initial_migration_matches_approved_design",
+        "tests/test_initial_migration_specification.py::test_migration_rejects_weakened_constraint"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-029-M1-03",
+      "parent": "IMP-029",
+      "requirement": "Define the secret-provider interface contract without real credentials.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-029: Secret-provider interface CONTRACT; Implementation Specification section 5.1",
+      "artifacts": [
+        "docs/m1-closure/M1-secret-provider-contract.md"
+      ],
+      "tests": [
+        "tests/test_secret_provider_contract.py::test_secret_provider_contract_controls",
+        "tests/test_secret_provider_contract.py::test_contract_rejects_insecure_capability",
+        "tests/test_secret_provider_contract.py::test_contract_rejects_non_denying_failure",
+        "tests/test_secret_provider_contract.py::test_contract_rejects_caller_selected_environment"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-029-M1-04",
+      "parent": "IMP-029",
+      "requirement": "Implement executable secret providers, production credential paths, and production/service-identity least-privilege lifecycle controls.",
+      "disposition": "DEFERRED",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-029 explicit deferral; Implementation Specification section 18.5",
+      "artifacts": [
+        "docs/m1-closure/M1-scope-clarification.md"
+      ],
+      "tests": [],
+      "residual_gap": "Explicitly deferred until production/service identities and a later authorized production credential path exist; no implementation is claimed in M1.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-030-M1-03",
+      "parent": "IMP-030",
+      "requirement": "Provide foundation logging for M1.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-030; Implementation Specification section 9 Stage 1 logging",
+      "artifacts": [
+        "src/automated_trading_bot/monitoring/diagnostics.py",
+        "docs/m1-closure/M1-foundation-logging.md"
+      ],
+      "tests": [
+        "tests/test_diagnostics.py::test_structured_diagnostic_and_clock",
+        "tests/test_diagnostics.py::test_fixed_codes_and_severities",
+        "tests/test_diagnostics.py::test_unknown_fields_rejected_without_leakage",
+        "tests/test_diagnostics.py::test_context_types_rejected_without_representation",
+        "tests/test_diagnostics.py::test_protected_text_not_accepted",
+        "tests/test_diagnostics.py::test_invalid_code_or_payload_never_reaches_clock_or_sink",
+        "tests/test_diagnostics.py::test_representations_and_immutability",
+        "tests/test_diagnostics.py::test_sink_failure_preserves_replay_denial_without_retry_or_leakage",
+        "tests/test_diagnostics.py::test_invalid_clock_cannot_emit_or_leak",
+        "tests/test_diagnostics.py::test_diagnostic_cannot_supply_canonical_event_state"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-030-M1-04",
+      "parent": "IMP-030",
+      "requirement": "Provide minimum applicable metrics for M1 components.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-030: Minimum applicable metrics for M1 components; Implementation Specification section 10; owner metric contract M1-SCOPE-2026-09-11-03",
+      "artifacts": [
+        "docs/m1-closure/M1-metrics-scope-clarification.md",
+        "src/automated_trading_bot/monitoring/metrics.py",
+        "src/automated_trading_bot/domain/decision.py"
+      ],
+      "tests": [
+        "tests/test_metrics.py::test_owner_metrics_disposition_is_attributable",
+        "tests/test_metrics.py::test_lifecycle_and_existing_no_trade_observation",
+        "tests/test_metrics.py::test_count_only_canonical_expiry_rejection",
+        "tests/test_metrics.py::test_other_rejection_reasons_do_not_count_as_expiry",
+        "tests/test_metrics.py::test_expiry_observation_delegates_without_inventing_timestamp_logic",
+        "tests/test_metrics.py::test_clock_observation_uses_canonical_clock_without_health_claim",
+        "tests/test_metrics.py::test_clock_negative_observations_are_not_healthy",
+        "tests/test_metrics.py::test_arbitrary_fields_and_decrements_rejected_without_mutation",
+        "tests/test_metrics.py::test_invalid_typed_observations_preserve_state",
+        "tests/test_metrics.py::test_unknown_metric_is_not_created",
+        "tests/test_metrics.py::test_metric_failure_cannot_change_rejection_or_execute_financial_effect"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-030-M1-05",
+      "parent": "IMP-030",
+      "requirement": "Provide minimum applicable health conditions for M1 components.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-030; Implementation Specification section 10; M1-SCOPE-2026-09-11-03 explicitly separates health from metrics; owner health contract M1-SCOPE-2026-09-11-04",
+      "artifacts": [
+        "docs/m1-closure/M1-health-scope-clarification.md",
+        "src/automated_trading_bot/monitoring/health.py"
+      ],
+      "tests": [
+        "tests/test_health.py::test_owner_health_disposition_is_verbatim_and_attributable",
+        "tests/test_health.py::test_missing_input_is_unknown",
+        "tests/test_health.py::test_each_input_freshness_boundary",
+        "tests/test_health.py::test_explicit_condition_matrix",
+        "tests/test_health.py::test_real_monitoring_outcomes_supply_typed_inputs",
+        "tests/test_health.py::test_recovery_requires_complete_fresh_positive_observations",
+        "tests/test_health.py::test_duplicates_and_conflicts_are_unknown",
+        "tests/test_health.py::test_uncertainty_dominates_failure",
+        "tests/test_health.py::test_protected_input_rejected_without_leakage",
+        "tests/test_health.py::test_raw_exception_and_cross_input_status_cannot_enter",
+        "tests/test_health.py::test_unsupported_or_malformed_observations_are_unknown",
+        "tests/test_health.py::test_canonical_time_validation_and_clock_failure",
+        "tests/test_health.py::test_health_is_inert_and_separate_from_authority"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-030-M1-06",
+      "parent": "IMP-030",
+      "requirement": "Provide minimum applicable alert conditions for M1 components.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner M1-SCOPE-2026-09-11-01 IMP-030; Implementation Specification section 10; owner M1-SCOPE-2026-09-11-04 excludes alerts from the health atom; owner alert contract M1-SCOPE-2026-09-11-05",
+      "artifacts": [
+        "docs/m1-closure/M1-alert-scope-clarification.md",
+        "src/automated_trading_bot/monitoring/alerts.py"
+      ],
+      "tests": [
+        "tests/test_alerts.py::test_owner_alert_contract_is_verbatim_and_attributable",
+        "tests/test_alerts.py::test_exact_trigger_mapping_and_record_fields",
+        "tests/test_alerts.py::test_only_explicit_positive_condition_permits_clearance",
+        "tests/test_alerts.py::test_unknown_and_missing_evidence_never_clear_prior_alerts",
+        "tests/test_alerts.py::test_duplicate_inputs_and_output_order_are_deterministic",
+        "tests/test_alerts.py::test_conflicting_observations_cannot_choose_a_cleared_state",
+        "tests/test_alerts.py::test_overrides_and_arbitrary_fields_rejected",
+        "tests/test_alerts.py::test_protected_values_cannot_enter_record",
+        "tests/test_alerts.py::test_unsupported_inputs_and_raw_exceptions_rejected",
+        "tests/test_alerts.py::test_bad_evaluation_clock_cannot_fabricate_records_or_clearance",
+        "tests/test_alerts.py::test_existing_canonical_outputs_drive_alerts_without_reinterpretation",
+        "tests/test_alerts.py::test_alerts_have_no_financial_or_operational_authority"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-030-M1-07",
+      "parent": "IMP-030",
+      "requirement": "Detect degradation of telemetry that M1 itself requires.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Owner decision M1-SCOPE-2026-09-12-01 in docs/m1-closure/M1-telemetry-degradation-scope-clarification.md; supported by M1-SCOPE-2026-09-11-01, -04 and -05.",
+      "artifacts": [
+        "docs/m1-closure/M1-telemetry-degradation-scope-clarification.md",
+        "src/automated_trading_bot/monitoring/diagnostics.py",
+        "src/automated_trading_bot/monitoring/health.py",
+        "src/automated_trading_bot/monitoring/alerts.py"
+      ],
+      "tests": [
+        "tests/test_health.py::test_owner_telemetry_degradation_disposition_is_verbatim_and_attributable",
+        "tests/test_health.py::test_missing_input_is_unknown",
+        "tests/test_health.py::test_each_input_freshness_boundary",
+        "tests/test_health.py::test_explicit_condition_matrix",
+        "tests/test_health.py::test_real_monitoring_outcomes_supply_typed_inputs",
+        "tests/test_health.py::test_recovery_requires_complete_fresh_positive_observations",
+        "tests/test_health.py::test_duplicates_and_conflicts_are_unknown",
+        "tests/test_health.py::test_uncertainty_dominates_failure",
+        "tests/test_health.py::test_unsupported_or_malformed_observations_are_unknown",
+        "tests/test_health.py::test_canonical_time_validation_and_clock_failure",
+        "tests/test_health.py::test_health_is_inert_and_separate_from_authority",
+        "tests/test_alerts.py::test_only_explicit_positive_condition_permits_clearance",
+        "tests/test_alerts.py::test_unknown_and_missing_evidence_never_clear_prior_alerts",
+        "tests/test_alerts.py::test_duplicate_inputs_and_output_order_are_deterministic",
+        "tests/test_alerts.py::test_conflicting_observations_cannot_choose_a_cleared_state",
+        "tests/test_alerts.py::test_existing_canonical_outputs_drive_alerts_without_reinterpretation",
+        "tests/test_alerts.py::test_alerts_have_no_financial_or_operational_authority"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    }
+  ]
+}

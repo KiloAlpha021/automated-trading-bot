@@ -5,6 +5,7 @@ from uuid import UUID
 
 import pytest
 
+from automated_trading_bot.domain.clock import TestClock as ControlledClock
 from automated_trading_bot.domain.decision import (
     Approval, ApprovalScope, ApprovalStatus, DecisionLineage, DecisionStatus,
     NoTrade, Proposal,
@@ -187,3 +188,27 @@ def test_unknown_check_inputs_rejected_explicitly(name: str) -> None:
     inputs[name] = None
     with pytest.raises(TypeError):
         approval().matches_current_proposal(**inputs)
+
+
+@pytest.mark.parametrize("expiring_contract", ["proposal", "approval"])
+def test_expiry_across_utc_date_boundary(expiring_contract: str) -> None:
+    issued = Timestamp(datetime(2026, 9, 10, 23, 59, 59, tzinfo=UTC))
+    expiry = Timestamp(datetime(2026, 9, 11, 0, 0, 1, tzinfo=UTC))
+    later = Timestamp(datetime(2026, 9, 11, 0, 1, tzinfo=UTC))
+    intent = replace(proposal(), issued_at=issued, expires_at=later)
+    record = replace(approval(), issued_at=issued, expires_at=later)
+    if expiring_contract == "proposal":
+        intent = replace(intent, expires_at=expiry)
+    else:
+        record = replace(record, expires_at=expiry)
+    clock = ControlledClock(issued)
+
+    assert record.matches_current_proposal(intent, scope(), clock.now())
+    clock.advance(timedelta(seconds=1))
+    assert clock.now().value == datetime(2026, 9, 11, tzinfo=UTC)
+    assert record.matches_current_proposal(intent, scope(), clock.now())
+    clock.advance(timedelta(seconds=1))
+    assert clock.now() == expiry
+    assert not record.matches_current_proposal(intent, scope(), clock.now())
+    clock.advance(timedelta(seconds=1))
+    assert not record.matches_current_proposal(intent, scope(), clock.now())

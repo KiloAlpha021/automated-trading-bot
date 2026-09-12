@@ -1,5 +1,6 @@
 """M1.6 inert decision contracts; these records never grant execution authority."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, field, fields
 from enum import StrEnum
 from uuid import UUID
@@ -161,7 +162,7 @@ class Approval:
 
     def matches_current_proposal(
         self, proposal: Proposal | NoTrade, current_scope: ApprovalScope,
-        now: Timestamp,
+        now: Timestamp, *, on_expiry_rejection: Callable[[], None] | None = None,
     ) -> bool:
         """Fail closed on nonapproval, stale scope, invalid intent or expired time.
 
@@ -176,12 +177,24 @@ class Approval:
             raise TypeError("now must be a Timestamp")
         if isinstance(proposal, NoTrade):
             return False
-        return (
+        eligible = (
             self.status is ApprovalStatus.APPROVED
             and proposal.status is DecisionStatus.TRADE_PROPOSED
             and self.decision_id == proposal.decision_id
             and self.scope == proposal.scope == current_scope
             and proposal.issued_at.value <= self.issued_at.value
-            and self.issued_at.value <= now.value < self.expires_at.value
+        )
+        if not eligible:
+            return False
+        matches = (
+            self.issued_at.value <= now.value < self.expires_at.value
             and proposal.issued_at.value <= now.value < proposal.expires_at.value
         )
+        if (not matches and now.value >= self.issued_at.value
+                and now.value >= proposal.issued_at.value and on_expiry_rejection is not None):
+            # Expiry is the rejecting predicate; diagnostics cannot change False.
+            try:
+                on_expiry_rejection()
+            except Exception:
+                pass
+        return matches

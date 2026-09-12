@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "authority": "repository-contained owner dispositions",
+  "normative_source": "the marked canonical text in each artifact",
+  "decisions": [
+    {
+      "decision_id": "M1-SCOPE-2026-09-11-01",
+      "artifact": "docs/m1-closure/M1-scope-clarification.md",
+      "canonical_text_sha256": "afe38321d55cdfc1b1122010c3ee132091b5f87c74bcc866207f3b6ec4319237",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "f114a63c-972e-4313-9412-991f5bb40e68",
+      "historical_attachment_sha256": "298ce22148c2f7b917c75fac2b5f6773e409a9ae089a2614c5a3dc2919b969d4",
+      "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-11-02",
+      "artifact": "docs/m1-closure/M1-calendar-scope-clarification.md",
+      "canonical_text_sha256": "851ab0b46fa0181f407e82ffb9085d9b7a67c749f5b5bd7876055b231db54244",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": null,
+      "historical_attachment_sha256": null,
+      "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-11-03",
+      "artifact": "docs/m1-closure/M1-metrics-scope-clarification.md",
+      "canonical_text_sha256": "1fcad4a0ebfdaaa5c8eb987b5f0044986fbed41c8383d849149d7b2c8d11c678",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "2aa59a46-92ba-4474-8329-45733be12503",
+      "historical_attachment_sha256": "7a0d3329eedbfb36a0897d1f59895626a96fd21c769a7e4de49d459d9f7a80e3",
+      "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-11-04",
+      "artifact": "docs/m1-closure/M1-health-scope-clarification.md",
+      "canonical_text_sha256": "09b3dbf4bd17471c8935213aa32aa5f511f74db614726d7a7ff0533a53c01033",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "3a005556-1c35-4bfa-86d5-4876279d0170",
+      "historical_attachment_sha256": "e8d9047aa6fc63dbc5c488e6925981b68c1212cd3e20d2094555135807db15d6",
+      "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-11-05",
+      "artifact": "docs/m1-closure/M1-alert-scope-clarification.md",
+      "canonical_text_sha256": "e4e557febcabda19c94e93ae3358dc6ee241301c59b712f2c52f34f76d511933",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "223b948f-9a8c-41a9-856e-cb172180e609",
+      "historical_attachment_sha256": "067fa7f0832dcde4034c7762cba62b21a0c4f7796ddb849da02352143ed04a01",
+      "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-12-01",
+      "artifact": "docs/m1-closure/M1-telemetry-degradation-scope-clarification.md",
+      "canonical_text_sha256": "7c8e90793c5c7888ff52b9d36fce0c99adf23b01ce369fbea47332f61dc65158",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "ac76cf4f-a7f7-480d-9ef0-365f34a7cca0",
+      "historical_attachment_sha256": "23d984873408c41617938684c82a33ec884a42f4182929be502ff7df565a1457",
+      "historical_attachment_is_normative": false
+    }
+  ]
+}
