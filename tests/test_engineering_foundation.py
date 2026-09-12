@@ -35,6 +35,12 @@ def _validate(version: str, project: str, bootstrap: str, workflow: str) -> None
     assert ".venv\\Scripts" not in bootstrap
     assert not re.search(r"[A-Z]:\\Users\\", bootstrap)
     assert "name: m1-engineering-foundation" in workflow
+    assert re.search(
+        r"(?m)^      - uses: actions/checkout@v4\r?\n"
+        r"        with:\r?\n"
+        r"          fetch-depth: 0\r?$",
+        workflow,
+    )
     assert "python-version: 3.12.10" in workflow
     assert "./scripts/bootstrap.ps1" in workflow
     assert "continue-on-error" not in workflow
@@ -53,6 +59,8 @@ def test_engineering_foundation_contract() -> None:
         (2, "-m venv", "# no isolation"),
         (2, "--no-build-isolation", "--use-pep517"),
         (3, "python-version: 3.12.10", "python-version: 3.13"),
+        (3, "fetch-depth: 0", "fetch-depth: 1"),
+        (3, "          fetch-depth: 0\n", ""),
         (3, "name: m1-engineering-foundation", "name: checks"),
         (3, "run: ./scripts/bootstrap.ps1", "continue-on-error: true\n        run: ./scripts/bootstrap.ps1"),
     ],
