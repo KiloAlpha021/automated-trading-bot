@@ -72,6 +72,16 @@
       "historical_attachment_id": "cbcb7afe-e074-43b5-a49e-50bc0a4ec23b",
       "historical_attachment_sha256": null,
       "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-12-03",
+      "artifact": "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+      "canonical_text_sha256": "b545fe8b8befce40b8cf42cd45729ef7ef47efb4ca54bab06e421e75fbcf6b49",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "b0ebce3d-b816-4bc5-8c1e-2351e28fb839",
+      "historical_attachment_sha256": null,
+      "historical_attachment_is_normative": false
     }
   ]
 }

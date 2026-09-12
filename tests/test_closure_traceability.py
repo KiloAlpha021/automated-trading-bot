@@ -178,6 +178,33 @@ def test_imp_029_atomic_scope_decomposition():
     assert "Unverified supply-chain integrity cannot create production financial authority" in clarification
     assert "Production/service-identity least-privilege implementation details until those identities actually exist" in clarification
 
+
+def test_m13_owner_contract_and_atomic_decomposition():
+    root = Path(__file__).resolve().parents[1]
+    records = validate_owner_dispositions(root)
+    assert "M1-SCOPE-2026-09-12-03" in records
+    data = json.loads((root / "docs/m1-closure/traceability.json").read_text())
+    rows = {row["id"]: row for row in data["rows"]}
+    expected = {
+        "IMP-001-M1-15": "Currency core contract",
+        "IMP-001-M1-16": "Money core contract",
+        "IMP-001-M1-17": "Quantity core contract",
+        "IMP-001-M1-18": "serialization through existing M1 core-contract boundaries",
+        "IMP-001-M1-19": "property and invariant acceptance",
+    }
+    for identity, statement in expected.items():
+        row = rows[identity]
+        assert row["disposition"] == "M1"
+        assert statement in row["requirement"]
+        assert "M1-SCOPE-2026-09-12-03" in row["source"]
+        assert "docs/m1-closure/owner-dispositions.json" in row["evidence"]
+
+    decision = (root / "docs/m1-closure/M1-core-contracts-scope-clarification.md").read_text()
+    assert "do not gain new public\nserialization APIs solely for M1" in decision
+    assert "Money and Quantity therefore require no new\nstandalone serializers" in decision
+    assert "Hypothesis is not required" in decision
+    assert "does not authorize M1.7 remediation" in decision
+
 def test_unrecovered_provenance_is_not_substantive_authority():
     data, _, _ = _identity_inputs()
     rows = {row["id"]: row for row in data["rows"]}

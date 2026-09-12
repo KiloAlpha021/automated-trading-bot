@@ -1,7 +1,7 @@
 {
   "assessment": "M1 reopened post-closure assessment checkpoint",
   "complete": false,
-  "stop_reason": "M1 remains reopened and BLOCKED: IMP-001-M1-01 remains blocked by semantic-coverage gaps in M1.3, M1.7 and Stage 0B/Master Invariant Register completeness; IMP-001-M1-14 lacks hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
+  "stop_reason": "M1 remains reopened and BLOCKED: IMP-001-M1-01 remains blocked by semantic-coverage gaps in M1.7 and Stage 0B/Master Invariant Register completeness; IMP-001-M1-14 lacks hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -930,9 +930,147 @@
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
+    },
+    {
+      "id": "IMP-001-M1-15",
+      "parent_imp": "IMP-001",
+      "requirement": "Define and verify the M1 Currency core contract.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/currency.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "verification_evidence": [
+        "tests/test_currency.py::test_currency_value_and_serialization_invariants",
+        "tests/test_currency.py::test_different_currency_codes_are_unequal",
+        "tests/test_currency.py::test_currency_is_immutable",
+        "tests/test_currency.py::test_currency_rejects_non_string",
+        "tests/test_currency.py::test_currency_rejects_invalid_structure"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-16",
+      "parent_imp": "IMP-001",
+      "requirement": "Define and verify the M1 Money core contract without adding contextual financial semantics.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/money.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "verification_evidence": [
+        "tests/test_money.py::test_money_rejects_non_decimal_values",
+        "tests/test_money.py::test_money_preserves_decimal_input",
+        "tests/test_money.py::test_money_rejects_non_currency",
+        "tests/test_money.py::test_money_preserves_currency_object",
+        "tests/test_money.py::test_money_is_immutable",
+        "tests/test_money.py::test_money_value_equality_is_stable"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-17",
+      "parent_imp": "IMP-001",
+      "requirement": "Define and verify the M1 Quantity core contract without adding instrument-specific semantics.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/quantity.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "verification_evidence": [
+        "tests/test_quantity.py::test_quantity_rejects_non_decimal_values",
+        "tests/test_quantity.py::test_quantity_preserves_decimal_input",
+        "tests/test_quantity.py::test_quantity_is_immutable",
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-18",
+      "parent_imp": "IMP-001",
+      "requirement": "Prove deterministic serialization through existing M1 core-contract boundaries without inventing standalone serializers.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/event.py",
+        "src/automated_trading_bot/domain/currency.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "verification_evidence": [
+        "tests/test_event.py::test_event_envelope_round_trip",
+        "tests/test_event.py::test_event_envelope_rejects_malformed_serialized_core_values",
+        "tests/test_currency.py::test_currency_value_and_serialization_invariants"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-19",
+      "parent_imp": "IMP-001",
+      "requirement": "Prove deterministic property and invariant acceptance for every M1.3 core contract.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/identifiers.py",
+        "src/automated_trading_bot/domain/timestamp.py",
+        "src/automated_trading_bot/domain/currency.py",
+        "src/automated_trading_bot/domain/money.py",
+        "src/automated_trading_bot/domain/quantity.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "verification_evidence": [
+        "tests/test_identifiers.py::test_uuid_identifiers_reject_non_uuid",
+        "tests/test_identifiers.py::test_uuid_identifier_classes_remain_distinct",
+        "tests/test_identifiers.py::test_identifiers_remain_immutable",
+        "tests/test_timestamp.py::test_timestamp_rejects_naive_datetime",
+        "tests/test_timestamp.py::test_timestamp_rejects_non_utc_datetime",
+        "tests/test_currency.py::test_currency_rejects_invalid_structure",
+        "tests/test_money.py::test_money_preserves_decimal_input",
+        "tests/test_money.py::test_money_value_equality_is_stable",
+        "tests/test_quantity.py::test_quantity_preserves_decimal_input",
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
     }
   ],
-  "remaining_assessment": "Resolve hosted branch protection, M1.3, M1.7 and Stage 0B/Master Invariant Register completeness without changing authorization.",
+  "remaining_assessment": "Resolve hosted branch protection, M1.7 and Stage 0B/Master Invariant Register completeness without changing authorization.",
   "manifest_validation": "docs/m1-closure/closure-manifest.json remains immutable historical evidence of the prior closure event; it is not current completion authority after REOPEN_M1.",
   "historical_assessments": [
     {
@@ -36137,10 +36275,10 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "5ccbe4515237758bcfabc98df5e35483e6d9634101b403f5678052dedbd96bae",
+      "tests/test_closure_traceability.py": "b906c5f3de33e53846c87ea71b07b7caf93f964150932e20ee4c48380b21fcb9",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "e12011bc41db7e78fa402aa769d0ed60317f6b3c56736cb6aed58526e0a9f877"
+      "docs/m1-closure/traceability.json": "896f4906f9db25839d6d9353292d3698b3ddde9d5398d86100b1acc4e54da01d"
     }
   },
   "unresolved_traceability_ids": [
@@ -36155,7 +36293,8 @@
     "M1-SCOPE-2026-09-11-04",
     "M1-SCOPE-2026-09-11-05",
     "M1-SCOPE-2026-09-12-01",
-    "M1-SCOPE-2026-09-12-02"
+    "M1-SCOPE-2026-09-12-02",
+    "M1-SCOPE-2026-09-12-03"
   ],
   "post_closure_audit": {
     "classification": "REOPEN_M1",

@@ -173,6 +173,26 @@ def test_event_envelope_round_trip() -> None:
     assert reconstructed is not original
 
 
+@pytest.mark.parametrize(
+    "field, malformed",
+    [
+        ("event_id", "not-a-uuid"),
+        ("correlation_id", "not-a-uuid"),
+        ("causation_id", "not-a-uuid"),
+        ("occurred_at", "not-a-timestamp"),
+    ],
+)
+def test_event_envelope_rejects_malformed_serialized_core_values(
+    field: str,
+    malformed: str,
+) -> None:
+    serialized = make_event().to_dict()
+    serialized[field] = malformed
+
+    with pytest.raises((TypeError, ValueError)):
+        EventEnvelope.from_dict(serialized)
+
+
 # Fixed identities keep duplicate-rejection acceptance tests deterministic.
 def make_registry_event() -> EventEnvelope:
     return EventEnvelope(

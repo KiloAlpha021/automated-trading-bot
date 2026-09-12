@@ -20,7 +20,7 @@
       "tests": [
         "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions"
       ],
-      "residual_gap": "The canonical specification is repository-contained and hash-bound. Independent semantic review identified unmapped M1.1, M1.2, M1.3 and M1.7 obligations and unresolved Stage 0B/Master Invariant Register completeness; no status advancement is claimed."
+      "residual_gap": "The canonical specification is repository-contained and hash-bound. Independent semantic review still identifies unmapped M1.7 obligations and unresolved Stage 0B/Master Invariant Register completeness; no status advancement is claimed."
     },
     {
       "id": "IMP-001-M1-02",
@@ -797,6 +797,129 @@
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract"
       ],
       "residual_gap": "Repository workflow exists, but no Git remote or attributable hosted branch-protection evidence is available.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-15",
+      "parent": "IMP-001",
+      "requirement": "Define and verify the M1 Currency core contract.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/currency.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "tests": [
+        "tests/test_currency.py::test_currency_value_and_serialization_invariants",
+        "tests/test_currency.py::test_different_currency_codes_are_unequal",
+        "tests/test_currency.py::test_currency_is_immutable",
+        "tests/test_currency.py::test_currency_rejects_non_string",
+        "tests/test_currency.py::test_currency_rejects_invalid_structure"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-16",
+      "parent": "IMP-001",
+      "requirement": "Define and verify the M1 Money core contract without adding contextual financial semantics.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/money.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "tests": [
+        "tests/test_money.py::test_money_rejects_non_decimal_values",
+        "tests/test_money.py::test_money_preserves_decimal_input",
+        "tests/test_money.py::test_money_rejects_non_currency",
+        "tests/test_money.py::test_money_preserves_currency_object",
+        "tests/test_money.py::test_money_is_immutable",
+        "tests/test_money.py::test_money_value_equality_is_stable"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-17",
+      "parent": "IMP-001",
+      "requirement": "Define and verify the M1 Quantity core contract without adding instrument-specific semantics.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/quantity.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "tests": [
+        "tests/test_quantity.py::test_quantity_rejects_non_decimal_values",
+        "tests/test_quantity.py::test_quantity_preserves_decimal_input",
+        "tests/test_quantity.py::test_quantity_is_immutable",
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-18",
+      "parent": "IMP-001",
+      "requirement": "Prove deterministic serialization through existing M1 core-contract boundaries without inventing standalone serializers.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/event.py",
+        "src/automated_trading_bot/domain/currency.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "tests": [
+        "tests/test_event.py::test_event_envelope_round_trip",
+        "tests/test_event.py::test_event_envelope_rejects_malformed_serialized_core_values",
+        "tests/test_currency.py::test_currency_value_and_serialization_invariants"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-19",
+      "parent": "IMP-001",
+      "requirement": "Prove deterministic property and invariant acceptance for every M1.3 core contract.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/identifiers.py",
+        "src/automated_trading_bot/domain/timestamp.py",
+        "src/automated_trading_bot/domain/currency.py",
+        "src/automated_trading_bot/domain/money.py",
+        "src/automated_trading_bot/domain/quantity.py",
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+      ],
+      "tests": [
+        "tests/test_identifiers.py::test_uuid_identifiers_reject_non_uuid",
+        "tests/test_identifiers.py::test_uuid_identifier_classes_remain_distinct",
+        "tests/test_identifiers.py::test_identifiers_remain_immutable",
+        "tests/test_timestamp.py::test_timestamp_rejects_naive_datetime",
+        "tests/test_timestamp.py::test_timestamp_rejects_non_utc_datetime",
+        "tests/test_currency.py::test_currency_rejects_invalid_structure",
+        "tests/test_money.py::test_money_preserves_decimal_input",
+        "tests/test_money.py::test_money_value_equality_is_stable",
+        "tests/test_quantity.py::test_quantity_preserves_decimal_input",
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+      ],
+      "residual_gap": "",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]

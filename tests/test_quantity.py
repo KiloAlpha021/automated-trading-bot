@@ -33,3 +33,8 @@ def test_quantity_preserves_decimal_input(value: Decimal) -> None:
     result = Quantity(value=value)
 
     assert result.value is value
+
+
+def test_quantity_value_equality_is_stable() -> None:
+    assert Quantity(Decimal("2.50")) == Quantity(Decimal("2.50"))
+    assert Quantity(Decimal("2.50")) != Quantity(Decimal("2.51"))

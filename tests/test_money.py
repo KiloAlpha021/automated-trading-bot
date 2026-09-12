@@ -65,3 +65,15 @@ def test_money_currency_is_immutable() -> None:
         money.currency = Currency("USD")
 
     assert money.currency == Currency("GBP")
+
+
+def test_money_value_equality_is_stable() -> None:
+    assert Money(Decimal("10.50"), Currency("GBP")) == Money(
+        Decimal("10.50"), Currency("GBP")
+    )
+    assert Money(Decimal("10.50"), Currency("GBP")) != Money(
+        Decimal("10.50"), Currency("USD")
+    )
+    assert Money(Decimal("10.50"), Currency("GBP")) != Money(
+        Decimal("10.51"), Currency("GBP")
+    )
