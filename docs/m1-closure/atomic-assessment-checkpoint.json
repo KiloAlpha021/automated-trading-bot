@@ -1,7 +1,7 @@
 {
   "assessment": "M1 reopened post-closure assessment checkpoint",
   "complete": false,
-  "stop_reason": "M1 remains reopened and BLOCKED solely because IMP-001-M1-14 lacks attributable hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
+  "stop_reason": "All 50 M1 atoms are verified. M1 remains formally reopened pending a separate final exit-gate verification; authorization remains NONE and Stage 2 is not authorized.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -740,11 +740,18 @@
       "implementation_evidence": [
         "README.md",
         "scripts/bootstrap.ps1",
-        "scripts/m1_engineering_foundation.py"
+        "scripts/m1_engineering_foundation.py",
+        "scripts/checked-native.ps1"
       ],
       "verification_evidence": [
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
-        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract",
+        "tests/test_engineering_foundation.py::test_bootstrap_checks_every_native_command",
+        "tests/test_engineering_foundation.py::test_checked_native_preserves_exit_code_and_stops",
+        "tests/test_engineering_foundation.py::test_exact_dependency_identity_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_pip_check_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_import_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_engineering_check_stops_at_failed_required_control"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
@@ -894,11 +901,18 @@
       "applicability": "M1_REQUIRED",
       "implementation_evidence": [
         ".github/workflows/m1-engineering-foundation.yml",
-        "scripts/bootstrap.ps1"
+        "scripts/bootstrap.ps1",
+        "scripts/checked-native.ps1"
       ],
       "verification_evidence": [
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
-        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract",
+        "tests/test_engineering_foundation.py::test_bootstrap_checks_every_native_command",
+        "tests/test_engineering_foundation.py::test_checked_native_preserves_exit_code_and_stops",
+        "tests/test_engineering_foundation.py::test_exact_dependency_identity_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_pip_check_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_import_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_engineering_check_stops_at_failed_required_control"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
@@ -916,18 +930,22 @@
       "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
       "applicability": "M1_REQUIRED",
       "implementation_evidence": [
-        ".github/workflows/m1-engineering-foundation.yml"
+        ".github/workflows/m1-engineering-foundation.yml",
+        "docs/m1-closure/hosted-branch-protection-evidence.json"
       ],
       "verification_evidence": [
-        "tests/test_engineering_foundation.py::test_engineering_foundation_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
+        "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence",
+        "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence_rejects_weakened_control"
       ],
       "invalid_verification_references": [],
-      "status": "INSUFFICIENT_EVIDENCE",
+      "status": "VERIFIED",
       "explicit_deferral_source": null,
-      "smallest_corrective_action": "Configure hosted branch protection to require m1-engineering-foundation and record attributable enforcement/bypass evidence.",
-      "verification_limits": "Repository workflow exists, but no Git remote or attributable hosted branch-protection evidence is available.",
+      "smallest_corrective_action": null,
+      "verification_limits": "Point-in-time hosted observation. This artifact does not itself prevent a later settings change and grants no M1 completion or trading authority.",
       "evidence": [
-        "docs/m1-closure/owner-dispositions.json"
+        "docs/m1-closure/owner-dispositions.json",
+        "docs/m1-closure/hosted-branch-protection-evidence.json"
       ]
     },
     {
@@ -1135,7 +1153,7 @@
       "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
     }
   ],
-  "remaining_assessment": "Resolve hosted branch protection without changing authorization or treating repository workflow configuration as hosted enforcement evidence.",
+  "remaining_assessment": "Run the separate final M1 exit-gate verification without changing authorization or starting Stage 2.",
   "manifest_validation": "docs/m1-closure/closure-manifest.json remains immutable historical evidence of the prior closure event; it is not current completion authority after REOPEN_M1.",
   "historical_assessments": [
     {
@@ -36340,15 +36358,13 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "ebc27f5942bcafaf14293caa16de113ccc3ca3b27b65b5c1e3be5301130d0de5",
+      "tests/test_closure_traceability.py": "8ec3a34ba149b2dcb1d4218e925ca17ff7f64940d2d7562163462e32d40a7900",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "4228c4e8854408a59181a977ebe13b200545175c30aae94c16462d4ac7c99cc6"
+      "docs/m1-closure/traceability.json": "2b04208ab871aef2458d24c63f7d2a81b0d919773b4cea5e6971bdbc52848444"
     }
   },
-  "unresolved_traceability_ids": [
-    "IMP-001-M1-14"
-  ],
+  "unresolved_traceability_ids": [],
   "unassessed_requirement_ids": [],
   "scope_decisions": [
     "M1-SCOPE-2026-09-11-01",

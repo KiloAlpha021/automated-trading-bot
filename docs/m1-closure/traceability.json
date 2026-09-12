@@ -647,11 +647,18 @@
       "artifacts": [
         "README.md",
         "scripts/bootstrap.ps1",
-        "scripts/m1_engineering_foundation.py"
+        "scripts/m1_engineering_foundation.py",
+        "scripts/checked-native.ps1"
       ],
       "tests": [
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
-        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract",
+        "tests/test_engineering_foundation.py::test_bootstrap_checks_every_native_command",
+        "tests/test_engineering_foundation.py::test_checked_native_preserves_exit_code_and_stops",
+        "tests/test_engineering_foundation.py::test_exact_dependency_identity_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_pip_check_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_import_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_engineering_check_stops_at_failed_required_control"
       ],
       "residual_gap": "",
       "evidence": [
@@ -780,11 +787,18 @@
       "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
       "artifacts": [
         ".github/workflows/m1-engineering-foundation.yml",
-        "scripts/bootstrap.ps1"
+        "scripts/bootstrap.ps1",
+        "scripts/checked-native.ps1"
       ],
       "tests": [
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
-        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract",
+        "tests/test_engineering_foundation.py::test_bootstrap_checks_every_native_command",
+        "tests/test_engineering_foundation.py::test_checked_native_preserves_exit_code_and_stops",
+        "tests/test_engineering_foundation.py::test_exact_dependency_identity_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_pip_check_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_import_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_engineering_check_stops_at_failed_required_control"
       ],
       "residual_gap": "",
       "evidence": [
@@ -799,14 +813,18 @@
       "provenance_status": "INFERRED",
       "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
       "artifacts": [
-        ".github/workflows/m1-engineering-foundation.yml"
+        ".github/workflows/m1-engineering-foundation.yml",
+        "docs/m1-closure/hosted-branch-protection-evidence.json"
       ],
       "tests": [
-        "tests/test_engineering_foundation.py::test_engineering_foundation_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
+        "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence",
+        "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence_rejects_weakened_control"
       ],
-      "residual_gap": "Repository workflow exists, but no Git remote or attributable hosted branch-protection evidence is available.",
+      "residual_gap": "",
       "evidence": [
-        "docs/m1-closure/owner-dispositions.json"
+        "docs/m1-closure/owner-dispositions.json",
+        "docs/m1-closure/hosted-branch-protection-evidence.json"
       ]
     },
     {

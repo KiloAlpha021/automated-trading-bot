@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "requirement_id": "IMP-001-M1-14",
+  "repository": "KiloAlpha21/automated-trading-bot",
+  "repository_url": "https://github.com/KiloAlpha21/automated-trading-bot",
+  "default_branch": "master",
+  "protected_branch": "master",
+  "required_status_check": {
+    "context": "m1-engineering-foundation",
+    "app_id": 15368,
+    "strict": true,
+    "required_before_merge": true
+  },
+  "pull_request_requirement": {
+    "enabled": true,
+    "required_approving_review_count": 1
+  },
+  "enforcement": {
+    "enabled": true,
+    "enforce_admins": true,
+    "ordinary_contributor_bypass_allowed": false,
+    "force_pushes_allowed": false,
+    "deletions_allowed": false
+  },
+  "hosted_workflow_run": {
+    "workflow": "m1-engineering-foundation",
+    "run_id": 34703772991,
+    "event": "push",
+    "head_sha": "1e93b0fc7a6f2e2ddcf1522adbaa6e30eec6d8db",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-09-12T15:57:26Z",
+    "updated_at": "2026-09-12T15:58:19Z",
+    "url": "https://github.com/KiloAlpha21/automated-trading-bot/actions/runs/34703772991"
+  },
+  "observed_at": "2026-09-12T16:13:00Z",
+  "evidence_source": {
+    "method": "GitHub REST API",
+    "repository_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot",
+    "workflow_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/actions/workflows/m1-engineering-foundation.yml/runs",
+    "protection_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/branches/master/protection",
+    "protection_endpoint_authenticated": true,
+    "credentials_recorded": false
+  },
+  "limitations": "Point-in-time hosted observation. This artifact does not itself prevent a later settings change and grants no M1 completion or trading authority."
+}
