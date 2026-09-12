@@ -740,11 +740,18 @@
       "implementation_evidence": [
         "README.md",
         "scripts/bootstrap.ps1",
-        "scripts/m1_engineering_foundation.py"
+        "scripts/m1_engineering_foundation.py",
+        "scripts/checked-native.ps1"
       ],
       "verification_evidence": [
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
-        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract",
+        "tests/test_engineering_foundation.py::test_bootstrap_checks_every_native_command",
+        "tests/test_engineering_foundation.py::test_checked_native_preserves_exit_code_and_stops",
+        "tests/test_engineering_foundation.py::test_exact_dependency_identity_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_pip_check_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_import_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_engineering_check_stops_at_failed_required_control"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
@@ -894,11 +901,18 @@
       "applicability": "M1_REQUIRED",
       "implementation_evidence": [
         ".github/workflows/m1-engineering-foundation.yml",
-        "scripts/bootstrap.ps1"
+        "scripts/bootstrap.ps1",
+        "scripts/checked-native.ps1"
       ],
       "verification_evidence": [
         "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
-        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract",
+        "tests/test_engineering_foundation.py::test_bootstrap_checks_every_native_command",
+        "tests/test_engineering_foundation.py::test_checked_native_preserves_exit_code_and_stops",
+        "tests/test_engineering_foundation.py::test_exact_dependency_identity_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_pip_check_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_import_failure_stops_verification",
+        "tests/test_engineering_foundation.py::test_engineering_check_stops_at_failed_required_control"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
@@ -36347,7 +36361,7 @@
       "tests/test_closure_traceability.py": "8ec3a34ba149b2dcb1d4218e925ca17ff7f64940d2d7562163462e32d40a7900",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "9abd80fa187061d271da05c85d24e523cbefbfbc14c95ac8d3894d9ee3cb3c37"
+      "docs/m1-closure/traceability.json": "2b04208ab871aef2458d24c63f7d2a81b0d919773b4cea5e6971bdbc52848444"
     }
   },
   "unresolved_traceability_ids": [],
