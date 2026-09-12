@@ -1,7 +1,7 @@
 {
   "assessment": "M1 reopened post-closure assessment checkpoint",
   "complete": false,
-  "stop_reason": "M1 remains reopened and BLOCKED: IMP-001-M1-01 remains blocked by semantic-coverage gaps in M1.7 and Stage 0B/Master Invariant Register completeness; IMP-001-M1-14 lacks hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
+  "stop_reason": "M1 remains reopened and BLOCKED: IMP-001-M1-01 remains blocked by the Stage 0B/Master Invariant Register semantic-coverage gap; IMP-001-M1-14 lacks hosted branch-protection evidence. Authorization remains NONE and Stage 2 is not authorized.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -1068,9 +1068,75 @@
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
+    },
+    {
+      "id": "IMP-001-M1-20",
+      "parent_imp": "IMP-001",
+      "requirement": "Define and strictly validate the canonical M1.7 operational-mode contract as immutable state.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.7 (Operational mode; NO_NEW_ORDERS default without authorization; fail-closed startup tests), supported by sections 6.3 and 12.3 ADR-006.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "docs/M1.7-operational-mode.md"
+      ],
+      "verification_evidence": [
+        "tests/test_operational_mode.py::test_canonical_operational_mode_vocabulary",
+        "tests/test_operational_mode.py::test_restrictive_mode_can_be_recorded_without_granting_authority",
+        "tests/test_operational_mode.py::test_invalid_or_unknown_mode_is_not_coerced",
+        "tests/test_operational_mode.py::test_state_is_immutable"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
+    },
+    {
+      "id": "IMP-001-M1-21",
+      "parent_imp": "IMP-001",
+      "requirement": "Start every unauthorised M1.7 operational state in NO_NEW_ORDERS deterministically.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.7 (Operational mode; NO_NEW_ORDERS default without authorization; fail-closed startup tests), supported by sections 6.3 and 12.3 ADR-006.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "docs/M1.7-operational-mode.md"
+      ],
+      "verification_evidence": [
+        "tests/test_operational_mode.py::test_startup_defaults_to_no_new_orders",
+        "tests/test_operational_mode.py::test_fresh_start_does_not_restore_previous_state_implicitly"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
+    },
+    {
+      "id": "IMP-001-M1-22",
+      "parent_imp": "IMP-001",
+      "requirement": "Ensure absent authorization and external evidence cannot create operational or financial authority.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.7 (Operational mode; NO_NEW_ORDERS default without authorization; fail-closed startup tests), supported by sections 6.3 and 12.3 ADR-006.",
+      "applicability": "M1_REQUIRED",
+      "implementation_evidence": [
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "docs/M1.7-operational-mode.md"
+      ],
+      "verification_evidence": [
+        "tests/test_operational_mode.py::test_modes_requiring_authorization_are_rejected",
+        "tests/test_operational_mode.py::test_startup_has_no_authorization_shortcut",
+        "tests/test_operational_mode.py::test_external_evidence_cannot_create_mode_authority",
+        "tests/test_operational_mode.py::test_operational_state_exposes_no_financial_effect_surface",
+        "tests/test_replay.py::test_replay_financial_attempt_is_hard_denied",
+        "tests/test_architecture.py::test_current_strategy_import_boundary"
+      ],
+      "invalid_verification_references": [],
+      "status": "VERIFIED",
+      "explicit_deferral_source": null,
+      "smallest_corrective_action": null,
+      "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
     }
   ],
-  "remaining_assessment": "Resolve hosted branch protection, M1.7 and Stage 0B/Master Invariant Register completeness without changing authorization.",
+  "remaining_assessment": "Resolve hosted branch protection and Stage 0B/Master Invariant Register completeness without changing authorization.",
   "manifest_validation": "docs/m1-closure/closure-manifest.json remains immutable historical evidence of the prior closure event; it is not current completion authority after REOPEN_M1.",
   "historical_assessments": [
     {
@@ -36275,10 +36341,10 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "b906c5f3de33e53846c87ea71b07b7caf93f964150932e20ee4c48380b21fcb9",
+      "tests/test_closure_traceability.py": "271fcee1e113bd0d6dbfdfb3a07d9ccb424376caae18bfbb7e28ddcc44eea690",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "896f4906f9db25839d6d9353292d3698b3ddde9d5398d86100b1acc4e54da01d"
+      "docs/m1-closure/traceability.json": "a7f5c44899e0633e88a8e178c4b730c9ed4977aa72e5706d674e00f233303b36"
     }
   },
   "unresolved_traceability_ids": [

@@ -5,6 +5,20 @@ import pytest
 from automated_trading_bot.domain.operational_mode import OperationalMode, OperationalState
 
 
+def test_canonical_operational_mode_vocabulary() -> None:
+    assert set(OperationalMode) == {
+        OperationalMode.NORMAL,
+        OperationalMode.DEGRADED,
+        OperationalMode.NO_NEW_ORDERS,
+        OperationalMode.READ_ONLY,
+        OperationalMode.CANCEL_ONLY,
+        OperationalMode.STRATEGY_DISABLED,
+        OperationalMode.INSTRUMENT_DISABLED,
+        OperationalMode.BROKER_DISABLED,
+        OperationalMode.HALTED,
+    }
+
+
 def test_startup_defaults_to_no_new_orders() -> None:
     state = OperationalState()
     assert state.mode is OperationalMode.NO_NEW_ORDERS
@@ -56,3 +70,21 @@ def test_startup_has_no_authorization_shortcut(evidence: object) -> None:
     with pytest.raises(TypeError):
         OperationalState(authorization=evidence)
     assert OperationalState().mode is OperationalMode.NO_NEW_ORDERS
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["approval", "saved_state", "persisted_state", "health", "monitoring"],
+)
+def test_external_evidence_cannot_create_mode_authority(field: str) -> None:
+    with pytest.raises(TypeError):
+        OperationalState(**{field: "NORMAL"})
+    assert OperationalState().mode is OperationalMode.NO_NEW_ORDERS
+
+
+def test_operational_state_exposes_no_financial_effect_surface() -> None:
+    state = OperationalState()
+    assert not any(
+        hasattr(state, name)
+        for name in ("authorize", "execute", "submit", "place_order", "send_order")
+    )

@@ -20,7 +20,7 @@
       "tests": [
         "tests/test_closure_traceability.py::test_required_parents_and_explicit_dispositions"
       ],
-      "residual_gap": "The canonical specification is repository-contained and hash-bound. Independent semantic review still identifies unmapped M1.7 obligations and unresolved Stage 0B/Master Invariant Register completeness; no status advancement is claimed."
+      "residual_gap": "The canonical specification is repository-contained and hash-bound. Stage 0B/Master Invariant Register completeness remains unresolved; no status advancement is claimed."
     },
     {
       "id": "IMP-001-M1-02",
@@ -923,6 +923,63 @@
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
+    },
+    {
+      "id": "IMP-001-M1-20",
+      "parent": "IMP-001",
+      "requirement": "Define and strictly validate the canonical M1.7 operational-mode contract as immutable state.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.7 (Operational mode; NO_NEW_ORDERS default without authorization; fail-closed startup tests), supported by sections 6.3 and 12.3 ADR-006.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "docs/M1.7-operational-mode.md"
+      ],
+      "tests": [
+        "tests/test_operational_mode.py::test_canonical_operational_mode_vocabulary",
+        "tests/test_operational_mode.py::test_restrictive_mode_can_be_recorded_without_granting_authority",
+        "tests/test_operational_mode.py::test_invalid_or_unknown_mode_is_not_coerced",
+        "tests/test_operational_mode.py::test_state_is_immutable"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-001-M1-21",
+      "parent": "IMP-001",
+      "requirement": "Start every unauthorised M1.7 operational state in NO_NEW_ORDERS deterministically.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.7 (Operational mode; NO_NEW_ORDERS default without authorization; fail-closed startup tests), supported by sections 6.3 and 12.3 ADR-006.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "docs/M1.7-operational-mode.md"
+      ],
+      "tests": [
+        "tests/test_operational_mode.py::test_startup_defaults_to_no_new_orders",
+        "tests/test_operational_mode.py::test_fresh_start_does_not_restore_previous_state_implicitly"
+      ],
+      "residual_gap": ""
+    },
+    {
+      "id": "IMP-001-M1-22",
+      "parent": "IMP-001",
+      "requirement": "Ensure absent authorization and external evidence cannot create operational or financial authority.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.7 (Operational mode; NO_NEW_ORDERS default without authorization; fail-closed startup tests), supported by sections 6.3 and 12.3 ADR-006.",
+      "artifacts": [
+        "src/automated_trading_bot/domain/operational_mode.py",
+        "docs/M1.7-operational-mode.md"
+      ],
+      "tests": [
+        "tests/test_operational_mode.py::test_modes_requiring_authorization_are_rejected",
+        "tests/test_operational_mode.py::test_startup_has_no_authorization_shortcut",
+        "tests/test_operational_mode.py::test_external_evidence_cannot_create_mode_authority",
+        "tests/test_operational_mode.py::test_operational_state_exposes_no_financial_effect_surface",
+        "tests/test_replay.py::test_replay_financial_attempt_is_hard_denied",
+        "tests/test_architecture.py::test_current_strategy_import_boundary"
+      ],
+      "residual_gap": ""
     }
   ]
 }

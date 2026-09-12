@@ -205,6 +205,24 @@ def test_m13_owner_contract_and_atomic_decomposition():
     assert "Hypothesis is not required" in decision
     assert "does not authorize M1.7 remediation" in decision
 
+
+def test_m17_has_dedicated_atomic_traceability():
+    root = Path(__file__).resolve().parents[1]
+    data = json.loads((root / "docs/m1-closure/traceability.json").read_text())
+    rows = {row["id"]: row for row in data["rows"]}
+    expected = {
+        "IMP-001-M1-20": "canonical M1.7 operational-mode contract",
+        "IMP-001-M1-21": "NO_NEW_ORDERS deterministically",
+        "IMP-001-M1-22": "cannot create operational or financial authority",
+    }
+    for identity, statement in expected.items():
+        row = rows[identity]
+        assert row["disposition"] == "M1"
+        assert statement in row["requirement"]
+        assert "Implementation Specification v1.0 section 11 M1.7" in row["source"]
+        assert "docs/M1.7-operational-mode.md" in row["artifacts"]
+        assert row["tests"]
+
 def test_unrecovered_provenance_is_not_substantive_authority():
     data, _, _ = _identity_inputs()
     rows = {row["id"]: row for row in data["rows"]}
