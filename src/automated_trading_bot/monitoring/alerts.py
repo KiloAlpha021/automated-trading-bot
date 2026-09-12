@@ -90,12 +90,12 @@ def evaluate_alerts(conditions: tuple[Condition, ...], *, clock: Clock,
     """Absence/UNKNOWN is unresolved, never positive clearance evidence."""
     if unsupported or type(conditions) is not tuple:
         raise TypeError("unsupported alert evaluation inputs")
-    current: dict[AlertIdentity, Condition] = {}
-    for condition in conditions:
-        identity = _identity(condition)
-        if identity in current and current[identity] is not condition:
+    current: dict[AlertIdentity, Condition | None] = {}
+    for observed_condition in conditions:
+        identity = _identity(observed_condition)
+        if identity in current and current[identity] is not observed_condition:
             raise ValueError("conflicting alert conditions")
-        current[identity] = condition
+        current[identity] = observed_condition
     try:
         now = clock.now()
         _validate_time(now)

@@ -38,10 +38,29 @@ def _baseline_locked_dependencies() -> dict[str, str]:
     return result
 
 
+def _baseline_owner_ids() -> list[str]:
+    content = subprocess.run(
+        ["git", "show", f"{BASELINE}:docs/m1-closure/owner-dispositions.json"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    ).stdout
+    return [item["decision_id"] for item in json.loads(content)["decisions"]]
+
+
+def _baseline_json(path: str) -> dict:
+    content = subprocess.run(
+        ["git", "show", f"{BASELINE}:{path}"], cwd=ROOT, check=True,
+        capture_output=True, text=True, encoding="utf-8",
+    ).stdout
+    return json.loads(content)
+
+
 def _validate(data: dict) -> None:
     checkpoint = _load(ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json")
     traceability = _load(ROOT / "docs/m1-closure/traceability.json")
-    owners = _load(ROOT / "docs/m1-closure/owner-dispositions.json")
     assert set(data) == {
         "schema_version", "milestone_id", "milestone_status", "exit_gate",
         "completed_at", "baseline_revision", "governing_specification",
@@ -67,21 +86,33 @@ def _validate(data: dict) -> None:
     records = checkpoint["records"]
     row_ids = [row["id"] for row in rows]
     record_ids = [record["id"] for record in records]
-    assert len(row_ids) == len(set(row_ids)) == 30
+    assert len(row_ids) == len(set(row_ids)) >= 30
     assert set(row_ids) == set(record_ids)
-    assert checkpoint["complete"] is False
-    assert checkpoint["assessment_status"] == "BLOCKED"
+    current = _load(ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json")
+    assert current["complete"] is False
+    assert current["assessment_status"] == "BLOCKED"
     assert checkpoint["authorization"] == "NONE"
     assert checkpoint["unassessed_requirement_ids"] == []
-    assert checkpoint["unresolved_traceability_ids"] == ["IMP-001-M1-01"]
-    assert checkpoint["post_closure_audit"]["classification"] == "REOPEN_M1"
-    assert checkpoint["post_closure_audit"]["historical_completion_manifest"] == (
+    assert "IMP-001-M1-01" in current["unresolved_traceability_ids"]
+    assert current["post_closure_audit"]["classification"] == "REOPEN_M1"
+    assert current["post_closure_audit"]["historical_completion_manifest"] == (
         "docs/m1-closure/closure-manifest.json"
     )
 
-    implemented = sorted(r["id"] for r in records if r["applicability"] == "M1_REQUIRED")
-    deferred = {r["id"]: r for r in records if r["applicability"] == "EXPLICITLY_DEFERRED"}
     coverage = data["coverage"]
+    recorded_coverage = _load(MANIFEST)["coverage"]
+    assert coverage["m1_required_atom_ids"] == recorded_coverage["m1_required_atom_ids"]
+    historical_ids = set(coverage["m1_required_atom_ids"]) | {
+        item["id"] for item in coverage["explicitly_deferred_atoms"]
+    }
+    historical_records = [r for r in records if r["id"] in historical_ids]
+    implemented = sorted(
+        r["id"] for r in historical_records if r["applicability"] == "M1_REQUIRED"
+    )
+    deferred = {
+        r["id"]: r for r in historical_records
+        if r["applicability"] == "EXPLICITLY_DEFERRED"
+    }
     assert coverage["traceability_atoms"] == 30
     assert coverage["assessment_records"] == 30
     assert coverage["assessment_totals"] == {
@@ -98,7 +129,7 @@ def _validate(data: dict) -> None:
         assert declared["source"] == record["explicit_deferral_source"]
         assert declared["limits"] == record["verification_limits"]
 
-    assert data["owner_dispositions"] == [d["decision_id"] for d in owners["decisions"]]
+    assert data["owner_dispositions"] == _baseline_owner_ids()
     assert data["evidence"]["hash_model"] == HASH_MODEL
     for reference in data["evidence"]["repository_artifacts"]:
         assert not Path(reference).is_absolute()

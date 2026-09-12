@@ -11,7 +11,6 @@ from owner_disposition_evidence import assert_owner_disposition
 from test_decision import approval, proposal, no_trade, scope, instant
 from automated_trading_bot.domain.clock import TestClock as ControlledClock
 from automated_trading_bot.domain.decision import Approval, ApprovalStatus
-from automated_trading_bot.domain.timestamp import Timestamp
 from automated_trading_bot.monitoring.metrics import (
     ClockObservation, Metric, MetricsRegistry, MetricsSnapshot,
 )

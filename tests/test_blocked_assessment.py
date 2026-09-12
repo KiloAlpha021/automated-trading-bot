@@ -122,7 +122,7 @@ def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
            if row["status"] in {"INSUFFICIENT_EVIDENCE", "NOT_IMPLEMENTED"}}
     )
     assert checkpoint["unresolved_traceability_ids"] == unresolved, "Unresolved blocker omitted"
-    assert unresolved == ["IMP-001-M1-01"]
+    assert unresolved == ["IMP-001-M1-01", "IMP-001-M1-14"]
     expected_unassessed = sorted(rows.keys() - assessed.keys())
     assert checkpoint["unassessed_requirement_ids"] == expected_unassessed
     assert checkpoint["parent_set_is_assessed"] is (not expected_unassessed)
@@ -131,8 +131,11 @@ def _verify(checkpoint: dict, traceability: dict, actual: dict) -> None:
         if key in assessed:
             assert assessed[key]["status"] in {"INSUFFICIENT_EVIDENCE", "NOT_IMPLEMENTED"}
     assert assessed["IMP-001-M1-01"]["status"] == "INSUFFICIENT_EVIDENCE"
-    assert all(record["status"] == "VERIFIED" for key, record in assessed.items()
-               if key != "IMP-001-M1-01")
+    assert all(
+        record["status"] == "VERIFIED"
+        for key, record in assessed.items()
+        if key not in unresolved
+    )
     assert "semantic-coverage" in checkpoint["stop_reason"]
     assert (ROOT / "docs/m1-closure/closure-manifest.json").is_file()
     assert checkpoint["post_closure_audit"]["classification"] == "REOPEN_M1"

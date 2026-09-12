@@ -1,2 +1,2 @@
 def test_package_import():
-    import automated_trading_bot
+    assert __import__("automated_trading_bot") is not None

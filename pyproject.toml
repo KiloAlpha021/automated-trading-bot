@@ -7,12 +7,22 @@ name = "automated-trading-bot"
 version = "0.0.0"
 description = "Automated Trading Bot repository bootstrap"
 readme = "README.md"
+requires-python = "==3.12.10"
 dependencies = []
 [project.optional-dependencies]
 dev = ["pytest==9.1.1"]
-# Python compatibility policy is pending review of the audited baseline.
-
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["automated_trading_bot", "automated_trading_bot.*"]
 namespaces = false
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/automated_trading_bot"]

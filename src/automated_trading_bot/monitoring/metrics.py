@@ -52,7 +52,7 @@ class MetricsRegistry:
         if metric is Metric.CLOCK_HEALTH_OBSERVATION:
             if any(v is not None for v in (approval, proposal, current_scope, now, no_trade)):
                 raise TypeError("invalid metric inputs")
-            if not callable(getattr(clock, "now", None)):
+            if clock is None or not callable(getattr(clock, "now", None)):
                 raise TypeError("invalid metric inputs")
             try:
                 stamp = clock.now()

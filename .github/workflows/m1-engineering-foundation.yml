@@ -1,0 +1,24 @@
+name: m1-engineering-foundation
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  m1-engineering-foundation:
+    name: m1-engineering-foundation
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.12.10
+      - name: Run clean M1 engineering foundation
+        shell: pwsh
+        run: ./scripts/bootstrap.ps1 -Environment .venv-m1-ci
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m1-engineering-foundation-evidence
+          path: |
+            coverage.xml

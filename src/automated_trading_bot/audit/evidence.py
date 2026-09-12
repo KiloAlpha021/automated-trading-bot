@@ -37,7 +37,7 @@ def _strings(value: object, *, nonempty: bool = True) -> None:
 
 def _hex(value: object, length: int) -> None:
     _text(value)
-    if re.fullmatch(r"[0-9a-f]{" + str(length) + r"}", value) is None:
+    if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{" + str(length) + r"}", value) is None:
         raise ValueError("invalid hexadecimal identity")
 
 

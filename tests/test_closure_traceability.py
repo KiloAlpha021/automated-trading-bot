@@ -213,14 +213,17 @@ def _verify_complete_atomic_mapping(data, checkpoint):
         assert row["requirement"] == record["requirement"]
         assert row["source"].strip() and record["source"].strip()
         assert row["provenance_status"] == "INFERRED"
-        expected_status = ("INSUFFICIENT_EVIDENCE"
-                           if row["id"] == "IMP-001-M1-01" else "VERIFIED")
+        expected_status = (
+            "INSUFFICIENT_EVIDENCE"
+            if row["id"] in {"IMP-001-M1-01", "IMP-001-M1-14"}
+            else "VERIFIED"
+        )
         assert record["status"] == expected_status
         assert record["verification_evidence"]
         if row["disposition"] == "M1":
             assert record["applicability"] == "M1_REQUIRED"
             assert row["artifacts"] and row["tests"]
-            if row["id"] == "IMP-001-M1-01":
+            if expected_status == "INSUFFICIENT_EVIDENCE":
                 assert row["residual_gap"]
             else:
                 assert row["residual_gap"] == ""

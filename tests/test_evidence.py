@@ -63,48 +63,55 @@ def test_export_record_order_is_deterministic():
 def test_missing_manifest_field(field):
     data = manifest()
     del data[field]
-    with pytest.raises(ValueError): validate(data)
+    with pytest.raises(ValueError):
+        validate(data)
 
 
 @pytest.mark.parametrize("field", ["requirement_id", "source", "requirement", "component", "schema_impact", "tests", "control", "evidence", "status", "dependencies", "gate", "provenance_status"])
 def test_missing_record_field(field):
     data = manifest()
     del data["records"][0][field]
-    with pytest.raises(ValueError): validate(data)
+    with pytest.raises(ValueError):
+        validate(data)
 
 
 @pytest.mark.parametrize("field,value", [("schema_version", True), ("schema_version", 2), ("authorization", "APPROVED"), ("records", {}), ("milestone_id", ""), ("source_sha256", "unknown"), ("baseline_revision", "HEAD")])
 def test_invalid_manifest_values(field, value):
     data = manifest()
     data[field] = value
-    with pytest.raises((TypeError, ValueError)): validate(data)
+    with pytest.raises((TypeError, ValueError)):
+        validate(data)
 
 
 @pytest.mark.parametrize("field,value", [("status", "Unknown"), ("provenance_status", "GUESSED"), ("requirement", " "), ("component", None), ("evidence", []), ("dependencies", "IMP-001"), ("tests", {}), ("source", []), ("requirement_id", "")])
 def test_invalid_record_values(field, value):
     data = manifest()
     data["records"][0][field] = value
-    with pytest.raises((TypeError, ValueError)): validate(data)
+    with pytest.raises((TypeError, ValueError)):
+        validate(data)
 
 
 @pytest.mark.parametrize("field", ["positive", "negative", "failure"])
 def test_missing_test_category_rejected(field):
     data = manifest()
     data["records"][0]["tests"][field] = []
-    with pytest.raises(ValueError): validate(data)
+    with pytest.raises(ValueError):
+        validate(data)
 
 
 @pytest.mark.parametrize("field,value", [("baseline_revision", "a" * 40), ("source_sha256", "b" * 64)])
 def test_stale_binding_rejected(field, value):
     data = manifest()
     data[field] = value
-    with pytest.raises(ValueError, match="binding mismatch"): validate(data)
+    with pytest.raises(ValueError, match="binding mismatch"):
+        validate(data)
 
 
 def test_duplicate_requirement_rejected():
     data = manifest()
     data["records"].append(record())
-    with pytest.raises(ValueError, match="duplicate requirement"): validate(data)
+    with pytest.raises(ValueError, match="duplicate requirement"):
+        validate(data)
 
 
 def test_required_coverage_cannot_be_assumed_from_skeleton():
@@ -114,16 +121,19 @@ def test_required_coverage_cannot_be_assumed_from_skeleton():
 
 
 def test_required_ids_are_strict():
-    with pytest.raises(TypeError): validate(manifest(), required_ids="IMP-033")
+    with pytest.raises(TypeError):
+        validate(manifest(), required_ids="IMP-033")
 
 
 @pytest.mark.parametrize("location", ["manifest", "record", "tests"])
 def test_unknown_fields_rejected(location):
     data = manifest()
     target = data if location == "manifest" else data["records"][0]
-    if location == "tests": target = target["tests"]
+    if location == "tests":
+        target = target["tests"]
     target["unexpected"] = True
-    with pytest.raises(ValueError): validate(data)
+    with pytest.raises(ValueError):
+        validate(data)
 
 
 def test_invalid_data_cannot_be_exported():

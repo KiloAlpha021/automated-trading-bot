@@ -19,6 +19,19 @@ Empty directories contain `.gitkeep` placeholders so Git can track them.
 
 ## Bootstrap environment
 
+Run the complete clean M1.1/M1.2 bootstrap and check path with CPython 3.12.10:
+
+```powershell
+.\scripts\bootstrap.ps1
+```
+
+The command creates a new `.venv-m1`, installs the exact hash-locked dependency
+set from public PyPI, verifies package identity and importability, then runs Ruff,
+strict mypy, pytest under coverage, pip consistency and vulnerability checks,
+and the repository's bounded secret scan. Delete the generated environment before
+running the command again; refusing an existing environment prevents accidental
+dependence on prior state.
+
 The reproducibility checkpoint uses CPython 3.12.10 on Windows. `.python-version`
 records that exact interpreter; it does not install Python. No broader Python
 compatibility claim is made. There are no runtime dependencies.

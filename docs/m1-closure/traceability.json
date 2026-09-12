@@ -568,6 +568,238 @@
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
+    },
+    {
+      "id": "IMP-001-M1-03",
+      "parent": "IMP-001",
+      "requirement": "Declare and enforce exact CPython 3.12.10 project metadata.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        ".python-version",
+        "pyproject.toml",
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-04",
+      "parent": "IMP-001",
+      "requirement": "Preserve the canonical source, test and package layout.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "pyproject.toml",
+        "tests/test_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-05",
+      "parent": "IMP-001",
+      "requirement": "Provide an exact SHA-256-locked M1 development dependency set.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "requirements-dev.in",
+        "requirements-dev.lock",
+        "scripts/generate_dev_lock.py"
+      ],
+      "tests": [
+        "tests/test_dependency_lock.py::test_development_lock_contains_declared_exact_requirements",
+        "tests/test_dependency_lock.py::test_development_lock_has_no_urls_editables_or_unhashed_entries"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-06",
+      "parent": "IMP-001",
+      "requirement": "Provide one documented clean bootstrap command independent of an existing environment.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "README.md",
+        "scripts/bootstrap.ps1",
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-07",
+      "parent": "IMP-001",
+      "requirement": "Run fatal Ruff E4, E7, E9 and F checks over committed Python in src, tests and scripts.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "pyproject.toml",
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_required_control_invocations_are_fatal"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-08",
+      "parent": "IMP-001",
+      "requirement": "Run strict mypy over src/automated_trading_bot.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "pyproject.toml",
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_required_control_invocations_are_fatal"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-09",
+      "parent": "IMP-001",
+      "requirement": "Run the complete pytest suite as a fatal engineering control.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_required_control_invocations_are_fatal"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-10",
+      "parent": "IMP-001",
+      "requirement": "Measure package coverage with terminal missing-line and XML reports without a numeric M1 threshold.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_required_control_invocations_are_fatal"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-11",
+      "parent": "IMP-001",
+      "requirement": "Run pinned pip-audit with advisory retrieval or evaluation failure treated as fatal.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "requirements-dev.lock",
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_required_control_invocations_are_fatal"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-12",
+      "parent": "IMP-001",
+      "requirement": "Run the existing pattern-bounded secret scanner without claiming universal detection.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        "tests/test_closure_security.py",
+        "scripts/m1_engineering_foundation.py"
+      ],
+      "tests": [
+        "tests/test_closure_security.py::test_project_has_no_credential_artifacts",
+        "tests/test_engineering_foundation.py::test_required_control_invocations_are_fatal"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-13",
+      "parent": "IMP-001",
+      "requirement": "Provide clean-clone CI exposing the stable required status m1-engineering-foundation.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        ".github/workflows/m1-engineering-foundation.yml",
+        "scripts/bootstrap.ps1"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract",
+        "tests/test_engineering_foundation.py::test_engineering_foundation_rejects_weakened_contract"
+      ],
+      "residual_gap": "",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
+    },
+    {
+      "id": "IMP-001-M1-14",
+      "parent": "IMP-001",
+      "requirement": "Require hosted branch protection to enforce m1-engineering-foundation without ordinary-contributor bypass.",
+      "disposition": "M1",
+      "provenance_status": "INFERRED",
+      "source": "Implementation Specification v1.0 section 11 M1.1/M1.2; owner decision M1-SCOPE-2026-09-12-02.",
+      "artifacts": [
+        ".github/workflows/m1-engineering-foundation.yml"
+      ],
+      "tests": [
+        "tests/test_engineering_foundation.py::test_engineering_foundation_contract"
+      ],
+      "residual_gap": "Repository workflow exists, but no Git remote or attributable hosted branch-protection evidence is available.",
+      "evidence": [
+        "docs/m1-closure/owner-dispositions.json"
+      ]
     }
   ]
 }

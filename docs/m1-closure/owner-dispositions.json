@@ -62,6 +62,16 @@
       "historical_attachment_id": "ac76cf4f-a7f7-480d-9ef0-365f34a7cca0",
       "historical_attachment_sha256": "23d984873408c41617938684c82a33ec884a42f4182929be502ff7df565a1457",
       "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-12-02",
+      "artifact": "docs/m1-closure/M1-engineering-foundation-scope-clarification.md",
+      "canonical_text_sha256": "f82cc6eb3028314012264b963e8ca46ad38e54379bcaa06164eb2cd8b0de0b00",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": "cbcb7afe-e074-43b5-a49e-50bc0a4ec23b",
+      "historical_attachment_sha256": null,
+      "historical_attachment_is_normative": false
     }
   ]
 }

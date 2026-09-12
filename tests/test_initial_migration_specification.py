@@ -91,20 +91,33 @@ def test_initial_migration_matches_approved_design():
 def test_migration_rejects_weakened_constraint(mutation):
     migration = copy.deepcopy(_load("M1-initial-migration-specification.md"))
     tables = migration["tables"]
-    if mutation == "event_key": tables["event_history"]["primary_key"] = ["idempotency_key"]
-    elif mutation == "stream_unique": tables["event_history"]["unique"] = []
-    elif mutation == "outbox_key": tables["outbox"]["primary_key"] = ["destination"]
-    elif mutation == "handler_key": tables["inbox"]["primary_key"].append("handler_version")
+    if mutation == "event_key":
+        tables["event_history"]["primary_key"] = ["idempotency_key"]
+    elif mutation == "stream_unique":
+        tables["event_history"]["unique"] = []
+    elif mutation == "outbox_key":
+        tables["outbox"]["primary_key"] = ["destination"]
+    elif mutation == "handler_key":
+        tables["inbox"]["primary_key"].append("handler_version")
     elif mutation == "causality_null":
         next(x for x in tables["event_history"]["columns"] if x["name"] == "causation_id")["not_null"] = False
-    elif mutation == "type": tables["event_history"]["columns"][0]["type"] = "text"
-    elif mutation == "fk": tables["outbox"]["foreign_keys"][0]["on_delete"] = "CASCADE"
-    elif mutation == "check": migration["checks"]["event_history"]["hash_size"] = "TRUE"
-    elif mutation == "retry": migration["checks"]["inbox"]["retry_time"] = "TRUE"
-    elif mutation == "order": migration["creation_order"].reverse()
-    elif mutation == "rollback": migration["rollback"]["destructive_down_allowed"] = True
-    elif mutation == "drift": migration["apply"]["same_identity_different_checksum"] = "ACCEPT"
-    elif mutation == "immutability": migration["future_enforcement"].remove("append_only_history")
-    else: migration["ownership"]["inbox"] = "transport grants execution authority"
+    elif mutation == "type":
+        tables["event_history"]["columns"][0]["type"] = "text"
+    elif mutation == "fk":
+        tables["outbox"]["foreign_keys"][0]["on_delete"] = "CASCADE"
+    elif mutation == "check":
+        migration["checks"]["event_history"]["hash_size"] = "TRUE"
+    elif mutation == "retry":
+        migration["checks"]["inbox"]["retry_time"] = "TRUE"
+    elif mutation == "order":
+        migration["creation_order"].reverse()
+    elif mutation == "rollback":
+        migration["rollback"]["destructive_down_allowed"] = True
+    elif mutation == "drift":
+        migration["apply"]["same_identity_different_checksum"] = "ACCEPT"
+    elif mutation == "immutability":
+        migration["future_enforcement"].remove("append_only_history")
+    else:
+        migration["ownership"]["inbox"] = "transport grants execution authority"
     with pytest.raises(AssertionError):
         _validate(migration, _load("M1-event-storage-design.md"))
