@@ -26,8 +26,8 @@
     "default_branch": "main",
     "ref": "refs/heads/main",
     "path": ".github/workflows/m1-trusted.yml",
-    "commit": "013bf76fd98a4353f6fd776b2559552f99d671b1",
-    "git_blob": "05e0068d070d95a37cffff7bd2d022d84bc674a5",
+    "commit": "506d3de1bfc203a0bed585a7005c949f3f0efbe4",
+    "git_blob": "6a409ab856a8d66679a35791ecf4e07a92a8e77d",
     "required_before_merge": true,
     "check_name": "trusted-m1-evaluator",
     "permissions": {
@@ -95,7 +95,7 @@
     "required_gate_passed": true,
     "url": "https://github.com/KiloAlpha021/automated-trading-bot/pull/6"
   },
-  "observed_at": "2026-09-13T00:10:04Z",
+  "observed_at": "2026-09-13T11:18:08Z",
   "evidence_source": {
     "method": "Authenticated GitHub REST API",
     "rulesets_endpoint": "GET /repos/KiloAlpha021/automated-trading-bot/rulesets?includes_parents=true",
@@ -115,5 +115,13 @@
     "credentials_recorded": false
   },
   "classification": "VERIFIED",
-  "limitations": "Point-in-time hosted observation. The ruleset binds the trusted workflow by repository, branch and path, so a future authorized change to security-workflows/main changes the evaluator used by the gate. That branch is separately protected and is writable only through its protected process. This evidence grants no M1 completion, trading, execution or Stage 2 authority."
+  "limitations": "Point-in-time hosted observation. The ruleset binds the trusted workflow by repository, branch and path, so a future authorized change to security-workflows/main changes the evaluator used by the gate. That branch is separately protected and is writable only through its protected process. This evidence grants no M1 completion, trading, execution or Stage 2 authority.",
+  "current_lineage": {
+    "protected_master": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
+    "trusted_workflow_run": 34752686875,
+    "run_attempt": 2,
+    "candidate_head": "bf69f5b2014526e418a425f75fc3977868780c61",
+    "trusted_revision": "506d3de1bfc203a0bed585a7005c949f3f0efbe4",
+    "conclusion": "success"
+  }
 }

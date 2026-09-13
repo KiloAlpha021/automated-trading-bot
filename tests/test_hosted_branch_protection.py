@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/m1-closure/hosted-branch-protection-evidence.json"
 TRADING_REPOSITORY = "KiloAlpha021/automated-trading-bot"
 TRUSTED_REPOSITORY = "KiloAlpha021/security-workflows"
-TRUSTED_COMMIT = "013bf76fd98a4353f6fd776b2559552f99d671b1"
+TRUSTED_COMMIT = "506d3de1bfc203a0bed585a7005c949f3f0efbe4"
 TRUSTED_WORKFLOW = ".github/workflows/m1-trusted.yml"
 
 

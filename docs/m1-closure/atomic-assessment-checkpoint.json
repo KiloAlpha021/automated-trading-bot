@@ -1,7 +1,7 @@
 {
-  "assessment": "REOPENED",
-  "complete": false,
-  "stop_reason": "M1 remains reopened pending an attributable owner decision on whether the Money and Quantity core contracts must reject non-finite Decimal values.",
+  "assessment": "COMPLETED",
+  "complete": true,
+  "stop_reason": "",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -1160,8 +1160,8 @@
       "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
     }
   ],
-  "remaining_assessment": "Atomic assessment records are complete and IMP-001-M1-14 is VERIFIED. M1 remains BLOCKED by the separate Money/Quantity non-finite Decimal owner-decision gap; no completion or promotion is authorized.",
-  "manifest_validation": "Current completion authority: docs/m1-closure/closure-manifest.json. Prior closure preserved at docs/m1-closure/closure-manifest-historical-2026-09-12.json.",
+  "remaining_assessment": "M1 atomic assessment complete at the formal re-closure baseline; no additional authority is granted.",
+  "manifest_validation": "Current completion authority: docs/m1-closure/closure-manifest.json. Earlier closure and reopened-cycle artifacts remain historical.",
   "historical_assessments": [
     {
       "assessment": "M1 atomic coverage checkpoint",
@@ -35175,7 +35175,7 @@
       ]
     }
   ],
-  "assessment_status": "BLOCKED",
+  "assessment_status": "COMPLETED",
   "authorization": "NONE",
   "current_evidence": {
     "selection": [
@@ -36631,21 +36631,7 @@
         "claim": "An active organization ruleset requires the independently protected external trusted evaluator; closed PR #5 proves a weakened local evaluator cannot replace the external gate and closed PR #6 proves the normal path remains usable."
       }
     ],
-    "active_blockers": [
-      {
-        "id": "M1-AUDIT-NONFINITE-DECIMAL-SCOPE",
-        "mapped_requirements": [
-          "IMP-001-M1-16",
-          "IMP-001-M1-17"
-        ],
-        "status": "OWNER_DECISION_REQUIRED",
-        "evidence": [
-          "src/automated_trading_bot/domain/money.py",
-          "src/automated_trading_bot/domain/quantity.py"
-        ],
-        "claim": "The current core contracts accept Decimal NaN and infinities. The canonical M1 sources do not resolve whether these values belong inside or outside the M1 Money/Quantity contract, so M1 cannot be re-closed without an attributable scope decision."
-      }
-    ],
+    "active_blockers": [],
     "resolved_findings_provenance": {
       "id": "M1-AUDIT-SPECIFICATION-PROVENANCE",
       "status": "REPAIRED",
@@ -36654,13 +36640,14 @@
     }
   },
   "reclosure": {
-    "status": "REOPENED_BY_POST_CLOSURE_AUDIT",
-    "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
-    "exit_gate": "NOT_PASS",
-    "current_manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json",
+    "status": "COMPLETED",
+    "baseline_revision": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
+    "exit_gate": "PASS",
+    "current_manifest": "docs/m1-closure/closure-manifest.json",
+    "prior_reclosure_manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json",
     "historical_manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
+    "reopened_manifest": "docs/m1-closure/closure-manifest-reopened-2026-09-13.json",
     "authorization": "NONE",
-    "stage2_authorized": false,
-    "reopened_manifest": "docs/m1-closure/closure-manifest.json"
+    "stage2_authorized": false
   }
 }

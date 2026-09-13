@@ -1,16 +1,16 @@
 {
   "schema_version": 2,
   "milestone_id": "M1",
-  "lifecycle_state": "COMPLETE",
-  "exit_gate": "PASS",
-  "completed_at": "2026-09-13T11:18:08Z",
-  "baseline_revision": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
+  "lifecycle_state": "REOPENED",
+  "exit_gate": "NOT_PASS",
+  "completed_at": "2026-09-12T19:29:20Z",
+  "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
   "governing_specification": {
     "title": "Implementation Specification v1.0",
     "sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7"
   },
   "authorization": "NONE",
-  "authority_statement": "M1 completion records evidence only. It grants no trading authority, no broker authority, no OMS authority, no execution authority, no paper-trading authority, no live-trading authority, no Stage 2 authority, and no later-stage lifecycle authority.",
+  "authority_statement": "M1 completion records evidence only. It grants no trading authority, no broker authority, no execution authority, no Stage 2 authority, and no later-stage lifecycle authority.",
   "coverage": {
     "traceability_atoms": 50,
     "assessment_records": 50,
@@ -146,7 +146,7 @@
     "trusted_workflow_repository": "KiloAlpha021/security-workflows",
     "trusted_workflow_ref": "refs/heads/main",
     "trusted_workflow_path": ".github/workflows/m1-trusted.yml",
-    "trusted_workflow_observed_commit": "506d3de1bfc203a0bed585a7005c949f3f0efbe4",
+    "trusted_workflow_observed_commit": "013bf76fd98a4353f6fd776b2559552f99d671b1",
     "required_status_check": "trusted-m1-evaluator",
     "ordinary_contributor_bypass_allowed": false,
     "force_pushes_allowed": false,
@@ -154,14 +154,14 @@
     "evidence": "docs/m1-closure/hosted-branch-protection-evidence.json"
   },
   "hosted_exact_head_ci": {
-    "head_sha": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
-    "check": "trusted-m1-evaluator",
+    "head_sha": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
+    "check": "m1-engineering-foundation",
     "status": "completed",
     "conclusion": "success",
-    "run_id": 34752686875,
-    "run_attempt": 2,
-    "candidate_head_sha": "bf69f5b2014526e418a425f75fc3977868780c61",
-    "trusted_revision": "506d3de1bfc203a0bed585a7005c949f3f0efbe4",
+    "run_id": 34711110258,
+    "job_id": 103599959040,
+    "url": "https://github.com/KiloAlpha21/automated-trading-bot/actions/runs/34711110258/job/103599959040",
+    "observed_at": "2026-09-12T19:29:20Z",
     "source": "Authenticated GitHub REST API final exit-gate observation"
   },
   "verification": {
@@ -221,7 +221,7 @@
     "pip_check": "PASS",
     "pip_audit": "PASS",
     "m1_3": {
-      "passed": 164,
+      "passed": 152,
       "failed": 0
     },
     "m1_7": {
@@ -230,15 +230,15 @@
     },
     "safety_authority": "PASS",
     "m1_acceptance": {
-      "passed": 498,
+      "passed": 758,
       "failed": 0
     },
     "full_regression": {
-      "passed": 827,
+      "passed": 791,
       "failed": 0
     },
     "closure_provenance": {
-      "passed": 98,
+      "passed": 116,
       "failed": 0
     },
     "ruff": "PASS",
@@ -263,8 +263,7 @@
       "M1-SCOPE-2026-09-12-01",
       "M1-SCOPE-2026-09-12-02",
       "M1-SCOPE-2026-09-12-03",
-      "M1-SCOPE-2026-09-12-04",
-      "M1-SCOPE-2026-09-13-01"
+      "M1-SCOPE-2026-09-12-04"
     ]
   },
   "lineage": {
@@ -276,34 +275,34 @@
     },
     "reopened_remediation": {
       "audit_revision": "789d7a19d474e77f9b8f1956dea02aea74d7ddd0",
-      "classification": "REOPEN_M1",
-      "preserved_manifest": "docs/m1-closure/closure-manifest-reopened-2026-09-13.json",
-      "trusted_ci_merge": "8d60acac11f6fbddf84fe2be61ba76074d82569b",
-      "finite_decimal_merge": "841d903cb5670777f8ce23fe8433a0c5dd7dac49"
+      "classification": "REOPEN_M1"
     },
     "current_reclosure": {
-      "baseline_revision": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
-      "authority": "CURRENT_M1_COMPLETION"
-    },
-    "prior_reclosure": {
-      "manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json",
       "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
-      "status": "HISTORICAL_SUPERSEDED"
+      "authority": "HISTORICAL_RECLOSURE_REOPENED",
+      "preserved_manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json"
     }
   },
   "future_controlled_obligations_implemented": false,
-  "residual_blockers": [],
+  "residual_blockers": [
+    {
+      "id": "M1-AUDIT-NONFINITE-DECIMAL-SCOPE",
+      "requirement_ids": [
+        "IMP-001-M1-16",
+        "IMP-001-M1-17"
+      ],
+      "status": "OWNER_DECISION_REQUIRED",
+      "finding": "The M1 Money/Quantity contract does not define whether non-finite Decimal values are valid.",
+      "required_resolution": "Obtain an attributable owner decision defining whether Money and Quantity must reject Decimal NaN and infinities before M1 is re-closed."
+    }
+  ],
   "restrictions": [
     "M1 completion does not authorize Stage 2.",
     "M1 completion does not authorize paper trading.",
     "M1 completion does not authorize live trading.",
-    "M1 completion does not authorize broker execution or OMS execution authority.",
+    "M1 completion does not authorize broker execution.",
     "M1 completion does not authorize lifecycle promotion or controlled future functionality.",
-    "M1 completion does not claim recovery of original R39 individual semantics."
-  ],
-  "financial_primitives_owner_decision": {
-    "decision_id": "M1-SCOPE-2026-09-13-01",
-    "artifact": "docs/m1-closure/M1-financial-primitives-scope-clarification.md",
-    "canonical_text_sha256": "2db8dcef413612e21d9d9b95674b983f0c321b7554c4aad1fb7d753f5ca744d7"
-  }
+    "M1 completion does not claim recovery of original R39 individual semantics.",
+    "M1 is reopened and remains blocked on the Money/Quantity non-finite Decimal contract decision."
+  ]
 }
