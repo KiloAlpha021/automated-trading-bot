@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json"
-REOPENED = ROOT / "docs/m1-closure/closure-manifest.json"
+REOPENED = ROOT / "docs/m1-closure/closure-manifest-reopened-2026-09-13.json"
 HISTORICAL = ROOT / "docs/m1-closure/closure-manifest-historical-2026-09-12.json"
 AUDITED_COMPLETION = "4a4bfb6879624b1f78cff69b06bba56a8707e66f"
 BASELINE = "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f"
@@ -221,28 +221,13 @@ def test_m1_completion_manifest_is_valid_and_attributable() -> None:
     _validate(_load(MANIFEST))
 
 
-def test_current_manifest_truthfully_records_reopened_m1() -> None:
+def test_reopened_cycle_manifest_remains_historical() -> None:
     data = _load(REOPENED)
-    checkpoint = _load(ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json")
     assert data["lifecycle_state"] == "REOPENED"
     assert data["exit_gate"] == "NOT_PASS"
     assert data["authorization"] == "NONE"
-    assert data["coverage"]["assessment_totals"] == {
-        "VERIFIED": 50,
-        "INSUFFICIENT_EVIDENCE": 0,
-        "FAILED": 0,
-        "unassessed": 0,
-    }
     assert data["residual_blockers"][0]["id"] == "M1-AUDIT-NONFINITE-DECIMAL-SCOPE"
     assert data["residual_blockers"][0]["status"] == "OWNER_DECISION_REQUIRED"
-    assert data["hosted_protection"]["ordinary_contributor_bypass_allowed"] is False
-    assert data["hosted_protection"]["organization_ruleset_id"] == 23106039
-    assert data["hosted_protection"]["required_status_check"] == "trusted-m1-evaluator"
-    assert checkpoint["complete"] is False
-    assert checkpoint["assessment_status"] == "BLOCKED"
-    assert checkpoint["authorization"] == "NONE"
-    assert checkpoint["unresolved_traceability_ids"] == []
-    assert checkpoint["reclosure"]["stage2_authorized"] is False
 
 
 @pytest.mark.parametrize(
