@@ -9,3 +9,5 @@ class Quantity:
     def __post_init__(self) -> None:
         if not isinstance(self.value, Decimal):
             raise TypeError("value must be a Decimal")
+        if not self.value.is_finite():
+            raise ValueError("value must be finite")

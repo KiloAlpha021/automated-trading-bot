@@ -183,6 +183,7 @@ def test_m13_owner_contract_and_atomic_decomposition():
     root = Path(__file__).resolve().parents[1]
     records = validate_owner_dispositions(root)
     assert "M1-SCOPE-2026-09-12-03" in records
+    assert "M1-SCOPE-2026-09-13-01" in records
     data = json.loads((root / "docs/m1-closure/traceability.json").read_text())
     rows = {row["id"]: row for row in data["rows"]}
     expected = {
@@ -197,12 +198,20 @@ def test_m13_owner_contract_and_atomic_decomposition():
         assert row["disposition"] == "M1"
         assert statement in row["requirement"]
         assert "M1-SCOPE-2026-09-12-03" in row["source"]
+        if identity in {"IMP-001-M1-16", "IMP-001-M1-17", "IMP-001-M1-19"}:
+            assert "M1-SCOPE-2026-09-13-01" in row["source"]
         assert "docs/m1-closure/owner-dispositions.json" in row["evidence"]
 
     decision = (root / "docs/m1-closure/M1-core-contracts-scope-clarification.md").read_text()
+    finite_decision = (
+        root / "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
+    ).read_text()
     assert "do not gain new public\nserialization APIs solely for M1" in decision
     assert "Money and Quantity therefore require no new\nstandalone serializers" in decision
     assert "Hypothesis is not required" in decision
+    assert "Money.amount and Quantity.value must each be a Decimal and must be finite" in finite_decision
+    assert "positive zero, signed negative zero" in finite_decision
+    assert "defines no\npositivity, non-negativity" in finite_decision
     assert "does not authorize M1.7 remediation" in decision
 
 

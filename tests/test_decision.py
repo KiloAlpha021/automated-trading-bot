@@ -154,9 +154,19 @@ def test_scope_rejects_invalid_fields(name: str, invalid: object, error: type[Ex
         replace(scope(), **{name: invalid})
 
 
-@pytest.mark.parametrize("value", ["0", "-1", "NaN", "sNaN", "Infinity", "-Infinity"])
-def test_scope_rejects_invalid_quantity(value: str) -> None:
-    with pytest.raises(ValueError, match="finite and positive"):
+@pytest.mark.parametrize(
+    "value,message",
+    [
+        ("0", "finite and positive"),
+        ("-1", "finite and positive"),
+        ("NaN", "value must be finite"),
+        ("sNaN", "value must be finite"),
+        ("Infinity", "value must be finite"),
+        ("-Infinity", "value must be finite"),
+    ],
+)
+def test_scope_rejects_invalid_quantity(value: str, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
         replace(scope(), quantity=Quantity(Decimal(value)))
 
 

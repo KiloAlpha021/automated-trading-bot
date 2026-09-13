@@ -978,11 +978,12 @@
       "id": "IMP-001-M1-16",
       "parent_imp": "IMP-001",
       "requirement": "Define and verify the M1 Money core contract without adding contextual financial semantics.",
-      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decisions M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01.",
       "applicability": "M1_REQUIRED",
       "implementation_evidence": [
         "src/automated_trading_bot/domain/money.py",
-        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
       ],
       "verification_evidence": [
         "tests/test_money.py::test_money_rejects_non_decimal_values",
@@ -990,13 +991,14 @@
         "tests/test_money.py::test_money_rejects_non_currency",
         "tests/test_money.py::test_money_preserves_currency_object",
         "tests/test_money.py::test_money_is_immutable",
-        "tests/test_money.py::test_money_value_equality_is_stable"
+        "tests/test_money.py::test_money_value_equality_is_stable",
+        "tests/test_money.py::test_money_rejects_non_finite_decimal_values"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
       "explicit_deferral_source": null,
       "smallest_corrective_action": null,
-      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "verification_limits": "Verified under M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01. Decimal values must be finite; finite positive, negative, positive-zero, signed-negative-zero and arbitrary-precision values remain accepted without coercion. No accounting arithmetic, FX, ISO registry, rounding, magnitude, decimal-place, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
@@ -1005,23 +1007,25 @@
       "id": "IMP-001-M1-17",
       "parent_imp": "IMP-001",
       "requirement": "Define and verify the M1 Quantity core contract without adding instrument-specific semantics.",
-      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decisions M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01.",
       "applicability": "M1_REQUIRED",
       "implementation_evidence": [
         "src/automated_trading_bot/domain/quantity.py",
-        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
       ],
       "verification_evidence": [
         "tests/test_quantity.py::test_quantity_rejects_non_decimal_values",
         "tests/test_quantity.py::test_quantity_preserves_decimal_input",
         "tests/test_quantity.py::test_quantity_is_immutable",
-        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable",
+        "tests/test_quantity.py::test_quantity_rejects_non_finite_decimal_values"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
       "explicit_deferral_source": null,
       "smallest_corrective_action": null,
-      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "verification_limits": "Verified under M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01. Decimal values must be finite; finite positive, negative, positive-zero, signed-negative-zero and arbitrary-precision values remain accepted without coercion. No accounting arithmetic, FX, ISO registry, rounding, magnitude, decimal-place, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
@@ -1055,7 +1059,7 @@
       "id": "IMP-001-M1-19",
       "parent_imp": "IMP-001",
       "requirement": "Prove deterministic property and invariant acceptance for every M1.3 core contract.",
-      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decisions M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01.",
       "applicability": "M1_REQUIRED",
       "implementation_evidence": [
         "src/automated_trading_bot/domain/identifiers.py",
@@ -1063,7 +1067,8 @@
         "src/automated_trading_bot/domain/currency.py",
         "src/automated_trading_bot/domain/money.py",
         "src/automated_trading_bot/domain/quantity.py",
-        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
       ],
       "verification_evidence": [
         "tests/test_identifiers.py::test_uuid_identifiers_reject_non_uuid",
@@ -1075,13 +1080,15 @@
         "tests/test_money.py::test_money_preserves_decimal_input",
         "tests/test_money.py::test_money_value_equality_is_stable",
         "tests/test_quantity.py::test_quantity_preserves_decimal_input",
-        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable",
+        "tests/test_money.py::test_money_rejects_non_finite_decimal_values",
+        "tests/test_quantity.py::test_quantity_rejects_non_finite_decimal_values"
       ],
       "invalid_verification_references": [],
       "status": "VERIFIED",
       "explicit_deferral_source": null,
       "smallest_corrective_action": null,
-      "verification_limits": "Verified only under M1-SCOPE-2026-09-12-03. No accounting arithmetic, FX, ISO registry, rounding, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
+      "verification_limits": "Verified under M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01. Decimal values must be finite; finite positive, negative, positive-zero, signed-negative-zero and arbitrary-precision values remain accepted without coercion. No accounting arithmetic, FX, ISO registry, rounding, magnitude, decimal-place, instrument increment/precision, contextual sign rule, universal serializer or financial authority is claimed.",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json"
       ]
@@ -35172,6 +35179,8 @@
   "authorization": "NONE",
   "current_evidence": {
     "selection": [
+      "tests/test_money.py",
+      "tests/test_quantity.py",
       "tests/test_alerts.py",
       "tests/test_health.py",
       "tests/test_metrics.py",
@@ -35191,6 +35200,10 @@
     "test_cases": [
       [
         "00e6c3efc892b424dc7cfc4a4c70ced0901ca6f7b0455e16db1b5b3af0a0c7ae",
+        "passed"
+      ],
+      [
+        "0219c66f06143ef2623c2b610ece2b39dd323f971d65afea1e268461579f1956",
         "passed"
       ],
       [
@@ -35258,11 +35271,19 @@
         "passed"
       ],
       [
+        "0cfaef20b2e8bc32111a9373e9aab67260aebbecc774b992105cae5bd6f49fe8",
+        "passed"
+      ],
+      [
         "0e5ff45ba60c379d075b144ea5d0cc7b763b0a1faaff1f2a42d5123236092a0a",
         "passed"
       ],
       [
         "0e671dbab3b69c20ca01ae380ac15aa130336c2d6b1eb7c20f32636721356c63",
+        "passed"
+      ],
+      [
+        "0e87315c151a777a8e77e9edb1c7aa51049cb5994ef3ad3a9d67e622065a6f9c",
         "passed"
       ],
       [
@@ -35282,6 +35303,10 @@
         "passed"
       ],
       [
+        "14156f4f627ca3d35bbf1a647e3457c6473c1e61a92bf6b234e8c79828e75f37",
+        "passed"
+      ],
+      [
         "143ff55b3a0d9fe37f57655ea8eb822252bd0c4a012a0865aaf574589d22a4ca",
         "passed"
       ],
@@ -35294,7 +35319,15 @@
         "passed"
       ],
       [
+        "16153acc63fda95d74af0e5e0c89a1646f65c128178982b87f6f53a635cbc15d",
+        "passed"
+      ],
+      [
         "17065fcd5705e446f9f27d79d5fa0a48edaeac41f0531abefc0cb74cd9a669e4",
+        "passed"
+      ],
+      [
+        "186732892a598db8b0db0dfb405e309293bad750ba75b1fe0694e3238aca9035",
         "passed"
       ],
       [
@@ -35303,6 +35336,10 @@
       ],
       [
         "19dad5fdaae72220af8e12eda3f66672c637e6c0ce82978392a671bf8eb88ad3",
+        "passed"
+      ],
+      [
+        "1b3ca2c8a28d9a54777dfd15bec841d5b32d7f3b122e37e3d5eb786133d78ecd",
         "passed"
       ],
       [
@@ -35339,6 +35376,10 @@
       ],
       [
         "1ffab5c5957c2fc23146764c46f09bcd857fcab37e6eec9f80dab9c8830614bf",
+        "passed"
+      ],
+      [
+        "20322859579d5bf6ab69f68ad954d04ce0872eede1e6ea15d33a3b35cbc3fc0b",
         "passed"
       ],
       [
@@ -35386,6 +35427,10 @@
         "passed"
       ],
       [
+        "2cfa2926d109cd9f6044f49f33ba6524996cd03df41a1cd1e22b1ba1b46a463c",
+        "passed"
+      ],
+      [
         "2dfb69697bbb8b66210812eaa3ece3ce8d6d4b9deec4224462488fcd8cb63835",
         "passed"
       ],
@@ -35399,6 +35444,10 @@
       ],
       [
         "2f47fb83f4eaa2ae1411c572e165ae04506d6f9bdfc847185fd950922c559cf8",
+        "passed"
+      ],
+      [
+        "3009488f9902f7ae42f9cf08047695430beaaeeaf1043f93c244e2ac2d8a8c76",
         "passed"
       ],
       [
@@ -35419,6 +35468,10 @@
       ],
       [
         "33ec7dd7d48b9a96a25bf067edc77e9d545f4ce780f6028254f75bc5b4988b4a",
+        "passed"
+      ],
+      [
+        "35f4ee3e563c588b319653eb2370103cab5d969ff7d93b187c935ecfd9c95f1a",
         "passed"
       ],
       [
@@ -35443,6 +35496,18 @@
       ],
       [
         "3ab89c1d25ee59a9cb044b4ed826d89645ae8bd2a5145ebed41834d35ed45f33",
+        "passed"
+      ],
+      [
+        "3b2baa002b9a2789a7d6d460527ad359d2c8764ce2192c57e9fad1bcb83356ce",
+        "passed"
+      ],
+      [
+        "3c57abfe2e4d32b90b3f15f47a2d7e836b6e75ef2376d619d29ad80686aed9a3",
+        "passed"
+      ],
+      [
+        "3d5860272075cab87fe0ff9081536271d357eebcc9e6992b64fb15a2e411e612",
         "passed"
       ],
       [
@@ -35534,6 +35599,10 @@
         "passed"
       ],
       [
+        "4fa8b60405321836e9a2636eb78b5d3e4331d42540c94245b8da0b004540c8cf",
+        "passed"
+      ],
+      [
         "5005e46bab2bc45b4cc96066fb94f6fdbaf4f968c6676f32494591e0821e7ee3",
         "passed"
       ],
@@ -35543,6 +35612,14 @@
       ],
       [
         "5196274c106b8dc182b58d6e9fc36e4d2746d28ae0a8a2866a488bc07c793c47",
+        "passed"
+      ],
+      [
+        "51b87c6547022a53abc6261c82afdc70902717eb743607a9b68e743cf86b8153",
+        "passed"
+      ],
+      [
+        "52351a148dedb362214c8596e0e2eedb78cef9fd6668e3e57ae8a22325b4d760",
         "passed"
       ],
       [
@@ -35562,6 +35639,10 @@
         "passed"
       ],
       [
+        "584ee7d9c5017850b3f3268a4a822ec80fbcfc9e35bf11b2b46f53fefcb6c9c7",
+        "passed"
+      ],
+      [
         "59db158951fccf5e45be4ea198615b931166d2984f20da00d6c26e05752e1969",
         "passed"
       ],
@@ -35578,6 +35659,10 @@
         "passed"
       ],
       [
+        "5dbc6c9d7fd63e661a3d9cf4327fc24c075f787abb3bf95309f5e89b41807b28",
+        "passed"
+      ],
+      [
         "5e0749932d6998d7fc0869770aec50681608006f5916f10eed46130026f12d5c",
         "passed"
       ],
@@ -35590,7 +35675,19 @@
         "passed"
       ],
       [
+        "5f765313fe16d4428e8ace3050392b699808adcc99cceb5286063501291a3916",
+        "passed"
+      ],
+      [
+        "5f7e8158e67a5daa02a1f470174bf67b13c5f4dfb53bb16e3df3c406589d8657",
+        "passed"
+      ],
+      [
         "600e12cfd7771fe18f3ef65b6137ef984754c3f5fa4ef37552684db459684bb5",
+        "passed"
+      ],
+      [
+        "609d23d2c09fcea994fae56a6d53aa126f1a099ca8a7112c2f4a92b9ace91d29",
         "passed"
       ],
       [
@@ -35622,6 +35719,10 @@
         "passed"
       ],
       [
+        "673993f83bcd5ff59010b768d0d107d025f7f6129a4603a932340f5d93cc8296",
+        "passed"
+      ],
+      [
         "695a0f8454b08c89094d534c96f69b7e9d975f802d4588f77681ca58613f3059",
         "passed"
       ],
@@ -35634,11 +35735,19 @@
         "passed"
       ],
       [
+        "6a8ddf57f191db575c9e0f419716f1ee6e8d5cd5028761107003189e32347427",
+        "passed"
+      ],
+      [
         "6aff7ee76ae4949c0eac756e8339e0f8db9298aa4fe9e40ed86e23fdaff18887",
         "passed"
       ],
       [
         "6b5ec2660de01849811d3a77e0bf6c4c42c273ba4646258bab51acb5d2795c74",
+        "passed"
+      ],
+      [
+        "6c3b986061eb4dbe92276211ce3937e6ab2fc76b2aae6c9ad72c4003fa236bc9",
         "passed"
       ],
       [
@@ -35666,6 +35775,10 @@
         "passed"
       ],
       [
+        "71f21883632a211ca21d09d0f06a4f06afcca83936c65fac4e265448c17f15a5",
+        "passed"
+      ],
+      [
         "72222fddd0ff37196968fbdf07b7dcc55d91cf431263c973941621f8163da04b",
         "passed"
       ],
@@ -35683,6 +35796,10 @@
       ],
       [
         "74fb3f0fe7cea6fc6b1288e945df4fce17fb73db1321a4137d267c72a24a205b",
+        "passed"
+      ],
+      [
+        "75112ee5b986117b2264e38f629dc65d548a1986c3e0346ac932ddce30f79883",
         "passed"
       ],
       [
@@ -35730,6 +35847,10 @@
         "passed"
       ],
       [
+        "7c434ebc722c1cf0a437d3f392844ba01e8b42d02d6276275630f2f4f87f609b",
+        "passed"
+      ],
+      [
         "7c674ff6c5534853df50282b6ea7d07a1d4965d979803352ed4932e8b3f6c070",
         "passed"
       ],
@@ -35746,11 +35867,19 @@
         "passed"
       ],
       [
+        "81a3209bf0be03b03e9f5cc59d88809e085c489a0b5b4cb7c34225542e6396fe",
+        "passed"
+      ],
+      [
         "87112dd783f3d809301e4dc685ff05b9a9a12551b214da12f97ec0b639530c9a",
         "passed"
       ],
       [
         "873d4cba42269a0341d0e82a2e5be40a2aeab315368125ccf0b3ee09c74acba4",
+        "passed"
+      ],
+      [
+        "88b6c3100cc81ddb5f546163d5fe1825cceec75646ab25b04cb67dd65b86c7bc",
         "passed"
       ],
       [
@@ -35794,6 +35923,10 @@
         "passed"
       ],
       [
+        "8fbe5a61314211fa226176c18fc7bd80e67dc1f3d8b6ca3396c80833c7cdf425",
+        "passed"
+      ],
+      [
         "8fc773e30474fe907107ebc78023e4eeeda47f04dc837e9b98014a28558dcc16",
         "passed"
       ],
@@ -35803,6 +35936,10 @@
       ],
       [
         "90fb85cf29b1c5465a2aba9ee81b020dd3e4a7b13c833b01e3bfc070a2bfb75f",
+        "passed"
+      ],
+      [
+        "91f71402a23a397f369deb0bd5305bc79ab64cdf100ddc22cab67d850ae220e4",
         "passed"
       ],
       [
@@ -35847,6 +35984,14 @@
       ],
       [
         "9691cde932e0caea0b887d20d8d3a2dd6ffcd68d5f277944379b4e755d6acb3d",
+        "passed"
+      ],
+      [
+        "97e53197ddeaeaef15c23b7a555da640a2b77b40c0dd53dfcd8641d0954c9a59",
+        "passed"
+      ],
+      [
+        "97f3b7e4472bba025dce78c51cde9a5d62bef48cd9c422670961b4f1a404643e",
         "passed"
       ],
       [
@@ -35918,6 +36063,14 @@
         "passed"
       ],
       [
+        "a71ed23586b9aae3f95d5cf20701a9b7e372098a408f39967784da734db54ff7",
+        "passed"
+      ],
+      [
+        "a85577fa11142e5421cfeb806d59a059ee5f911e92b5a5e1a2f0a3634a5d3afb",
+        "passed"
+      ],
+      [
         "a87c87bb3fedcf1646710fa4c09b5fe5d30a7affc320b3e25775097435019922",
         "passed"
       ],
@@ -35935,6 +36088,14 @@
       ],
       [
         "aaeae2fc5ea9a3468ab8fdb780cfec8b833fe822fd060d202c54ac08ae141d54",
+        "passed"
+      ],
+      [
+        "ab446eb53fc8241932d23c9e525c6a6b03fbdd8cc31365a63e9e69c4b6c72070",
+        "passed"
+      ],
+      [
+        "ab7f21f10f90596fe814ea4c301b8bb26690c76667917c01b88eb4cf996350c2",
         "passed"
       ],
       [
@@ -35958,11 +36119,23 @@
         "passed"
       ],
       [
+        "b0896dd808efa3aead2f333f6bda2eb3c97be6dfe5591d58cc2186d142b16517",
+        "passed"
+      ],
+      [
         "b18cacb616977bc61ced16296c5accda9fff98b8839b908edddbd5c46e9ff120",
         "passed"
       ],
       [
         "b2a02823fe1a5469db2108cdbe79f61cb553549b1ac623c77609a4f820016ac3",
+        "passed"
+      ],
+      [
+        "b36ec667007ba194c530d51dc7a184797d2caf92ae392cd6e5386f74a1da2988",
+        "passed"
+      ],
+      [
+        "b4dc7e185f0275186f088c595adeb3332d57f3c633b661bfedc8887b9763f50a",
         "passed"
       ],
       [
@@ -35979,6 +36152,10 @@
       ],
       [
         "bab60754b0f9907691178fb9cf9b695959f7ba9197d4077cabd4772861e94e65",
+        "passed"
+      ],
+      [
+        "bad9304669e0a5937eceeb5778c76a8c10283b43492d67a6deba8dd2873ed40b",
         "passed"
       ],
       [
@@ -36006,11 +36183,23 @@
         "passed"
       ],
       [
+        "bc5d8cdbf508bcbab5419e3ab2bd0da9735a43e4b28d90d8c89212ae57c5ae6b",
+        "passed"
+      ],
+      [
+        "bca375171e86aef0203e35414033e67ffabb421b23681a0f561824c13c886b34",
+        "passed"
+      ],
+      [
         "bd11a751cb21ddb95a79b874f3acc5a6c5e6969c2f4c2c01c4c499cf77ebadb4",
         "passed"
       ],
       [
         "bd54036835e2f1e027d9d383c7c818e471786981925bface9727da1c859cd73f",
+        "passed"
+      ],
+      [
+        "be736c9f62bec032412941bcb67712a6934661a472965b3e139b377ecb91e85c",
         "passed"
       ],
       [
@@ -36086,11 +36275,19 @@
         "passed"
       ],
       [
+        "cc565f343168ce166e93b8e6d687551fdb7b1077c5ca37bf53c40a85d81ea7e7",
+        "passed"
+      ],
+      [
         "ce547f373376eb92763de8ab52785f74e0a5137aa0780dcb62b0a031a2a12108",
         "passed"
       ],
       [
         "ce97de51d796b9e41db9e43436364b2f6f1876863dba84c0d652d621c5d2a5e6",
+        "passed"
+      ],
+      [
+        "cec4175da88cf5d48e66601189407b7431c54e5b02c78c613cefc8c238e2b4d2",
         "passed"
       ],
       [
@@ -36115,6 +36312,10 @@
       ],
       [
         "d1fe59b2a9613732ccc1a84c28038fce47541dc527501dd07233f9d1ea32a152",
+        "passed"
+      ],
+      [
+        "d241878e45f8036197a732f11c7cb208a5c8bedd27ba32e78a1eee9c3cfb2a86",
         "passed"
       ],
       [
@@ -36194,6 +36395,10 @@
         "passed"
       ],
       [
+        "e6e0114fab7522f8f1ea459fac2767eedf004767648ad375601608c908d4f100",
+        "passed"
+      ],
+      [
         "e6ec5362a38bb9aeff584b9a2790a1832882d4998e0e0bcde913a7d82ad39741",
         "passed"
       ],
@@ -36214,6 +36419,14 @@
         "passed"
       ],
       [
+        "ec694133b97b66ecc14ac167e6d1731e45d7025a5e8964351d2cb647fc1ca1a5",
+        "passed"
+      ],
+      [
+        "ecf4b73caee835b2ce8d7b6c20e0b4dc814190b8c92c5e271e6a698ae963c8d1",
+        "passed"
+      ],
+      [
         "ee868dd675fb26c4a0a4ba32e01b4c97cbe0d7b083620ab20d71d4b6d3be3cb6",
         "passed"
       ],
@@ -36223,6 +36436,10 @@
       ],
       [
         "f00d61401831aeda773284aa1597f263d25d57cd9dab8567220908637a72c5eb",
+        "passed"
+      ],
+      [
+        "f1b5fa64d4d839c8a0d4a24ad3467dd2f7aa04c442d08dbbdb95397fa2caf374",
         "passed"
       ],
       [
@@ -36292,9 +36509,13 @@
       [
         "fed162fe576864a84bb3653232f7be26e5d7b294702d950d2ff49684f5439d4e",
         "passed"
+      ],
+      [
+        "ff149e89c141d3910ab84cfe7df1fc68f855415d0f4660390304598c7230ff29",
+        "passed"
       ]
     ],
-    "passed": 276,
+    "passed": 329,
     "failed": 0,
     "input_hash_model": "sha256:utf8:newlines-lf:v1",
     "input_sha256": {
@@ -36310,11 +36531,11 @@
       "src/automated_trading_bot/domain/decision.py": "c60bb9a67213418016b47c8fc18227167d1c9b11e96e157ac86642c6bb50f51b",
       "src/automated_trading_bot/domain/event.py": "415dee2316e642c116d30439572aac91dbfd31af6a0c7187316fd3d4aa509235",
       "src/automated_trading_bot/domain/identifiers.py": "423fc64dd27d66c0bf7f22d6497bd1747e9c2306754e91b592748eb8545263b5",
-      "src/automated_trading_bot/domain/money.py": "f7b2bbb3af003504a1a245c43e0c5540beb32b7e20f5a6993480776900e6e18a",
+      "src/automated_trading_bot/domain/money.py": "ab813b32c6a0031289d893563a95da3a7f0f9e0cade9dd7d4942f06081f1476f",
       "src/automated_trading_bot/domain/operational_mode.py": "398c0eea547df4741a0467021dc1e1d0e88113de8521cd708f3c487e61aa8a64",
       "src/automated_trading_bot/domain/order_side.py": "5aeda713ed0c87c9a0ba887d117f19453f3e5e65e5811c1c328c7fe29fd42bde",
       "src/automated_trading_bot/domain/order_type.py": "0b3b088465dba629b992ebe983dad14657a81afaa91ec835a051a54b89c9fb7e",
-      "src/automated_trading_bot/domain/quantity.py": "186fd98ccf68594896b20ba933ad3786982bd38442a0e1ca18e64ca0fdf4d0a8",
+      "src/automated_trading_bot/domain/quantity.py": "f9015d4bf9735c1ad7a515e3db23637aa2c534e4062cafa8892ed183af747161",
       "src/automated_trading_bot/domain/timestamp.py": "5c28d04376b86f68e29a4ceb5a4d8ab026a28c836b0d32d4d8c7ab8015b8fedd",
       "src/automated_trading_bot/economic_edge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "src/automated_trading_bot/execution/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -36333,6 +36554,11 @@
       "src/automated_trading_bot/risk/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "src/automated_trading_bot/security/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "src/automated_trading_bot/strategy/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tests/test_money.py": "39123cee87c148bd75f5d682d20ec87aa6ef1ab8b549444e7082a0899502d275",
+      "tests/test_quantity.py": "e5a33184ce3b6f65b6e1360f064c29efcfbb061f7348042eca8e69e78ae654ab",
+      "docs/m1-closure/M1-core-contracts-scope-clarification.md": "5a286bbc418fa3edf13e2e8ecebb93b443529795be5cf255e4e7d6d9d7815f05",
+      "docs/m1-closure/M1-financial-primitives-scope-clarification.md": "4fa4f1dc77ecbb85a8806632dfcc680e1952a1ac6d7ee1d68ff7d729263d4591",
+      "docs/m1-closure/owner-dispositions.json": "accd0e3088f1ae01ebe32a57373badc8f788fdc4dc87330a2d9f4fae9a4df292",
       "tests/test_alerts.py": "90860b8dffe4289545a160c67ddb9bbc3e6bc9094749f44201d6d3e07476999a",
       "docs/m1-closure/M1-alert-scope-clarification.md": "95c658a8c2d196317b57795a989253bb5123c1a55df533677bf13ba34d9993a9",
       "tests/test_health.py": "1d372ca85e4e1cbf80276b2db25b3d18c1fca2823c2a191a6a1642dde6cf2cd0",
@@ -36348,7 +36574,7 @@
       "docs/m1-closure/M1-initial-migration-specification.md": "f1f83aef9b9aafb0e7537eee0aebc80ce0d513a8d0b6559bc7346bbef482ba2b",
       "tests/test_event_storage_design.py": "f9e839e1599e551707f63300317abdc90b06fc6fef6393861789c26d274fd5d1",
       "docs/m1-closure/M1-event-storage-design.md": "b4c1603ea6b26342aa129f4dd57cacf988815327637750689728da01fd01a5fa",
-      "tests/test_decision.py": "ad16efab07e1fde04d7c763a305692ed833fd05bd1ebdcaf33d991c8b41556bd",
+      "tests/test_decision.py": "9d2273f4b4c5a39d24e36b76f16cbade20c094a51efc036d082d4578578d053c",
       "tests/test_clock.py": "09b27941dccc304bdfe67ee49684d0d92d3fddbbe0f2b6bd3b60358822d2f3ac",
       "tests/test_timestamp.py": "0f368c68b1885d0a733a9b7f4b35fcf560ca7cced7539764689fee534dcc3114",
       "docs/m1-closure/M1-calendar-scope-clarification.md": "806b2e08d0b59c4bd2f6a5802a1e7cb25b8b3c7e35e698629cafc3d53ef21fb1",
@@ -36358,10 +36584,10 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "a86f249bea97a469aef2dfe065ff30eae5e7b28e6dbeb1999e2af334a6565649",
+      "tests/test_closure_traceability.py": "e132dd08081c35e59f12c335b9ee0d027b0860689820d83f7e5c06e9d346f47f",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "b6452f7f94badd4caaeeeb36f3a5078a8440f7aee524276235db3007448b2d4a"
+      "docs/m1-closure/traceability.json": "66ecfbf33b47c18d7643e60b63caabdd37bd9470bf8238689127d50657f56315"
     }
   },
   "unresolved_traceability_ids": [],
@@ -36375,7 +36601,8 @@
     "M1-SCOPE-2026-09-12-01",
     "M1-SCOPE-2026-09-12-02",
     "M1-SCOPE-2026-09-12-03",
-    "M1-SCOPE-2026-09-12-04"
+    "M1-SCOPE-2026-09-12-04",
+    "M1-SCOPE-2026-09-13-01"
   ],
   "post_closure_audit": {
     "classification": "REOPEN_M1",

@@ -13,6 +13,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SELECTION = [
+    "tests/test_money.py",
+    "tests/test_quantity.py",
     "tests/test_alerts.py",
     "tests/test_health.py",
     "tests/test_metrics.py",
@@ -63,6 +65,11 @@ def _run_evidence() -> dict:
         assert run.returncode == 0, "Underlying evidence tests failed"
         assert cases and all(outcome == "passed" for _, outcome in cases)
     inputs = sorted((ROOT / "src").rglob("*.py")) + [
+        ROOT / "tests/test_money.py",
+        ROOT / "tests/test_quantity.py",
+        ROOT / "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        ROOT / "docs/m1-closure/M1-financial-primitives-scope-clarification.md",
+        ROOT / "docs/m1-closure/owner-dispositions.json",
         ROOT / "tests/test_alerts.py",
         ROOT / "docs/m1-closure/M1-alert-scope-clarification.md",
         ROOT / "tests/test_health.py",
