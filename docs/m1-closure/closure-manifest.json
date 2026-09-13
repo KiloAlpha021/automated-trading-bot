@@ -15,8 +15,8 @@
     "traceability_atoms": 50,
     "assessment_records": 50,
     "assessment_totals": {
-      "VERIFIED": 49,
-      "INSUFFICIENT_EVIDENCE": 1,
+      "VERIFIED": 50,
+      "INSUFFICIENT_EVIDENCE": 0,
       "FAILED": 0,
       "unassessed": 0
     },
@@ -135,13 +135,20 @@
     "semantic_equivalence_claimed": false
   },
   "hosted_protection": {
-    "repository": "KiloAlpha21/automated-trading-bot",
+    "organization": "KiloAlpha021",
+    "repository": "KiloAlpha021/automated-trading-bot",
     "branch": "master",
+    "organization_ruleset_id": 23106039,
+    "organization_ruleset_name": "M1 trusted evaluator protection",
+    "enforcement": "active",
     "pull_request_required": true,
     "required_approving_review_count": 0,
-    "required_status_check": "m1-engineering-foundation",
-    "strict": true,
-    "ordinary_contributor_bypass_allowed": true,
+    "trusted_workflow_repository": "KiloAlpha021/security-workflows",
+    "trusted_workflow_ref": "refs/heads/main",
+    "trusted_workflow_path": ".github/workflows/m1-trusted.yml",
+    "trusted_workflow_observed_commit": "013bf76fd98a4353f6fd776b2559552f99d671b1",
+    "required_status_check": "trusted-m1-evaluator",
+    "ordinary_contributor_bypass_allowed": false,
     "force_pushes_allowed": false,
     "deletions_allowed": false,
     "evidence": "docs/m1-closure/hosted-branch-protection-evidence.json"
@@ -279,11 +286,14 @@
   "future_controlled_obligations_implemented": false,
   "residual_blockers": [
     {
-      "id": "M1-AUDIT-CI-SELF-MODIFICATION",
-      "requirement_id": "IMP-001-M1-14",
-      "status": "INSUFFICIENT_EVIDENCE",
-      "finding": "The pull-request revision can modify the workflow that emits the required m1-engineering-foundation status; zero required approvals and no independent hosted workflow-path control permit the weakened evaluator to satisfy its own merge gate.",
-      "required_resolution": "Add independently hosted enforcement preventing a pull request from both weakening the required evaluator and using that evaluator to satisfy protected-master merge requirements."
+      "id": "M1-AUDIT-NONFINITE-DECIMAL-SCOPE",
+      "requirement_ids": [
+        "IMP-001-M1-16",
+        "IMP-001-M1-17"
+      ],
+      "status": "OWNER_DECISION_REQUIRED",
+      "finding": "The M1 Money/Quantity contract does not define whether non-finite Decimal values are valid.",
+      "required_resolution": "Obtain an attributable owner decision defining whether Money and Quantity must reject Decimal NaN and infinities before M1 is re-closed."
     }
   ],
   "restrictions": [
@@ -293,6 +303,6 @@
     "M1 completion does not authorize broker execution.",
     "M1 completion does not authorize lifecycle promotion or controlled future functionality.",
     "M1 completion does not claim recovery of original R39 individual semantics.",
-    "M1 is reopened and remains blocked on the hosted CI trust boundary."
+    "M1 is reopened and remains blocked on the Money/Quantity non-finite Decimal contract decision."
   ]
 }

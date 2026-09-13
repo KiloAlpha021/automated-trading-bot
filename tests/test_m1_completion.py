@@ -228,17 +228,20 @@ def test_current_manifest_truthfully_records_reopened_m1() -> None:
     assert data["exit_gate"] == "NOT_PASS"
     assert data["authorization"] == "NONE"
     assert data["coverage"]["assessment_totals"] == {
-        "VERIFIED": 49,
-        "INSUFFICIENT_EVIDENCE": 1,
+        "VERIFIED": 50,
+        "INSUFFICIENT_EVIDENCE": 0,
         "FAILED": 0,
         "unassessed": 0,
     }
-    assert data["residual_blockers"][0]["requirement_id"] == "IMP-001-M1-14"
-    assert data["hosted_protection"]["ordinary_contributor_bypass_allowed"] is True
+    assert data["residual_blockers"][0]["id"] == "M1-AUDIT-NONFINITE-DECIMAL-SCOPE"
+    assert data["residual_blockers"][0]["status"] == "OWNER_DECISION_REQUIRED"
+    assert data["hosted_protection"]["ordinary_contributor_bypass_allowed"] is False
+    assert data["hosted_protection"]["organization_ruleset_id"] == 23106039
+    assert data["hosted_protection"]["required_status_check"] == "trusted-m1-evaluator"
     assert checkpoint["complete"] is False
     assert checkpoint["assessment_status"] == "BLOCKED"
     assert checkpoint["authorization"] == "NONE"
-    assert checkpoint["unresolved_traceability_ids"] == ["IMP-001-M1-14"]
+    assert checkpoint["unresolved_traceability_ids"] == []
     assert checkpoint["reclosure"]["stage2_authorized"] is False
 
 

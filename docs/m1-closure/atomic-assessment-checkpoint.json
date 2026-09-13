@@ -1,7 +1,7 @@
 {
   "assessment": "REOPENED",
   "complete": false,
-  "stop_reason": "M1 reopened after post-closure audit: IMP-001-M1-14 lacks independent hosted enforcement preventing pull-request self-modification of the required CI evaluator.",
+  "stop_reason": "M1 remains reopened pending an attributable owner decision on whether the Money and Quantity core contracts must reject non-finite Decimal values.",
   "scope_decision": "M1-SCOPE-2026-09-11-01",
   "required_parent_set": [
     "IMP-001",
@@ -939,10 +939,10 @@
         "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence_rejects_weakened_control"
       ],
       "invalid_verification_references": [],
-      "status": "INSUFFICIENT_EVIDENCE",
+      "status": "VERIFIED",
       "explicit_deferral_source": null,
-      "smallest_corrective_action": "Configure and prove an independent GitHub-hosted rule that prevents a pull request from modifying the required evaluator and then using that modified evaluator to satisfy the merge gate.",
-      "verification_limits": "Repository workflow tests and least-privilege settings do not solve self-modification. IMP-001-M1-14 remains blocked until independent hosted enforcement is observed and negatively proven.",
+      "smallest_corrective_action": "",
+      "verification_limits": "Point-in-time authenticated GitHub evidence proves the active organization ruleset, protected external evaluator, negative local-workflow bypass control and normal path. The external workflow remains bound to protected security-workflows/main.",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json",
         "docs/m1-closure/hosted-branch-protection-evidence.json"
@@ -1153,7 +1153,7 @@
       "verification_limits": "M1.7 verifies immutable operational-mode data and fail-closed startup only. Restrictive labels grant no action authority. Runtime operations ownership, transitions, reconciliation, persistence, recovery, monitoring integration and financial execution remain unimplemented."
     }
   ],
-  "remaining_assessment": "",
+  "remaining_assessment": "Atomic assessment records are complete and IMP-001-M1-14 is VERIFIED. M1 remains BLOCKED by the separate Money/Quantity non-finite Decimal owner-decision gap; no completion or promotion is authorized.",
   "manifest_validation": "Current completion authority: docs/m1-closure/closure-manifest.json. Prior closure preserved at docs/m1-closure/closure-manifest-historical-2026-09-12.json.",
   "historical_assessments": [
     {
@@ -36358,15 +36358,13 @@
       "scripts/extract_specification_text.py": "38e3b876f2415b5340e35741dfa66036bd18d70f30afaa913453ec88f9a23958",
       "docs/baseline/specification-provenance.json": "7a47982c7c585e943ea4af5008c3d77bd80d4dd204f372bda717bc034e23a63b",
       "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "13d18b573af4885c492d43704e2138de4f8dff3307d32200640ef4ee5344e80c",
-      "tests/test_closure_traceability.py": "d649660b4554825934b0795001fb34bda7a845204ea8c001f6f9255c548e5fe3",
+      "tests/test_closure_traceability.py": "a86f249bea97a469aef2dfe065ff30eae5e7b28e6dbeb1999e2af334a6565649",
       "docs/M1.8-evidence.md": "0b25f38fb1f742f8c79f8accca93fc251f90c66a89d01b923d676d8c4061ee3b",
       "docs/m1-closure/M1-scope-clarification.md": "25b7f33899e7e7831da8eda8785f519d77d0661e6ff7bbab6719314045503c5d",
-      "docs/m1-closure/traceability.json": "a69521730320b6357327b9500fc5ee3f7c24fd7168b29490505ba0de37a05bcc"
+      "docs/m1-closure/traceability.json": "b6452f7f94badd4caaeeeb36f3a5078a8440f7aee524276235db3007448b2d4a"
     }
   },
-  "unresolved_traceability_ids": [
-    "IMP-001-M1-14"
-  ],
+  "unresolved_traceability_ids": [],
   "unassessed_requirement_ids": [],
   "scope_decisions": [
     "M1-SCOPE-2026-09-11-01",
@@ -36397,15 +36395,28 @@
         "status": "REPAIRED",
         "evidence": "docs/m1-closure/stage0b-phase39-67-coverage.json; tests/test_stage0b_phase39.py",
         "claim": "M1.1, M1.2, M1.3 and M1.7 are atomically represented, and the owner-approved Phase 39.67 replacement provides controlled forward governance for the unrecovered Stage 0B R39 records without claiming recovered wording or semantic equivalence."
+      },
+      {
+        "id": "M1-AUDIT-CI-SELF-MODIFICATION",
+        "mapped_requirement": "IMP-001-M1-14",
+        "status": "REPAIRED",
+        "evidence": "docs/m1-closure/hosted-branch-protection-evidence.json",
+        "claim": "An active organization ruleset requires the independently protected external trusted evaluator; closed PR #5 proves a weakened local evaluator cannot replace the external gate and closed PR #6 proves the normal path remains usable."
       }
     ],
     "active_blockers": [
       {
-        "id": "M1-AUDIT-CI-SELF-MODIFICATION",
-        "mapped_requirement": "IMP-001-M1-14",
-        "status": "OPEN",
-        "evidence": "docs/m1-closure/M1-ci-trust-boundary-threat-model.md",
-        "claim": "The required pull-request workflow can currently approve a change that weakened that same evaluator; independent hosted path protection is absent."
+        "id": "M1-AUDIT-NONFINITE-DECIMAL-SCOPE",
+        "mapped_requirements": [
+          "IMP-001-M1-16",
+          "IMP-001-M1-17"
+        ],
+        "status": "OWNER_DECISION_REQUIRED",
+        "evidence": [
+          "src/automated_trading_bot/domain/money.py",
+          "src/automated_trading_bot/domain/quantity.py"
+        ],
+        "claim": "The current core contracts accept Decimal NaN and infinities. The canonical M1 sources do not resolve whether these values belong inside or outside the M1 Money/Quantity contract, so M1 cannot be re-closed without an attributable scope decision."
       }
     ],
     "resolved_findings_provenance": {
