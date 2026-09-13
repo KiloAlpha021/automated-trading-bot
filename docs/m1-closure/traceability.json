@@ -821,12 +821,15 @@
         "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence",
         "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence_rejects_weakened_control"
       ],
-      "residual_gap": "Required-check enforcement is self-modifiable by the pull-request revision and lacks an independent hosted workflow-path protection control.",
+      "residual_gap": "",
       "evidence": [
         "docs/m1-closure/owner-dispositions.json",
         "docs/m1-closure/hosted-branch-protection-evidence.json"
       ],
-      "verification": []
+      "verification": [
+        "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence",
+        "tests/test_hosted_branch_protection.py::test_hosted_branch_protection_evidence_rejects_weakened_control"
+      ]
     },
     {
       "id": "IMP-001-M1-15",

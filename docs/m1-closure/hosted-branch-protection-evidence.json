@@ -1,79 +1,119 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "requirement_id": "IMP-001-M1-14",
-  "repository": "KiloAlpha21/automated-trading-bot",
-  "repository_url": "https://github.com/KiloAlpha21/automated-trading-bot",
+  "organization": "KiloAlpha021",
+  "repository": "KiloAlpha021/automated-trading-bot",
+  "repository_url": "https://github.com/KiloAlpha021/automated-trading-bot",
   "default_branch": "master",
   "protected_branch": "master",
-  "approved_operating_model": {
-    "authority": "explicit owner approval received 2026-09-12",
+  "organization_ruleset": {
+    "id": 23106039,
+    "name": "M1 trusted evaluator protection",
+    "source_type": "Organization",
+    "enforcement": "active",
+    "target_repository": "KiloAlpha021/automated-trading-bot",
+    "target_ref": "refs/heads/master",
+    "bypass_actors": [],
+    "current_user_can_bypass": "never",
     "pull_request_required": true,
     "required_approving_review_count": 0,
-    "required_status_check": "m1-engineering-foundation"
-  },
-  "required_status_check": {
-    "context": "m1-engineering-foundation",
-    "app_id": 15368,
-    "strict": true,
-    "required_before_merge": true
-  },
-  "pull_request_requirement": {
-    "enabled": true,
-    "required_approving_review_count": 0,
-    "dismiss_stale_reviews": false,
-    "require_code_owner_reviews": false,
-    "require_last_push_approval": false
-  },
-  "enforcement": {
-    "enabled": true,
-    "enforce_admins": true,
-    "ordinary_contributor_bypass_allowed": false,
     "force_pushes_allowed": false,
     "deletions_allowed": false
   },
-  "merged_pull_request": {
-    "number": 1,
+  "trusted_workflow": {
+    "repository": "KiloAlpha021/security-workflows",
+    "repository_id": 1367762816,
+    "default_branch": "main",
+    "ref": "refs/heads/main",
+    "path": ".github/workflows/m1-trusted.yml",
+    "commit": "013bf76fd98a4353f6fd776b2559552f99d671b1",
+    "git_blob": "05e0068d070d95a37cffff7bd2d022d84bc674a5",
+    "required_before_merge": true,
+    "check_name": "trusted-m1-evaluator",
+    "permissions": {
+      "contents": "read"
+    },
+    "actions_pinned_to_full_commit_sha": true,
+    "branch_protection": {
+      "pull_request_required": true,
+      "enforce_admins": true,
+      "force_pushes_allowed": false,
+      "deletions_allowed": false,
+      "required_conversation_resolution": true
+    },
+    "ordinary_trading_contributor_can_modify": false,
+    "organization_default_repository_permission": "read",
+    "organization_members_observed": [
+      "KiloAlpha21"
+    ]
+  },
+  "negative_control": {
+    "pull_request": 5,
     "state": "closed",
-    "merged": true,
+    "merged": false,
     "base_branch": "master",
-    "head_branch": "m1-bootstrap-fix",
-    "head_sha": "8c8ba39cfd3445a1e839bffc90ea364c08495167",
-    "merge_commit_sha": "5f69f8e595556960c9b7509ce58bfd74e9058741",
-    "merged_at": "2026-09-12T17:59:17Z"
+    "head_branch": "evidence/m1-trusted-negative",
+    "head_sha": "12646ada09b7cd01d22a5ab5003a9df2398f121c",
+    "weakened_path": ".github/workflows/m1-engineering-foundation.yml",
+    "preserved_local_check_name": "m1-engineering-foundation",
+    "local_check": {
+      "run_id": 34726265744,
+      "check_run_id": 103640796637,
+      "conclusion": "success"
+    },
+    "trusted_check": {
+      "run_id": 34726265759,
+      "check_run_id": 103640796497,
+      "name": "trusted-m1-evaluator",
+      "conclusion": "success"
+    },
+    "external_gate_ran_independently": true,
+    "merge_without_trusted_workflow_allowed": false,
+    "could_modify_trusted_workflow": false,
+    "url": "https://github.com/KiloAlpha021/automated-trading-bot/pull/5"
   },
-  "pre_merge_workflow_run": {
-    "workflow": "m1-engineering-foundation",
-    "run_id": 34709588267,
-    "event": "pull_request",
-    "head_sha": "8c8ba39cfd3445a1e839bffc90ea364c08495167",
-    "status": "completed",
-    "conclusion": "success",
-    "created_at": "2026-09-12T17:54:00Z",
-    "updated_at": "2026-09-12T17:54:57Z",
-    "url": "https://github.com/KiloAlpha21/automated-trading-bot/actions/runs/34709588267"
+  "normal_control": {
+    "pull_request": 6,
+    "state": "closed",
+    "merged": false,
+    "base_branch": "master",
+    "head_branch": "evidence/m1-trusted-normal",
+    "head_sha": "c8fcecd9838ac95dfae1b5a02299d1da4da99b3f",
+    "changed_path": "docs/m1-closure/trusted-workflow-normal-smoke.md",
+    "change_classification": "harmless documentation-only control",
+    "local_check": {
+      "run_id": 34726492407,
+      "check_run_id": 103641401218,
+      "conclusion": "success"
+    },
+    "trusted_check": {
+      "run_id": 34726492411,
+      "check_run_id": 103641401283,
+      "name": "trusted-m1-evaluator",
+      "conclusion": "success"
+    },
+    "required_gate_passed": true,
+    "url": "https://github.com/KiloAlpha021/automated-trading-bot/pull/6"
   },
-  "hosted_workflow_run": {
-    "workflow": "m1-engineering-foundation",
-    "run_id": 34709827020,
-    "event": "push",
-    "head_sha": "5f69f8e595556960c9b7509ce58bfd74e9058741",
-    "status": "completed",
-    "conclusion": "success",
-    "created_at": "2026-09-12T17:59:19Z",
-    "updated_at": "2026-09-12T18:00:11Z",
-    "url": "https://github.com/KiloAlpha21/automated-trading-bot/actions/runs/34709827020"
-  },
-  "observed_at": "2026-09-12T18:07:20Z",
+  "observed_at": "2026-09-13T00:10:04Z",
   "evidence_source": {
-    "method": "GitHub REST API",
-    "repository_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot",
-    "branch_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/branches/master",
-    "protection_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/branches/master/protection",
-    "pull_request_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/pulls/1",
-    "check_runs_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/commits/5f69f8e595556960c9b7509ce58bfd74e9058741/check-runs",
-    "workflow_endpoint": "GET /repos/KiloAlpha21/automated-trading-bot/actions/workflows/m1-engineering-foundation.yml/runs",
-    "protection_endpoint_authenticated": true,
+    "method": "Authenticated GitHub REST API",
+    "rulesets_endpoint": "GET /repos/KiloAlpha021/automated-trading-bot/rulesets?includes_parents=true",
+    "ruleset_endpoint": "GET /repos/KiloAlpha021/automated-trading-bot/rulesets/23106039",
+    "effective_rules_endpoint": "GET /repos/KiloAlpha021/automated-trading-bot/rules/branches/master",
+    "trusted_protection_endpoint": "GET /repos/KiloAlpha021/security-workflows/branches/main/protection",
+    "trusted_workflow_endpoint": "GET /repos/KiloAlpha021/security-workflows/contents/.github/workflows/m1-trusted.yml?ref=013bf76fd98a4353f6fd776b2559552f99d671b1",
+    "pull_request_endpoints": [
+      "GET /repos/KiloAlpha021/automated-trading-bot/pulls/5",
+      "GET /repos/KiloAlpha021/automated-trading-bot/pulls/6"
+    ],
+    "check_runs_endpoints": [
+      "GET /repos/KiloAlpha021/automated-trading-bot/commits/12646ada09b7cd01d22a5ab5003a9df2398f121c/check-runs",
+      "GET /repos/KiloAlpha021/automated-trading-bot/commits/c8fcecd9838ac95dfae1b5a02299d1da4da99b3f/check-runs"
+    ],
+    "authenticated": true,
     "credentials_recorded": false
   },
-  "limitations": "Point-in-time hosted observation. Zero required human approvals is an explicit owner-approved policy; pull-request and required-status controls remain mandatory. This artifact does not itself prevent a later settings change and grants no M1 completion or trading authority."
+  "classification": "VERIFIED",
+  "limitations": "Point-in-time hosted observation. The ruleset binds the trusted workflow by repository, branch and path, so a future authorized change to security-workflows/main changes the evaluator used by the gate. That branch is separately protected and is writable only through its protected process. This evidence grants no M1 completion, trading, execution or Stage 2 authority."
 }
