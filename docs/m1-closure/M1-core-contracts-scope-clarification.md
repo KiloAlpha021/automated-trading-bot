@@ -46,3 +46,7 @@ smallest missing acceptance tests. It does not authorize M1.7 remediation,
 Stage 0B closure, hosted branch-protection changes, M1 completion, Stage 2,
 trading authority, a replacement completion manifest, a tag or a push.
 <!-- REPOSITORY-CANONICAL-OWNER-TEXT:END -->
+
+Related approved clarification: M1-SCOPE-2026-09-13-01 in
+`docs/m1-closure/M1-financial-primitives-scope-clarification.md` defines the
+finite-Decimal structural invariant without changing this decision's other scope.

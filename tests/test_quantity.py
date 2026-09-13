@@ -28,11 +28,28 @@ def test_quantity_rejects_non_decimal_values(invalid_value: object) -> None:
         Quantity(value=invalid_value)
 
 
-@pytest.mark.parametrize("value", [Decimal("0"), Decimal("-2.50"), Decimal("0.12345678901234567890123456789")])
+@pytest.mark.parametrize(
+    "value",
+    [
+        Decimal("1.25"),
+        Decimal("0"),
+        Decimal("-0"),
+        Decimal("-2.50"),
+        Decimal("0.12345678901234567890123456789"),
+    ],
+)
 def test_quantity_preserves_decimal_input(value: Decimal) -> None:
     result = Quantity(value=value)
 
     assert result.value is value
+
+
+@pytest.mark.parametrize(
+    "value", [Decimal("NaN"), Decimal("sNaN"), Decimal("Infinity"), Decimal("-Infinity")]
+)
+def test_quantity_rejects_non_finite_decimal_values(value: Decimal) -> None:
+    with pytest.raises(ValueError, match="^value must be finite$"):
+        Quantity(value=value)
 
 
 def test_quantity_value_equality_is_stable() -> None:

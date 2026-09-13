@@ -92,6 +92,16 @@
       "historical_attachment_id": "33259a24-ed10-4557-972e-1a7cdd5e7018",
       "historical_attachment_sha256": null,
       "historical_attachment_is_normative": false
+    },
+    {
+      "decision_id": "M1-SCOPE-2026-09-13-01",
+      "artifact": "docs/m1-closure/M1-financial-primitives-scope-clarification.md",
+      "canonical_text_sha256": "2db8dcef413612e21d9d9b95674b983f0c321b7554c4aad1fb7d753f5ca744d7",
+      "hash_model": "UTF-8; CRLF normalized to LF; surrounding blank lines removed; one final LF",
+      "specification_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
+      "historical_attachment_id": null,
+      "historical_attachment_sha256": null,
+      "historical_attachment_is_normative": false
     }
   ]
 }

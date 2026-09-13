@@ -857,10 +857,11 @@
       "requirement": "Define and verify the M1 Money core contract without adding contextual financial semantics.",
       "disposition": "M1",
       "provenance_status": "INFERRED",
-      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decisions M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01.",
       "artifacts": [
         "src/automated_trading_bot/domain/money.py",
-        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
       ],
       "tests": [
         "tests/test_money.py::test_money_rejects_non_decimal_values",
@@ -868,7 +869,8 @@
         "tests/test_money.py::test_money_rejects_non_currency",
         "tests/test_money.py::test_money_preserves_currency_object",
         "tests/test_money.py::test_money_is_immutable",
-        "tests/test_money.py::test_money_value_equality_is_stable"
+        "tests/test_money.py::test_money_value_equality_is_stable",
+        "tests/test_money.py::test_money_rejects_non_finite_decimal_values"
       ],
       "residual_gap": "",
       "evidence": [
@@ -881,16 +883,18 @@
       "requirement": "Define and verify the M1 Quantity core contract without adding instrument-specific semantics.",
       "disposition": "M1",
       "provenance_status": "INFERRED",
-      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decisions M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01.",
       "artifacts": [
         "src/automated_trading_bot/domain/quantity.py",
-        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
       ],
       "tests": [
         "tests/test_quantity.py::test_quantity_rejects_non_decimal_values",
         "tests/test_quantity.py::test_quantity_preserves_decimal_input",
         "tests/test_quantity.py::test_quantity_is_immutable",
-        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable",
+        "tests/test_quantity.py::test_quantity_rejects_non_finite_decimal_values"
       ],
       "residual_gap": "",
       "evidence": [
@@ -925,14 +929,15 @@
       "requirement": "Prove deterministic property and invariant acceptance for every M1.3 core contract.",
       "disposition": "M1",
       "provenance_status": "INFERRED",
-      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decision M1-SCOPE-2026-09-12-03.",
+      "source": "Hash-matched Implementation Specification v1.0 section 11 M1.3; owner decisions M1-SCOPE-2026-09-12-03 and M1-SCOPE-2026-09-13-01.",
       "artifacts": [
         "src/automated_trading_bot/domain/identifiers.py",
         "src/automated_trading_bot/domain/timestamp.py",
         "src/automated_trading_bot/domain/currency.py",
         "src/automated_trading_bot/domain/money.py",
         "src/automated_trading_bot/domain/quantity.py",
-        "docs/m1-closure/M1-core-contracts-scope-clarification.md"
+        "docs/m1-closure/M1-core-contracts-scope-clarification.md",
+        "docs/m1-closure/M1-financial-primitives-scope-clarification.md"
       ],
       "tests": [
         "tests/test_identifiers.py::test_uuid_identifiers_reject_non_uuid",
@@ -944,7 +949,9 @@
         "tests/test_money.py::test_money_preserves_decimal_input",
         "tests/test_money.py::test_money_value_equality_is_stable",
         "tests/test_quantity.py::test_quantity_preserves_decimal_input",
-        "tests/test_quantity.py::test_quantity_value_equality_is_stable"
+        "tests/test_quantity.py::test_quantity_value_equality_is_stable",
+        "tests/test_money.py::test_money_rejects_non_finite_decimal_values",
+        "tests/test_quantity.py::test_quantity_rejects_non_finite_decimal_values"
       ],
       "residual_gap": "",
       "evidence": [
