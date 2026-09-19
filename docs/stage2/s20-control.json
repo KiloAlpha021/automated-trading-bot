@@ -1,0 +1,895 @@
+{
+  "schema_version": 1,
+  "control_id": "ATIS-STAGE2-S20",
+  "authorization": "NONE",
+  "purpose": "Non-authorizing Stage-2 requirement and evidence control baseline; later-slice behavior is not implemented here.",
+  "sources": [
+    {
+      "id": "IMP-V1",
+      "authority": "canonical implementation baseline",
+      "reference": "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx"
+    },
+    {
+      "id": "M1-CLOSURE",
+      "authority": "permanent M1 baseline",
+      "reference": "docs/m1-closure/closure-manifest.json"
+    },
+    {
+      "id": "PRES2-CLOSURE",
+      "authority": "protected Pre-S2 evidence",
+      "reference": "KiloAlpha021/security-policy@9b78dcb50df2e7ae89cfb32733e37f88659e12ab; proof run 35456788902"
+    },
+    {
+      "id": "OWNER-S2",
+      "authority": "approved owner sequence",
+      "reference": "Pre-S2→S2.0→S2.1→S2.2→S2.3→S2.4→S2.5→S2.6→S2.7/GATE-S02-01"
+    },
+    {
+      "id": "S2-D01",
+      "authority": "approved owner decision",
+      "reference": "Rounding-policy identity/representation only"
+    },
+    {
+      "id": "S2-D02",
+      "authority": "approved owner decision",
+      "reference": "Preserve M1 EventEnvelope; use versioned successor/codec"
+    },
+    {
+      "id": "S2-D03",
+      "authority": "approved owner decision",
+      "reference": "Narrow inert versioned command envelope"
+    },
+    {
+      "id": "S2-D04",
+      "authority": "approved owner decision",
+      "reference": "Generic contract-level state transitions only"
+    },
+    {
+      "id": "S2-D05",
+      "authority": "approved owner decision",
+      "reference": "Persistence ports/contracts; no normal Stage-2 production PostgreSQL adapter"
+    },
+    {
+      "id": "S2-D06",
+      "authority": "approved owner decision",
+      "reference": "Contract-level inbox/outbox transactional and idempotency semantics"
+    },
+    {
+      "id": "S2-D07",
+      "authority": "approved owner decision",
+      "reference": "Registered historical versions only; unknown versions reject"
+    },
+    {
+      "id": "S2-D08",
+      "authority": "approved owner decision",
+      "reference": "Pure deterministic upcasting; original bytes immutable"
+    },
+    {
+      "id": "S2-D09",
+      "authority": "approved owner decision",
+      "reference": "Narrow justified packages; no M1 reorganization"
+    },
+    {
+      "id": "S2-D10",
+      "authority": "approved owner decision",
+      "reference": "Deterministic property generators first; extra tooling only if justified"
+    },
+    {
+      "id": "S2-D11",
+      "authority": "approved owner decision",
+      "reference": "PostgreSQL N/A for normal Stage-2 implementation scope"
+    },
+    {
+      "id": "S2-D12",
+      "authority": "approved owner decision",
+      "reference": "Repair security-workflows evaluator context before protected progression"
+    },
+    {
+      "id": "OWNER-S20",
+      "authority": "approved S2.0 implementation contract",
+      "reference": "Owner S2.0 implementation authorization and AC-01…AC-15"
+    }
+  ],
+  "slices": [
+    {
+      "id": "S2.0",
+      "objective": "Governance, scope, decisions, catalogues, version policy and structural control"
+    },
+    {
+      "id": "S2.1",
+      "objective": "Versioning and compatibility"
+    },
+    {
+      "id": "S2.2",
+      "objective": "Identifiers and value contracts"
+    },
+    {
+      "id": "S2.3",
+      "objective": "Versioned events and inert commands"
+    },
+    {
+      "id": "S2.4",
+      "objective": "Pure contract-level state transitions"
+    },
+    {
+      "id": "S2.5",
+      "objective": "Persistence ports and typed outcomes"
+    },
+    {
+      "id": "S2.6",
+      "objective": "Inbox/outbox, idempotency and optimistic concurrency contracts"
+    },
+    {
+      "id": "S2.7",
+      "objective": "Integration evidence and GATE-S02-01 before data-subsystem integration"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "ATIS-R-001",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.0",
+      "statement": "Maintain an atomic, source-linked Stage-2 requirement catalogue.",
+      "property": "Each requirement has one stable identity and one primary owning slice.",
+      "family": null,
+      "consumers": [
+        "S2.1",
+        "S2.2",
+        "S2.3",
+        "S2.4",
+        "S2.5",
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [],
+      "evidence": "Structural catalogue and source-reference checks"
+    },
+    {
+      "id": "ATIS-R-002",
+      "sources": [
+        "OWNER-S20",
+        "OWNER-S2"
+      ],
+      "owner": "S2.0",
+      "statement": "Record authorized Stage-2 scope and explicit later-stage non-scope.",
+      "property": "Engineering progression grants no financial or execution authority.",
+      "family": null,
+      "consumers": [
+        "S2.1",
+        "S2.7"
+      ],
+      "depends_on": [],
+      "evidence": "Scope review against approved owner decisions"
+    },
+    {
+      "id": "ATIS-R-003",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.0",
+      "statement": "Assign primary evidence ownership and transitive consumers.",
+      "property": "Each slice proves properties it introduces; S2.7 integrates evidence.",
+      "family": null,
+      "consumers": [
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-001"
+      ],
+      "evidence": "Evidence ownership and reference checks"
+    },
+    {
+      "id": "ATIS-R-004",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.0",
+      "statement": "Map cross-slice dependencies before later-slice coding.",
+      "property": "Material later consumers cannot silently redefine earlier contracts.",
+      "family": null,
+      "consumers": [
+        "S2.1",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-001"
+      ],
+      "evidence": "Dependency-map structural checks and semantic review"
+    },
+    {
+      "id": "ATIS-R-005",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.0",
+      "statement": "Validate objectively decidable control structure only.",
+      "property": "Structural success is not semantic, trading or lifecycle authority.",
+      "family": null,
+      "consumers": [
+        "S2.1"
+      ],
+      "depends_on": [
+        "ATIS-R-001"
+      ],
+      "evidence": "Positive and adversarial S2.0 structural tests"
+    },
+    {
+      "id": "ATIS-R-006",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.0",
+      "statement": "Apply affected-scope change impact and evidence invalidation after S2.0 closure.",
+      "property": "Unrelated M1, Pre-S2 and Stage-2 evidence is not reopened automatically.",
+      "family": null,
+      "consumers": [
+        "S2.1",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-003"
+      ],
+      "evidence": "Change-control contract review"
+    },
+    {
+      "id": "ATIS-R-007",
+      "sources": [
+        "OWNER-S2",
+        "OWNER-S20",
+        "S2-D09"
+      ],
+      "owner": "S2.0",
+      "statement": "Add only narrowly justified contracts or persistence packages.",
+      "property": "Settled M1 modules remain in place; S2-D09 governs package scope.",
+      "family": null,
+      "consumers": [
+        "S2.1",
+        "S2.5"
+      ],
+      "depends_on": [],
+      "evidence": "Package and import-boundary review"
+    },
+    {
+      "id": "ATIS-R-008",
+      "sources": [
+        "OWNER-S2",
+        "PRES2-CLOSURE",
+        "S2-D12"
+      ],
+      "owner": "S2.0",
+      "statement": "Preserve repaired security-workflows evaluator context before protected progression.",
+      "property": "S2-D12 does not create new candidate authority.",
+      "family": null,
+      "consumers": [
+        "S2.7"
+      ],
+      "depends_on": [],
+      "evidence": "Pinned Pre-S2 closure and protected proof identity"
+    },
+    {
+      "id": "ATIS-R-009",
+      "sources": [
+        "OWNER-S2",
+        "OWNER-S20",
+        "S2-D07"
+      ],
+      "owner": "S2.1",
+      "statement": "Register supported successor contract versions explicitly and reject unregistered versions.",
+      "property": "No implicit latest, nearest or best-effort fallback; S2-D07.",
+      "family": "versioning_compatibility",
+      "consumers": [
+        "S2.3",
+        "S2.4",
+        "S2.5",
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-001"
+      ],
+      "evidence": "Registered/unknown-version and compatibility tests"
+    },
+    {
+      "id": "ATIS-R-010",
+      "sources": [
+        "OWNER-S2",
+        "OWNER-S20",
+        "S2-D08"
+      ],
+      "owner": "S2.1",
+      "statement": "Define deterministic codec selection and pure successor upcasting policy.",
+      "property": "Original historical bytes remain immutable; S2-D08.",
+      "family": "versioning_compatibility",
+      "consumers": [
+        "S2.3",
+        "S2.5",
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-009"
+      ],
+      "evidence": "Determinism, round-trip, rejection and historical-byte evidence"
+    },
+    {
+      "id": "ATIS-R-011",
+      "sources": [
+        "OWNER-S2",
+        "M1-CLOSURE"
+      ],
+      "owner": "S2.2",
+      "statement": "Define typed identifier and value-contract successors without M1 semantic mutation.",
+      "property": "Domain identity is distinct from contract and persistence versions.",
+      "family": "identifiers_values",
+      "consumers": [
+        "S2.3",
+        "S2.4",
+        "S2.5",
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-001"
+      ],
+      "evidence": "Identity, equality, immutability and value-invariant tests"
+    },
+    {
+      "id": "ATIS-R-012",
+      "sources": [
+        "OWNER-S2",
+        "IMP-V1",
+        "S2-D01"
+      ],
+      "owner": "S2.2",
+      "statement": "Represent rounding-policy identity without selecting business-specific rounding.",
+      "property": "Decimal/currency/quantity/time semantics remain explicit; S2-D01.",
+      "family": "identifiers_values",
+      "consumers": [
+        "S2.3",
+        "S2.5",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-011"
+      ],
+      "evidence": "Value representation and forbidden-business-policy tests"
+    },
+    {
+      "id": "ATIS-R-013",
+      "sources": [
+        "OWNER-S2",
+        "M1-CLOSURE",
+        "S2-D02"
+      ],
+      "owner": "S2.3",
+      "statement": "Define a versioned event successor/codec while preserving M1 EventEnvelope.",
+      "property": "No in-place mutation of settled M1 event semantics; S2-D02.",
+      "family": "event_successor",
+      "consumers": [
+        "S2.5",
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-009",
+        "ATIS-R-011"
+      ],
+      "evidence": "Compatibility, round-trip and unchanged-M1 regression evidence"
+    },
+    {
+      "id": "ATIS-R-014",
+      "sources": [
+        "OWNER-S2",
+        "M1-CLOSURE",
+        "S2-D03"
+      ],
+      "owner": "S2.3",
+      "statement": "Define a narrow versioned command envelope without execution authority.",
+      "property": "Command existence is not an order or approval; S2-D03.",
+      "family": "inert_command",
+      "consumers": [
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-009",
+        "ATIS-R-011"
+      ],
+      "evidence": "Command compatibility and authority-negative tests"
+    },
+    {
+      "id": "ATIS-R-015",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.3",
+      "statement": "Keep event/command, correlation/causation and idempotency identities distinct.",
+      "property": "Identity fields do not inherit authority from one another.",
+      "family": "inert_command",
+      "consumers": [
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-013",
+        "ATIS-R-014"
+      ],
+      "evidence": "Lineage and conflicting-idempotency negative tests"
+    },
+    {
+      "id": "ATIS-R-016",
+      "sources": [
+        "OWNER-S2",
+        "S2-D04"
+      ],
+      "owner": "S2.4",
+      "statement": "Define pure generic contract-level state transitions only.",
+      "property": "No OMS, broker, reconciliation, portfolio or strategy state machine; S2-D04.",
+      "family": "pure_transitions",
+      "consumers": [
+        "S2.5",
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-011",
+        "ATIS-R-009"
+      ],
+      "evidence": "Illegal, duplicate, terminal and UNKNOWN transition properties"
+    },
+    {
+      "id": "ATIS-R-017",
+      "sources": [
+        "OWNER-S2",
+        "S2-D05",
+        "S2-D11"
+      ],
+      "owner": "S2.5",
+      "statement": "Define persistence ports and typed outcomes without a production adapter.",
+      "property": "No concrete PostgreSQL adapter in normal Stage 2; S2-D05/D11.",
+      "family": "persistence_ports",
+      "consumers": [
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-011",
+        "ATIS-R-013",
+        "ATIS-R-016"
+      ],
+      "evidence": "Port/outcome contract and no-infrastructure-leakage tests"
+    },
+    {
+      "id": "ATIS-R-018",
+      "sources": [
+        "OWNER-S2"
+      ],
+      "owner": "S2.5",
+      "statement": "Distinguish success, failure and concurrency conflict as typed outcomes.",
+      "property": "Persistence success grants no business authorization.",
+      "family": "typed_outcomes",
+      "consumers": [
+        "S2.6",
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-017"
+      ],
+      "evidence": "Outcome and stale/conflict contract tests"
+    },
+    {
+      "id": "ATIS-R-019",
+      "sources": [
+        "OWNER-S2",
+        "S2-D06"
+      ],
+      "owner": "S2.6",
+      "statement": "Define contract-level inbox/outbox transactional and idempotency semantics.",
+      "property": "At-least-once delivery; no exactly-once assumption; S2-D06.",
+      "family": "inbox_outbox",
+      "consumers": [
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-013",
+        "ATIS-R-014",
+        "ATIS-R-017"
+      ],
+      "evidence": "Duplicate, retry, crash and transaction-coupling properties"
+    },
+    {
+      "id": "ATIS-R-020",
+      "sources": [
+        "OWNER-S20"
+      ],
+      "owner": "S2.6",
+      "statement": "Distinguish exact duplicates from conflicting idempotency-key reuse.",
+      "property": "Replay and recovery cannot become approval.",
+      "family": "idempotency",
+      "consumers": [
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-015",
+        "ATIS-R-019"
+      ],
+      "evidence": "Duplicate/conflict/replay adversarial tests"
+    },
+    {
+      "id": "ATIS-R-021",
+      "sources": [
+        "OWNER-S2",
+        "OWNER-S20"
+      ],
+      "owner": "S2.6",
+      "statement": "Define optimistic-concurrency version tokens and stale-write outcomes.",
+      "property": "Concurrency version is separate from schema version and domain identity.",
+      "family": "optimistic_concurrency",
+      "consumers": [
+        "S2.7"
+      ],
+      "depends_on": [
+        "ATIS-R-018",
+        "ATIS-R-019"
+      ],
+      "evidence": "Stale-write, lost-update, competing-transition and retry properties"
+    },
+    {
+      "id": "ATIS-R-022",
+      "sources": [
+        "IMP-V1",
+        "OWNER-S2"
+      ],
+      "owner": "S2.7",
+      "statement": "Integrate versioned contracts, compatibility tests and state-machine properties for GATE-S02-01.",
+      "property": "Gate permits later data integration only after evidence is green.",
+      "family": null,
+      "consumers": [],
+      "depends_on": [
+        "ATIS-R-009",
+        "ATIS-R-013",
+        "ATIS-R-016",
+        "ATIS-R-019"
+      ],
+      "evidence": "Attributed cross-slice gate evidence, not test count alone"
+    },
+    {
+      "id": "ATIS-R-023",
+      "sources": [
+        "OWNER-S2",
+        "OWNER-S20",
+        "S2-D10"
+      ],
+      "owner": "S2.7",
+      "statement": "Integrate evidence introduced and owned by each earlier slice.",
+      "property": "S2-D10 starts with deterministic property generators; S2.7 is not late test repair.",
+      "family": null,
+      "consumers": [],
+      "depends_on": [
+        "ATIS-R-003",
+        "ATIS-R-022"
+      ],
+      "evidence": "Cross-slice positive, negative, property and change-impact record"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "versioning_compatibility",
+      "owner": "S2.1",
+      "requirements": [
+        "ATIS-R-009",
+        "ATIS-R-010"
+      ]
+    },
+    {
+      "id": "identifiers_values",
+      "owner": "S2.2",
+      "requirements": [
+        "ATIS-R-011",
+        "ATIS-R-012"
+      ]
+    },
+    {
+      "id": "event_successor",
+      "owner": "S2.3",
+      "requirements": [
+        "ATIS-R-013"
+      ]
+    },
+    {
+      "id": "inert_command",
+      "owner": "S2.3",
+      "requirements": [
+        "ATIS-R-014",
+        "ATIS-R-015"
+      ]
+    },
+    {
+      "id": "pure_transitions",
+      "owner": "S2.4",
+      "requirements": [
+        "ATIS-R-016"
+      ]
+    },
+    {
+      "id": "persistence_ports",
+      "owner": "S2.5",
+      "requirements": [
+        "ATIS-R-017"
+      ]
+    },
+    {
+      "id": "typed_outcomes",
+      "owner": "S2.5",
+      "requirements": [
+        "ATIS-R-018"
+      ]
+    },
+    {
+      "id": "inbox_outbox",
+      "owner": "S2.6",
+      "requirements": [
+        "ATIS-R-019"
+      ]
+    },
+    {
+      "id": "idempotency",
+      "owner": "S2.6",
+      "requirements": [
+        "ATIS-R-020"
+      ]
+    },
+    {
+      "id": "optimistic_concurrency",
+      "owner": "S2.6",
+      "requirements": [
+        "ATIS-R-021"
+      ]
+    }
+  ],
+  "horizontal_constraints": [
+    {
+      "id": "H1",
+      "rule": "Keep schema, domain, event/command, idempotency and concurrency identities distinct."
+    },
+    {
+      "id": "H2",
+      "rule": "Explicitly register supported successor versions; reject unknown versions without fallback; do not change M1 EventEnvelope."
+    },
+    {
+      "id": "H3",
+      "rule": "Keep original historical bytes/evidence immutable; pure upcasting yields derived views."
+    },
+    {
+      "id": "H4",
+      "rule": "Contracts, persistence, replay and recovery grant no financial or execution authority."
+    },
+    {
+      "id": "H5",
+      "rule": "Assume at-least-once delivery; distinguish duplicates, conflicting reuse and stale writes."
+    },
+    {
+      "id": "H6",
+      "rule": "Keep codecs, upcasters and pure transitions deterministic; infrastructure stays behind ports."
+    },
+    {
+      "id": "H7",
+      "rule": "Each slice owns its evidence; S2.7 integrates and challenges it."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DP01",
+      "rule": "S2.0 validation covers control structure, not later runtime behavior."
+    },
+    {
+      "id": "DP02",
+      "rule": "Machine-check only objectively decidable structure; semantic correctness requires review or owning-slice evidence."
+    },
+    {
+      "id": "DP03",
+      "rule": "No new dependency without demonstrated necessity."
+    },
+    {
+      "id": "DP04",
+      "rule": "Requirement IDs are stable independently of owning slice."
+    },
+    {
+      "id": "DP05",
+      "rule": "Slice and milestone IDs are traceability metadata, not public contract semantics."
+    },
+    {
+      "id": "DP06",
+      "rule": "One primary owning slice; transitive evidence consumers may be multiple."
+    },
+    {
+      "id": "DP07",
+      "rule": "Material change invalidates affected evidence, not unrelated M1/Pre-S2 or Stage-2 evidence."
+    },
+    {
+      "id": "DP08",
+      "rule": "Engineering lifecycle promotion is not trading or execution authority."
+    }
+  ],
+  "version_policy": {
+    "applies_to": "New justified Stage-2 contract and evidence boundaries only; settled M1 EventEnvelope remains unchanged.",
+    "supported_versions": "Explicit registry owned by S2.1; no registry implementation in S2.0.",
+    "unsupported_versions": "Reject unknown/unregistered versions; never choose latest, nearest or best-effort fallback.",
+    "codec_selection": "Deterministic, explicitly version-bound codec selection is required of owning slices.",
+    "upcasting": "Pure deterministic transformation produces derived views and never rewrites original bytes or evidence.",
+    "identity_separation": "Schema version is distinct from domain identity, event/command identity, idempotency identity and persistence concurrency version."
+  },
+  "scope": {
+    "authorized": [
+      "contract/version foundations",
+      "typed identifiers and values",
+      "versioned event successor",
+      "inert command envelope",
+      "pure contract transitions",
+      "persistence ports and typed outcomes",
+      "inbox/outbox and idempotency contracts",
+      "optimistic-concurrency contracts",
+      "compatibility/property evidence"
+    ],
+    "excluded": [
+      "market-data subsystem",
+      "trading strategies",
+      "economic-edge engine",
+      "portfolio construction",
+      "later risk engine",
+      "financial ledger",
+      "OMS",
+      "broker execution",
+      "reconciliation business workflows",
+      "paper trading",
+      "live trading",
+      "production PostgreSQL adapter",
+      "later business state machines",
+      "AI trading authority"
+    ],
+    "authority": "Neither S2.0 completion nor GATE-S02-01 grants financial or execution authority; GATE-S02-01 permits later data-subsystem integration only."
+  },
+  "dependencies": [
+    {
+      "from": "S2.1",
+      "to": "S2.3",
+      "reason": "Version identity and codec policy feed events/commands."
+    },
+    {
+      "from": "S2.1",
+      "to": "S2.4",
+      "reason": "Pure transitions consume registered version identity."
+    },
+    {
+      "from": "S2.1",
+      "to": "S2.5",
+      "reason": "Persistence must retain version and original-byte identity."
+    },
+    {
+      "from": "S2.1",
+      "to": "S2.6",
+      "reason": "Replay/idempotency consumes explicit version identity."
+    },
+    {
+      "from": "S2.2",
+      "to": "S2.3",
+      "reason": "Events and commands consume typed identities and values."
+    },
+    {
+      "from": "S2.2",
+      "to": "S2.4",
+      "reason": "Transitions consume typed state and identities."
+    },
+    {
+      "from": "S2.2",
+      "to": "S2.5",
+      "reason": "Ports consume typed identities and values."
+    },
+    {
+      "from": "S2.2",
+      "to": "S2.6",
+      "reason": "Idempotency and concurrency consume distinct identities."
+    },
+    {
+      "from": "S2.3",
+      "to": "S2.5",
+      "reason": "Persistence consumes versioned events."
+    },
+    {
+      "from": "S2.3",
+      "to": "S2.6",
+      "reason": "Command identity and events feed idempotency and replay."
+    },
+    {
+      "from": "S2.4",
+      "to": "S2.5",
+      "reason": "Ports represent transition outcomes."
+    },
+    {
+      "from": "S2.4",
+      "to": "S2.6",
+      "reason": "Concurrency consumes pure transition results."
+    },
+    {
+      "from": "S2.5",
+      "to": "S2.6",
+      "reason": "Transactions consume typed outcomes and version tokens."
+    },
+    {
+      "from": "S2.1",
+      "to": "S2.7",
+      "reason": "Version/compatibility evidence enters integration gate."
+    },
+    {
+      "from": "S2.2",
+      "to": "S2.7",
+      "reason": "Value evidence enters integration gate."
+    },
+    {
+      "from": "S2.3",
+      "to": "S2.7",
+      "reason": "Event/command evidence enters integration gate."
+    },
+    {
+      "from": "S2.4",
+      "to": "S2.7",
+      "reason": "State-machine properties enter integration gate."
+    },
+    {
+      "from": "S2.5",
+      "to": "S2.7",
+      "reason": "Port/outcome evidence enters integration gate."
+    },
+    {
+      "from": "S2.6",
+      "to": "S2.7",
+      "reason": "Idempotency/concurrency evidence enters integration gate."
+    }
+  ],
+  "evidence_policy": {
+    "primary_by_slice": {
+      "S2.0": "Source, catalogue, scope, structural validation and controlled handoff evidence",
+      "S2.1": "Version, compatibility and codec properties",
+      "S2.2": "Identity and value invariants",
+      "S2.3": "Event/command compatibility, round-trip and authority-negative evidence",
+      "S2.4": "Pure transition properties",
+      "S2.5": "Persistence-port and typed-outcome contract evidence",
+      "S2.6": "Duplicate, idempotency, concurrency, replay and crash-contract evidence",
+      "S2.7": "Cross-slice integration and GATE-S02-01 evidence"
+    },
+    "inheritance": "Direct changes require fresh evidence; transitive consumers require targeted regression; unaffected exact bytes may inherit evidence after identity and assumption checks. Test count alone is not proof."
+  },
+  "change_control": {
+    "clarification": "Attributable controlled update and affected-slice review when no material contract meaning changes.",
+    "material_change": "Analyze affected requirements/contracts and dependencies; invalidate affected evidence; reopen only affected scope.",
+    "preserved_boundary": "Never automatically reopen unrelated M1, Pre-S2 or frozen Model D controls."
+  },
+  "semantic_review": [
+    {
+      "criterion": "AC-09",
+      "review": "Confirm no listed contract grants financial/execution authority; structural tests do not prove this."
+    },
+    {
+      "criterion": "AC-10",
+      "review": "Confirm no M1/Pre-S2 file or settled semantic is mutated; structural tests do not prove this."
+    },
+    {
+      "criterion": "AC-12",
+      "review": "Challenge cross-slice consumers for foreseeable redesign; structural edge completeness alone is insufficient."
+    }
+  ],
+  "handoff": {
+    "to": "S2.1",
+    "rely_on": [
+      "version_policy",
+      "contracts",
+      "horizontal_constraints:H1,H2,H3,H6,H7",
+      "evidence_policy",
+      "dependencies:S2.3,S2.4,S2.5,S2.6,S2.7",
+      "scope"
+    ],
+    "boundary": "S2.1 requires separate authorization; this record provides no implementation or trading authority."
+  }
+}
