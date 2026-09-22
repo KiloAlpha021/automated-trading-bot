@@ -33,6 +33,7 @@ SELECTION = [
 ]
 
 INPUT_HASH_MODEL = "sha256:utf8:newlines-lf:v1"
+M1_SOURCE_PATHS_SHA256 = "4da0cfdf9cd6dafbd55864cb91f1faabee4bff56e40669ae8a814d497c920e2c"
 
 
 def _checkout_independent_text_sha256(path: Path) -> str:
@@ -42,6 +43,19 @@ def _checkout_independent_text_sha256(path: Path) -> str:
     text = raw.decode("utf-8")
     normalized = text.replace("\r\n", "\n").replace("\r", "\n")
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def _historical_m1_source_hashes(root: Path, recorded: dict[str, str]) -> dict[str, str]:
+    """Recheck the frozen M1 source paths without enrolling later-stage files."""
+    paths = sorted(path for path in recorded if path.startswith("src/"))
+    inventory = hashlib.sha256("\n".join(paths).encode("utf-8")).hexdigest()
+    assert inventory == M1_SOURCE_PATHS_SHA256, "Frozen M1 source inventory changed"
+    result = {}
+    for relative in paths:
+        path = root / relative
+        assert path.is_file() and not path.is_symlink(), f"Missing or replaced M1 input: {relative}"
+        result[relative] = _checkout_independent_text_sha256(path)
+    return result
 
 
 def _run_evidence() -> dict:
@@ -64,7 +78,9 @@ def _run_evidence() -> dict:
             cases.append([hashlib.sha256(identity.encode()).hexdigest(), outcome])
         assert run.returncode == 0, "Underlying evidence tests failed"
         assert cases and all(outcome == "passed" for _, outcome in cases)
-    inputs = sorted((ROOT / "src").rglob("*.py")) + [
+    recorded = json.loads((ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json").read_text())
+    source_hashes = _historical_m1_source_hashes(ROOT, recorded["current_evidence"]["input_sha256"])
+    inputs = [
         ROOT / "tests/test_money.py",
         ROOT / "tests/test_quantity.py",
         ROOT / "docs/m1-closure/M1-core-contracts-scope-clarification.md",
@@ -105,7 +121,7 @@ def _run_evidence() -> dict:
         "test_cases": sorted(cases),
         "passed": len(cases), "failed": 0,
         "input_hash_model": INPUT_HASH_MODEL,
-        "input_sha256": {
+        "input_sha256": source_hashes | {
             p.relative_to(ROOT).as_posix(): _checkout_independent_text_sha256(p)
             for p in inputs
         },
@@ -183,6 +199,44 @@ def test_evidence_input_hash_rejects_non_text(content, error, tmp_path):
     evidence_input.write_bytes(content)
     with pytest.raises(error):
         _checkout_independent_text_sha256(evidence_input)
+
+
+def test_frozen_m1_source_inventory_survives_stage2_without_losing_binding(tmp_path):
+    recorded = _inputs()[0]["current_evidence"]["input_sha256"]
+    expected = {key: value for key, value in recorded.items() if key.startswith("src/")}
+    for relative in expected:
+        destination = tmp_path / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / relative).read_bytes())
+
+    assert _historical_m1_source_hashes(tmp_path, recorded) == expected
+
+    later = tmp_path / "src/automated_trading_bot/domain/versioning.py"
+    later.write_text("# Stage 2, not an M1 input\n", encoding="utf-8")
+    assert _historical_m1_source_hashes(tmp_path, recorded) == expected
+
+    changed = tmp_path / next(iter(expected))
+    original = changed.read_bytes()
+    changed.write_bytes(original + b"\n# changed M1 input\n")
+    assert _historical_m1_source_hashes(tmp_path, recorded) != expected
+
+    changed.unlink()
+    with pytest.raises(AssertionError, match="Missing or replaced M1 input"):
+        _historical_m1_source_hashes(tmp_path, recorded)
+
+    renamed = changed.with_name(changed.name + ".renamed")
+    changed.write_bytes(original)
+    changed.rename(renamed)
+    with pytest.raises(AssertionError, match="Missing or replaced M1 input"):
+        _historical_m1_source_hashes(tmp_path, recorded)
+
+    changed.write_bytes(b"# Stage 2 replacement at an M1 path\n")
+    assert _historical_m1_source_hashes(tmp_path, recorded) != expected
+
+    expanded = dict(recorded)
+    expanded["src/automated_trading_bot/domain/versioning.py"] = _checkout_independent_text_sha256(later)
+    with pytest.raises(AssertionError, match="Frozen M1 source inventory changed"):
+        _historical_m1_source_hashes(tmp_path, expanded)
 
 
 @pytest.mark.parametrize("mutation", ["completion", "blocker", "test_count", "test_outcome", "unassessed", "authority", "unverified"])
