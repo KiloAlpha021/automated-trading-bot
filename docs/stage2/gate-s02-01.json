@@ -1,0 +1,3926 @@
+{
+  "schema_version": 1,
+  "record_id": "STAGE2-CLOSURE-GATE-S02-01",
+  "milestone_id": "STAGE-2",
+  "gate_id": "GATE-S02-01",
+  "decision": "PASS",
+  "evaluated_at": {
+    "value": null,
+    "status": "NOT_RECORDED",
+    "meaning": "FORMAL_GATE_EVALUATION_TIMESTAMP",
+    "provenance": {
+      "source": "GATE-S02-01 read-only evaluation result",
+      "observation": "The authoritative gate result did not record an exact evaluation timestamp"
+    },
+    "construction_timestamp_used_as_gate_time": false
+  },
+  "evaluated_baseline": {
+    "master": "20a41510a96db2a41679f8596aee2da87a2c95ba",
+    "tree": "5e41256f17133b12fd03a84287bed67062b1cd12"
+  },
+  "lifecycle": {
+    "record_state": "AUDITS_PASSED",
+    "stage2_state": "NOT_YET_FROZEN",
+    "allowed_transitions": [
+      "PUBLICATION_REVIEWED",
+      "PUBLISHED_CANDIDATE",
+      "HOSTED_VERIFIED",
+      "PROTECTED",
+      "FREEZE_VERIFIED"
+    ]
+  },
+  "source_authorities": [
+    {
+      "id": "S2.0-CONTROL",
+      "path": "docs/stage2/s20-control.json",
+      "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+    },
+    {
+      "id": "S2.7-EVIDENCE",
+      "path": "docs/stage2/s27-evidence.json",
+      "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+    },
+    {
+      "id": "S2.7-INTEGRATION",
+      "path": "tests/test_stage2_integration.py",
+      "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+    },
+    {
+      "id": "GATE-S02-01-RESULT",
+      "decision": "GATE_S02_01_PASS",
+      "statement": "Stage-2 evidence satisfies GATE-S02-01 for later data-subsystem integration, subject to separate owner promotion and Stage-2 closure/freeze controls."
+    },
+    {
+      "id": "OWNER-CLOSURE-ASSURANCE",
+      "decision": "APPROVE_STAGE2_CLOSURE_ASSURANCE"
+    },
+    {
+      "id": "STAGE2-CLOSURE-AUDITS",
+      "decision": "STAGE2_CLOSURE_AUDITS_PASS"
+    }
+  ],
+  "gate_basis": {
+    "requirement_results": [
+      {
+        "id": "ATIS-R-001",
+        "owner": "S2.0",
+        "statement": "Maintain an atomic, source-linked Stage-2 requirement catalogue.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-002",
+        "owner": "S2.0",
+        "statement": "Record authorized Stage-2 scope and explicit later-stage non-scope.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-003",
+        "owner": "S2.0",
+        "statement": "Assign primary evidence ownership and transitive consumers.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-004",
+        "owner": "S2.0",
+        "statement": "Map cross-slice dependencies before later-slice coding.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-005",
+        "owner": "S2.0",
+        "statement": "Validate objectively decidable control structure only.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-006",
+        "owner": "S2.0",
+        "statement": "Apply affected-scope change impact and evidence invalidation after S2.0 closure.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-007",
+        "owner": "S2.0",
+        "statement": "Add only narrowly justified contracts or persistence packages.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "tests/test_s20_control.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-008",
+        "owner": "S2.0",
+        "statement": "Preserve repaired security-workflows evaluator context before protected progression.",
+        "evidence_refs": [
+          "docs/stage2/s20-control.json",
+          "trusted_controls"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-009",
+        "owner": "S2.1",
+        "statement": "Register supported successor contract versions explicitly and reject unregistered versions.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/versioning.py",
+          "tests/test_versioning.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-010",
+        "owner": "S2.1",
+        "statement": "Define deterministic codec selection and pure successor upcasting policy.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/versioning.py",
+          "tests/test_versioning.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-011",
+        "owner": "S2.2",
+        "statement": "Define typed identifier and value-contract successors without M1 semantic mutation.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/identity_contracts.py",
+          "tests/test_identity_contracts.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-012",
+        "owner": "S2.2",
+        "statement": "Represent rounding-policy identity without selecting business-specific rounding.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/identity_contracts.py",
+          "tests/test_identity_contracts.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-013",
+        "owner": "S2.3",
+        "statement": "Define a versioned event successor/codec while preserving M1 EventEnvelope.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/event_contracts.py",
+          "tests/test_event_contracts.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-014",
+        "owner": "S2.3",
+        "statement": "Define a narrow versioned command envelope without execution authority.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/command_contracts.py",
+          "tests/test_command_contracts.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-015",
+        "owner": "S2.3",
+        "statement": "Keep event/command, correlation/causation and idempotency identities distinct.",
+        "evidence_refs": [
+          "tests/test_event_contracts.py",
+          "tests/test_command_contracts.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-016",
+        "owner": "S2.4",
+        "statement": "Define pure generic contract-level state transitions only.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/state_transitions.py",
+          "tests/test_state_transitions.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-017",
+        "owner": "S2.5",
+        "statement": "Define persistence ports and typed outcomes without a production adapter.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/persistence.py",
+          "tests/test_persistence.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-018",
+        "owner": "S2.5",
+        "statement": "Distinguish success, failure and concurrency conflict as typed outcomes.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/persistence.py",
+          "tests/test_persistence.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-019",
+        "owner": "S2.6",
+        "statement": "Define contract-level inbox/outbox transactional and idempotency semantics.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/delivery.py",
+          "src/automated_trading_bot/domain/transaction_composition.py",
+          "tests/test_delivery.py",
+          "tests/test_transaction_composition.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-020",
+        "owner": "S2.6",
+        "statement": "Distinguish exact duplicates from conflicting idempotency-key reuse.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/idempotency.py",
+          "tests/test_idempotency.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-021",
+        "owner": "S2.6",
+        "statement": "Define optimistic-concurrency version tokens and stale-write outcomes.",
+        "evidence_refs": [
+          "src/automated_trading_bot/domain/concurrency.py",
+          "tests/test_concurrency.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-022",
+        "owner": "S2.7",
+        "statement": "Integrate versioned contracts, compatibility tests and state-machine properties for GATE-S02-01.",
+        "evidence_refs": [
+          "docs/stage2/s27-evidence.json",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      },
+      {
+        "id": "ATIS-R-023",
+        "owner": "S2.7",
+        "statement": "Integrate evidence introduced and owned by each earlier slice.",
+        "evidence_refs": [
+          "docs/stage2/s27-evidence.json",
+          "tests/test_stage2_integration.py"
+        ],
+        "result": "PASS"
+      }
+    ],
+    "acceptance_results": [
+      {
+        "id": "AC-022-01",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Registered versions compose and unknown versions reject without fallback",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.1",
+          "S2.3",
+          "S2.5"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_registered_versions_compose_without_fallback",
+          "tests/test_stage2_integration.py::test_unknown_and_unsupported_versions_fail_before_persistence"
+        ],
+        "expected_result": "Registered version succeeds; wrong family and unsupported versions raise protected errors",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-02",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Original canonical bytes remain authoritative through persistence and fingerprinting",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.1",
+          "S2.3",
+          "S2.5",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_version_and_evidence_property_cases",
+          "tests/test_stage2_integration.py::test_original_bytes_remain_authoritative_under_equal_fingerprint"
+        ],
+        "expected_result": "Bytes remain exact; equal digest with differing bytes conflicts",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-03",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "EventId integrity remains separate from operation idempotency",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.3",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_event_admission_duplicate_remains_separate_from_operation_idempotency",
+          "tests/test_stage2_integration.py::test_event_id_conflicting_evidence_is_not_operation_duplicate"
+        ],
+        "expected_result": "Event conflict never becomes operation duplicate",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-04",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Every protected transition outcome is preserved without recomputation",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.4",
+          "S2.5"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_transition_persistence_property_cases"
+        ],
+        "expected_result": "All 18 results and exact StateId values are preserved",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-05",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Transition scope and optimistic token evidence remain coherent",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.4",
+          "S2.5",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_concurrent_transition_scope_and_advancement",
+          "tests/test_stage2_integration.py::test_stale_writer_requires_newer_current_token"
+        ],
+        "expected_result": "Commit advances exactly once; stale requires newer current token",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-06",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Marker-only persistence conflict does not prove stale",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.5",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_generic_persistence_conflict_does_not_establish_stale"
+        ],
+        "expected_result": "STALE without token evidence rejects",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-07",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Transaction intents describe complete atomic membership only",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.3",
+          "S2.5",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_producer_transaction_membership_is_descriptive_and_complete",
+          "tests/test_stage2_integration.py::test_consumer_transaction_membership_is_descriptive_and_complete"
+        ],
+        "expected_result": "Coherent membership constructs; partial membership rejects",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-08",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Crash and acknowledgement uncertainty remain explicit and fail closed",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_commit_before_acknowledgement_remains_indeterminate",
+          "tests/test_stage2_integration.py::test_inbox_receipt_crash_does_not_become_applied",
+          "tests/test_stage2_integration.py::test_outbox_acknowledgement_loss_does_not_claim_exactly_once"
+        ],
+        "expected_result": "INDETERMINATE resolves first and cannot fabricate completion",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-09",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Replay cannot regress terminal evidence or authorize a new effect",
+        "classifications": [
+          "INHERITED",
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "M1",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_replay_cannot_regress_or_reauthorize_terminal_evidence"
+        ],
+        "expected_result": "Terminal evidence is unchanged and authority-negative",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-022-10",
+        "requirement_id": "ATIS-R-022",
+        "invariant": "Technical outcomes grant no business, financial or execution authority",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.5",
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_composed_technical_outcomes_grant_no_execution_authority"
+        ],
+        "expected_result": "No outcome exposes an authority or effect path",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-01",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Inherited claims bind to exact protected identities",
+        "classifications": [
+          "INHERITED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.1-S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_manifest_protected_component_blobs_match_entry"
+        ],
+        "expected_result": "Every protected blob matches",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-02",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Isolated version evidence is inherited and composed behavior regenerated",
+        "classifications": [
+          "INHERITED",
+          "REGENERATED"
+        ],
+        "protected_components": [
+          "S2.1"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_manifest_classifies_versioning_evidence_by_change_impact"
+        ],
+        "expected_result": "No wholesale re-proof or integration gap",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-03",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Shared underlying values do not collapse identity categories",
+        "classifications": [
+          "REGENERATED",
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "M1",
+          "S2.2-S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_identity_separation_property_cases",
+          "tests/test_stage2_integration.py::test_cross_category_substitutions_reject"
+        ],
+        "expected_result": "All 91 category pairs remain distinct",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-04",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Transition matrix is inherited and composition freshly evidenced",
+        "classifications": [
+          "INHERITED",
+          "REGENERATED"
+        ],
+        "protected_components": [
+          "S2.4"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_manifest_inherits_transition_matrix_and_regenerates_composition"
+        ],
+        "expected_result": "Protected transition semantics remain unchanged",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-05",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Persistence contracts are inherited and composition freshly evidenced",
+        "classifications": [
+          "INHERITED",
+          "REGENERATED"
+        ],
+        "protected_components": [
+          "S2.5"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_manifest_inherits_persistence_contracts_and_regenerates_composition"
+        ],
+        "expected_result": "S2.5 remains unchanged",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-06",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "S2.6 direct matrices are inherited and cross-slice assumptions regenerated",
+        "classifications": [
+          "INHERITED",
+          "REGENERATED"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_manifest_inherits_s26_matrices_and_regenerates_cross_slice_evidence"
+        ],
+        "expected_result": "No unnecessary S2.6 reimplementation",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-07",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "All 19 authoritative scenarios have acceptance and test evidence",
+        "classifications": [
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.1-S2.6"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_manifest_maps_all_adversarial_scenarios"
+        ],
+        "expected_result": "No omitted or orphan scenario",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-08",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Property domains are bounded, reproducible and identifiable",
+        "classifications": [
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.7"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_property_domains_are_finite_deterministic_and_identifiable"
+        ],
+        "expected_result": "137 stable generated cases",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-09",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Invalidated evidence cannot be silently inherited",
+        "classifications": [
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.7"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_invalidated_evidence_is_explicit_and_fail_closed"
+        ],
+        "expected_result": "Invalidation is explicit and currently empty",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-10",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "S2.7 adds evidence only",
+        "classifications": [
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.7"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_s27_candidate_surface_is_evidence_only"
+        ],
+        "expected_result": "No production, infrastructure or governance expansion",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-11",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "Evidence artifact is machine-checkable and complete",
+        "classifications": [
+          "S2.7-OWNED"
+        ],
+        "protected_components": [
+          "S2.7"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_s27_evidence_schema_is_exact",
+          "tests/test_stage2_integration.py::test_s27_evidence_ids_and_references_are_complete"
+        ],
+        "expected_result": "Schema, IDs and references validate",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "AC-023-12",
+        "requirement_id": "ATIS-R-023",
+        "invariant": "S2.7 cannot approve its own gate or promotion",
+        "classifications": [
+          "S2.7-OWNED",
+          "GATE-OWNED"
+        ],
+        "protected_components": [
+          "S2.7",
+          "GATE-S02-01"
+        ],
+        "evidence_test_references": [
+          "tests/test_stage2_integration.py::test_s27_cannot_evaluate_or_promote_its_gate"
+        ],
+        "expected_result": "Gate remains not evaluated and promotion remains none",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      }
+    ],
+    "adversarial_results": [
+      {
+        "id": "ADV-S27-01",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-01"
+        ],
+        "protected_components": [
+          "S2.1",
+          "S2.3",
+          "S2.5"
+        ],
+        "invariant": "Unknown versions reject without fallback",
+        "expected_result": "Protected version error before persistence",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_unknown_and_unsupported_versions_fail_before_persistence",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-02",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-02"
+        ],
+        "protected_components": [
+          "S2.1",
+          "S2.3",
+          "S2.5",
+          "S2.6"
+        ],
+        "invariant": "Original bytes remain authoritative",
+        "expected_result": "Exact bytes and derived fingerprint preserved",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_version_and_evidence_property_cases",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-03",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-03"
+        ],
+        "protected_components": [
+          "S2.3",
+          "S2.6"
+        ],
+        "invariant": "Event integrity is separate",
+        "expected_result": "EXACT_DUPLICATE in its own boundary",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_event_admission_duplicate_remains_separate_from_operation_idempotency",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-04",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-03"
+        ],
+        "protected_components": [
+          "S2.3",
+          "S2.6"
+        ],
+        "invariant": "Conflicting event evidence cannot become operation duplicate",
+        "expected_result": "CONFLICTING_EVENT",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_event_id_conflicting_evidence_is_not_operation_duplicate",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-05",
+        "requirement_ids": [
+          "ATIS-R-023"
+        ],
+        "acceptance_ids": [
+          "AC-023-06"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "Exact scoped duplicate remains distinct",
+        "expected_result": "EXACT_DUPLICATE",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_same_scoped_key_and_same_evidence_is_exact_duplicate",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-06",
+        "requirement_ids": [
+          "ATIS-R-023"
+        ],
+        "acceptance_ids": [
+          "AC-023-06"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "Conflicting scoped reuse never overwrites",
+        "expected_result": "CONFLICTING_REUSE",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_same_scoped_key_and_conflicting_evidence_is_conflicting_reuse",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-07",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-02"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "Fingerprint equality cannot replace bytes",
+        "expected_result": "CONFLICTING_REUSE",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_original_bytes_remain_authoritative_under_equal_fingerprint",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-08",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-05"
+        ],
+        "protected_components": [
+          "S2.4",
+          "S2.5",
+          "S2.6"
+        ],
+        "invariant": "Competing writer needs distinct evidence",
+        "expected_result": "Committed advancement followed by evidenced stale outcome",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_competing_transitions_require_distinct_concurrency_evidence",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-09",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-05"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "STALE requires newer current token",
+        "expected_result": "Missing or non-newer token rejects",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_stale_writer_requires_newer_current_token",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-10",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-06"
+        ],
+        "protected_components": [
+          "S2.5",
+          "S2.6"
+        ],
+        "invariant": "Marker conflict is insufficient",
+        "expected_result": "STALE construction rejects",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_generic_persistence_conflict_does_not_establish_stale",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-11",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-05",
+          "AC-022-08"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "Stale requires reevaluation",
+        "expected_result": "SAME_IDENTITY rejects",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_stale_result_requires_reevaluation",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-12",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-07"
+        ],
+        "protected_components": [
+          "S2.3",
+          "S2.6"
+        ],
+        "invariant": "Producer membership is complete",
+        "expected_result": "Partial or incoherent membership rejects",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_producer_transaction_membership_is_descriptive_and_complete",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-13",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-07"
+        ],
+        "protected_components": [
+          "S2.3",
+          "S2.6"
+        ],
+        "invariant": "Consumer membership requires APPLIED",
+        "expected_result": "Partial or incoherent membership rejects",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_consumer_transaction_membership_is_descriptive_and_complete",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-14",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-08"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "Uncertain commit remains unknown",
+        "expected_result": "INDETERMINATE and RESOLVE_FIRST",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_commit_before_acknowledgement_remains_indeterminate",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-15",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-08"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "Receipt is not application",
+        "expected_result": "PENDING remains non-APPLIED",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_inbox_receipt_crash_does_not_become_applied",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-16",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-08"
+        ],
+        "protected_components": [
+          "S2.6"
+        ],
+        "invariant": "No exactly-once claim",
+        "expected_result": "RETRY remains non-DELIVERED",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_outbox_acknowledgement_loss_does_not_claim_exactly_once",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-17",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-08",
+          "AC-022-09"
+        ],
+        "protected_components": [
+          "M1",
+          "S2.6"
+        ],
+        "invariant": "Recovery fails closed",
+        "expected_result": "No token or retry authority fabricated",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_indeterminate_recovery_fails_closed",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-18",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-09"
+        ],
+        "protected_components": [
+          "M1",
+          "S2.6"
+        ],
+        "invariant": "Replay cannot regress terminal evidence",
+        "expected_result": "APPLIED and DELIVERED remain exact",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_replay_cannot_regress_or_reauthorize_terminal_evidence",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "ADV-S27-19",
+        "requirement_ids": [
+          "ATIS-R-022"
+        ],
+        "acceptance_ids": [
+          "AC-022-10"
+        ],
+        "protected_components": [
+          "S2.5",
+          "S2.6"
+        ],
+        "invariant": "Technical success grants no authority",
+        "expected_result": "No financial or execution operation exposed",
+        "exact_test_reference": "tests/test_stage2_integration.py::test_composed_technical_outcomes_grant_no_execution_authority",
+        "evidence_classification": "S2.7-OWNED",
+        "evidence_source": {
+          "path": "docs/stage2/s27-evidence.json",
+          "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+        },
+        "protected_test_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      }
+    ],
+    "deterministic_property_results": [
+      {
+        "id": "VERSION-EVIDENCE",
+        "name": "version/evidence",
+        "protected_components": [
+          "S2.1",
+          "S2.3",
+          "S2.5",
+          "S2.6"
+        ],
+        "generation_mechanism": "Cartesian product of four explicit VERSION_CASES and four explicit evidence representations using pytest parameterization",
+        "case_count": 16,
+        "stable_case_id_rule": "{version_name}--{evidence_name}",
+        "protected_test_references": [
+          "tests/test_stage2_integration.py::test_version_and_evidence_property_cases"
+        ],
+        "expected_property": "Persistence preserves exact representation; fingerprint derives from those bytes; registered version resolves and unsupported or wrong-family versions raise protected errors",
+        "evidence_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "IDENTITY-SEPARATION",
+        "name": "identity separation",
+        "protected_components": [
+          "S2.2",
+          "S2.3",
+          "S2.4",
+          "S2.6"
+        ],
+        "generation_mechanism": "All unordered two-element combinations of fourteen explicit protected identity-category values",
+        "case_count": 91,
+        "stable_case_id_rule": "{left_category}--{right_category}",
+        "protected_test_references": [
+          "tests/test_stage2_integration.py::test_identity_separation_property_cases"
+        ],
+        "expected_property": "Each pair retains distinct concrete types and unequal protected values despite equal-looking primitive inputs",
+        "evidence_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "TRANSITION-PERSISTENCE",
+        "name": "transition/persistence",
+        "protected_components": [
+          "S2.4",
+          "S2.5",
+          "S2.6"
+        ],
+        "generation_mechanism": "Cartesian product of protected TransitionState, TransitionActionKind, and TransitionState domains",
+        "case_count": 18,
+        "stable_case_id_rule": "{status}--{action_kind}--{target}",
+        "protected_test_references": [
+          "tests/test_stage2_integration.py::test_transition_persistence_property_cases"
+        ],
+        "expected_property": "Protected transition evidence is preserved by persistence and concurrency request composition with one StateId scope",
+        "evidence_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "result": "PASS"
+      },
+      {
+        "id": "CERTAINTY-RETRY",
+        "name": "certainty/retry",
+        "protected_components": [
+          "S2.5",
+          "S2.6"
+        ],
+        "generation_mechanism": "Cartesian product of protected CommitCertainty and RetryDisposition enums; every pair reaches the protected ConcurrencyOutcome constructor",
+        "case_count": 12,
+        "stable_case_id_rule": "{commit_certainty}--{retry_disposition}",
+        "protected_test_references": [
+          "tests/test_stage2_integration.py::test_certainty_retry_property_cases"
+        ],
+        "expected_property": "The five valid certainty/retry combinations construct and retain supplied values; the seven invalid combinations raise ValueError from protected validation",
+        "evidence_source": {
+          "path": "tests/test_stage2_integration.py",
+          "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+        },
+        "corrected_protected_test_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+        "rejected_historical_test_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee",
+        "result": "PASS"
+      }
+    ],
+    "gate_input_results": [
+      {
+        "id": "protected_s27_commit",
+        "result": "PASS",
+        "value": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+      },
+      {
+        "id": "protected_s27_tree",
+        "result": "PASS",
+        "value": "5e41256f17133b12fd03a84287bed67062b1cd12"
+      },
+      {
+        "id": "s27_evidence_blob",
+        "result": "PASS",
+        "value": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+      },
+      {
+        "id": "s27_test_blob",
+        "result": "PASS",
+        "value": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+      },
+      {
+        "id": "protected_post_merge_proof",
+        "result": "PASS"
+      },
+      {
+        "id": "natural_hosted_evidence",
+        "result": "PASS"
+      },
+      {
+        "id": "evidence_currency_review",
+        "result": "PASS"
+      }
+    ]
+  },
+  "protected_evidence": {
+    "s20_control": {
+      "path": "docs/stage2/s20-control.json",
+      "blob": "48c94c3c411913c608740a1905449ec5511aba26",
+      "test_path": "tests/test_s20_control.py",
+      "test_blob": "d730f05902c28bab474e1f36bebe749cb7d4b3af"
+    },
+    "slice_evidence": [
+      {
+        "slice": "S2.1",
+        "production_path": "src/automated_trading_bot/domain/versioning.py",
+        "production_blob": "377df4662d930b8a3d0ebe400549e0cc1e333104",
+        "test_path": "tests/test_versioning.py",
+        "test_blob": "646bcfe4dcd7be7f3e3ec04a786ad5d3609e5aa7"
+      },
+      {
+        "slice": "S2.2",
+        "production_path": "src/automated_trading_bot/domain/identity_contracts.py",
+        "production_blob": "3fd950181fa5ab58c81123f9b0416f62670d3cb4",
+        "test_path": "tests/test_identity_contracts.py",
+        "test_blob": "e1610789308acec6cf36452b7252e26b2f21188e"
+      },
+      {
+        "slice": "S2.3",
+        "production_path": "src/automated_trading_bot/domain/event_contracts.py",
+        "production_blob": "b3f8f72bbc0cb27a45a3ee5575e0deaaee1b5106",
+        "test_path": "tests/test_event_contracts.py",
+        "test_blob": "d74e068fc21bef244a33d61013ff69a6497811cc"
+      },
+      {
+        "slice": "S2.3",
+        "production_path": "src/automated_trading_bot/domain/command_contracts.py",
+        "production_blob": "372953d50ed2c93f12736b06c87ba24669d1907b",
+        "test_path": "tests/test_command_contracts.py",
+        "test_blob": "7ed1c4b26c71c42bfe307ebf7bdb02d7766a2a90"
+      },
+      {
+        "slice": "S2.4",
+        "production_path": "src/automated_trading_bot/domain/state_transitions.py",
+        "production_blob": "fadb978336d4cd90328385e4b29c58efe496515d",
+        "test_path": "tests/test_state_transitions.py",
+        "test_blob": "5670d932f7f22b4a45eea04ffb624c13d6d609ff"
+      },
+      {
+        "slice": "S2.5",
+        "production_path": "src/automated_trading_bot/domain/persistence.py",
+        "production_blob": "67c41af0992e2c0b601a2ac2d8609ebb104850d0",
+        "test_path": "tests/test_persistence.py",
+        "test_blob": "dd572293f1f2e05af0fc00223d6b45d34f9f72cc"
+      },
+      {
+        "slice": "S2.6",
+        "production_path": "src/automated_trading_bot/domain/idempotency.py",
+        "production_blob": "5a731b142aa4fb1b901091037754893b9166e3f7",
+        "test_path": "tests/test_idempotency.py",
+        "test_blob": "2321df49092b993892d2c1457b9431e7a2cecdcb"
+      },
+      {
+        "slice": "S2.6",
+        "production_path": "src/automated_trading_bot/domain/delivery.py",
+        "production_blob": "70bc090a3b13f7040473145290ae393979bf93ac",
+        "test_path": "tests/test_delivery.py",
+        "test_blob": "89d58fe2c2be3ed2674af9d4ee87711da42f12b7"
+      },
+      {
+        "slice": "S2.6",
+        "production_path": "src/automated_trading_bot/domain/concurrency.py",
+        "production_blob": "0129ce925f590a36be28ad72aa0993fefea5e2ac",
+        "test_path": "tests/test_concurrency.py",
+        "test_blob": "c506fe037adce8d27c68a5e1b58fc7a4e7325b55"
+      },
+      {
+        "slice": "S2.6",
+        "production_path": "src/automated_trading_bot/domain/transaction_composition.py",
+        "production_blob": "417c75b661c8e8e812d4eb80fc0f884d95365329",
+        "test_path": "tests/test_transaction_composition.py",
+        "test_blob": "254e007f3bfcde92f62e7201d495ac05f5945566"
+      }
+    ],
+    "s27_evidence": {
+      "path": "docs/stage2/s27-evidence.json",
+      "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+    },
+    "s27_integration_test": {
+      "path": "tests/test_stage2_integration.py",
+      "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+    },
+    "predecessor_identity_manifest": [
+      {
+        "path": "src/automated_trading_bot/domain/identifiers.py",
+        "blob": "97f27cb0fa456f58f54a5a3f5e9093a2ac70152c"
+      },
+      {
+        "path": "src/automated_trading_bot/domain/timestamp.py",
+        "blob": "762a9f9c32afaebdb58a105d9a3cb46a7c93a9ee"
+      },
+      {
+        "path": "src/automated_trading_bot/domain/event.py",
+        "blob": "b3170eb72781d33d28937cde26df4cc109b7c483"
+      },
+      {
+        "path": "src/automated_trading_bot/recovery/replay.py",
+        "blob": "4348c93a042da9b9b300abb8b11269b633aaea68"
+      }
+    ],
+    "dependency_configuration_identities": [
+      {
+        "path": "requirements-dev.lock",
+        "blob": "8fb1776061c5756ff5066122e05e60a5b80cbc3b"
+      },
+      {
+        "path": "pyproject.toml",
+        "blob": "75e73bc6fa5bfd034adf448ce388415fa41ec9ab"
+      },
+      {
+        "path": ".github/workflows/m1-engineering-foundation.yml",
+        "blob": "cbadffe70076cdfdbc5b4ef7c8aa23b3d680385a"
+      }
+    ]
+  },
+  "hosted_evidence": {
+    "pull_request": {
+      "repository": "KiloAlpha021/automated-trading-bot",
+      "number": 17,
+      "state": "MERGED"
+    },
+    "reviewed_candidate_head": "d5eb76872bc3a7af548f8a8902196927c7dcb4e9",
+    "previous_protected_base": "3c3e42b02c82b917ff1c864ce21d71cec04a35de",
+    "pre_merge_synthetic_context": {
+      "sha": null,
+      "status": "NOT_RECORDED",
+      "provenance": "The attributable hosted review established the exact candidate/PR context but no durable synthetic merge-ref SHA is present in protected evidence; the remote merge ref is no longer exposed"
+    },
+    "final_protected_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba",
+    "final_protected_tree": "5e41256f17133b12fd03a84287bed67062b1cd12",
+    "engineering_runs": [
+      {
+        "run_id": 35892312728,
+        "job_id": 107287538336,
+        "event": "push",
+        "head": "d5eb76872bc3a7af548f8a8902196927c7dcb4e9",
+        "conclusion": "success"
+      },
+      {
+        "run_id": 35893140700,
+        "job_id": 107290310249,
+        "event": "pull_request",
+        "head": "d5eb76872bc3a7af548f8a8902196927c7dcb4e9",
+        "conclusion": "success"
+      }
+    ],
+    "trusted_evaluator_runs": [
+      {
+        "run_id": 35893140683,
+        "job_id": 107290309707,
+        "event": "pull_request",
+        "head": "d5eb76872bc3a7af548f8a8902196927c7dcb4e9",
+        "conclusion": "success"
+      }
+    ],
+    "protected_post_merge_proof": {
+      "merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba",
+      "parents": [
+        "3c3e42b02c82b917ff1c864ce21d71cec04a35de",
+        "d5eb76872bc3a7af548f8a8902196927c7dcb4e9"
+      ],
+      "tree": "5e41256f17133b12fd03a84287bed67062b1cd12",
+      "result": "PASS"
+    }
+  },
+  "trusted_controls": {
+    "ruleset": {
+      "id": 23106039,
+      "name": "M1 trusted evaluator protection",
+      "state": "active",
+      "target": "master",
+      "pull_request_required": true,
+      "deletion_protected": true,
+      "non_fast_forward_protected": true
+    },
+    "bypass_state": [],
+    "trusted_repository": "KiloAlpha021/security-workflows",
+    "trusted_ref": "refs/heads/main",
+    "workflow": {
+      "path": ".github/workflows/m1-trusted.yml",
+      "blob": "e4f5f16274869329bb6cf13120f1c94dee0aa367"
+    },
+    "manifest": {
+      "path": "trusted-git-blobs.txt",
+      "blob": "14511f5b661e9d454680a1598f62c8d889200e01"
+    },
+    "validator": {
+      "path": "verify_candidate.py",
+      "blob": "b4d15d947313b58a2546c762e2dfcd5ad80502a3"
+    }
+  },
+  "audit_definitions": [
+    {
+      "id": "S2-CLOSE-REQ-001",
+      "invariant": "All 23 requirements are accounted for",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REQ-002",
+      "invariant": "No failed, partial, insufficient, unknown or unassessed requirement",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REQ-003",
+      "invariant": "Evidence is bound to exact protected identities",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REQ-004",
+      "invariant": "Inheritance and regeneration classifications are valid",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REQ-005",
+      "invariant": "No unresolved owner decision, specification gap or blocker",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-EVID-001",
+      "invariant": "Behavioral claims execute protected behavior",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-EVID-002",
+      "invariant": "Invalid cases reach protected validation",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-EVID-003",
+      "invariant": "Structural evidence supports structural claims only",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-EVID-004",
+      "invariant": "Aggregate counts do not substitute for proof",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-EVID-005",
+      "invariant": "No material circular or self-confirming proof",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-EVID-006",
+      "invariant": "Historical rejected evidence is excluded",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ARCH-001",
+      "invariant": "Production dependency graph is coherent and acyclic",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ARCH-002",
+      "invariant": "Protected predecessors remain byte-identical",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ARCH-003",
+      "invariant": "Identity and version/evidence boundaries remain intact",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ARCH-004",
+      "invariant": "Transitions remain pure and persistence remains behind ports",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ARCH-005",
+      "invariant": "Transaction composition remains descriptive",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ARCH-006",
+      "invariant": "No infrastructure or later-stage leakage",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-SEC-001",
+      "invariant": "Branch and ruleset protection remain active",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-SEC-002",
+      "invariant": "Trusted evaluator remains independent and attributable",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-SEC-003",
+      "invariant": "Bypass state has not weakened",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-SEC-004",
+      "invariant": "Dependency and supply-chain evidence remain current",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-SEC-005",
+      "invariant": "Candidate-to-protected provenance is exact",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-SEC-006",
+      "invariant": "Technical outcomes grant no financial, execution or AI authority",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REL-001",
+      "invariant": "Duplicate, conflict and idempotency semantics remain exact",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REL-002",
+      "invariant": "Inbox/outbox terminality and quarantine remain exact",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REL-003",
+      "invariant": "Stale-write and token semantics remain exact",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REL-004",
+      "invariant": "Certainty, retry and ambiguity remain fail-closed",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REL-005",
+      "invariant": "Replay and transaction membership remain authority-negative",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-REL-006",
+      "invariant": "Deferred runtime functionality is not falsely claimed",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-DEF-001",
+      "invariant": "Every material deferred item remains present",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-DEF-002",
+      "invariant": "Every deferred item has source, reason, owner, prerequisites and impacts",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-DEF-003",
+      "invariant": "No deferred obligation is orphaned or claimed implemented",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-HIST-001",
+      "invariant": "Final M1 closure remains attributable",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-HIST-002",
+      "invariant": "M1 deferred atoms remain explicit",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-HIST-003",
+      "invariant": "Stage0B and R39 disclosure remain preserved",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-HIST-004",
+      "invariant": "Rejected AC-023-08 evidence remains historical and replaced",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-001",
+      "invariant": "No missing requirement",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-002",
+      "invariant": "No material evidence-quality defect",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-003",
+      "invariant": "No incorrect identity attribution",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-004",
+      "invariant": "No stale or unjustified inheritance",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-005",
+      "invariant": "No material false-positive evidence",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-006",
+      "invariant": "No missing material negative evidence",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-007",
+      "invariant": "No architecture leakage",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-008",
+      "invariant": "No security or provenance weakness",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-009",
+      "invariant": "No authority leakage",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-010",
+      "invariant": "No reliability overclaim",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-011",
+      "invariant": "No orphaned deferred obligation",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-012",
+      "invariant": "No material protected-source contradiction",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-013",
+      "invariant": "No gate or closure circularity",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-014",
+      "invariant": "No premature freeze state",
+      "blocker_consequence": "FAIL_CLOSURE"
+    },
+    {
+      "id": "S2-CLOSE-ADV-015",
+      "invariant": "Future closure record remains internally consistent",
+      "blocker_consequence": "FAIL_CLOSURE"
+    }
+  ],
+  "audit_results": {
+    "requirement_evidence_closure": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-REQ-001",
+          "expected_invariant": "All 23 requirements are accounted for",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "external_gate_evidence",
+              "source_id": "GATE-S02-01-RESULT",
+              "decision": "GATE_S02_01_PASS"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REQ-002",
+          "expected_invariant": "No failed, partial, insufficient, unknown or unassessed requirement",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "external_gate_evidence",
+              "source_id": "GATE-S02-01-RESULT",
+              "decision": "GATE_S02_01_PASS"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REQ-003",
+          "expected_invariant": "Evidence is bound to exact protected identities",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "external_gate_evidence",
+              "source_id": "GATE-S02-01-RESULT",
+              "decision": "GATE_S02_01_PASS"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REQ-004",
+          "expected_invariant": "Inheritance and regeneration classifications are valid",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "external_gate_evidence",
+              "source_id": "GATE-S02-01-RESULT",
+              "decision": "GATE_S02_01_PASS"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REQ-005",
+          "expected_invariant": "No unresolved owner decision, specification gap or blocker",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "external_gate_evidence",
+              "source_id": "GATE-S02-01-RESULT",
+              "decision": "GATE_S02_01_PASS"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "evidence_quality": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-EVID-001",
+          "expected_invariant": "Behavioral claims execute protected behavior",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "historical_replacement",
+              "acceptance_id": "AC-023-08",
+              "current_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+              "rejected_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-EVID-002",
+          "expected_invariant": "Invalid cases reach protected validation",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "historical_replacement",
+              "acceptance_id": "AC-023-08",
+              "current_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+              "rejected_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-EVID-003",
+          "expected_invariant": "Structural evidence supports structural claims only",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "historical_replacement",
+              "acceptance_id": "AC-023-08",
+              "current_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+              "rejected_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-EVID-004",
+          "expected_invariant": "Aggregate counts do not substitute for proof",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "historical_replacement",
+              "acceptance_id": "AC-023-08",
+              "current_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+              "rejected_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-EVID-005",
+          "expected_invariant": "No material circular or self-confirming proof",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "historical_replacement",
+              "acceptance_id": "AC-023-08",
+              "current_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+              "rejected_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-EVID-006",
+          "expected_invariant": "Historical rejected evidence is excluded",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "historical_replacement",
+              "acceptance_id": "AC-023-08",
+              "current_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55",
+              "rejected_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "architecture_boundary": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-ARCH-001",
+          "expected_invariant": "Production dependency graph is coherent and acyclic",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_identity_inventory",
+              "source": "protected_evidence.slice_evidence and protected_evidence.predecessor_identity_manifest"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ARCH-002",
+          "expected_invariant": "Protected predecessors remain byte-identical",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_identity_inventory",
+              "source": "protected_evidence.slice_evidence and protected_evidence.predecessor_identity_manifest"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ARCH-003",
+          "expected_invariant": "Identity and version/evidence boundaries remain intact",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_identity_inventory",
+              "source": "protected_evidence.slice_evidence and protected_evidence.predecessor_identity_manifest"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ARCH-004",
+          "expected_invariant": "Transitions remain pure and persistence remains behind ports",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_identity_inventory",
+              "source": "protected_evidence.slice_evidence and protected_evidence.predecessor_identity_manifest"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ARCH-005",
+          "expected_invariant": "Transaction composition remains descriptive",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_identity_inventory",
+              "source": "protected_evidence.slice_evidence and protected_evidence.predecessor_identity_manifest"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ARCH-006",
+          "expected_invariant": "No infrastructure or later-stage leakage",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_identity_inventory",
+              "source": "protected_evidence.slice_evidence and protected_evidence.predecessor_identity_manifest"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "security_authority_provenance": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-SEC-001",
+          "expected_invariant": "Branch and ruleset protection remain active",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "hosted_evidence",
+              "source": "hosted_evidence",
+              "pr": 17,
+              "final_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+            },
+            {
+              "type": "trusted_control_evidence",
+              "source": "trusted_controls"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-SEC-002",
+          "expected_invariant": "Trusted evaluator remains independent and attributable",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "hosted_evidence",
+              "source": "hosted_evidence",
+              "pr": 17,
+              "final_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+            },
+            {
+              "type": "trusted_control_evidence",
+              "source": "trusted_controls"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-SEC-003",
+          "expected_invariant": "Bypass state has not weakened",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "hosted_evidence",
+              "source": "hosted_evidence",
+              "pr": 17,
+              "final_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+            },
+            {
+              "type": "trusted_control_evidence",
+              "source": "trusted_controls"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-SEC-004",
+          "expected_invariant": "Dependency and supply-chain evidence remain current",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "hosted_evidence",
+              "source": "hosted_evidence",
+              "pr": 17,
+              "final_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+            },
+            {
+              "type": "trusted_control_evidence",
+              "source": "trusted_controls"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-SEC-005",
+          "expected_invariant": "Candidate-to-protected provenance is exact",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "hosted_evidence",
+              "source": "hosted_evidence",
+              "pr": 17,
+              "final_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+            },
+            {
+              "type": "trusted_control_evidence",
+              "source": "trusted_controls"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-SEC-006",
+          "expected_invariant": "Technical outcomes grant no financial, execution or AI authority",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "hosted_evidence",
+              "source": "hosted_evidence",
+              "pr": 17,
+              "final_merge_commit": "20a41510a96db2a41679f8596aee2da87a2c95ba"
+            },
+            {
+              "type": "trusted_control_evidence",
+              "source": "trusted_controls"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "reliability_resilience": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-REL-001",
+          "expected_invariant": "Duplicate, conflict and idempotency semantics remain exact",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_contract_inventory",
+              "source": "protected_evidence.slice_evidence",
+              "slices": [
+                "S2.5",
+                "S2.6"
+              ]
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REL-002",
+          "expected_invariant": "Inbox/outbox terminality and quarantine remain exact",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_contract_inventory",
+              "source": "protected_evidence.slice_evidence",
+              "slices": [
+                "S2.5",
+                "S2.6"
+              ]
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REL-003",
+          "expected_invariant": "Stale-write and token semantics remain exact",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_contract_inventory",
+              "source": "protected_evidence.slice_evidence",
+              "slices": [
+                "S2.5",
+                "S2.6"
+              ]
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REL-004",
+          "expected_invariant": "Certainty, retry and ambiguity remain fail-closed",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_contract_inventory",
+              "source": "protected_evidence.slice_evidence",
+              "slices": [
+                "S2.5",
+                "S2.6"
+              ]
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REL-005",
+          "expected_invariant": "Replay and transaction membership remain authority-negative",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_contract_inventory",
+              "source": "protected_evidence.slice_evidence",
+              "slices": [
+                "S2.5",
+                "S2.6"
+              ]
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-REL-006",
+          "expected_invariant": "Deferred runtime functionality is not falsely claimed",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "protected_contract_inventory",
+              "source": "protected_evidence.slice_evidence",
+              "slices": [
+                "S2.5",
+                "S2.6"
+              ]
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "deferred_work_ownership": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-DEF-001",
+          "expected_invariant": "Every material deferred item remains present",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "record_evidence",
+              "source": "deferred_work",
+              "item_ids": [
+                "S2-DEF-001",
+                "S2-DEF-002",
+                "S2-DEF-003",
+                "S2-DEF-004",
+                "S2-DEF-005",
+                "S2-DEF-006",
+                "S2-DEF-007",
+                "S2-DEF-008",
+                "S2-DEF-009",
+                "S2-DEF-010",
+                "S2-DEF-011"
+              ]
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-DEF-002",
+          "expected_invariant": "Every deferred item has source, reason, owner, prerequisites and impacts",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "record_evidence",
+              "source": "deferred_work",
+              "item_ids": [
+                "S2-DEF-001",
+                "S2-DEF-002",
+                "S2-DEF-003",
+                "S2-DEF-004",
+                "S2-DEF-005",
+                "S2-DEF-006",
+                "S2-DEF-007",
+                "S2-DEF-008",
+                "S2-DEF-009",
+                "S2-DEF-010",
+                "S2-DEF-011"
+              ]
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-DEF-003",
+          "expected_invariant": "No deferred obligation is orphaned or claimed implemented",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "record_evidence",
+              "source": "deferred_work",
+              "item_ids": [
+                "S2-DEF-001",
+                "S2-DEF-002",
+                "S2-DEF-003",
+                "S2-DEF-004",
+                "S2-DEF-005",
+                "S2-DEF-006",
+                "S2-DEF-007",
+                "S2-DEF-008",
+                "S2-DEF-009",
+                "S2-DEF-010",
+                "S2-DEF-011"
+              ]
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_control",
+              "path": "docs/stage2/s20-control.json",
+              "blob": "48c94c3c411913c608740a1905449ec5511aba26"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "historical_gap_reconciliation": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-HIST-001",
+          "expected_invariant": "Final M1 closure remains attributable",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/stage0b-phase39-67-coverage.json",
+              "blob": "8652bffe48add6cb6b8e63d64e9b2647b48e1739"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-HIST-002",
+          "expected_invariant": "M1 deferred atoms remain explicit",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/stage0b-phase39-67-coverage.json",
+              "blob": "8652bffe48add6cb6b8e63d64e9b2647b48e1739"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-HIST-003",
+          "expected_invariant": "Stage0B and R39 disclosure remain preserved",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/stage0b-phase39-67-coverage.json",
+              "blob": "8652bffe48add6cb6b8e63d64e9b2647b48e1739"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-HIST-004",
+          "expected_invariant": "Rejected AC-023-08 evidence remains historical and replaced",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/closure-manifest.json",
+              "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/m1-closure/stage0b-phase39-67-coverage.json",
+              "blob": "8652bffe48add6cb6b8e63d64e9b2647b48e1739"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    },
+    "adversarial_closure": {
+      "results": [
+        {
+          "audit_id": "S2-CLOSE-ADV-001",
+          "expected_invariant": "No missing requirement",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-002",
+          "expected_invariant": "No material evidence-quality defect",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-003",
+          "expected_invariant": "No incorrect identity attribution",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-004",
+          "expected_invariant": "No stale or unjustified inheritance",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-005",
+          "expected_invariant": "No material false-positive evidence",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-006",
+          "expected_invariant": "No missing material negative evidence",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-007",
+          "expected_invariant": "No architecture leakage",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-008",
+          "expected_invariant": "No security or provenance weakness",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-009",
+          "expected_invariant": "No authority leakage",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-010",
+          "expected_invariant": "No reliability overclaim",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-011",
+          "expected_invariant": "No orphaned deferred obligation",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-012",
+          "expected_invariant": "No material protected-source contradiction",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-013",
+          "expected_invariant": "No gate or closure circularity",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-014",
+          "expected_invariant": "No premature freeze state",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        },
+        {
+          "audit_id": "S2-CLOSE-ADV-015",
+          "expected_invariant": "Future closure record remains internally consistent",
+          "evidence": [
+            {
+              "type": "external_lifecycle_evidence",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "decision": "STAGE2_CLOSURE_AUDITS_PASS",
+              "scope": "formal read-only closure-audit execution"
+            },
+            {
+              "type": "repository_evidence",
+              "path": "docs/stage2/s27-evidence.json",
+              "blob": "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
+            },
+            {
+              "type": "repository_test",
+              "path": "tests/test_stage2_integration.py",
+              "blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+            },
+            {
+              "type": "external_audit_instruction",
+              "source_id": "STAGE2-CLOSURE-AUDITS",
+              "instruction": "Assume Stage 2 should NOT be frozen; find the strongest attributable evidence-based reason why"
+            }
+          ],
+          "result": "PASS",
+          "findings": [],
+          "blocker_consequence": "FAIL_CLOSURE"
+        }
+      ],
+      "aggregate_result": "PASS",
+      "findings": []
+    }
+  },
+  "evidence_state": {
+    "inherited": [
+      "M1",
+      "S2.0",
+      "S2.1",
+      "S2.2",
+      "S2.3",
+      "S2.4",
+      "S2.5",
+      "S2.6"
+    ],
+    "regenerated": [
+      "S2.7 cross-slice integration",
+      "GATE-S02-01 evaluation",
+      "Stage-2 closure audits"
+    ],
+    "invalidated": [],
+    "historical_replaced": [
+      "S2.7 pre-correction AC-023-08 certainty/retry evidence"
+    ]
+  },
+  "deferred_work": [
+    {
+      "id": "S2-DEF-001",
+      "source": "S2-D05, S2-D11 and M1 storage/migration specifications",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "Stage 2 defines contracts and ports only",
+      "future_owner": "data and infrastructure integration",
+      "prerequisites": [
+        "separate owner authorization",
+        "selected production storage boundary"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_OPERATIONAL_PERSISTENCE",
+      "controlled_live_impact": "BLOCKS_OPERATIONAL_PERSISTENCE"
+    },
+    {
+      "id": "S2-DEF-002",
+      "source": "IMP-029-M1-04 and M1 secret-provider contract",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "No executable provider or production credential lifecycle is in M1 or Stage 2",
+      "future_owner": "security and operations",
+      "prerequisites": [
+        "production service identity",
+        "authorized credential backend"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_CONNECTED_OPERATION",
+      "controlled_live_impact": "BLOCKS_LIVE_OPERATION"
+    },
+    {
+      "id": "S2-DEF-003",
+      "source": "IMP-004-M1-03 and M1-calendar-scope-clarification",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "Production session and calendar correctness belongs to the data subsystem",
+      "future_owner": "data and session services",
+      "prerequisites": [
+        "point-in-time data design",
+        "exchange calendar authority"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_TIME_CORRECT_TRADING",
+      "controlled_live_impact": "BLOCKS_TIME_CORRECT_TRADING"
+    },
+    {
+      "id": "S2-DEF-004",
+      "source": "IMP-009-M1-02",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "Current external evidence and executable authority are later operational controls",
+      "future_owner": "authority, risk and compliance",
+      "prerequisites": [
+        "external evidence integration",
+        "revocation design"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_EXECUTABLE_AUTHORITY",
+      "controlled_live_impact": "BLOCKS_EXECUTABLE_AUTHORITY"
+    },
+    {
+      "id": "S2-DEF-005",
+      "source": "IMP-026-M1-02 and ATIS-R-019 boundary",
+      "current_disposition": "CONTRACTS_ONLY_RUNTIME_DEFERRED",
+      "reason": "S2.6 proves contract semantics, not operational durability",
+      "future_owner": "infrastructure and reliability",
+      "prerequisites": [
+        "production database boundary",
+        "recovery design"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_RESILIENT_OPERATION",
+      "controlled_live_impact": "BLOCKS_RESILIENT_OPERATION"
+    },
+    {
+      "id": "S2-DEF-006",
+      "source": "IMP-030-M1-02 and M1 telemetry clarification",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "No running financial workflow exists in current scope",
+      "future_owner": "observability and operations",
+      "prerequisites": [
+        "runtime financial workflow",
+        "telemetry transport"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_PRODUCTION_ASSURANCE",
+      "controlled_live_impact": "BLOCKS_PRODUCTION_ASSURANCE"
+    },
+    {
+      "id": "S2-DEF-007",
+      "source": "IMP-033-M1-03 and M1.8 evidence limits",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "Evidence signatures, authentication, storage, retention, invalidation graph and lifecycle authority are later controls",
+      "future_owner": "governance and evidence operations",
+      "prerequisites": [
+        "evidence trust model",
+        "lifecycle authority model"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_HIGHER_ASSURANCE_PROMOTION",
+      "controlled_live_impact": "BLOCKS_HIGHER_ASSURANCE_PROMOTION"
+    },
+    {
+      "id": "S2-DEF-008",
+      "source": "ATIS-R-019 through ATIS-R-021 non-scope",
+      "current_disposition": "CONTRACTS_ONLY_RUNTIME_DEFERRED",
+      "reason": "Retry descriptions grant no scheduler or recovery authority",
+      "future_owner": "runtime reliability",
+      "prerequisites": [
+        "operational persistence",
+        "failure policy"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_RESILIENT_OPERATION",
+      "controlled_live_impact": "BLOCKS_RESILIENT_OPERATION"
+    },
+    {
+      "id": "S2-DEF-009",
+      "source": "S2.0 excluded scope and M1 authority boundary",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "Broker uncertainty and reconciliation require later execution systems",
+      "future_owner": "OMS, execution and reconciliation",
+      "prerequisites": [
+        "broker integration",
+        "financial truth model"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_BROKER_CONNECTED_PAPER",
+      "controlled_live_impact": "BLOCKS_LIVE_EXECUTION"
+    },
+    {
+      "id": "S2-DEF-010",
+      "source": "S2.6 owner boundary and later-owner firewall",
+      "current_disposition": "DEFERRED_NOT_IMPLEMENTED",
+      "reason": "Concurrency tokens are not financial fencing authority",
+      "future_owner": "authority and reliability",
+      "prerequisites": [
+        "executable authority model",
+        "operational persistence"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_FINANCIAL_EFFECTS_WHERE_REQUIRED",
+      "controlled_live_impact": "BLOCKS_FINANCIAL_EFFECTS_WHERE_REQUIRED"
+    },
+    {
+      "id": "S2-DEF-011",
+      "source": "S2.0 scope exclusions and Stage-2 authority boundary",
+      "current_disposition": "POST_STAGE2_PROGRAMME_WORK",
+      "reason": "Trading subsystems and financial authority are outside Stage 2",
+      "future_owner": "Master Programme Reconciliation and later authorized programmes",
+      "prerequisites": [
+        "Stage-2 final freeze",
+        "Master Programme Reconciliation",
+        "separate owner authorization"
+      ],
+      "gate_impact": "NONE",
+      "freeze_impact": "NONE_WHILE_EXPLICIT",
+      "paper_impact": "BLOCKS_PAPER_TRADING",
+      "controlled_live_impact": "BLOCKS_CONTROLLED_LIVE_TRADING"
+    }
+  ],
+  "historical_gaps": [
+    {
+      "id": "HIST-M1-CLOSURE",
+      "status": "RESOLVED_CURRENT_RECLOSURE",
+      "authoritative_source": {
+        "path": "docs/m1-closure/closure-manifest.json",
+        "blob": "9c653dc2183700c86191e8f14bfd4db020f38a5b"
+      },
+      "lineage": {
+        "original_closure": {
+          "manifest": "docs/m1-closure/closure-manifest-historical-2026-09-12.json",
+          "baseline_revision": "8470735a37372a1c5060c59adfcd44d3348f35bb",
+          "sha256": "bd201775ed5d9fd9d7cd1f42bfe0f5418259622071f1102f1cfd71a6c84ce3d0",
+          "status": "HISTORICAL_SUPERSEDED"
+        },
+        "reopened_remediation": {
+          "audit_revision": "789d7a19d474e77f9b8f1956dea02aea74d7ddd0",
+          "classification": "REOPEN_M1",
+          "preserved_manifest": "docs/m1-closure/closure-manifest-reopened-2026-09-13.json",
+          "trusted_ci_merge": "8d60acac11f6fbddf84fe2be61ba76074d82569b",
+          "finite_decimal_merge": "841d903cb5670777f8ce23fe8433a0c5dd7dac49"
+        },
+        "current_reclosure": {
+          "baseline_revision": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
+          "authority": "CURRENT_M1_COMPLETION"
+        },
+        "prior_reclosure": {
+          "manifest": "docs/m1-closure/closure-manifest-reclosed-2026-09-12.json",
+          "baseline_revision": "db1cd10d3aaf9d20a90b043fd754e4e65145bf3f",
+          "status": "HISTORICAL_SUPERSEDED"
+        }
+      },
+      "precedent": "Apparent M1 closure was superseded and reopened after material findings; remediation and reclosure remained separately attributable",
+      "current_result": "50 VERIFIED; 0 INSUFFICIENT_EVIDENCE; 0 FAILED; 0 unassessed; residual blockers empty"
+    },
+    {
+      "id": "HIST-M1-DEFERRALS",
+      "status": "EXPLICITLY_DEFERRED",
+      "items": [
+        "IMP-029-M1-04",
+        "IMP-004-M1-03",
+        "IMP-009-M1-02",
+        "IMP-026-M1-02",
+        "IMP-030-M1-02",
+        "IMP-033-M1-03"
+      ]
+    },
+    {
+      "id": "HIST-STAGE0B-R39",
+      "status": "CONTROLLED_LEGACY_PROVENANCE",
+      "disclosure": "ORIGINAL R39 INDIVIDUAL SEMANTICS NOT RECOVERED",
+      "semantic_equivalence_claimed": false
+    },
+    {
+      "id": "HIST-S27-AC-023-08",
+      "status": "REPLACED",
+      "rejected_test_blob": "59eabee090f922faa82f8236ff49bc915b6df7ee",
+      "current_test_blob": "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+    }
+  ],
+  "findings": [],
+  "cross_audit_reconciliation": {
+    "result": "PASS",
+    "contradictions": [],
+    "material_findings": [],
+    "critical_findings": [],
+    "current_invalidated_evidence": [],
+    "protected_slice_reopen_required": false,
+    "m1_precedent_challenge": "PASS"
+  },
+  "closure_authority": {
+    "owner_decision": "APPROVE_STAGE2_CLOSURE_ASSURANCE",
+    "authority_granted": [
+      "construct and independently review the Stage-2 closure record",
+      "prepare later controlled closure-record publication under separate authorization"
+    ],
+    "authority_denied": [
+      "automatic Stage-2 closure or freeze",
+      "automatic next-stage implementation",
+      "paper trading",
+      "live trading",
+      "broker authority",
+      "OMS authority",
+      "risk approval",
+      "ledger authority",
+      "financial effects",
+      "execution authority",
+      "AI trading authority"
+    ]
+  },
+  "freeze_state": {
+    "closure_state": "AUDITS_PASSED",
+    "stage2_state": "NOT_YET_FROZEN",
+    "residual_freeze_blockers": [],
+    "outstanding_lifecycle_operations": [
+      "independent exact-record review",
+      "publication",
+      "natural hosted and trusted evaluation",
+      "owner merge decision",
+      "protected merge",
+      "post-merge proof",
+      "final freeze verification"
+    ],
+    "remediation_required": false,
+    "protected_slice_reopen_required": false,
+    "freeze_baseline_master": null,
+    "freeze_baseline_tree": null,
+    "closure_record_blob": null,
+    "closure_record_publication_commit": null,
+    "post_merge_verification": "REQUIRED",
+    "freeze_timestamp": null
+  },
+  "next_permitted_activity": "INDEPENDENT_STAGE2_CLOSURE_RECORD_REVIEW",
+  "authority_statement": "This record establishes completed gate and closure-audit evidence only. It does not freeze Stage 2, authorize later implementation, authorize paper or live trading, or grant broker, OMS, risk, ledger, financial, execution or AI trading authority.",
+  "serialization_contract": {
+    "encoding": "UTF-8",
+    "bom": false,
+    "indent": 2,
+    "trailing_newline": true,
+    "git_identities": "lowercase 40-character hexadecimal",
+    "repository_paths": "forward-slash relative paths",
+    "random_values": false,
+    "machine_local_paths": false,
+    "future_identities": "null until externally established"
+  }
+}
