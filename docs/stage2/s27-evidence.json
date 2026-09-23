@@ -1,0 +1,1327 @@
+{
+  "schema_version": 1,
+  "record_id": "S2.7-EVIDENCE",
+  "entry": {
+    "master": "3c3e42b02c82b917ff1c864ce21d71cec04a35de",
+    "tree": "2387814b2b17cd540c8ad114916575a268f4b325"
+  },
+  "requirements": [
+    {
+      "id": "ATIS-R-022",
+      "statement": "Integrate versioned contracts, compatibility tests and state-machine properties for GATE-S02-01.",
+      "acceptance_ids": [
+        "AC-022-01",
+        "AC-022-02",
+        "AC-022-03",
+        "AC-022-04",
+        "AC-022-05",
+        "AC-022-06",
+        "AC-022-07",
+        "AC-022-08",
+        "AC-022-09",
+        "AC-022-10"
+      ]
+    },
+    {
+      "id": "ATIS-R-023",
+      "statement": "Integrate evidence introduced and owned by each earlier slice.",
+      "acceptance_ids": [
+        "AC-023-01",
+        "AC-023-02",
+        "AC-023-03",
+        "AC-023-04",
+        "AC-023-05",
+        "AC-023-06",
+        "AC-023-07",
+        "AC-023-08",
+        "AC-023-09",
+        "AC-023-10",
+        "AC-023-11",
+        "AC-023-12"
+      ]
+    }
+  ],
+  "protected_components": [
+    {
+      "slice": "M1",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/identifiers.py",
+      "blob": "97f27cb0fa456f58f54a5a3f5e9093a2ac70152c",
+      "assumptions": "M1 identifier categories remain unchanged",
+      "inherited_test_references": [
+        "tests/test_identifiers.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/timestamp.py",
+      "blob": "762a9f9c32afaebdb58a105d9a3cb46a7c93a9ee",
+      "assumptions": "Timestamp semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_timestamp.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/event.py",
+      "blob": "b3170eb72781d33d28937cde26df4cc109b7c483",
+      "assumptions": "EventEnvelope semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_event.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "production",
+      "path": "src/automated_trading_bot/recovery/replay.py",
+      "blob": "4348c93a042da9b9b300abb8b11269b633aaea68",
+      "assumptions": "Replay remains non-executing and authority-negative",
+      "inherited_test_references": [
+        "tests/test_replay.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "test",
+      "path": "tests/test_identifiers.py",
+      "blob": "a71dba9fcd447f82626e75f393395adb866beda4",
+      "assumptions": "Identifier evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_identifiers.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "test",
+      "path": "tests/test_timestamp.py",
+      "blob": "011676f846528dc55db66bc69df43f2a16bf1da1",
+      "assumptions": "Timestamp evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_timestamp.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "test",
+      "path": "tests/test_event.py",
+      "blob": "15964f694a8c9991fff53dbcc97b2c34c2ab1c1c",
+      "assumptions": "Event evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_event.py"
+      ]
+    },
+    {
+      "slice": "M1",
+      "kind": "test",
+      "path": "tests/test_replay.py",
+      "blob": "c94ad7e46dab67f7d71cd8e43da0b2eabe487cdd",
+      "assumptions": "Replay evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_replay.py"
+      ]
+    },
+    {
+      "slice": "S2.1",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/versioning.py",
+      "blob": "377df4662d930b8a3d0ebe400549e0cc1e333104",
+      "assumptions": "Version registration, rejection and immutable original bytes remain unchanged",
+      "inherited_test_references": [
+        "tests/test_versioning.py"
+      ]
+    },
+    {
+      "slice": "S2.1",
+      "kind": "test",
+      "path": "tests/test_versioning.py",
+      "blob": "646bcfe4dcd7be7f3e3ec04a786ad5d3609e5aa7",
+      "assumptions": "Version evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_versioning.py"
+      ]
+    },
+    {
+      "slice": "S2.2",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/identity_contracts.py",
+      "blob": "3fd950181fa5ab58c81123f9b0416f62670d3cb4",
+      "assumptions": "Typed identity semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_identity_contracts.py"
+      ]
+    },
+    {
+      "slice": "S2.2",
+      "kind": "test",
+      "path": "tests/test_identity_contracts.py",
+      "blob": "e1610789308acec6cf36452b7252e26b2f21188e",
+      "assumptions": "Identity evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_identity_contracts.py"
+      ]
+    },
+    {
+      "slice": "S2.3",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/command_contracts.py",
+      "blob": "372953d50ed2c93f12736b06c87ba24669d1907b",
+      "assumptions": "Commands remain inert and canonical",
+      "inherited_test_references": [
+        "tests/test_command_contracts.py"
+      ]
+    },
+    {
+      "slice": "S2.3",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/event_contracts.py",
+      "blob": "b3f8f72bbc0cb27a45a3ee5575e0deaaee1b5106",
+      "assumptions": "Event representations remain canonical",
+      "inherited_test_references": [
+        "tests/test_event_contracts.py"
+      ]
+    },
+    {
+      "slice": "S2.3",
+      "kind": "test",
+      "path": "tests/test_command_contracts.py",
+      "blob": "7ed1c4b26c71c42bfe307ebf7bdb02d7766a2a90",
+      "assumptions": "Command evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_command_contracts.py"
+      ]
+    },
+    {
+      "slice": "S2.3",
+      "kind": "test",
+      "path": "tests/test_event_contracts.py",
+      "blob": "d74e068fc21bef244a33d61013ff69a6497811cc",
+      "assumptions": "Event-contract evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_event_contracts.py"
+      ]
+    },
+    {
+      "slice": "S2.4",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/state_transitions.py",
+      "blob": "fadb978336d4cd90328385e4b29c58efe496515d",
+      "assumptions": "Pure transition semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_state_transitions.py"
+      ]
+    },
+    {
+      "slice": "S2.4",
+      "kind": "test",
+      "path": "tests/test_state_transitions.py",
+      "blob": "5670d932f7f22b4a45eea04ffb624c13d6d609ff",
+      "assumptions": "The protected 18-case matrix remains attributable",
+      "inherited_test_references": [
+        "tests/test_state_transitions.py"
+      ]
+    },
+    {
+      "slice": "S2.5",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/persistence.py",
+      "blob": "67c41af0992e2c0b601a2ac2d8609ebb104850d0",
+      "assumptions": "Persistence requests and marker outcomes remain unchanged",
+      "inherited_test_references": [
+        "tests/test_persistence.py"
+      ]
+    },
+    {
+      "slice": "S2.5",
+      "kind": "test",
+      "path": "tests/test_persistence.py",
+      "blob": "dd572293f1f2e05af0fc00223d6b45d34f9f72cc",
+      "assumptions": "Persistence evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_persistence.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/concurrency.py",
+      "blob": "0129ce925f590a36be28ad72aa0993fefea5e2ac",
+      "assumptions": "Concurrency outcome semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_concurrency.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/delivery.py",
+      "blob": "70bc090a3b13f7040473145290ae393979bf93ac",
+      "assumptions": "Inbox and outbox transition semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_delivery.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/idempotency.py",
+      "blob": "5a731b142aa4fb1b901091037754893b9166e3f7",
+      "assumptions": "Idempotency and event-integrity semantics remain unchanged",
+      "inherited_test_references": [
+        "tests/test_idempotency.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "production",
+      "path": "src/automated_trading_bot/domain/transaction_composition.py",
+      "blob": "417c75b661c8e8e812d4eb80fc0f884d95365329",
+      "assumptions": "Transaction intents remain descriptive",
+      "inherited_test_references": [
+        "tests/test_transaction_composition.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "test",
+      "path": "tests/test_concurrency.py",
+      "blob": "c506fe037adce8d27c68a5e1b58fc7a4e7325b55",
+      "assumptions": "Concurrency matrices remain attributable",
+      "inherited_test_references": [
+        "tests/test_concurrency.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "test",
+      "path": "tests/test_delivery.py",
+      "blob": "89d58fe2c2be3ed2674af9d4ee87711da42f12b7",
+      "assumptions": "Delivery matrices remain attributable",
+      "inherited_test_references": [
+        "tests/test_delivery.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "test",
+      "path": "tests/test_idempotency.py",
+      "blob": "2321df49092b993892d2c1457b9431e7a2cecdcb",
+      "assumptions": "Idempotency evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_idempotency.py"
+      ]
+    },
+    {
+      "slice": "S2.6",
+      "kind": "test",
+      "path": "tests/test_transaction_composition.py",
+      "blob": "254e007f3bfcde92f62e7201d495ac05f5945566",
+      "assumptions": "Transaction-composition evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_transaction_composition.py"
+      ]
+    },
+    {
+      "slice": "S2.0",
+      "kind": "control",
+      "path": "docs/stage2/s20-control.json",
+      "blob": "48c94c3c411913c608740a1905449ec5511aba26",
+      "assumptions": "Controlling requirements and evidence policy remain unchanged",
+      "inherited_test_references": [
+        "tests/test_s20_control.py"
+      ]
+    },
+    {
+      "slice": "S2.0",
+      "kind": "test",
+      "path": "tests/test_s20_control.py",
+      "blob": "d730f05902c28bab474e1f36bebe749cb7d4b3af",
+      "assumptions": "Control evidence remains attributable",
+      "inherited_test_references": [
+        "tests/test_s20_control.py"
+      ]
+    }
+  ],
+  "evidence_classifications": [
+    "DIRECT",
+    "INHERITED",
+    "REGENERATED",
+    "S2.7-OWNED",
+    "GATE-OWNED"
+  ],
+  "acceptance": [
+    {
+      "id": "AC-022-01",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.1",
+        "S2.3",
+        "S2.5"
+      ],
+      "invariant": "Registered versions compose and unknown versions reject without fallback",
+      "evidence_type": "negative integration/property",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_registered_versions_compose_without_fallback",
+        "tests/test_stage2_integration.py::test_unknown_and_unsupported_versions_fail_before_persistence"
+      ],
+      "expected_result": "Registered version succeeds; wrong family and unsupported versions raise protected errors"
+    },
+    {
+      "id": "AC-022-02",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.1",
+        "S2.3",
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Original canonical bytes remain authoritative through persistence and fingerprinting",
+      "evidence_type": "behavioral integration/property",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_version_and_evidence_property_cases",
+        "tests/test_stage2_integration.py::test_original_bytes_remain_authoritative_under_equal_fingerprint"
+      ],
+      "expected_result": "Bytes remain exact; equal digest with differing bytes conflicts"
+    },
+    {
+      "id": "AC-022-03",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.3",
+        "S2.6"
+      ],
+      "invariant": "EventId integrity remains separate from operation idempotency",
+      "evidence_type": "positive/adversarial integration",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_event_admission_duplicate_remains_separate_from_operation_idempotency",
+        "tests/test_stage2_integration.py::test_event_id_conflicting_evidence_is_not_operation_duplicate"
+      ],
+      "expected_result": "Event conflict never becomes operation duplicate"
+    },
+    {
+      "id": "AC-022-04",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.4",
+        "S2.5"
+      ],
+      "invariant": "Every protected transition outcome is preserved without recomputation",
+      "evidence_type": "deterministic Cartesian property",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_transition_persistence_property_cases"
+      ],
+      "expected_result": "All 18 results and exact StateId values are preserved"
+    },
+    {
+      "id": "AC-022-05",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.4",
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Transition scope and optimistic token evidence remain coherent",
+      "evidence_type": "behavioral integration/property",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_concurrent_transition_scope_and_advancement",
+        "tests/test_stage2_integration.py::test_stale_writer_requires_newer_current_token"
+      ],
+      "expected_result": "Commit advances exactly once; stale requires newer current token"
+    },
+    {
+      "id": "AC-022-06",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Marker-only persistence conflict does not prove stale",
+      "evidence_type": "negative integration",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_generic_persistence_conflict_does_not_establish_stale"
+      ],
+      "expected_result": "STALE without token evidence rejects"
+    },
+    {
+      "id": "AC-022-07",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.3",
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Transaction intents describe complete atomic membership only",
+      "evidence_type": "positive/negative integration",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_producer_transaction_membership_is_descriptive_and_complete",
+        "tests/test_stage2_integration.py::test_consumer_transaction_membership_is_descriptive_and_complete"
+      ],
+      "expected_result": "Coherent membership constructs; partial membership rejects"
+    },
+    {
+      "id": "AC-022-08",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Crash and acknowledgement uncertainty remain explicit and fail closed",
+      "evidence_type": "adversarial integration",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_commit_before_acknowledgement_remains_indeterminate",
+        "tests/test_stage2_integration.py::test_inbox_receipt_crash_does_not_become_applied",
+        "tests/test_stage2_integration.py::test_outbox_acknowledgement_loss_does_not_claim_exactly_once"
+      ],
+      "expected_result": "INDETERMINATE resolves first and cannot fabricate completion"
+    },
+    {
+      "id": "AC-022-09",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "M1",
+        "S2.6"
+      ],
+      "invariant": "Replay cannot regress terminal evidence or authorize a new effect",
+      "evidence_type": "adversarial integration",
+      "classifications": [
+        "INHERITED",
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_replay_cannot_regress_or_reauthorize_terminal_evidence"
+      ],
+      "expected_result": "Terminal evidence is unchanged and authority-negative"
+    },
+    {
+      "id": "AC-022-10",
+      "requirement_id": "ATIS-R-022",
+      "components": [
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Technical outcomes grant no business, financial or execution authority",
+      "evidence_type": "structural/behavioral negative",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_composed_technical_outcomes_grant_no_execution_authority"
+      ],
+      "expected_result": "No outcome exposes an authority or effect path"
+    },
+    {
+      "id": "AC-023-01",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.1-S2.6"
+      ],
+      "invariant": "Inherited claims bind to exact protected identities",
+      "evidence_type": "change-impact validation",
+      "classifications": [
+        "INHERITED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_protected_component_blobs_match_entry"
+      ],
+      "expected_result": "Every protected blob matches"
+    },
+    {
+      "id": "AC-023-02",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.1"
+      ],
+      "invariant": "Isolated version evidence is inherited and composed behavior regenerated",
+      "evidence_type": "change-impact classification",
+      "classifications": [
+        "INHERITED",
+        "REGENERATED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_classifies_versioning_evidence_by_change_impact"
+      ],
+      "expected_result": "No wholesale re-proof or integration gap"
+    },
+    {
+      "id": "AC-023-03",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "M1",
+        "S2.2-S2.6"
+      ],
+      "invariant": "Shared underlying values do not collapse identity categories",
+      "evidence_type": "deterministic identity matrix",
+      "classifications": [
+        "REGENERATED",
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_identity_separation_property_cases",
+        "tests/test_stage2_integration.py::test_cross_category_substitutions_reject"
+      ],
+      "expected_result": "All 91 category pairs remain distinct"
+    },
+    {
+      "id": "AC-023-04",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.4"
+      ],
+      "invariant": "Transition matrix is inherited and composition freshly evidenced",
+      "evidence_type": "inheritance/targeted integration",
+      "classifications": [
+        "INHERITED",
+        "REGENERATED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_inherits_transition_matrix_and_regenerates_composition"
+      ],
+      "expected_result": "Protected transition semantics remain unchanged"
+    },
+    {
+      "id": "AC-023-05",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.5"
+      ],
+      "invariant": "Persistence contracts are inherited and composition freshly evidenced",
+      "evidence_type": "inheritance/targeted integration",
+      "classifications": [
+        "INHERITED",
+        "REGENERATED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_inherits_persistence_contracts_and_regenerates_composition"
+      ],
+      "expected_result": "S2.5 remains unchanged"
+    },
+    {
+      "id": "AC-023-06",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "S2.6 direct matrices are inherited and cross-slice assumptions regenerated",
+      "evidence_type": "change-impact record",
+      "classifications": [
+        "INHERITED",
+        "REGENERATED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_inherits_s26_matrices_and_regenerates_cross_slice_evidence"
+      ],
+      "expected_result": "No unnecessary S2.6 reimplementation"
+    },
+    {
+      "id": "AC-023-07",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.1-S2.6"
+      ],
+      "invariant": "All 19 authoritative scenarios have acceptance and test evidence",
+      "evidence_type": "traceability validation",
+      "classifications": [
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_maps_all_adversarial_scenarios"
+      ],
+      "expected_result": "No omitted or orphan scenario"
+    },
+    {
+      "id": "AC-023-08",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.7"
+      ],
+      "invariant": "Property domains are bounded, reproducible and identifiable",
+      "evidence_type": "deterministic property evidence",
+      "classifications": [
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_property_domains_are_finite_deterministic_and_identifiable"
+      ],
+      "expected_result": "137 stable generated cases"
+    },
+    {
+      "id": "AC-023-09",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.7"
+      ],
+      "invariant": "Invalidated evidence cannot be silently inherited",
+      "evidence_type": "artifact validation",
+      "classifications": [
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_invalidated_evidence_is_explicit_and_fail_closed"
+      ],
+      "expected_result": "Invalidation is explicit and currently empty"
+    },
+    {
+      "id": "AC-023-10",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.7"
+      ],
+      "invariant": "S2.7 adds evidence only",
+      "evidence_type": "AST/import/scope review",
+      "classifications": [
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_s27_candidate_surface_is_evidence_only"
+      ],
+      "expected_result": "No production, infrastructure or governance expansion"
+    },
+    {
+      "id": "AC-023-11",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.7"
+      ],
+      "invariant": "Evidence artifact is machine-checkable and complete",
+      "evidence_type": "schema/reference validation",
+      "classifications": [
+        "S2.7-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_s27_evidence_schema_is_exact",
+        "tests/test_stage2_integration.py::test_s27_evidence_ids_and_references_are_complete"
+      ],
+      "expected_result": "Schema, IDs and references validate"
+    },
+    {
+      "id": "AC-023-12",
+      "requirement_id": "ATIS-R-023",
+      "components": [
+        "S2.7",
+        "GATE-S02-01"
+      ],
+      "invariant": "S2.7 cannot approve its own gate or promotion",
+      "evidence_type": "lifecycle negative",
+      "classifications": [
+        "S2.7-OWNED",
+        "GATE-OWNED"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_s27_cannot_evaluate_or_promote_its_gate"
+      ],
+      "expected_result": "Gate remains not evaluated and promotion remains none"
+    }
+  ],
+  "adversarial_scenarios": [
+    {
+      "id": "ADV-S27-01",
+      "name": "unknown-or-unsupported-version",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-01"
+      ],
+      "components": [
+        "S2.1",
+        "S2.3",
+        "S2.5"
+      ],
+      "invariant": "Unknown versions reject without fallback",
+      "expected_result": "Protected version error before persistence",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_unknown_and_unsupported_versions_fail_before_persistence"
+    },
+    {
+      "id": "ADV-S27-02",
+      "name": "historical-byte-preservation",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-02"
+      ],
+      "components": [
+        "S2.1",
+        "S2.3",
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Original bytes remain authoritative",
+      "expected_result": "Exact bytes and derived fingerprint preserved",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_version_and_evidence_property_cases"
+    },
+    {
+      "id": "ADV-S27-03",
+      "name": "same-event-id-same-evidence",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-03"
+      ],
+      "components": [
+        "S2.3",
+        "S2.6"
+      ],
+      "invariant": "Event integrity is separate",
+      "expected_result": "EXACT_DUPLICATE in its own boundary",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_event_admission_duplicate_remains_separate_from_operation_idempotency"
+    },
+    {
+      "id": "ADV-S27-04",
+      "name": "same-event-id-conflicting-evidence",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-03"
+      ],
+      "components": [
+        "S2.3",
+        "S2.6"
+      ],
+      "invariant": "Conflicting event evidence cannot become operation duplicate",
+      "expected_result": "CONFLICTING_EVENT",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_event_id_conflicting_evidence_is_not_operation_duplicate"
+    },
+    {
+      "id": "ADV-S27-05",
+      "name": "same-scoped-key-same-evidence",
+      "requirement_ids": [
+        "ATIS-R-023"
+      ],
+      "acceptance_ids": [
+        "AC-023-06"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Exact scoped duplicate remains distinct",
+      "expected_result": "EXACT_DUPLICATE",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_same_scoped_key_and_same_evidence_is_exact_duplicate"
+    },
+    {
+      "id": "ADV-S27-06",
+      "name": "same-scoped-key-conflicting-evidence",
+      "requirement_ids": [
+        "ATIS-R-023"
+      ],
+      "acceptance_ids": [
+        "AC-023-06"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Conflicting scoped reuse never overwrites",
+      "expected_result": "CONFLICTING_REUSE",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_same_scoped_key_and_conflicting_evidence_is_conflicting_reuse"
+    },
+    {
+      "id": "ADV-S27-07",
+      "name": "equal-fingerprint-different-bytes",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-02"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Fingerprint equality cannot replace bytes",
+      "expected_result": "CONFLICTING_REUSE",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_original_bytes_remain_authoritative_under_equal_fingerprint"
+    },
+    {
+      "id": "ADV-S27-08",
+      "name": "competing-transitions-one-token",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-05"
+      ],
+      "components": [
+        "S2.4",
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Competing writer needs distinct evidence",
+      "expected_result": "Committed advancement followed by evidenced stale outcome",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_competing_transitions_require_distinct_concurrency_evidence"
+    },
+    {
+      "id": "ADV-S27-09",
+      "name": "stale-writer",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-05"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "STALE requires newer current token",
+      "expected_result": "Missing or non-newer token rejects",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_stale_writer_requires_newer_current_token"
+    },
+    {
+      "id": "ADV-S27-10",
+      "name": "generic-conflict-without-stale-evidence",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-06"
+      ],
+      "components": [
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Marker conflict is insufficient",
+      "expected_result": "STALE construction rejects",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_generic_persistence_conflict_does_not_establish_stale"
+    },
+    {
+      "id": "ADV-S27-11",
+      "name": "unchanged-retry-after-stale",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-05",
+        "AC-022-08"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Stale requires reevaluation",
+      "expected_result": "SAME_IDENTITY rejects",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_stale_result_requires_reevaluation"
+    },
+    {
+      "id": "ADV-S27-12",
+      "name": "producer-partial-failure",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-07"
+      ],
+      "components": [
+        "S2.3",
+        "S2.6"
+      ],
+      "invariant": "Producer membership is complete",
+      "expected_result": "Partial or incoherent membership rejects",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_producer_transaction_membership_is_descriptive_and_complete"
+    },
+    {
+      "id": "ADV-S27-13",
+      "name": "consumer-partial-failure",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-07"
+      ],
+      "components": [
+        "S2.3",
+        "S2.6"
+      ],
+      "invariant": "Consumer membership requires APPLIED",
+      "expected_result": "Partial or incoherent membership rejects",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_consumer_transaction_membership_is_descriptive_and_complete"
+    },
+    {
+      "id": "ADV-S27-14",
+      "name": "commit-before-acknowledgement-loss",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-08"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Uncertain commit remains unknown",
+      "expected_result": "INDETERMINATE and RESOLVE_FIRST",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_commit_before_acknowledgement_remains_indeterminate"
+    },
+    {
+      "id": "ADV-S27-15",
+      "name": "inbox-receipt-followed-by-crash",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-08"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "Receipt is not application",
+      "expected_result": "PENDING remains non-APPLIED",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_inbox_receipt_crash_does_not_become_applied"
+    },
+    {
+      "id": "ADV-S27-16",
+      "name": "outbox-acknowledgement-loss",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-08"
+      ],
+      "components": [
+        "S2.6"
+      ],
+      "invariant": "No exactly-once claim",
+      "expected_result": "RETRY remains non-DELIVERED",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_outbox_acknowledgement_loss_does_not_claim_exactly_once"
+    },
+    {
+      "id": "ADV-S27-17",
+      "name": "indeterminate-recovery",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-08",
+        "AC-022-09"
+      ],
+      "components": [
+        "M1",
+        "S2.6"
+      ],
+      "invariant": "Recovery fails closed",
+      "expected_result": "No token or retry authority fabricated",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_indeterminate_recovery_fails_closed"
+    },
+    {
+      "id": "ADV-S27-18",
+      "name": "replay-against-terminal-evidence",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-09"
+      ],
+      "components": [
+        "M1",
+        "S2.6"
+      ],
+      "invariant": "Replay cannot regress terminal evidence",
+      "expected_result": "APPLIED and DELIVERED remain exact",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_replay_cannot_regress_or_reauthorize_terminal_evidence"
+    },
+    {
+      "id": "ADV-S27-19",
+      "name": "technical-success-mistaken-for-authority",
+      "requirement_ids": [
+        "ATIS-R-022"
+      ],
+      "acceptance_ids": [
+        "AC-022-10"
+      ],
+      "components": [
+        "S2.5",
+        "S2.6"
+      ],
+      "invariant": "Technical success grants no authority",
+      "expected_result": "No financial or execution operation exposed",
+      "classification": "S2.7-OWNED",
+      "test_reference": "tests/test_stage2_integration.py::test_composed_technical_outcomes_grant_no_execution_authority"
+    }
+  ],
+  "inherited_evidence": [
+    {
+      "id": "INH-S27-01",
+      "slice": "S2.1",
+      "protected_components": [
+        "src/automated_trading_bot/domain/versioning.py",
+        "tests/test_versioning.py"
+      ],
+      "assumption": "Exact protected versioning bytes and isolated semantics remain unchanged",
+      "references": [
+        "tests/test_versioning.py"
+      ],
+      "acceptance_ids": [
+        "AC-023-01",
+        "AC-023-02"
+      ]
+    },
+    {
+      "id": "INH-S27-02",
+      "slice": "S2.4",
+      "protected_components": [
+        "src/automated_trading_bot/domain/state_transitions.py",
+        "tests/test_state_transitions.py"
+      ],
+      "assumption": "The protected 18-case transition matrix remains unchanged",
+      "references": [
+        "tests/test_state_transitions.py"
+      ],
+      "acceptance_ids": [
+        "AC-023-04"
+      ]
+    },
+    {
+      "id": "INH-S27-03",
+      "slice": "S2.5",
+      "protected_components": [
+        "src/automated_trading_bot/domain/persistence.py",
+        "tests/test_persistence.py"
+      ],
+      "assumption": "Persistence request and marker-outcome semantics remain unchanged",
+      "references": [
+        "tests/test_persistence.py"
+      ],
+      "acceptance_ids": [
+        "AC-023-05"
+      ]
+    },
+    {
+      "id": "INH-S27-04",
+      "slice": "S2.6",
+      "protected_components": [
+        "src/automated_trading_bot/domain/idempotency.py",
+        "src/automated_trading_bot/domain/delivery.py",
+        "src/automated_trading_bot/domain/concurrency.py",
+        "src/automated_trading_bot/domain/transaction_composition.py"
+      ],
+      "assumption": "Protected S2.6 direct matrices and contract invariants remain unchanged",
+      "references": [
+        "tests/test_idempotency.py",
+        "tests/test_delivery.py",
+        "tests/test_concurrency.py",
+        "tests/test_transaction_composition.py"
+      ],
+      "acceptance_ids": [
+        "AC-023-06"
+      ]
+    }
+  ],
+  "regenerated_evidence": [
+    {
+      "id": "REG-S27-01",
+      "interaction": "version and canonical evidence through persistence",
+      "predecessor_references": [
+        "tests/test_versioning.py",
+        "tests/test_event_contracts.py",
+        "tests/test_persistence.py"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_version_and_evidence_property_cases"
+      ],
+      "acceptance_ids": [
+        "AC-022-01",
+        "AC-022-02"
+      ],
+      "expected_result": "No fallback and exact byte preservation"
+    },
+    {
+      "id": "REG-S27-02",
+      "interaction": "transition persistence and concurrency composition",
+      "predecessor_references": [
+        "tests/test_state_transitions.py",
+        "tests/test_persistence.py",
+        "tests/test_concurrency.py"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_transition_persistence_property_cases"
+      ],
+      "acceptance_ids": [
+        "AC-022-04",
+        "AC-022-05",
+        "AC-023-04",
+        "AC-023-05"
+      ],
+      "expected_result": "Exact transition and state scope preserved"
+    },
+    {
+      "id": "REG-S27-03",
+      "interaction": "persistence conflict and stale evidence separation",
+      "predecessor_references": [
+        "tests/test_persistence.py",
+        "tests/test_concurrency.py"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_generic_persistence_conflict_does_not_establish_stale"
+      ],
+      "acceptance_ids": [
+        "AC-022-06"
+      ],
+      "expected_result": "Generic conflict cannot establish stale"
+    },
+    {
+      "id": "REG-S27-04",
+      "interaction": "idempotency delivery transaction replay and authority",
+      "predecessor_references": [
+        "tests/test_idempotency.py",
+        "tests/test_delivery.py",
+        "tests/test_transaction_composition.py",
+        "tests/test_replay.py"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_replay_cannot_regress_or_reauthorize_terminal_evidence"
+      ],
+      "acceptance_ids": [
+        "AC-022-07",
+        "AC-022-08",
+        "AC-022-09",
+        "AC-022-10",
+        "AC-023-06"
+      ],
+      "expected_result": "Crash and replay remain fail-closed and authority-negative"
+    }
+  ],
+  "invalidated_evidence": [],
+  "s27_owned_evidence": [
+    {
+      "id": "S27-OWNED-01",
+      "acceptance_ids": [
+        "AC-022-01",
+        "AC-022-02",
+        "AC-022-03",
+        "AC-022-04",
+        "AC-022-05",
+        "AC-022-06",
+        "AC-022-07",
+        "AC-022-08",
+        "AC-022-09",
+        "AC-022-10"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_version_and_evidence_property_cases",
+        "tests/test_stage2_integration.py::test_transition_persistence_property_cases",
+        "tests/test_stage2_integration.py::test_composed_technical_outcomes_grant_no_execution_authority"
+      ],
+      "expected_result": "Cross-slice R-022 invariants pass"
+    },
+    {
+      "id": "S27-OWNED-02",
+      "acceptance_ids": [
+        "AC-023-01",
+        "AC-023-02",
+        "AC-023-03",
+        "AC-023-04",
+        "AC-023-05",
+        "AC-023-06",
+        "AC-023-07",
+        "AC-023-08",
+        "AC-023-09",
+        "AC-023-10",
+        "AC-023-11",
+        "AC-023-12"
+      ],
+      "test_references": [
+        "tests/test_stage2_integration.py::test_manifest_protected_component_blobs_match_entry",
+        "tests/test_stage2_integration.py::test_s27_evidence_ids_and_references_are_complete",
+        "tests/test_stage2_integration.py::test_s27_cannot_evaluate_or_promote_its_gate"
+      ],
+      "expected_result": "R-023 evidence integration and change impact are complete"
+    }
+  ],
+  "gate_owned_evidence": [
+    {
+      "id": "GATE-OWNED-01",
+      "determination": "Evaluate GATE-S02-01 only after protected S2.7 proof",
+      "required_inputs": [
+        "protected_s27_commit",
+        "protected_s27_tree",
+        "s27_evidence_blob",
+        "s27_test_blob",
+        "protected_post_merge_proof",
+        "natural_hosted_evidence",
+        "evidence_currency_review"
+      ],
+      "prohibited_during_s27": [
+        "PASS",
+        "FAIL",
+        "owner promotion",
+        "Stage-2 closure"
+      ]
+    }
+  ],
+  "hard_non_scope": [
+    "production code",
+    "S2.1-S2.6 modification",
+    "new dependency",
+    "database or network implementation",
+    "retry or recovery implementation",
+    "financial or execution authority",
+    "GATE-S02-01 evaluation",
+    "owner promotion",
+    "Stage-2 closure",
+    "post-Stage-2 implementation"
+  ],
+  "authority_statement": "S2.7 records integration evidence only. It grants no business, financial, trading, broker, OMS, risk, ledger or execution authority and cannot evaluate or pass GATE-S02-01.",
+  "gate_id": "GATE-S02-01",
+  "gate_status": "NOT_EVALUATED",
+  "promotion_authorization": "NONE",
+  "required_gate_inputs": {
+    "protected_s27_commit": "REQUIRED_AFTER_S2.7_PROTECTION",
+    "protected_s27_tree": "REQUIRED_AFTER_S2.7_PROTECTION",
+    "s27_evidence_blob": "REQUIRED_AFTER_S2.7_PROTECTION",
+    "s27_test_blob": "REQUIRED_AFTER_S2.7_PROTECTION",
+    "protected_post_merge_proof": "REQUIRED_AFTER_S2.7_PROTECTION",
+    "natural_hosted_evidence": "REQUIRED_AFTER_S2.7_PROTECTION",
+    "evidence_currency_review": "REQUIRED_AFTER_S2.7_PROTECTION"
+  }
+}
