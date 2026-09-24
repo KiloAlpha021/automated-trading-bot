@@ -5,3 +5,5 @@ docs/m1-closure/closure-manifest-reclosed-2026-09-12.json binary
 docs/programme/programme-control.json text eol=lf
 docs/programme/programme-control.schema.json text eol=lf
 tests/test_programme_control.py text eol=lf
+docs/stage3/stage3-specification.json text eol=lf
+docs/stage3/stage3-specification.schema.json text eol=lf
