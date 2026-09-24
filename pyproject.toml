@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = "==3.12.10"
 dependencies = []
 [project.optional-dependencies]
-dev = ["pytest==9.1.1"]
+dev = ["pytest==9.1.1", "jsonschema==4.26.0"]
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["automated_trading_bot", "automated_trading_bot.*"]
