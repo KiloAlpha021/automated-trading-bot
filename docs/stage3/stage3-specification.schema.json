@@ -1,0 +1,839 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schema/stage3-specification-v1.json",
+  "title": "ATIS Stage-3 specification source corpus",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "corpus_kind",
+    "baseline",
+    "source_thread_id",
+    "source_manifest",
+    "supersession_rules",
+    "controlled_catalogues",
+    "semantic_layer_source_turns",
+    "unresolved_decisions",
+    "gate_closure_contract",
+    "authority",
+    "assurance_state",
+    "corpus_identity"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "corpus_kind": {
+      "const": "ATIS_STAGE3_SPECIFICATION_SOURCE_CORPUS"
+    },
+    "baseline": {
+      "$ref": "#/$defs/baseline"
+    },
+    "source_thread_id": {
+      "$ref": "#/$defs/turn_id"
+    },
+    "source_manifest": {
+      "type": "array",
+      "minItems": 15,
+      "maxItems": 15,
+      "items": {
+        "$ref": "#/$defs/source_manifest_record"
+      }
+    },
+    "supersession_rules": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/supersession_record"
+      }
+    },
+    "controlled_catalogues": {
+      "$ref": "#/$defs/controlled_catalogues"
+    },
+    "semantic_layer_source_turns": {
+      "$ref": "#/$defs/semantic_layers"
+    },
+    "unresolved_decisions": {
+      "$ref": "#/$defs/unresolved_decisions"
+    },
+    "gate_closure_contract": {
+      "$ref": "#/$defs/gate_closure_contract"
+    },
+    "authority": {
+      "$ref": "#/$defs/authority"
+    },
+    "assurance_state": {
+      "$ref": "#/$defs/assurance_state"
+    },
+    "corpus_identity": {
+      "$ref": "#/$defs/corpus_identity"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "git_identity": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "turn_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "source_turn_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/turn_id"
+      }
+    },
+    "implementation_state": {
+      "const": "NOT_ESTABLISHED"
+    },
+    "evidence_state": {
+      "const": "NOT_ESTABLISHED"
+    },
+    "mapping_provenance": {
+      "enum": [
+        "CONFIRMED_PROGRAMME_RECORD",
+        "INFERRED"
+      ]
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "tree"
+      ],
+      "properties": {
+        "commit": {
+          "$ref": "#/$defs/git_identity"
+        },
+        "tree": {
+          "$ref": "#/$defs/git_identity"
+        }
+      }
+    },
+    "source_manifest_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "turn_id",
+        "layer",
+        "record_kind",
+        "content_sha256",
+        "content",
+        "historical_state",
+        "substantive_correctness"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15
+        },
+        "turn_id": {
+          "$ref": "#/$defs/turn_id"
+        },
+        "layer": {
+          "enum": [
+            "ATOMIC_REQUIREMENT_DERIVATION",
+            "SCOPE_AND_REQUIREMENT_LOCK",
+            "FINAL_SCOPE_CORRECTIONS",
+            "ARCHITECTURE_THREAT_MODEL",
+            "ARCHITECTURE_CORRECTIONS",
+            "PROVENANCE_REALITY_GAP_DESIGN",
+            "PROVENANCE_CORRECTIONS",
+            "PROGRAMME_CONTROL_GATE_SPECIFICATION",
+            "GATE_CORRECTIONS",
+            "ASSURANCE_MATRIX",
+            "ASSURANCE_MATRIX_CORRECTIONS",
+            "FINAL_ADVERSARIAL_CATALOGUE",
+            "ADVERSARIAL_CORRECTIONS",
+            "EVIDENCE_PLAN",
+            "EVIDENCE_PLAN_CORRECTIONS"
+          ]
+        },
+        "record_kind": {
+          "const": "HISTORICAL_FINAL_ANSWER"
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        },
+        "historical_state": {
+          "const": "PRESERVED"
+        },
+        "substantive_correctness": {
+          "const": "NOT_SELF_CERTIFIED"
+        }
+      }
+    },
+    "supersession_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "later_turn_id",
+        "earlier_turn_id",
+        "scope",
+        "preserve_history"
+      ],
+      "properties": {
+        "later_turn_id": {
+          "$ref": "#/$defs/turn_id"
+        },
+        "earlier_turn_id": {
+          "$ref": "#/$defs/turn_id"
+        },
+        "scope": {
+          "enum": [
+            "41_REQUIREMENT_LOCK_SUPERSEDES_36_REQUIREMENT_DERIVATION",
+            "S3-REQ-013,S3-REQ-025,S3-REQ-029_ONLY",
+            "EIGHT_ARCHITECTURE_CORRECTIONS_ONLY",
+            "FOUR_PROVENANCE_CORRECTIONS_ONLY",
+            "FOUR_GATE_CORRECTIONS_ONLY",
+            "FOUR_ASSURANCE_CORRECTIONS_ONLY",
+            "THREE_ADVERSARIAL_CORRECTIONS_ONLY",
+            "THREE_EVIDENCE_PLAN_CORRECTIONS_ONLY"
+          ]
+        },
+        "preserve_history": {
+          "const": true
+        }
+      }
+    },
+    "requirement_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "classification",
+        "source_turn_ids",
+        "final_source_turn_id",
+        "exact_final_section",
+        "implementation_state",
+        "evidence_state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^S3-REQ-[0-9]{3}$"
+        },
+        "classification": {
+          "enum": [
+            "CONFIRMED",
+            "APPROVED_DERIVATION"
+          ]
+        },
+        "source_turn_ids": {
+          "$ref": "#/$defs/source_turn_ids"
+        },
+        "final_source_turn_id": {
+          "$ref": "#/$defs/turn_id"
+        },
+        "exact_final_section": {
+          "type": "string",
+          "minLength": 1
+        },
+        "implementation_state": {
+          "$ref": "#/$defs/implementation_state"
+        },
+        "evidence_state": {
+          "$ref": "#/$defs/evidence_state"
+        }
+      }
+    },
+    "programme_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_turn_ids",
+        "mapping_provenance",
+        "implementation_state",
+        "evidence_state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "source_turn_ids": {
+          "$ref": "#/$defs/source_turn_ids"
+        },
+        "mapping_provenance": {
+          "$ref": "#/$defs/mapping_provenance"
+        },
+        "implementation_state": {
+          "$ref": "#/$defs/implementation_state"
+        },
+        "evidence_state": {
+          "$ref": "#/$defs/evidence_state"
+        }
+      }
+    },
+    "direct_test_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_turn_ids",
+        "mapping_provenance",
+        "implementation_state",
+        "evidence_state",
+        "mandatory_semantic_clauses_exact"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^S3-DT-[0-9]{3}$"
+        },
+        "source_turn_ids": {
+          "$ref": "#/$defs/source_turn_ids"
+        },
+        "mapping_provenance": {
+          "const": "INFERRED"
+        },
+        "implementation_state": {
+          "$ref": "#/$defs/implementation_state"
+        },
+        "evidence_state": {
+          "$ref": "#/$defs/evidence_state"
+        },
+        "mandatory_semantic_clauses_exact": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "adversarial_scenario_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "realizes_id",
+        "source_turn_ids",
+        "representation",
+        "mapping_provenance",
+        "execution_result",
+        "evidence_state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^S3-ADV-[0-9]{3}$"
+        },
+        "realizes_id": {
+          "type": "string",
+          "pattern": "^S3-(?:F|CF|GT)-[0-9]{3}$"
+        },
+        "source_turn_ids": {
+          "$ref": "#/$defs/source_turn_ids"
+        },
+        "representation": {
+          "const": "INDEXED_SCENARIO_REALIZATION"
+        },
+        "mapping_provenance": {
+          "const": "INFERRED"
+        },
+        "execution_result": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "evidence_state": {
+          "$ref": "#/$defs/evidence_state"
+        }
+      }
+    },
+    "component_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-CMP-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "CONFIRMED_PROGRAMME_RECORD"
+            }
+          }
+        }
+      ]
+    },
+    "failure_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-F-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "CONFIRMED_PROGRAMME_RECORD"
+            }
+          }
+        }
+      ]
+    },
+    "compound_failure_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-CF-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "CONFIRMED_PROGRAMME_RECORD"
+            }
+          }
+        }
+      ]
+    },
+    "control_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-CTL-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "CONFIRMED_PROGRAMME_RECORD"
+            }
+          }
+        }
+      ]
+    },
+    "adversarial_family_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-AT-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "INFERRED"
+            }
+          }
+        }
+      ]
+    },
+    "observability_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^OBS-[0-9]{2}$"
+            },
+            "mapping_provenance": {
+              "const": "CONFIRMED_PROGRAMME_RECORD"
+            }
+          }
+        }
+      ]
+    },
+    "security_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^SEC-[0-9]{2}$"
+            },
+            "mapping_provenance": {
+              "const": "CONFIRMED_PROGRAMME_RECORD"
+            }
+          }
+        }
+      ]
+    },
+    "gate_dimension_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-GD-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "INFERRED"
+            }
+          }
+        }
+      ]
+    },
+    "gate_threat_record": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/programme_record"
+        },
+        {
+          "properties": {
+            "id": {
+              "pattern": "^S3-GT-[0-9]{3}$"
+            },
+            "mapping_provenance": {
+              "const": "INFERRED"
+            }
+          }
+        }
+      ]
+    },
+    "controlled_catalogues": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirements",
+        "components",
+        "failures",
+        "compound_failures",
+        "controls",
+        "direct_test_families",
+        "adversarial_families",
+        "adversarial_scenarios",
+        "observability",
+        "security_integrity",
+        "gate_dimensions",
+        "gate_threats"
+      ],
+      "properties": {
+        "requirements": {
+          "type": "array",
+          "minItems": 41,
+          "maxItems": 41,
+          "items": {
+            "$ref": "#/$defs/requirement_record"
+          }
+        },
+        "components": {
+          "type": "array",
+          "minItems": 11,
+          "maxItems": 11,
+          "items": {
+            "$ref": "#/$defs/component_record"
+          }
+        },
+        "failures": {
+          "type": "array",
+          "minItems": 66,
+          "maxItems": 66,
+          "items": {
+            "$ref": "#/$defs/failure_record"
+          }
+        },
+        "compound_failures": {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "items": {
+            "$ref": "#/$defs/compound_failure_record"
+          }
+        },
+        "controls": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "$ref": "#/$defs/control_record"
+          }
+        },
+        "direct_test_families": {
+          "type": "array",
+          "minItems": 41,
+          "maxItems": 41,
+          "items": {
+            "$ref": "#/$defs/direct_test_record"
+          }
+        },
+        "adversarial_families": {
+          "type": "array",
+          "minItems": 16,
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/adversarial_family_record"
+          }
+        },
+        "adversarial_scenarios": {
+          "type": "array",
+          "minItems": 107,
+          "maxItems": 107,
+          "items": {
+            "$ref": "#/$defs/adversarial_scenario_record"
+          }
+        },
+        "observability": {
+          "type": "array",
+          "minItems": 20,
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/observability_record"
+          }
+        },
+        "security_integrity": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": {
+            "$ref": "#/$defs/security_record"
+          }
+        },
+        "gate_dimensions": {
+          "type": "array",
+          "minItems": 25,
+          "maxItems": 25,
+          "items": {
+            "$ref": "#/$defs/gate_dimension_record"
+          }
+        },
+        "gate_threats": {
+          "type": "array",
+          "minItems": 26,
+          "maxItems": 26,
+          "items": {
+            "$ref": "#/$defs/gate_threat_record"
+          }
+        }
+      }
+    },
+    "semantic_layers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope_non_scope",
+        "architecture",
+        "provenance_reality_gap",
+        "programme_control_gate",
+        "assurance",
+        "adversarial",
+        "evidence_plan"
+      ],
+      "properties": {
+        "scope_non_scope": {
+          "$ref": "#/$defs/source_turn_pair"
+        },
+        "architecture": {
+          "$ref": "#/$defs/source_turn_pair"
+        },
+        "provenance_reality_gap": {
+          "$ref": "#/$defs/source_turn_pair"
+        },
+        "programme_control_gate": {
+          "$ref": "#/$defs/source_turn_pair"
+        },
+        "assurance": {
+          "$ref": "#/$defs/source_turn_pair"
+        },
+        "adversarial": {
+          "$ref": "#/$defs/source_turn_pair"
+        },
+        "evidence_plan": {
+          "$ref": "#/$defs/source_turn_pair"
+        }
+      }
+    },
+    "source_turn_pair": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/turn_id"
+      }
+    },
+    "unresolved_decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "source_turn_ids",
+        "invented_resolution"
+      ],
+      "properties": {
+        "state": {
+          "const": "UNRESOLVED"
+        },
+        "source_turn_ids": {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/turn_id"
+          }
+        },
+        "invented_resolution": {
+          "const": false
+        }
+      }
+    },
+    "gate_closure_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate_pass_is_merge",
+        "gate_pass_is_closure",
+        "gate_pass_is_protection",
+        "source_turn_ids"
+      ],
+      "properties": {
+        "gate_pass_is_merge": {
+          "const": false
+        },
+        "gate_pass_is_closure": {
+          "const": false
+        },
+        "gate_pass_is_protection": {
+          "const": false
+        },
+        "source_turn_ids": {
+          "$ref": "#/$defs/source_turn_pair"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maximum_gate_effect",
+        "stage3_implementation_authorized",
+        "stage4_implementation_authorized",
+        "financial_or_trading_authority",
+        "provider_selected",
+        "denied"
+      ],
+      "properties": {
+        "maximum_gate_effect": {
+          "const": "ALLOW_STAGE4_RESEARCH_STRATEGY_INTEGRATION"
+        },
+        "stage3_implementation_authorized": {
+          "const": false
+        },
+        "stage4_implementation_authorized": {
+          "const": false
+        },
+        "financial_or_trading_authority": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "provider_selected": {
+          "type": "null"
+        },
+        "denied": {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "STAGE4_EDGE_ACCEPTANCE",
+              "STRATEGY_APPROVAL",
+              "PORTFOLIO_AUTHORITY",
+              "RISK_APPROVAL",
+              "CAPITAL_ALLOCATION",
+              "LEDGER_AUTHORITY",
+              "FINANCIAL_EFFECTS",
+              "OMS_EXECUTION",
+              "BROKER_EXECUTION",
+              "SHADOW_TRADING",
+              "PAPER_TRADING",
+              "CANARY",
+              "LIVE_TRADING",
+              "PRODUCTION",
+              "AI_TRADING_AUTHORITY"
+            ]
+          }
+        }
+      }
+    },
+    "assurance_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementation",
+        "direct_tests",
+        "adversarial_tests",
+        "control_effectiveness",
+        "hosted_evidence",
+        "independent_review",
+        "gate_result",
+        "closure_protection",
+        "substantive_correctness"
+      ],
+      "properties": {
+        "implementation": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "direct_tests": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "adversarial_tests": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "control_effectiveness": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "hosted_evidence": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "independent_review": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "gate_result": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "closure_protection": {
+          "const": "NOT_ESTABLISHED"
+        },
+        "substantive_correctness": {
+          "const": "NOT_SELF_CERTIFIED"
+        }
+      }
+    },
+    "corpus_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "digest",
+        "state"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "SHA256"
+        },
+        "digest": {
+          "type": "null"
+        },
+        "state": {
+          "const": "NOT_ESTABLISHED"
+        }
+      }
+    }
+  }
+}
