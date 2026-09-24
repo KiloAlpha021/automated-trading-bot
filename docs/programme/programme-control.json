@@ -1,0 +1,874 @@
+{
+  "schema_version": 1,
+  "record_id": "ATIS-PROGRAMME-CONTROL-001",
+  "artifact_role": "CANONICAL_PROGRAMME_CONTROL_INDEX",
+  "source_baseline": {
+    "commit": "12560025bbc87ee237bb2252215305f8d2fc9e47",
+    "tree": "404ad9a9ae0454ad36040c7bc690d7ec3eeaf968"
+  },
+  "non_authorizing_statement": "This index records attributable programme controls and evidence. It grants no implementation, trading, financial, broker, OMS, risk, ledger, capital-allocation, execution or AI authority.",
+  "control_lifecycle_vocabulary": [
+    "PROPOSED",
+    "SPECIFIED",
+    "IMPLEMENTED",
+    "VERIFIED",
+    "ACCEPTED",
+    "BLOCKED",
+    "DEFERRED"
+  ],
+  "evidence_lifecycle_vocabulary": [
+    "CURRENT",
+    "STALE",
+    "INVALIDATED",
+    "SUPERSEDED",
+    "UNKNOWN"
+  ],
+  "programme_control_ledger": {
+    "records": [
+      {
+        "record_id": "PC-LEDGER-001",
+        "requirement_ids": [],
+        "source_authority": [
+          "docs/m1-closure/stage0b-phase39-67-coverage.json",
+          "docs/m1-closure/traceability.json"
+        ],
+        "classification": "TRACEABILITY_FOUNDATION",
+        "owner": "M1_AND_STAGE0B_CONTROL",
+        "control_lifecycle_status": "ACCEPTED",
+        "evidence_lifecycle_status": "CURRENT",
+        "dependencies": [],
+        "implementation_references": [],
+        "direct_test_references": [
+          "tests/test_closure_traceability.py"
+        ],
+        "negative_adversarial_test_references": [],
+        "acceptance_evidence_references": [
+          "docs/m1-closure/closure-manifest.json"
+        ],
+        "independent_verification_references": [
+          "docs/m1-closure/hosted-branch-protection-evidence.json"
+        ],
+        "protected_identities": [
+          "docs/m1-closure/closure-manifest.json@9c653dc2183700c86191e8f14bfd4db020f38a5b"
+        ],
+        "deferred_work_references": [],
+        "invalidation_conditions": [
+          "protected source identity changes",
+          "traceability authority is superseded"
+        ],
+        "gate_consumers": [
+          "M1-CLOSURE",
+          "GATE-S02-01"
+        ],
+        "verification": {
+          "state": "ATTRIBUTABLE_PROTECTED_EVIDENCE",
+          "verified_at": null
+        },
+        "provenance_notes": "Original unrecovered R39 wording remains explicitly bounded by the protected Stage0B provenance record."
+      },
+      {
+        "record_id": "PC-LEDGER-002",
+        "requirement_ids": [],
+        "source_authority": [
+          "docs/m1-closure/closure-manifest.json"
+        ],
+        "classification": "MILESTONE_CLOSURE",
+        "owner": "M1_OWNER",
+        "control_lifecycle_status": "ACCEPTED",
+        "evidence_lifecycle_status": "CURRENT",
+        "dependencies": [
+          "PC-LEDGER-001"
+        ],
+        "implementation_references": [],
+        "direct_test_references": [
+          "tests/test_closure_manifest.py"
+        ],
+        "negative_adversarial_test_references": [],
+        "acceptance_evidence_references": [
+          "docs/m1-closure/closure-manifest.json"
+        ],
+        "independent_verification_references": [
+          "docs/m1-closure/hosted-branch-protection-evidence.json"
+        ],
+        "protected_identities": [
+          "docs/m1-closure/closure-manifest.json@9c653dc2183700c86191e8f14bfd4db020f38a5b"
+        ],
+        "deferred_work_references": [
+          "S2-DEF-002",
+          "S2-DEF-003",
+          "S2-DEF-004",
+          "S2-DEF-005",
+          "S2-DEF-006",
+          "S2-DEF-007"
+        ],
+        "invalidation_conditions": [
+          "protected M1 closure identity changes",
+          "material M1 evidence defect is established"
+        ],
+        "gate_consumers": [
+          "GATE-S02-01"
+        ],
+        "verification": {
+          "state": "ATTRIBUTABLE_PROTECTED_EVIDENCE",
+          "verified_at": null
+        },
+        "provenance_notes": "M1 is referenced through its protected closure evidence; this index does not restate its requirements."
+      },
+      {
+        "record_id": "PC-LEDGER-003",
+        "requirement_ids": [
+          "ATIS-R-001",
+          "ATIS-R-002",
+          "ATIS-R-003",
+          "ATIS-R-004",
+          "ATIS-R-005",
+          "ATIS-R-006",
+          "ATIS-R-007",
+          "ATIS-R-008",
+          "ATIS-R-009",
+          "ATIS-R-010",
+          "ATIS-R-011",
+          "ATIS-R-012",
+          "ATIS-R-013",
+          "ATIS-R-014",
+          "ATIS-R-015",
+          "ATIS-R-016",
+          "ATIS-R-017",
+          "ATIS-R-018",
+          "ATIS-R-019",
+          "ATIS-R-020",
+          "ATIS-R-021",
+          "ATIS-R-022",
+          "ATIS-R-023"
+        ],
+        "source_authority": [
+          "docs/stage2/s20-control.json",
+          "docs/stage2/gate-s02-01.json",
+          "docs/stage2/stage2-freeze-record.json"
+        ],
+        "classification": "MILESTONE_CLOSURE",
+        "owner": "STAGE2_OWNER",
+        "control_lifecycle_status": "ACCEPTED",
+        "evidence_lifecycle_status": "CURRENT",
+        "dependencies": [
+          "PC-LEDGER-001",
+          "PC-LEDGER-002"
+        ],
+        "implementation_references": [],
+        "direct_test_references": [
+          "tests/test_s20_control.py",
+          "tests/test_stage2_integration.py"
+        ],
+        "negative_adversarial_test_references": [
+          "docs/stage2/s27-evidence.json#adversarial_scenarios"
+        ],
+        "acceptance_evidence_references": [
+          "docs/stage2/s27-evidence.json#acceptance"
+        ],
+        "independent_verification_references": [
+          "docs/stage2/gate-s02-01.json#audit_results",
+          "docs/stage2/stage2-freeze-record.json#post_merge_evidence"
+        ],
+        "protected_identities": [
+          "docs/stage2/s20-control.json@48c94c3c411913c608740a1905449ec5511aba26",
+          "docs/stage2/s27-evidence.json@ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8",
+          "tests/test_stage2_integration.py@e6dd482363ee0b5dcf898632570af99f04eb8a55",
+          "docs/stage2/gate-s02-01.json@850ce45a88d30b9348686493355fb681a464759f",
+          "docs/stage2/stage2-freeze-record.json@5a4425eeb79c87072e8c498981c55565c386c677"
+        ],
+        "deferred_work_references": [
+          "S2-DEF-001",
+          "S2-DEF-002",
+          "S2-DEF-003",
+          "S2-DEF-004",
+          "S2-DEF-005",
+          "S2-DEF-006",
+          "S2-DEF-007",
+          "S2-DEF-008",
+          "S2-DEF-009",
+          "S2-DEF-010",
+          "S2-DEF-011"
+        ],
+        "invalidation_conditions": [
+          "protected Stage-2 identity changes",
+          "material Stage-2 evidence defect is established",
+          "trusted protection materially weakens"
+        ],
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "verification": {
+          "state": "ATTRIBUTABLE_PROTECTED_EVIDENCE",
+          "verified_at": null
+        },
+        "provenance_notes": "Stage 2 is indexed as CLOSED / AUDITED / FROZEN / PROTECTED without granting later-stage authority."
+      },
+      {
+        "record_id": "PC-LEDGER-004",
+        "requirement_ids": [],
+        "source_authority": [
+          "owner-authorized PRE-STAGE-3 programme-control baseline run"
+        ],
+        "classification": "PROGRAMME_CONTROL",
+        "owner": "ATIS_OWNER",
+        "control_lifecycle_status": "IMPLEMENTED",
+        "evidence_lifecycle_status": "UNKNOWN",
+        "dependencies": [
+          "PC-LEDGER-003"
+        ],
+        "implementation_references": [
+          "docs/programme/programme-control.json",
+          "docs/programme/programme-control.schema.json"
+        ],
+        "direct_test_references": [
+          "tests/test_programme_control.py"
+        ],
+        "negative_adversarial_test_references": [
+          "tests/test_programme_control.py"
+        ],
+        "acceptance_evidence_references": [],
+        "independent_verification_references": [],
+        "protected_identities": [],
+        "deferred_work_references": [],
+        "invalidation_conditions": [
+          "independent review rejects the candidate",
+          "source baseline changes before protection",
+          "hosted validation contradicts local evidence"
+        ],
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "verification": {
+          "state": "PENDING_INDEPENDENT_REVIEW",
+          "verified_at": null
+        },
+        "provenance_notes": "Local implementation is not acceptance or protection; UNKNOWN evidence cannot satisfy a positive gate."
+      }
+    ]
+  },
+  "milestone_gate_register": {
+    "records": [
+      {
+        "gate_id": "M1-CLOSURE",
+        "stage_milestone": "M1",
+        "state": "ACCEPTED",
+        "entry_conditions": [],
+        "controlling_requirements": [],
+        "required_evidence": [
+          "PC-EVID-002"
+        ],
+        "blockers": [],
+        "exit_conditions": [
+          "protected closure evidence remains current"
+        ],
+        "decision": "PASS",
+        "authority_granted": [
+          "M1_CLOSED_PROTECTED"
+        ],
+        "authority_not_granted": [
+          "TRADING",
+          "FINANCIAL_EFFECTS",
+          "LATER_STAGE_IMPLEMENTATION"
+        ],
+        "protected_baseline": "841d903cb5670777f8ce23fe8433a0c5dd7dac49",
+        "decision_owner": "M1_OWNER",
+        "invalidation_reopen_conditions": [
+          "material protected M1 defect"
+        ],
+        "successor": "GATE-S02-01"
+      },
+      {
+        "gate_id": "GATE-S02-01",
+        "stage_milestone": "STAGE-2",
+        "state": "ACCEPTED",
+        "entry_conditions": [
+          "S2.1-S2.7 protected evidence current"
+        ],
+        "controlling_requirements": [
+          "ATIS-R-001",
+          "ATIS-R-002",
+          "ATIS-R-003",
+          "ATIS-R-004",
+          "ATIS-R-005",
+          "ATIS-R-006",
+          "ATIS-R-007",
+          "ATIS-R-008",
+          "ATIS-R-009",
+          "ATIS-R-010",
+          "ATIS-R-011",
+          "ATIS-R-012",
+          "ATIS-R-013",
+          "ATIS-R-014",
+          "ATIS-R-015",
+          "ATIS-R-016",
+          "ATIS-R-017",
+          "ATIS-R-018",
+          "ATIS-R-019",
+          "ATIS-R-020",
+          "ATIS-R-021",
+          "ATIS-R-022",
+          "ATIS-R-023"
+        ],
+        "required_evidence": [
+          "PC-EVID-003",
+          "PC-EVID-004",
+          "PC-EVID-005"
+        ],
+        "blockers": [],
+        "exit_conditions": [
+          "closure audits pass",
+          "freeze record is protected",
+          "post-merge proof succeeds"
+        ],
+        "decision": "PASS",
+        "authority_granted": [
+          "STAGE2_CLOSED_AUDITED_FROZEN_PROTECTED"
+        ],
+        "authority_not_granted": [
+          "STAGE3_IMPLEMENTATION",
+          "MASTER_PROGRAMME_RECONCILIATION_EXECUTION",
+          "SHADOW_TRADING",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "BROKER_EXECUTION",
+          "OMS_EXECUTION",
+          "RISK_APPROVAL",
+          "LEDGER_AUTHORITY",
+          "CAPITAL_ALLOCATION",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ],
+        "protected_baseline": "12560025bbc87ee237bb2252215305f8d2fc9e47",
+        "decision_owner": "STAGE2_OWNER",
+        "invalidation_reopen_conditions": [
+          "bounded attributable Stage-2 defect",
+          "systemic attributable Stage-2 defect",
+          "protected evidence invalidation"
+        ],
+        "successor": "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+      },
+      {
+        "gate_id": "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW",
+        "stage_milestone": "PRE-STAGE-3",
+        "state": "IMPLEMENTED",
+        "entry_conditions": [
+          "Stage 2 remains CLOSED / AUDITED / FROZEN / PROTECTED",
+          "three-file bounded candidate is independently reviewable"
+        ],
+        "controlling_requirements": [],
+        "required_evidence": [
+          "PC-EVID-006"
+        ],
+        "blockers": [
+          "INDEPENDENT_REVIEW_REQUIRED"
+        ],
+        "exit_conditions": [
+          "independent review passes",
+          "separate publication authorization is granted"
+        ],
+        "decision": "NOT_EVALUATED",
+        "authority_granted": [],
+        "authority_not_granted": [
+          "STAGE3_IMPLEMENTATION",
+          "SHADOW_TRADING",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "BROKER_EXECUTION",
+          "OMS_EXECUTION",
+          "RISK_APPROVAL",
+          "LEDGER_AUTHORITY",
+          "CAPITAL_ALLOCATION",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ],
+        "protected_baseline": null,
+        "decision_owner": "ATIS_OWNER",
+        "invalidation_reopen_conditions": [
+          "candidate source baseline changes",
+          "independent review finds a material defect"
+        ],
+        "successor": "PRE_STAGE3_CONTROL_BASELINE_INDEPENDENT_REVIEW"
+      }
+    ]
+  },
+  "decision_register": {
+    "records": [
+      {
+        "record_id": "PC-DEC-001",
+        "governed_question": "May the bounded pre-Stage-3 programme-control candidate be implemented locally?",
+        "scope": "PRE_STAGE3_PROGRAMME_CONTROL_BASELINE",
+        "state": "APPROVED",
+        "decision": "BOUNDED_LOCAL_IMPLEMENTATION_AUTHORIZED",
+        "source_authority": "owner decision supplied for this implementation run",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "CREATE_AUTHORIZED_THREE_FILE_LOCAL_CANDIDATE"
+        ],
+        "authority_not_granted": [
+          "COMMIT",
+          "PUSH",
+          "PR",
+          "MERGE",
+          "STAGE3_IMPLEMENTATION",
+          "TRADING_OR_FINANCIAL_AUTHORITY"
+        ]
+      }
+    ]
+  },
+  "risk_blocker_deferral_register": {
+    "blockers": [],
+    "blocker_provenance_note": "No attributable BLK-001 through BLK-004 records were located in the protected repository baseline; none are fabricated by this index.",
+    "deferred_work": [
+      {
+        "record_id": "S2-DEF-001",
+        "source": "S2-D05, S2-D11 and M1 storage/migration specifications",
+        "owner": "data and infrastructure integration",
+        "reason": "Stage 2 defines contracts and ports only",
+        "prerequisites": [
+          "separate owner authorization",
+          "selected production storage boundary"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_OPERATIONAL_PERSISTENCE",
+          "controlled_live": "BLOCKS_OPERATIONAL_PERSISTENCE"
+        },
+        "reconsideration_closure_trigger": "authorized production persistence programme supplies implementation and evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-002",
+        "source": "IMP-029-M1-04 and M1 secret-provider contract",
+        "owner": "security and operations",
+        "reason": "No executable provider or production credential lifecycle is in M1 or Stage 2",
+        "prerequisites": [
+          "production service identity",
+          "authorized credential backend"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_CONNECTED_OPERATION",
+          "controlled_live": "BLOCKS_LIVE_OPERATION"
+        },
+        "reconsideration_closure_trigger": "authorized security programme supplies executable credential-lifecycle evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-003",
+        "source": "IMP-004-M1-03 and M1-calendar-scope-clarification",
+        "owner": "data and session services",
+        "reason": "Production session and calendar correctness belongs to the data subsystem",
+        "prerequisites": [
+          "point-in-time data design",
+          "exchange calendar authority"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_TIME_CORRECT_TRADING",
+          "controlled_live": "BLOCKS_TIME_CORRECT_TRADING"
+        },
+        "reconsideration_closure_trigger": "authorized data programme supplies calendar/session implementation and evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-004",
+        "source": "IMP-009-M1-02",
+        "owner": "authority, risk and compliance",
+        "reason": "Current external evidence and executable authority are later operational controls",
+        "prerequisites": [
+          "external evidence integration",
+          "revocation design"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_EXECUTABLE_AUTHORITY",
+          "controlled_live": "BLOCKS_EXECUTABLE_AUTHORITY"
+        },
+        "reconsideration_closure_trigger": "authorized authority programme supplies revocable executable-authority evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-005",
+        "source": "IMP-026-M1-02 and ATIS-R-019 boundary",
+        "owner": "infrastructure and reliability",
+        "reason": "S2.6 proves contract semantics, not operational durability",
+        "prerequisites": [
+          "production database boundary",
+          "recovery design"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_RESILIENT_OPERATION",
+          "controlled_live": "BLOCKS_RESILIENT_OPERATION"
+        },
+        "reconsideration_closure_trigger": "authorized reliability programme supplies durable outbox and recovery evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-006",
+        "source": "IMP-030-M1-02 and M1 telemetry clarification",
+        "owner": "observability and operations",
+        "reason": "No running financial workflow exists in current scope",
+        "prerequisites": [
+          "runtime financial workflow",
+          "telemetry transport"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_PRODUCTION_ASSURANCE",
+          "controlled_live": "BLOCKS_PRODUCTION_ASSURANCE"
+        },
+        "reconsideration_closure_trigger": "authorized operational programme supplies runtime causal telemetry evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-007",
+        "source": "IMP-033-M1-03 and M1.8 evidence limits",
+        "owner": "governance and evidence operations",
+        "reason": "Evidence signatures, authentication, storage, retention, invalidation graph and lifecycle authority are later controls",
+        "prerequisites": [
+          "evidence trust model",
+          "lifecycle authority model"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_HIGHER_ASSURANCE_PROMOTION",
+          "controlled_live": "BLOCKS_HIGHER_ASSURANCE_PROMOTION"
+        },
+        "reconsideration_closure_trigger": "authorized governance programme supplies authenticated evidence-lifecycle controls",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-008",
+        "source": "ATIS-R-019 through ATIS-R-021 non-scope",
+        "owner": "runtime reliability",
+        "reason": "Retry descriptions grant no scheduler or recovery authority",
+        "prerequisites": [
+          "operational persistence",
+          "failure policy"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_RESILIENT_OPERATION",
+          "controlled_live": "BLOCKS_RESILIENT_OPERATION"
+        },
+        "reconsideration_closure_trigger": "authorized reliability programme supplies retry scheduling and recovery evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-009",
+        "source": "S2.0 excluded scope and M1 authority boundary",
+        "owner": "OMS, execution and reconciliation",
+        "reason": "Broker uncertainty and reconciliation require later execution systems",
+        "prerequisites": [
+          "broker integration",
+          "financial truth model"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_BROKER_CONNECTED_PAPER",
+          "controlled_live": "BLOCKS_LIVE_EXECUTION"
+        },
+        "reconsideration_closure_trigger": "authorized execution programme supplies broker reconciliation and recovery evidence",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-010",
+        "source": "S2.6 owner boundary and later-owner firewall",
+        "owner": "authority and reliability",
+        "reason": "Concurrency tokens are not financial fencing authority",
+        "prerequisites": [
+          "executable authority model",
+          "operational persistence"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_FINANCIAL_EFFECTS_WHERE_REQUIRED",
+          "controlled_live": "BLOCKS_FINANCIAL_EFFECTS_WHERE_REQUIRED"
+        },
+        "reconsideration_closure_trigger": "authorized authority programme establishes required financial fencing",
+        "closure_evidence": []
+      },
+      {
+        "record_id": "S2-DEF-011",
+        "source": "S2.0 scope exclusions and Stage-2 authority boundary",
+        "owner": "Master Programme Reconciliation and later authorized programmes",
+        "reason": "Trading subsystems and financial authority are outside Stage 2",
+        "prerequisites": [
+          "Stage-2 final freeze",
+          "Master Programme Reconciliation",
+          "separate owner authorization"
+        ],
+        "lifecycle_impact": {
+          "gate": "NONE",
+          "freeze": "NONE_WHILE_EXPLICIT",
+          "paper": "BLOCKS_PAPER_TRADING",
+          "controlled_live": "BLOCKS_CONTROLLED_LIVE_TRADING"
+        },
+        "reconsideration_closure_trigger": "separately authorized later programme establishes applicable implementation and gates",
+        "closure_evidence": []
+      }
+    ]
+  },
+  "evidence_invalidation_register": {
+    "records": [
+      {
+        "record_id": "PC-EVID-001",
+        "claim_property": "Stage0B controlled traceability foundation",
+        "evidence_class": "PROTECTED_REPOSITORY_EVIDENCE",
+        "source": "docs/m1-closure/stage0b-phase39-67-coverage.json",
+        "identity_kind": "NOT_RECORDED",
+        "exact_identity": null,
+        "environment": null,
+        "validity_model": "DEPENDENCY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "docs/m1-closure/traceability.json"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "protected source changes",
+          "controlling provenance is superseded"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "M1-CLOSURE",
+          "GATE-S02-01"
+        ],
+        "independent_evaluator": "M1 trusted evaluator protection",
+        "notes": "Historical unrecovered semantics remain explicit and are not treated as recovered."
+      },
+      {
+        "record_id": "PC-EVID-002",
+        "claim_property": "M1 closed and protected baseline",
+        "evidence_class": "PROTECTED_REPOSITORY_EVIDENCE",
+        "source": "docs/m1-closure/closure-manifest.json",
+        "identity_kind": "GIT_BLOB",
+        "exact_identity": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
+        "environment": null,
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-001"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "material protected M1 defect"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "GATE-S02-01"
+        ],
+        "independent_evaluator": "M1 trusted evaluator protection",
+        "notes": "The programme index references rather than rewrites the M1 record."
+      },
+      {
+        "record_id": "PC-EVID-003",
+        "claim_property": "Stage-2 gate and closure assurance",
+        "evidence_class": "PROTECTED_REPOSITORY_EVIDENCE",
+        "source": "docs/stage2/gate-s02-01.json",
+        "identity_kind": "GIT_BLOB",
+        "exact_identity": "850ce45a88d30b9348686493355fb681a464759f",
+        "environment": null,
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-001",
+          "PC-EVID-002"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "protected Stage-2 evidence changes",
+          "material closure-audit defect"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "GATE-S02-01"
+        ],
+        "independent_evaluator": "Stage-2 closure assurance",
+        "notes": "Historical NOT_YET_FROZEN fields remain correct for the record's creation point."
+      },
+      {
+        "record_id": "PC-EVID-004",
+        "claim_property": "Stage-2 final freeze record",
+        "evidence_class": "PROTECTED_REPOSITORY_EVIDENCE",
+        "source": "docs/stage2/stage2-freeze-record.json",
+        "identity_kind": "GIT_BLOB",
+        "exact_identity": "5a4425eeb79c87072e8c498981c55565c386c677",
+        "environment": null,
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-003",
+          "PC-EVID-005"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "protected freeze-record identity changes",
+          "material freeze-evidence defect"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "post-freeze independent assurance",
+        "notes": "The immutable record does not identify its own future publication objects."
+      },
+      {
+        "record_id": "PC-EVID-005",
+        "claim_property": "Natural post-merge engineering evidence for the Stage-2 freeze merge",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35929486585 job 107412401977 artifact 10780586941",
+        "identity_kind": "SHA256",
+        "exact_identity": "0c38d829724a650d55bbb9fe1651e8ec422c7c3df8aff3c0228cb31ff50fed0d",
+        "environment": "GitHub Actions",
+        "validity_model": "ENVIRONMENT_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "12560025bbc87ee237bb2252215305f8d2fc9e47"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "workflow provenance is disproved",
+          "artifact digest mismatch",
+          "protected head differs"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "Digest uses SHA-256 and is intentionally not represented as a Git object ID."
+      },
+      {
+        "record_id": "PC-EVID-006",
+        "claim_property": "Local programme-control candidate validation",
+        "evidence_class": "LOCAL_CANDIDATE_EVIDENCE",
+        "source": "tests/test_programme_control.py",
+        "identity_kind": "NOT_RECORDED",
+        "exact_identity": null,
+        "environment": "local candidate",
+        "validity_model": "CONDITION_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-004"
+        ],
+        "evidence_state": "UNKNOWN",
+        "invalidation_triggers": [
+          "candidate changes",
+          "independent review rejects evidence",
+          "hosted checks contradict local results"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": null,
+        "notes": "The candidate and its tests cannot self-certify acceptance; independent review remains required."
+      }
+    ]
+  },
+  "provenance_gap_register": {
+    "records": [
+      {
+        "gap_id": "GAP-REVIEW-5",
+        "subject": "Original wording of S2-CLOSURE-REVIEW-001 through S2-CLOSURE-REVIEW-005",
+        "historical_state": "UNRESOLVED",
+        "classification": "UNRESOLVED",
+        "original_source": "historical closure-record review conversation",
+        "missing_information": "original substantive wording",
+        "later_evidence": [
+          "docs/stage2/gate-s02-01.json",
+          "docs/stage2/stage2-freeze-record.json"
+        ],
+        "current_substantive_status": "CURRENT ENGINEERING STATE ATTRIBUTABLE; ORIGINAL WORDING NOT RECOVERED",
+        "verbatim_source_recovered": false,
+        "engineering_impact": "PROVENANCE_ONLY",
+        "affected_controls": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "resolution_condition": "primary verbatim source is recovered and authenticated",
+        "notes": "Later evidence does not rewrite the historical checkpoint."
+      },
+      {
+        "gap_id": "GAP-FROZEN-VERBATIM",
+        "subject": "Lost verbatim strict FROZEN wording",
+        "historical_state": "UNRESOLVED",
+        "classification": "UNRESOLVED",
+        "original_source": "historical owner conversation",
+        "missing_information": "original verbatim wording",
+        "later_evidence": [
+          "docs/stage2/stage2-freeze-record.json"
+        ],
+        "current_substantive_status": "FREEZE SEMANTICS SUBSTANTIVELY ATTRIBUTABLE; VERBATIM SOURCE NOT RECOVERED",
+        "verbatim_source_recovered": false,
+        "engineering_impact": "PROVENANCE_ONLY",
+        "affected_controls": [
+          "GATE-S02-01"
+        ],
+        "resolution_condition": "primary verbatim source is recovered and authenticated",
+        "notes": "No semantic-equivalence claim is made."
+      },
+      {
+        "gap_id": "GAP-RESEARCH-DEFINITIONS",
+        "subject": "Unrecovered late research-control definitions",
+        "historical_state": "UNRESOLVED",
+        "classification": "UNRESOLVED",
+        "original_source": "historical programme conversation",
+        "missing_information": "late research-control definitions",
+        "later_evidence": [],
+        "current_substantive_status": "UNRESOLVED; NOT ADOPTED AS STAGE-3 REQUIREMENTS",
+        "verbatim_source_recovered": false,
+        "engineering_impact": "FUTURE_RECONCILIATION_INPUT",
+        "affected_controls": [],
+        "resolution_condition": "separate attributable programme reconciliation",
+        "notes": "This control baseline does not invent research requirements."
+      },
+      {
+        "gap_id": "GAP-RESEARCH-ORDER",
+        "subject": "Unrecovered historical research-control ordering",
+        "historical_state": "UNRESOLVED",
+        "classification": "UNRESOLVED",
+        "original_source": "historical programme conversation",
+        "missing_information": "original ordering",
+        "later_evidence": [],
+        "current_substantive_status": "UNRESOLVED; NO ORDER IS CANONICALIZED",
+        "verbatim_source_recovered": false,
+        "engineering_impact": "FUTURE_RECONCILIATION_INPUT",
+        "affected_controls": [],
+        "resolution_condition": "separate attributable programme reconciliation",
+        "notes": "Repeated discussion is not approval."
+      }
+    ]
+  },
+  "reality_assumption_register": {
+    "records": [],
+    "population_rule": "Populate only separately attributable assumptions and reality gaps. No speculative Stage-3 record is created by this baseline."
+  },
+  "serialization_contract": {
+    "encoding": "UTF-8",
+    "bom": false,
+    "indent_spaces": 2,
+    "trailing_newline": true,
+    "key_order": "PRESERVED_AS_AUTHORED",
+    "machine_local_paths_forbidden": true
+  }
+}

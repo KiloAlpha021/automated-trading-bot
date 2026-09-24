@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/programme-control.schema.json",
+  "title": "ATIS programme-control baseline",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "artifact_role",
+    "source_baseline",
+    "non_authorizing_statement",
+    "control_lifecycle_vocabulary",
+    "evidence_lifecycle_vocabulary",
+    "programme_control_ledger",
+    "milestone_gate_register",
+    "decision_register",
+    "risk_blocker_deferral_register",
+    "evidence_invalidation_register",
+    "provenance_gap_register",
+    "reality_assumption_register",
+    "serialization_contract"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "record_id": {"const": "ATIS-PROGRAMME-CONTROL-001"},
+    "artifact_role": {"const": "CANONICAL_PROGRAMME_CONTROL_INDEX"},
+    "source_baseline": {"$ref": "#/$defs/baseline"},
+    "non_authorizing_statement": {"type": "string", "minLength": 1},
+    "control_lifecycle_vocabulary": {
+      "const": ["PROPOSED", "SPECIFIED", "IMPLEMENTED", "VERIFIED", "ACCEPTED", "BLOCKED", "DEFERRED"]
+    },
+    "evidence_lifecycle_vocabulary": {
+      "const": ["CURRENT", "STALE", "INVALIDATED", "SUPERSEDED", "UNKNOWN"]
+    },
+    "programme_control_ledger": {"$ref": "#/$defs/ledger"},
+    "milestone_gate_register": {"$ref": "#/$defs/gateRegister"},
+    "decision_register": {"$ref": "#/$defs/decisionRegister"},
+    "risk_blocker_deferral_register": {"$ref": "#/$defs/riskRegister"},
+    "evidence_invalidation_register": {"$ref": "#/$defs/evidenceRegister"},
+    "provenance_gap_register": {"$ref": "#/$defs/gapRegister"},
+    "reality_assumption_register": {"$ref": "#/$defs/realityRegister"},
+    "serialization_contract": {"$ref": "#/$defs/serialization"}
+  },
+  "$defs": {
+    "gitIdentity": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha256Identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullableGitIdentity": {"anyOf": [{"$ref": "#/$defs/gitIdentity"}, {"type": "null"}]},
+    "nullableEvidenceIdentity": {"anyOf": [{"$ref": "#/$defs/gitIdentity"}, {"$ref": "#/$defs/sha256Identity"}, {"type": "null"}]},
+    "stringArray": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "controlState": {"enum": ["PROPOSED", "SPECIFIED", "IMPLEMENTED", "VERIFIED", "ACCEPTED", "BLOCKED", "DEFERRED"]},
+    "evidenceState": {"enum": ["CURRENT", "STALE", "INVALIDATED", "SUPERSEDED", "UNKNOWN"]},
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree"],
+      "properties": {
+        "commit": {"$ref": "#/$defs/gitIdentity"},
+        "tree": {"$ref": "#/$defs/gitIdentity"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "verified_at"],
+      "properties": {
+        "state": {"enum": ["ATTRIBUTABLE_PROTECTED_EVIDENCE", "PENDING_INDEPENDENT_REVIEW"]},
+        "verified_at": {"type": "null"}
+      }
+    },
+    "ledgerRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "requirement_ids", "source_authority", "classification", "owner", "control_lifecycle_status", "evidence_lifecycle_status", "dependencies", "implementation_references", "direct_test_references", "negative_adversarial_test_references", "acceptance_evidence_references", "independent_verification_references", "protected_identities", "deferred_work_references", "invalidation_conditions", "gate_consumers", "verification", "provenance_notes"],
+      "properties": {
+        "record_id": {"type": "string", "pattern": "^PC-LEDGER-[0-9]{3}$"},
+        "requirement_ids": {"$ref": "#/$defs/stringArray"},
+        "source_authority": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "classification": {"enum": ["TRACEABILITY_FOUNDATION", "MILESTONE_CLOSURE", "PROGRAMME_CONTROL"]},
+        "owner": {"type": "string", "minLength": 1},
+        "control_lifecycle_status": {"$ref": "#/$defs/controlState"},
+        "evidence_lifecycle_status": {"$ref": "#/$defs/evidenceState"},
+        "dependencies": {"$ref": "#/$defs/stringArray"},
+        "implementation_references": {"$ref": "#/$defs/stringArray"},
+        "direct_test_references": {"$ref": "#/$defs/stringArray"},
+        "negative_adversarial_test_references": {"$ref": "#/$defs/stringArray"},
+        "acceptance_evidence_references": {"$ref": "#/$defs/stringArray"},
+        "independent_verification_references": {"$ref": "#/$defs/stringArray"},
+        "protected_identities": {"$ref": "#/$defs/stringArray"},
+        "deferred_work_references": {"$ref": "#/$defs/stringArray"},
+        "invalidation_conditions": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "gate_consumers": {"$ref": "#/$defs/stringArray"},
+        "verification": {"$ref": "#/$defs/verification"},
+        "provenance_notes": {"type": "string"}
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["records"],
+      "properties": {"records": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ledgerRecord"}}}
+    },
+    "gateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "stage_milestone", "state", "entry_conditions", "controlling_requirements", "required_evidence", "blockers", "exit_conditions", "decision", "authority_granted", "authority_not_granted", "protected_baseline", "decision_owner", "invalidation_reopen_conditions", "successor"],
+      "properties": {
+        "gate_id": {"type": "string", "minLength": 1},
+        "stage_milestone": {"type": "string", "minLength": 1},
+        "state": {"$ref": "#/$defs/controlState"},
+        "entry_conditions": {"$ref": "#/$defs/stringArray"},
+        "controlling_requirements": {"$ref": "#/$defs/stringArray"},
+        "required_evidence": {"$ref": "#/$defs/stringArray"},
+        "blockers": {"$ref": "#/$defs/stringArray"},
+        "exit_conditions": {"$ref": "#/$defs/stringArray"},
+        "decision": {"enum": ["PASS", "FAIL", "NOT_EVALUATED"]},
+        "authority_granted": {"$ref": "#/$defs/stringArray"},
+        "authority_not_granted": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "protected_baseline": {"$ref": "#/$defs/nullableGitIdentity"},
+        "decision_owner": {"type": "string", "minLength": 1},
+        "invalidation_reopen_conditions": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "successor": {"type": "string", "minLength": 1}
+      }
+    },
+    "gateRegister": {
+      "type": "object", "additionalProperties": false, "required": ["records"],
+      "properties": {"records": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/gateRecord"}}}
+    },
+    "decisionRecord": {
+      "type": "object", "additionalProperties": false,
+      "required": ["record_id", "governed_question", "scope", "state", "decision", "source_authority", "decision_owner", "decided_at", "supersedes", "authority_granted", "authority_not_granted"],
+      "properties": {
+        "record_id": {"type": "string", "pattern": "^PC-DEC-[0-9]{3}$"},
+        "governed_question": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "minLength": 1},
+        "state": {"enum": ["OPEN", "DEFERRED", "APPROVED", "REJECTED", "SUPERSEDED", "REQUIRES_RESEARCH"]},
+        "decision": {"type": "string", "minLength": 1},
+        "source_authority": {"type": "string", "minLength": 1},
+        "decision_owner": {"type": "string", "minLength": 1},
+        "decided_at": {"type": "null"},
+        "supersedes": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "authority_granted": {"$ref": "#/$defs/stringArray"},
+        "authority_not_granted": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "decisionRegister": {
+      "type": "object", "additionalProperties": false, "required": ["records"],
+      "properties": {"records": {"type": "array", "items": {"$ref": "#/$defs/decisionRecord"}}}
+    },
+    "impact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gate", "freeze", "paper", "controlled_live"],
+      "properties": {
+        "gate": {"type": "string"}, "freeze": {"type": "string"},
+        "paper": {"type": "string"}, "controlled_live": {"type": "string"}
+      }
+    },
+    "deferralRecord": {
+      "type": "object", "additionalProperties": false,
+      "required": ["record_id", "source", "owner", "reason", "prerequisites", "lifecycle_impact", "reconsideration_closure_trigger", "closure_evidence"],
+      "properties": {
+        "record_id": {"type": "string", "pattern": "^S2-DEF-(00[1-9]|01[01])$"},
+        "source": {"type": "string", "minLength": 1},
+        "owner": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "prerequisites": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "lifecycle_impact": {"$ref": "#/$defs/impact"},
+        "reconsideration_closure_trigger": {"type": "string", "minLength": 1},
+        "closure_evidence": {"$ref": "#/$defs/stringArray"}
+      }
+    },
+    "riskRegister": {
+      "type": "object", "additionalProperties": false,
+      "required": ["blockers", "blocker_provenance_note", "deferred_work"],
+      "properties": {
+        "blockers": {"type": "array", "items": {"type": "object"}},
+        "blocker_provenance_note": {"type": "string", "minLength": 1},
+        "deferred_work": {"type": "array", "minItems": 11, "maxItems": 11, "items": {"$ref": "#/$defs/deferralRecord"}}
+      }
+    },
+    "evidenceRecord": {
+      "type": "object", "additionalProperties": false,
+      "required": ["record_id", "claim_property", "evidence_class", "source", "identity_kind", "exact_identity", "environment", "validity_model", "valid_from", "review_by", "dependencies", "evidence_state", "invalidation_triggers", "supersedes", "gate_consumers", "independent_evaluator", "notes"],
+      "properties": {
+        "record_id": {"type": "string", "pattern": "^PC-EVID-[0-9]{3}$"},
+        "claim_property": {"type": "string", "minLength": 1},
+        "evidence_class": {"enum": ["PROTECTED_REPOSITORY_EVIDENCE", "HOSTED_WORKFLOW_EVIDENCE", "LOCAL_CANDIDATE_EVIDENCE"]},
+        "source": {"type": "string", "minLength": 1},
+        "identity_kind": {"enum": ["GIT_BLOB", "GIT_COMMIT", "SHA256", "NOT_RECORDED"]},
+        "exact_identity": {"$ref": "#/$defs/nullableEvidenceIdentity"},
+        "environment": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "validity_model": {"enum": ["IMMUTABLE_IDENTITY_BOUND", "TIME_BOUND", "DEPENDENCY_BOUND", "ENVIRONMENT_BOUND", "CONDITION_BOUND"]},
+        "valid_from": {"type": "null"},
+        "review_by": {"type": "null"},
+        "dependencies": {"$ref": "#/$defs/stringArray"},
+        "evidence_state": {"$ref": "#/$defs/evidenceState"},
+        "invalidation_triggers": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "supersedes": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "gate_consumers": {"$ref": "#/$defs/stringArray"},
+        "independent_evaluator": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "notes": {"type": "string"}
+      }
+    },
+    "evidenceRegister": {
+      "type": "object", "additionalProperties": false, "required": ["records"],
+      "properties": {"records": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidenceRecord"}}}
+    },
+    "gapRecord": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gap_id", "subject", "historical_state", "classification", "original_source", "missing_information", "later_evidence", "current_substantive_status", "verbatim_source_recovered", "engineering_impact", "affected_controls", "resolution_condition", "notes"],
+      "properties": {
+        "gap_id": {"type": "string", "pattern": "^GAP-[A-Z0-9-]+$"},
+        "subject": {"type": "string", "minLength": 1},
+        "historical_state": {"type": "string", "minLength": 1},
+        "classification": {"enum": ["CONFIRMED", "RECONSTRUCTED", "INFERRED", "UNRESOLVED"]},
+        "original_source": {"type": "string", "minLength": 1},
+        "missing_information": {"type": "string", "minLength": 1},
+        "later_evidence": {"$ref": "#/$defs/stringArray"},
+        "current_substantive_status": {"type": "string", "minLength": 1},
+        "verbatim_source_recovered": {"type": "boolean"},
+        "engineering_impact": {"type": "string", "minLength": 1},
+        "affected_controls": {"$ref": "#/$defs/stringArray"},
+        "resolution_condition": {"type": "string", "minLength": 1},
+        "notes": {"type": "string"}
+      }
+    },
+    "gapRegister": {
+      "type": "object", "additionalProperties": false, "required": ["records"],
+      "properties": {"records": {"type": "array", "items": {"$ref": "#/$defs/gapRecord"}}}
+    },
+    "realityRecord": {
+      "type": "object", "additionalProperties": false,
+      "required": ["record_id", "record_type", "domain", "statement", "source", "owner", "status", "evidence", "testability", "validation_method", "reality_gap_relationship", "affected_controls", "invalidation_conditions", "promotion_impact", "review_horizon", "notes"],
+      "properties": {
+        "record_id": {"type": "string", "pattern": "^PC-(ASM|RG)-[0-9]{3}$"},
+        "record_type": {"enum": ["ASSUMPTION", "REALITY_GAP"]},
+        "domain": {"type": "string", "minLength": 1},
+        "statement": {"type": "string", "minLength": 1},
+        "source": {"type": "string", "minLength": 1},
+        "owner": {"type": "string", "minLength": 1},
+        "status": {"enum": ["OPEN", "VALIDATED", "INVALIDATED", "CLOSED", "DEFERRED", "UNKNOWN"]},
+        "evidence": {"$ref": "#/$defs/stringArray"},
+        "testability": {"type": "string", "minLength": 1},
+        "validation_method": {"type": "string", "minLength": 1},
+        "reality_gap_relationship": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "affected_controls": {"$ref": "#/$defs/stringArray"},
+        "invalidation_conditions": {"$ref": "#/$defs/stringArray"},
+        "promotion_impact": {"type": "string", "minLength": 1},
+        "review_horizon": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "notes": {"type": "string"}
+      }
+    },
+    "realityRegister": {
+      "type": "object", "additionalProperties": false, "required": ["records", "population_rule"],
+      "properties": {
+        "records": {"type": "array", "items": {"$ref": "#/$defs/realityRecord"}},
+        "population_rule": {"type": "string", "minLength": 1}
+      }
+    },
+    "serialization": {
+      "type": "object", "additionalProperties": false,
+      "required": ["encoding", "bom", "indent_spaces", "trailing_newline", "key_order", "machine_local_paths_forbidden"],
+      "properties": {
+        "encoding": {"const": "UTF-8"},
+        "bom": {"const": false},
+        "indent_spaces": {"const": 2},
+        "trailing_newline": {"const": true},
+        "key_order": {"const": "PRESERVED_AS_AUTHORED"},
+        "machine_local_paths_forbidden": {"const": true}
+      }
+    }
+  }
+}
