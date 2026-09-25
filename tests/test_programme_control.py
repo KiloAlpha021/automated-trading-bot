@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from hashlib import sha1
+from hashlib import sha1, sha256
 import json
 from pathlib import Path
 import re
@@ -29,6 +29,7 @@ EXPECTED_SOURCE_IDENTITIES = {
 POSITIVE_EVIDENCE_STATES = {"CURRENT"}
 FORBIDDEN_AUTHORITY = {
     "STAGE3_IMPLEMENTATION",
+    "STAGE4_IMPLEMENTATION",
     "SHADOW_TRADING",
     "PAPER_TRADING",
     "LIVE_TRADING",
@@ -39,6 +40,47 @@ FORBIDDEN_AUTHORITY = {
     "CAPITAL_ALLOCATION",
     "FINANCIAL_EFFECTS",
     "AI_TRADING_AUTHORITY",
+}
+EXPECTED_HOUSEKEEPING_EVIDENCE = {
+    "PC-EVID-007": (
+        "GitHub Actions run 35989535696 job 107600048807 conclusion FAILURE",
+        "6cc1896bf3fe5d3a2152ae7411c22a50510d5cf3",
+    ),
+    "PC-EVID-008": (
+        "GitHub Actions run 35989535711 job 107600048942 conclusion SUCCESS",
+        "6cc1896bf3fe5d3a2152ae7411c22a50510d5cf3",
+    ),
+    "PC-EVID-009": (
+        "GitHub Actions run 35992405088 job 107609355605 conclusion SUCCESS",
+        "914e2752bdc5cb134e7f4ffb7d6cbb6e3370a1d7",
+    ),
+    "PC-EVID-010": (
+        "GitHub Actions run 35992405044 job 107609354939 conclusion SUCCESS",
+        "914e2752bdc5cb134e7f4ffb7d6cbb6e3370a1d7",
+    ),
+    "PC-EVID-011": (
+        "GitHub Actions run 35992405088 artifact m1-engineering-foundation-evidence ID 10804472325",
+        "ac177283adcbf0ca23990d908ff7d55115b7bca4653e649a5cbf3c7f9d564b4a",
+    ),
+    "PC-EVID-012": (
+        "GitHub pull request 20 protected merge; base 12560025bbc87ee237bb2252215305f8d2fc9e47; "
+        "head 914e2752bdc5cb134e7f4ffb7d6cbb6e3370a1d7; tree "
+        "9297dded6ea3ec8d47a63f97c5e81662f4453ff5",
+        "750b64c2f6bc8bbc48dc3e3d25648896006f1a72",
+    ),
+    "PC-EVID-013": (
+        "GitHub Actions run 35993161133 job 107611796435 artifact "
+        "m1-engineering-foundation-evidence ID 10804988129; event push; branch master; "
+        "head 750b64c2f6bc8bbc48dc3e3d25648896006f1a72; tree "
+        "9297dded6ea3ec8d47a63f97c5e81662f4453ff5; conclusion SUCCESS",
+        "f48296b6d8bfa12429979da4c402d68b9acb650044299063f74ad13befd9d49f",
+    ),
+}
+EXPECTED_PROVENANCE_GAP_SHA256 = {
+    "GAP-REVIEW-5": "951a7eb6b80e321994cb921d5421a389178bc7e79b6ab2d5c652d467f8d6724f",
+    "GAP-FROZEN-VERBATIM": "ab3e6094512b260f07d566c2cb0794f21eaf6befacb07479bcf586fffef924fe",
+    "GAP-RESEARCH-DEFINITIONS": "e049d63661b57b8ee2da96becaee901dc897bf80d09043fbc5d2033c4ffb717d",
+    "GAP-RESEARCH-ORDER": "7aacab4a13671282614118152c1b441de29e8b9c361d1f4fbf7fb11f2acca00a",
 }
 
 
@@ -209,13 +251,32 @@ def validate_control(control: dict[str, Any]) -> None:
             raise ControlValidationError("self-referential evidence")
         if record["supersedes"] == record["record_id"]:
             raise ControlValidationError("evidence cannot supersede itself")
+        if record["supersedes"] is not None:
+            if record["supersedes"] not in evidence_by_id:
+                raise ControlValidationError("unresolved evidence supersession")
+            if evidence_by_id[record["supersedes"]]["evidence_state"] != "SUPERSEDED":
+                raise ControlValidationError("superseded evidence remains current")
         for reference in record["dependencies"]:
             if reference.startswith("PC-") and reference not in evidence_by_id:
                 raise ControlValidationError(f"unresolved evidence dependency: {reference}")
-        if record["evidence_state"] in {"UNKNOWN", "STALE", "INVALIDATED"}:
+        if record["evidence_state"] in {"UNKNOWN", "STALE", "INVALIDATED", "SUPERSEDED"}:
             for gate in control["milestone_gate_register"]["records"]:
                 if gate["decision"] == "PASS" and record["record_id"] in gate["required_evidence"]:
                     raise ControlValidationError("non-current evidence satisfies a positive gate")
+
+    for record_id, (source, identity) in EXPECTED_HOUSEKEEPING_EVIDENCE.items():
+        record = evidence_by_id.get(record_id)
+        if record is None or record["source"] != source or record["exact_identity"] != identity:
+            raise ControlValidationError("housekeeping evidence identity mismatch")
+
+    for start in evidence_by_id:
+        visited: set[str] = set()
+        current: str | None = start
+        while current is not None:
+            if current in visited:
+                raise ControlValidationError("evidence supersession cycle")
+            visited.add(current)
+            current = evidence_by_id[current]["supersedes"]
 
     active_decisions: dict[tuple[str, str], dict[str, Any]] = {}
     for record in control["decision_register"]["records"]:
@@ -251,6 +312,17 @@ def validate_control(control: dict[str, Any]) -> None:
             raise ControlValidationError("assumption represented as fact without evidence")
         if record["record_type"] == "REALITY_GAP" and record["status"] == "CLOSED" and not record["evidence"]:
             raise ControlValidationError("reality gap closed without evidence")
+
+    gaps = control["provenance_gap_register"]["records"]
+    gap_ids = {record["gap_id"] for record in gaps}
+    if gap_ids != EXPECTED_PROVENANCE_GAP_SHA256.keys():
+        raise ControlValidationError("protected provenance gap inventory mismatch")
+    for record in gaps:
+        canonical = json.dumps(
+            record, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        if sha256(canonical).hexdigest() != EXPECTED_PROVENANCE_GAP_SHA256[record["gap_id"]]:
+            raise ControlValidationError("protected provenance gap mismatch")
 
 
 def _control() -> dict[str, Any]:
@@ -296,8 +368,8 @@ def test_control_and_evidence_lifecycles_are_distinct() -> None:
     control = _control()
     assert control["control_lifecycle_vocabulary"] != control["evidence_lifecycle_vocabulary"]
     local = control["programme_control_ledger"]["records"][-1]
-    assert local["control_lifecycle_status"] == "IMPLEMENTED"
-    assert local["evidence_lifecycle_status"] == "UNKNOWN"
+    assert local["control_lifecycle_status"] == "ACCEPTED"
+    assert local["evidence_lifecycle_status"] == "CURRENT"
 
 
 @pytest.mark.parametrize("state", ["UNKNOWN", "STALE", "INVALIDATED"])
@@ -376,9 +448,110 @@ def test_assumption_and_reality_gap_semantics_reject_false_promotion() -> None:
 def test_programme_control_cannot_prove_itself() -> None:
     control = _control()
     local = control["programme_control_ledger"]["records"][-1]
-    assert local["verification"]["state"] == "PENDING_INDEPENDENT_REVIEW"
-    assert local["independent_verification_references"] == []
-    assert control["evidence_invalidation_register"]["records"][-1]["evidence_state"] == "UNKNOWN"
+    assert local["verification"]["state"] == "ATTRIBUTABLE_PROTECTED_EVIDENCE"
+    assert local["independent_verification_references"] == ["PC-EVID-010", "PC-EVID-013"]
+    assert "PC-EVID-006" not in local["acceptance_evidence_references"]
+
+
+def test_housekeeping_preserves_failure_and_protected_successor_chain() -> None:
+    control = _control()
+    evidence = {
+        record["record_id"]: record
+        for record in control["evidence_invalidation_register"]["records"]
+    }
+    assert evidence["PC-EVID-006"]["evidence_state"] == "SUPERSEDED"
+    assert evidence["PC-EVID-007"]["source"].endswith("conclusion FAILURE")
+    assert evidence["PC-EVID-009"]["supersedes"] == "PC-EVID-006"
+    assert evidence["PC-EVID-012"]["exact_identity"] == (
+        "750b64c2f6bc8bbc48dc3e3d25648896006f1a72"
+    )
+    assert "head 750b64c2f6bc8bbc48dc3e3d25648896006f1a72" in evidence["PC-EVID-013"]["source"]
+
+
+def test_housekeeping_gate_uses_only_current_attributable_evidence() -> None:
+    control = _control()
+    gate = control["milestone_gate_register"]["records"][-1]
+    evidence = {
+        record["record_id"]: record
+        for record in control["evidence_invalidation_register"]["records"]
+    }
+    assert gate["state"] == "ACCEPTED"
+    assert gate["decision"] == "PASS"
+    assert gate["protected_baseline"] == "750b64c2f6bc8bbc48dc3e3d25648896006f1a72"
+    assert all(evidence[record_id]["evidence_state"] == "CURRENT" for record_id in gate["required_evidence"])
+    assert "STAGE3_IMPLEMENTATION" in gate["authority_not_granted"]
+    assert "STAGE4_IMPLEMENTATION" in gate["authority_not_granted"]
+
+
+def test_housekeeping_evidence_identity_mutations_reject() -> None:
+    for record_id in EXPECTED_HOUSEKEEPING_EVIDENCE:
+        candidate = deepcopy(_control())
+        evidence = next(
+            record
+            for record in candidate["evidence_invalidation_register"]["records"]
+            if record["record_id"] == record_id
+        )
+        evidence["source"] += " altered"
+        with pytest.raises(ControlValidationError, match="housekeeping evidence identity mismatch"):
+            validate_control(candidate)
+
+
+def test_unresolved_evidence_supersession_rejects() -> None:
+    candidate = deepcopy(_control())
+    candidate["evidence_invalidation_register"]["records"][-1]["supersedes"] = "PC-EVID-999"
+    with pytest.raises(ControlValidationError, match="unresolved evidence supersession"):
+        validate_control(candidate)
+
+
+def test_evidence_supersession_cycle_rejects() -> None:
+    candidate = deepcopy(_control())
+    evidence = candidate["evidence_invalidation_register"]["records"]
+    evidence[5]["supersedes"] = "PC-EVID-009"
+    evidence[8]["evidence_state"] = "SUPERSEDED"
+    for gate in candidate["milestone_gate_register"]["records"]:
+        gate["decision"] = "NOT_EVALUATED"
+    with pytest.raises(ControlValidationError, match="supersession cycle"):
+        validate_control(candidate)
+
+
+@pytest.mark.parametrize("gap_id", sorted(EXPECTED_PROVENANCE_GAP_SHA256))
+def test_protected_provenance_gap_fabricated_closure_rejects(gap_id: str) -> None:
+    candidate = deepcopy(_control())
+    gap = next(
+        record
+        for record in candidate["provenance_gap_register"]["records"]
+        if record["gap_id"] == gap_id
+    )
+    gap["historical_state"] = "CLOSED"
+    gap["classification"] = "CONFIRMED"
+    gap["verbatim_source_recovered"] = True
+    gap["current_substantive_status"] = "CLOSED"
+    with pytest.raises(ControlValidationError, match="protected provenance gap mismatch"):
+        validate_control(candidate)
+
+
+def test_superseded_evidence_cannot_satisfy_positive_gate() -> None:
+    candidate = deepcopy(_control())
+    evidence = next(
+        record
+        for record in candidate["evidence_invalidation_register"]["records"]
+        if record["record_id"] == "PC-EVID-009"
+    )
+    evidence["evidence_state"] = "SUPERSEDED"
+    with pytest.raises(ControlValidationError, match="non-current evidence"):
+        validate_control(candidate)
+
+
+def test_valid_format_housekeeping_evidence_identity_mutation_rejects() -> None:
+    candidate = deepcopy(_control())
+    evidence = next(
+        record
+        for record in candidate["evidence_invalidation_register"]["records"]
+        if record["record_id"] == "PC-EVID-007"
+    )
+    evidence["exact_identity"] = "0" * 40
+    with pytest.raises(ControlValidationError, match="housekeeping evidence identity mismatch"):
+        validate_control(candidate)
 
 
 def test_unresolved_reference_rejects() -> None:
@@ -417,7 +590,12 @@ def test_no_later_stage_or_trading_authority_is_granted() -> None:
         for authority in gate["authority_granted"]
     }
     assert not (FORBIDDEN_AUTHORITY & granted)
-    assert FORBIDDEN_AUTHORITY <= set(control["milestone_gate_register"]["records"][1]["authority_not_granted"])
+    assert (FORBIDDEN_AUTHORITY - {"STAGE4_IMPLEMENTATION"}) <= set(
+        control["milestone_gate_register"]["records"][1]["authority_not_granted"]
+    )
+    assert "STAGE4_IMPLEMENTATION" in control["milestone_gate_register"]["records"][-1][
+        "authority_not_granted"
+    ]
 
 
 def test_mutating_protected_stage2_identity_rejects_expected_contract() -> None:

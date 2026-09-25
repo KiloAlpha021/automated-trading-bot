@@ -211,8 +211,8 @@
         ],
         "classification": "PROGRAMME_CONTROL",
         "owner": "ATIS_OWNER",
-        "control_lifecycle_status": "IMPLEMENTED",
-        "evidence_lifecycle_status": "UNKNOWN",
+        "control_lifecycle_status": "ACCEPTED",
+        "evidence_lifecycle_status": "CURRENT",
         "dependencies": [
           "PC-LEDGER-003"
         ],
@@ -226,23 +226,35 @@
         "negative_adversarial_test_references": [
           "tests/test_programme_control.py"
         ],
-        "acceptance_evidence_references": [],
-        "independent_verification_references": [],
-        "protected_identities": [],
+        "acceptance_evidence_references": [
+          "PC-EVID-009",
+          "PC-EVID-010",
+          "PC-EVID-011",
+          "PC-EVID-012",
+          "PC-EVID-013"
+        ],
+        "independent_verification_references": [
+          "PC-EVID-010",
+          "PC-EVID-013"
+        ],
+        "protected_identities": [
+          "750b64c2f6bc8bbc48dc3e3d25648896006f1a72",
+          "9297dded6ea3ec8d47a63f97c5e81662f4453ff5"
+        ],
         "deferred_work_references": [],
         "invalidation_conditions": [
-          "independent review rejects the candidate",
-          "source baseline changes before protection",
-          "hosted validation contradicts local evidence"
+          "protected programme-control merge identity changes",
+          "attributable hosted or post-merge evidence is invalidated",
+          "material programme-control defect is established"
         ],
         "gate_consumers": [
           "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
         ],
         "verification": {
-          "state": "PENDING_INDEPENDENT_REVIEW",
+          "state": "ATTRIBUTABLE_PROTECTED_EVIDENCE",
           "verified_at": null
         },
-        "provenance_notes": "Local implementation is not acceptance or protection; UNKNOWN evidence cannot satisfy a positive gate."
+        "provenance_notes": "The failed original candidate remains attributable as PC-EVID-007. Repaired hosted and trusted evidence, protected merge identity, and natural post-merge evidence establish this protected control baseline without granting Stage-3 implementation authority."
       }
     ]
   },
@@ -350,26 +362,34 @@
       {
         "gate_id": "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW",
         "stage_milestone": "PRE-STAGE-3",
-        "state": "IMPLEMENTED",
+        "state": "ACCEPTED",
         "entry_conditions": [
           "Stage 2 remains CLOSED / AUDITED / FROZEN / PROTECTED",
-          "three-file bounded candidate is independently reviewable"
+          "original and repaired candidate evidence remains attributable"
         ],
         "controlling_requirements": [],
         "required_evidence": [
-          "PC-EVID-006"
+          "PC-EVID-007",
+          "PC-EVID-008",
+          "PC-EVID-009",
+          "PC-EVID-010",
+          "PC-EVID-011",
+          "PC-EVID-012",
+          "PC-EVID-013"
         ],
-        "blockers": [
-          "INDEPENDENT_REVIEW_REQUIRED"
-        ],
+        "blockers": [],
         "exit_conditions": [
-          "independent review passes",
-          "separate publication authorization is granted"
+          "repaired hosted and trusted checks pass",
+          "protected programme-control merge identity is exact",
+          "natural post-merge verification passes"
         ],
-        "decision": "NOT_EVALUATED",
-        "authority_granted": [],
+        "decision": "PASS",
+        "authority_granted": [
+          "PRE_STAGE3_CONTROL_BASELINE_ESTABLISHED_PROTECTED"
+        ],
         "authority_not_granted": [
           "STAGE3_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
           "SHADOW_TRADING",
           "PAPER_TRADING",
           "LIVE_TRADING",
@@ -381,11 +401,12 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ],
-        "protected_baseline": null,
+        "protected_baseline": "750b64c2f6bc8bbc48dc3e3d25648896006f1a72",
         "decision_owner": "ATIS_OWNER",
         "invalidation_reopen_conditions": [
-          "candidate source baseline changes",
-          "independent review finds a material defect"
+          "protected programme-control merge identity changes",
+          "attributable hosted or post-merge evidence is invalidated",
+          "material programme-control defect is established"
         ],
         "successor": "PRE_STAGE3_CONTROL_BASELINE_INDEPENDENT_REVIEW"
       }
@@ -771,7 +792,7 @@
         "dependencies": [
           "PC-EVID-004"
         ],
-        "evidence_state": "UNKNOWN",
+        "evidence_state": "SUPERSEDED",
         "invalidation_triggers": [
           "candidate changes",
           "independent review rejects evidence",
@@ -782,7 +803,193 @@
           "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
         ],
         "independent_evaluator": null,
-        "notes": "The candidate and its tests cannot self-certify acceptance; independent review remains required."
+        "notes": "The local candidate evidence remains historical and was superseded by attributable repaired hosted evidence PC-EVID-009; it never independently satisfied a positive gate."
+      },
+      {
+        "record_id": "PC-EVID-007",
+        "claim_property": "Original programme-control candidate hosted engineering failure",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35989535696 job 107600048807 conclusion FAILURE",
+        "identity_kind": "GIT_COMMIT",
+        "exact_identity": "6cc1896bf3fe5d3a2152ae7411c22a50510d5cf3",
+        "environment": "GitHub Actions",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-006"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "GitHub run or job provenance is disproved",
+          "candidate commit identity mismatch"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "Historical FAILURE is preserved and is not promoted or replaced by later success."
+      },
+      {
+        "record_id": "PC-EVID-008",
+        "claim_property": "Original programme-control candidate trusted evaluation",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35989535711 job 107600048942 conclusion SUCCESS",
+        "identity_kind": "GIT_COMMIT",
+        "exact_identity": "6cc1896bf3fe5d3a2152ae7411c22a50510d5cf3",
+        "environment": "GitHub Actions trusted-m1-evaluator",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-007"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "GitHub run or job provenance is disproved",
+          "candidate commit identity mismatch"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "trusted-m1-evaluator",
+        "notes": "Trusted success does not erase the separate engineering failure for the same candidate."
+      },
+      {
+        "record_id": "PC-EVID-009",
+        "claim_property": "Repaired programme-control candidate hosted engineering success",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35992405088 job 107609355605 conclusion SUCCESS",
+        "identity_kind": "GIT_COMMIT",
+        "exact_identity": "914e2752bdc5cb134e7f4ffb7d6cbb6e3370a1d7",
+        "environment": "GitHub Actions",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-007"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "GitHub run or job provenance is disproved",
+          "repaired candidate commit identity mismatch"
+        ],
+        "supersedes": "PC-EVID-006",
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "This attributable repaired-candidate result supersedes UNKNOWN local candidate evidence, not the historical failed run."
+      },
+      {
+        "record_id": "PC-EVID-010",
+        "claim_property": "Repaired programme-control candidate trusted evaluation success",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35992405044 job 107609354939 conclusion SUCCESS",
+        "identity_kind": "GIT_COMMIT",
+        "exact_identity": "914e2752bdc5cb134e7f4ffb7d6cbb6e3370a1d7",
+        "environment": "GitHub Actions trusted-m1-evaluator",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-009"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "GitHub run or job provenance is disproved",
+          "repaired candidate commit identity mismatch"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "trusted-m1-evaluator",
+        "notes": "Independent trusted evaluation is bound to the exact repaired candidate."
+      },
+      {
+        "record_id": "PC-EVID-011",
+        "claim_property": "Repaired pre-merge engineering evidence artifact",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35992405088 artifact m1-engineering-foundation-evidence ID 10804472325",
+        "identity_kind": "SHA256",
+        "exact_identity": "ac177283adcbf0ca23990d908ff7d55115b7bca4653e649a5cbf3c7f9d564b4a",
+        "environment": "GitHub Actions",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-009",
+          "PC-EVID-010"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "artifact digest mismatch",
+          "artifact provenance is disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "Artifact identity is attributable to repaired candidate run 35992405088."
+      },
+      {
+        "record_id": "PC-EVID-012",
+        "claim_property": "Protected publication of the programme-control baseline",
+        "evidence_class": "PROTECTED_REPOSITORY_EVIDENCE",
+        "source": "GitHub pull request 20 protected merge; base 12560025bbc87ee237bb2252215305f8d2fc9e47; head 914e2752bdc5cb134e7f4ffb7d6cbb6e3370a1d7; tree 9297dded6ea3ec8d47a63f97c5e81662f4453ff5",
+        "identity_kind": "GIT_COMMIT",
+        "exact_identity": "750b64c2f6bc8bbc48dc3e3d25648896006f1a72",
+        "environment": "GitHub protected master",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-009",
+          "PC-EVID-010",
+          "PC-EVID-011"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "protected merge identity mismatch",
+          "merge topology or tree identity is disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "protected repository controls",
+        "notes": "This historical establishment identity is not replaced by the later Stage-3 corpus merge."
+      },
+      {
+        "record_id": "PC-EVID-013",
+        "claim_property": "Natural post-merge engineering verification of the protected programme-control baseline",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub Actions run 35993161133 job 107611796435 artifact m1-engineering-foundation-evidence ID 10804988129; event push; branch master; head 750b64c2f6bc8bbc48dc3e3d25648896006f1a72; tree 9297dded6ea3ec8d47a63f97c5e81662f4453ff5; conclusion SUCCESS",
+        "identity_kind": "SHA256",
+        "exact_identity": "f48296b6d8bfa12429979da4c402d68b9acb650044299063f74ad13befd9d49f",
+        "environment": "GitHub Actions protected master push",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-012"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "workflow provenance is disproved",
+          "artifact digest mismatch",
+          "protected head or tree differs"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+        ],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "Post-merge evidence is bound to the exact protected programme-control merge, not the later Stage-3 corpus merge."
       }
     ]
   },
