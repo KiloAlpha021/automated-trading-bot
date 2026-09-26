@@ -1452,6 +1452,74 @@
         "timestamp_status": "ATTRIBUTABLE",
         "source_timestamp": "2026-09-09T18:25:25.495Z",
         "timestamp_basis": "TURN_STARTED_AT"
+      },
+      {
+        "record_id": "PC-EVID-027",
+        "claim_property": "PR #23 branch-push engineering run and artifact publication assurance",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub pull request 23; run 36234217284; job 108382940463; event push; branch pc-housekeeping-001; head c1b87ea9d2f7be7861018e307f05150185c4d448; tree b206a621dc472ec6b759e252a239cdb05ba17ecc; conclusion SUCCESS; artifact m1-engineering-foundation-evidence ID 10903846333",
+        "identity_kind": "SHA256",
+        "exact_identity": "789f7836bbf17e396f6dfa63976e96a3c66ddba9244d990001e1555154a86ee9",
+        "environment": "GitHub Actions branch push",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "workflow run or job provenance is disproved",
+          "published head or tree identity differs",
+          "server-reported artifact identity or digest differs"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "The artifact ID and SHA-256 were reported by GitHub's upload process and are attributable to the exact producing run/job. The artifact ZIP bytes were not independently downloaded and rehashed."
+      },
+      {
+        "record_id": "PC-EVID-028",
+        "claim_property": "Trusted pull-request evaluation of PR #23 exact head",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub pull request 23; run 36234375510; job 108383381802; event pull_request; base master; head branch pc-housekeeping-001; head c1b87ea9d2f7be7861018e307f05150185c4d448; tree b206a621dc472ec6b759e252a239cdb05ba17ecc; conclusion SUCCESS",
+        "identity_kind": "GIT_COMMIT",
+        "exact_identity": "c1b87ea9d2f7be7861018e307f05150185c4d448",
+        "environment": "GitHub Actions trusted-m1-evaluator pull request",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "trusted workflow run or job provenance is disproved",
+          "pull-request base, head, or tree identity differs"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": "trusted-m1-evaluator",
+        "notes": "This independently reconciled trusted result establishes publication assurance only and grants no implementation or trading authority."
+      },
+      {
+        "record_id": "PC-EVID-029",
+        "claim_property": "PR #23 pull-request engineering run and artifact publication assurance",
+        "evidence_class": "HOSTED_WORKFLOW_EVIDENCE",
+        "source": "GitHub pull request 23; run 36234375527; job 108383381940; event pull_request; base master; head branch pc-housekeeping-001; head c1b87ea9d2f7be7861018e307f05150185c4d448; tree b206a621dc472ec6b759e252a239cdb05ba17ecc; conclusion SUCCESS; artifact m1-engineering-foundation-evidence ID 10903568635",
+        "identity_kind": "SHA256",
+        "exact_identity": "f3b45fcf6b24e19d2517dad644fc186be706b103f13ad5aac1c582de8b1ab271",
+        "environment": "GitHub Actions pull request",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "workflow run or job provenance is disproved",
+          "pull-request base, head, or tree identity differs",
+          "server-reported artifact identity or digest differs"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": "m1-engineering-foundation",
+        "notes": "The artifact ID and SHA-256 were reported by GitHub's upload process and are attributable to the exact producing run/job. The artifact ZIP bytes were not independently downloaded and rehashed."
       }
     ]
   },

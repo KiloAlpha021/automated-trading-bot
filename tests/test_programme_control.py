@@ -81,6 +81,8 @@ EXPECTED_HOUSEKEEPING_EVIDENCE = {
 EXPECTED_PROVENANCE_GAP_SHA256 = {'GAP-REVIEW-5': '423ca344c46c299b7a11a687a33629ee2590efcc130d29dcd2e9221e3e905e23', 'GAP-FROZEN-VERBATIM': '92a6e3718cc02d6e1651f8f38a23fe9991ce581e8395790fa23d34c80502702c', 'GAP-RESEARCH-DEFINITIONS': 'a7c8f55a020bc25adad4991467ff6b09d7e3c6b3bd6a3903c3e4708f63305a97', 'GAP-RESEARCH-ORDER': 'edb575d2570c3b437253e408e3ae211662d3f2065a6fcc2877b0e6578df29a29'}
 
 RECOVERED_IDS = {f"PC-EVID-{number:03d}" for number in range(14, 27)}
+PR23_HOSTED_IDS = {"PC-EVID-027", "PC-EVID-028", "PC-EVID-029"}
+EXPECTED_EVIDENCE_IDS = {f"PC-EVID-{number:03d}" for number in range(1, 30)}
 EXPECTED_GAP_EVIDENCE = {
     "GAP-REVIEW-5": ["PC-EVID-014", "PC-EVID-015"],
     "GAP-FROZEN-VERBATIM": ["PC-EVID-016", "PC-EVID-017", "PC-EVID-018"],
@@ -142,6 +144,16 @@ EXPECTED_RECOVERED_RECORD_SHA256 = {
     "PC-EVID-025": "d6801777307a9ce85c17d3879f94194c18332da078bb69df438d1d5c3179e6d5",
     "PC-EVID-026": "5085578f2b212702a36466a90ea40cea8da4d7bcb1ec0e1e7d556843ae6ade14",
 }
+EXPECTED_PR23_HOSTED_RECORD_SHA256 = {
+    "PC-EVID-027": "e4c8f68ed77c6bfbcd33b54649061ec616f7b750a632787d65539b042373d7ac",
+    "PC-EVID-028": "e477f8d83c45d7405952296428d3b58f9d8480a8ab866fee98134d2ae07b278a",
+    "PC-EVID-029": "f99c9945f4b2cba57cd3610da9cfa9eb1e19676b6d6e5f43ce0fe8f9e22837c1",
+}
+ARTIFACT_LIMITATION = (
+    "The artifact ID and SHA-256 were reported by GitHub's upload process and are "
+    "attributable to the exact producing run/job. The artifact ZIP bytes were not "
+    "independently downloaded and rehashed."
+)
 ROLE_ATTRIBUTION = {
     "PRIMARY_OWNER_SOURCE": {"OWNER_DIRECT", "ASSISTANT_DEFINED_OWNER_PRESERVED"},
     "PRIMARY_ASSISTANT_SOURCE": {"ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED", "INDEPENDENT_REVIEW_FINDING"},
@@ -296,6 +308,8 @@ def validate_control(control: dict[str, Any]) -> None:
     }
     evidence = control["evidence_invalidation_register"]["records"]
     evidence_ids = {record["record_id"] for record in evidence}
+    if evidence_ids != EXPECTED_EVIDENCE_IDS:
+        raise ControlValidationError("programme-control evidence inventory mismatch")
     gate_ids = {record["gate_id"] for record in control["milestone_gate_register"]["records"]}
     decision_ids = {record["record_id"] for record in control["decision_register"]["records"]}
     resolvable = ledger_ids | deferral_ids | evidence_ids | gate_ids | decision_ids
@@ -384,6 +398,25 @@ def validate_control(control: dict[str, Any]) -> None:
             if "source_timestamp" in record or "timestamp_basis" in record or not record.get("known_chronology"):
                 raise ControlValidationError("unrecovered timestamp is being inferred or lacks chronology")
 
+    pr23_hosted = {
+        record["record_id"]: record
+        for record in evidence
+        if record["record_id"] in PR23_HOSTED_IDS
+    }
+    if pr23_hosted.keys() != PR23_HOSTED_IDS:
+        raise ControlValidationError("PR #23 hosted-evidence inventory mismatch")
+    for record_id, record in pr23_hosted.items():
+        if _canonical_record_sha256(record) != EXPECTED_PR23_HOSTED_RECORD_SHA256[record_id]:
+            raise ControlValidationError("PR #23 hosted semantic record mismatch")
+        if (
+            record["evidence_class"] != "HOSTED_WORKFLOW_EVIDENCE"
+            or record["evidence_state"] != "CURRENT"
+            or record["dependencies"]
+            or record["gate_consumers"]
+            or record["supersedes"] is not None
+        ):
+            raise ControlValidationError("PR #23 evidence violates publication-assurance isolation")
+
     gap_by_id = {record["gap_id"]: record for record in control["provenance_gap_register"]["records"]}
     for gap_id, expected_references in EXPECTED_GAP_EVIDENCE.items():
         if gap_by_id[gap_id]["later_evidence"] != expected_references:
@@ -410,8 +443,10 @@ def validate_control(control: dict[str, Any]) -> None:
         elif isinstance(value, list):
             for item in value:
                 scan(item, path)
-        elif isinstance(value, str) and value in RECOVERED_IDS:
+        elif isinstance(value, str) and value in RECOVERED_IDS | PR23_HOSTED_IDS:
             normalized = path[-4:] if len(path) >= 4 else path
+            if value in PR23_HOSTED_IDS:
+                raise ControlValidationError("PR #23 hosted evidence entered an authority-bearing path")
             if normalized not in allowed_recovered_paths:
                 raise ControlValidationError("recovered evidence entered an authority-bearing path")
 
@@ -1057,3 +1092,143 @@ def test_other_material_recovered_fields_are_tamper_evident(field: str) -> None:
         record[field] = f"{record[field]} fabricated semantic assertion"
     with pytest.raises(ControlValidationError, match="semantic record mismatch"):
         validate_control(mutated)
+
+
+def test_pr23_hosted_evidence_inventory_and_semantic_digests_are_exact() -> None:
+    control = _control()
+    evidence = {
+        record["record_id"]: record
+        for record in control["evidence_invalidation_register"]["records"]
+        if record["record_id"] in PR23_HOSTED_IDS
+    }
+    assert {record["record_id"] for record in control["evidence_invalidation_register"]["records"]} == EXPECTED_EVIDENCE_IDS
+    assert evidence.keys() == PR23_HOSTED_IDS
+    assert {
+        record_id: _canonical_record_sha256(record)
+        for record_id, record in evidence.items()
+    } == EXPECTED_PR23_HOSTED_RECORD_SHA256
+
+
+@pytest.mark.parametrize("record_id", sorted(PR23_HOSTED_IDS))
+@pytest.mark.parametrize(
+    "field",
+    [
+        "claim_property", "evidence_class", "source", "identity_kind",
+        "exact_identity", "environment", "validity_model", "dependencies",
+        "evidence_state", "invalidation_triggers", "supersedes",
+        "gate_consumers", "independent_evaluator", "notes",
+    ],
+)
+def test_every_pr23_hosted_material_field_is_tamper_evident(record_id: str, field: str) -> None:
+    mutated = _control()
+    record = next(
+        item for item in mutated["evidence_invalidation_register"]["records"]
+        if item["record_id"] == record_id
+    )
+    value = record[field]
+    if isinstance(value, list):
+        value.append("PC-EVID-027" if field in {"dependencies", "gate_consumers"} else "fabricated")
+    elif value is None:
+        record[field] = "PC-EVID-006"
+    elif field == "evidence_state":
+        record[field] = "STALE"
+    elif field == "identity_kind":
+        record[field] = "NOT_RECORDED"
+        record["exact_identity"] = None
+    elif field == "exact_identity":
+        record[field] = ("0" * 64) if len(value) == 64 else ("0" * 40)
+    else:
+        record[field] = f"{value} altered"
+    with pytest.raises(ControlValidationError):
+        validate_control(mutated)
+
+
+def test_pr23_hosted_exact_roles_artifacts_and_limitation() -> None:
+    evidence = {
+        record["record_id"]: record
+        for record in _control()["evidence_invalidation_register"]["records"]
+    }
+    assert evidence["PC-EVID-027"]["identity_kind"] == "SHA256"
+    assert evidence["PC-EVID-029"]["identity_kind"] == "SHA256"
+    assert evidence["PC-EVID-028"]["identity_kind"] == "GIT_COMMIT"
+    assert evidence["PC-EVID-028"]["independent_evaluator"] == "trusted-m1-evaluator"
+    assert evidence["PC-EVID-027"]["notes"] == ARTIFACT_LIMITATION
+    assert evidence["PC-EVID-029"]["notes"] == ARTIFACT_LIMITATION
+    for record_id in PR23_HOSTED_IDS:
+        assert evidence[record_id]["evidence_state"] == "CURRENT"
+        assert evidence[record_id]["dependencies"] == []
+        assert evidence[record_id]["gate_consumers"] == []
+        assert evidence[record_id]["supersedes"] is None
+
+
+@pytest.mark.parametrize(
+    ("record_id", "field", "replacement"),
+    [
+        ("PC-EVID-027", "source", "GitHub pull request 23; run 36234375527; wrong event"),
+        ("PC-EVID-027", "exact_identity", "f3b45fcf6b24e19d2517dad644fc186be706b103f13ad5aac1c582de8b1ab271"),
+        ("PC-EVID-029", "source", "GitHub pull request 23; run 36234217284; wrong artifact"),
+        ("PC-EVID-029", "exact_identity", "789f7836bbf17e396f6dfa63976e96a3c66ddba9244d990001e1555154a86ee9"),
+        ("PC-EVID-028", "independent_evaluator", "m1-engineering-foundation"),
+        ("PC-EVID-027", "notes", "Artifact bytes were independently downloaded and rehashed."),
+    ],
+)
+def test_pr23_hosted_adversarial_substitutions_reject(
+    record_id: str, field: str, replacement: str
+) -> None:
+    mutated = _control()
+    record = next(
+        item for item in mutated["evidence_invalidation_register"]["records"]
+        if item["record_id"] == record_id
+    )
+    record[field] = replacement
+    with pytest.raises(ControlValidationError, match="hosted semantic record mismatch"):
+        validate_control(mutated)
+
+
+@pytest.mark.parametrize(
+    ("section", "index", "field"),
+    [
+        ("milestone_gate_register", 0, "required_evidence"),
+        ("programme_control_ledger", 0, "acceptance_evidence_references"),
+        ("programme_control_ledger", 0, "independent_verification_references"),
+    ],
+)
+def test_pr23_hosted_evidence_cannot_enter_authority_paths(
+    section: str, index: int, field: str
+) -> None:
+    mutated = _control()
+    mutated[section]["records"][index][field].append("PC-EVID-027")
+    with pytest.raises(ControlValidationError, match="hosted evidence entered an authority-bearing path"):
+        validate_control(mutated)
+
+
+def test_pr23_hosted_evidence_cannot_enter_deferred_closure_or_transitive_dependencies() -> None:
+    mutated = _control()
+    mutated["risk_blocker_deferral_register"]["deferred_work"][0]["closure_evidence"].append(
+        "PC-EVID-029"
+    )
+    with pytest.raises(ControlValidationError, match="hosted evidence entered an authority-bearing path"):
+        validate_control(mutated)
+
+    mutated = _control()
+    evidence = {
+        record["record_id"]: record
+        for record in mutated["evidence_invalidation_register"]["records"]
+    }
+    evidence["PC-EVID-013"]["dependencies"].append("PC-EVID-028")
+    with pytest.raises(ControlValidationError, match="hosted evidence entered an authority-bearing path"):
+        validate_control(mutated)
+
+
+def test_pr23_hosted_evidence_does_not_change_recovered_or_gap_contracts() -> None:
+    control = _control()
+    recovered = {
+        record["record_id"]: _canonical_record_sha256(record)
+        for record in control["evidence_invalidation_register"]["records"]
+        if record["record_id"] in RECOVERED_IDS
+    }
+    assert recovered == EXPECTED_RECOVERED_RECORD_SHA256
+    assert {
+        gap["gap_id"]: _canonical_record_sha256(gap)
+        for gap in control["provenance_gap_register"]["records"]
+    } == EXPECTED_PROVENANCE_GAP_SHA256
