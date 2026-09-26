@@ -178,13 +178,48 @@
         "deferred_work": {"type": "array", "minItems": 11, "maxItems": 11, "items": {"$ref": "#/$defs/deferralRecord"}}
       }
     },
+    "recoveredSource": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["source_role", "source_system", "conversation_id", "turn_id", "message_id"],
+          "properties": {
+            "source_role": {"enum": ["PRIMARY_OWNER_SOURCE", "PRIMARY_ASSISTANT_SOURCE"]},
+            "source_system": {"const": "CHATGPT_ACCOUNT"},
+            "conversation_id": {"type": "string", "minLength": 1},
+            "turn_id": {"type": "string", "minLength": 1},
+            "message_id": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["source_role", "source_system", "session_id", "turn_id", "message_id"],
+          "properties": {
+            "source_role": {"enum": ["PRIMARY_OWNER_SOURCE", "PRIMARY_ASSISTANT_SOURCE"]},
+            "source_system": {"const": "CODEX_SESSION"},
+            "session_id": {"type": "string", "minLength": 1},
+            "turn_id": {"type": "string", "minLength": 1},
+            "message_id": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["source_role", "source_system", "artifact_name"],
+          "properties": {
+            "source_role": {"const": "AUTHENTICATED_HISTORICAL_ARTIFACT"},
+            "source_system": {"const": "OFFICE_DOCUMENT"},
+            "artifact_name": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
     "evidenceRecord": {
       "type": "object", "additionalProperties": false,
       "required": ["record_id", "claim_property", "evidence_class", "source", "identity_kind", "exact_identity", "environment", "validity_model", "valid_from", "review_by", "dependencies", "evidence_state", "invalidation_triggers", "supersedes", "gate_consumers", "independent_evaluator", "notes"],
       "properties": {
         "record_id": {"type": "string", "pattern": "^PC-EVID-[0-9]{3}$"},
         "claim_property": {"type": "string", "minLength": 1},
-        "evidence_class": {"enum": ["PROTECTED_REPOSITORY_EVIDENCE", "HOSTED_WORKFLOW_EVIDENCE", "LOCAL_CANDIDATE_EVIDENCE"]},
+        "evidence_class": {"enum": ["PROTECTED_REPOSITORY_EVIDENCE", "HOSTED_WORKFLOW_EVIDENCE", "LOCAL_CANDIDATE_EVIDENCE", "RECOVERED_HISTORICAL_SOURCE_EVIDENCE"]},
         "source": {"type": "string", "minLength": 1},
         "identity_kind": {"enum": ["GIT_BLOB", "GIT_COMMIT", "SHA256", "NOT_RECORDED"]},
         "exact_identity": {"$ref": "#/$defs/nullableEvidenceIdentity"},
@@ -198,8 +233,64 @@
         "supersedes": {"anyOf": [{"type": "string"}, {"type": "null"}]},
         "gate_consumers": {"$ref": "#/$defs/stringArray"},
         "independent_evaluator": {"anyOf": [{"type": "string"}, {"type": "null"}]},
-        "notes": {"type": "string"}
-      }
+        "notes": {"type": "string"},
+        "recovered_source": {"$ref": "#/$defs/recoveredSource"},
+        "claim_attribution": {"enum": ["OWNER_DIRECT", "ASSISTANT_DEFINED_OWNER_PRESERVED", "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED", "OFFICE_ARTIFACT_ONLY", "INDEPENDENT_REVIEW_FINDING", "LATER_RECONSTRUCTION", "SUPERSEDED", "UNRESOLVED"]},
+        "timestamp_status": {"enum": ["ATTRIBUTABLE", "NOT_RECOVERED"]},
+        "source_timestamp": {"type": "string", "format": "date-time", "pattern": "Z$"},
+        "timestamp_basis": {"enum": ["TURN_STARTED_AT", "TURN_COMPLETED_AT"]},
+        "known_chronology": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "provenance_limitation": {"type": "string", "minLength": 1},
+        "recovered_findings": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"evidence_class": {"const": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE"}}, "required": ["evidence_class"]},
+          "then": {
+            "required": ["recovered_source", "claim_attribution", "provenance_limitation"],
+            "properties": {
+              "identity_kind": {"const": "SHA256"},
+              "exact_identity": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "gate_consumers": {"maxItems": 0},
+              "supersedes": {"type": "null"}
+            }
+          },
+          "else": {
+            "not": {"anyOf": [
+              {"required": ["recovered_source"]},
+              {"required": ["claim_attribution"]},
+              {"required": ["timestamp_status"]},
+              {"required": ["source_timestamp"]},
+              {"required": ["timestamp_basis"]},
+              {"required": ["known_chronology"]},
+              {"required": ["provenance_limitation"]},
+              {"required": ["recovered_findings"]}
+            ]}
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence_class": {"const": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE"},
+              "recovered_source": {"properties": {"source_system": {"enum": ["CHATGPT_ACCOUNT", "CODEX_SESSION"]}}, "required": ["source_system"]}
+            },
+            "required": ["evidence_class", "recovered_source"]
+          },
+          "then": {
+            "required": ["timestamp_status"],
+            "allOf": [
+              {
+                "if": {"properties": {"timestamp_status": {"const": "ATTRIBUTABLE"}}, "required": ["timestamp_status"]},
+                "then": {"required": ["source_timestamp", "timestamp_basis"], "not": {"required": ["known_chronology"]}},
+                "else": {"required": ["known_chronology"], "not": {"anyOf": [{"required": ["source_timestamp"]}, {"required": ["timestamp_basis"]}]}}
+              }
+            ]
+          },
+          "else": {
+            "not": {"anyOf": [{"required": ["timestamp_status"]}, {"required": ["source_timestamp"]}, {"required": ["timestamp_basis"]}, {"required": ["known_chronology"]}]}
+          }
+        }
+      ]
     },
     "evidenceRegister": {
       "type": "object", "additionalProperties": false, "required": ["records"],

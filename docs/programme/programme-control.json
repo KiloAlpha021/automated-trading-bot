@@ -990,6 +990,468 @@
         ],
         "independent_evaluator": "m1-engineering-foundation",
         "notes": "Post-merge evidence is bound to the exact protected programme-control merge, not the later Stage-3 corpus merge."
+      },
+      {
+        "record_id": "PC-EVID-014",
+        "claim_property": "Original failed Stage-2 closure-record independent review",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Original failed Stage-2 closure-record independent review",
+        "identity_kind": "SHA256",
+        "exact_identity": "4155a35b7d9aa593c61287fb326870a11e7059e32f722c714a88853f1e44ca92",
+        "environment": "CODEX_SESSION",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "Conclusion: STAGE2_CLOSURE_RECORD_REVIEW_FAILED. The historical failure is not superseded or rewritten.",
+        "recovered_source": {
+          "source_role": "PRIMARY_ASSISTANT_SOURCE",
+          "source_system": "CODEX_SESSION",
+          "session_id": "01a08d3f-e474-72b1-ac46-a12c865268fc",
+          "turn_id": "01a0cf9f-f41a-70b3-beaf-2bdd41ca9d89",
+          "message_id": "msg_0d407a9e2a4f3561016ab4214e38fc87d2adc612795fc72c4a"
+        },
+        "claim_attribution": "INDEPENDENT_REVIEW_FINDING",
+        "provenance_limitation": "Recovered response text is bound to the Codex session tuple; it remains a failed review finding and grants no authority.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-23T19:00:00.511Z",
+        "timestamp_basis": "TURN_COMPLETED_AT",
+        "recovered_findings": [
+          "S2-CLOSURE-REVIEW-001 missing required evidence mappings for audit results",
+          "S2-CLOSURE-REVIEW-002 PASS entries lacked exact invariant/evidence bindings",
+          "S2-CLOSURE-REVIEW-003 incomplete M1 reopening/reclosure precedent",
+          "S2-CLOSURE-REVIEW-004 unattributable evaluated_at semantics",
+          "S2-CLOSURE-REVIEW-005 ambiguous hosted_evidence.merge_context"
+        ]
+      },
+      {
+        "record_id": "PC-EVID-015",
+        "claim_property": "Owner authorization for bounded correction of the five failed-review findings",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Owner authorization for bounded correction of the five failed-review findings",
+        "identity_kind": "SHA256",
+        "exact_identity": "adfbb40b8869ea1c6817aa6a5901b6f170b437c929b9e18b02279184ff811255",
+        "environment": "CODEX_SESSION",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-014"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_OWNER_SOURCE",
+          "source_system": "CODEX_SESSION",
+          "session_id": "01a08d3f-e474-72b1-ac46-a12c865268fc",
+          "turn_id": "01a0cfa5-3103-7721-a214-da00793d4e1c",
+          "message_id": "msg_01a0cfa6-88b2-7910-9d97-2889e28aefed"
+        },
+        "claim_attribution": "OWNER_DIRECT",
+        "provenance_limitation": "Authorization is bounded correction authority only; it does not rewrite the failed review or grant implementation authority.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-23T19:03:12.818Z",
+        "timestamp_basis": "TURN_STARTED_AT"
+      },
+      {
+        "record_id": "PC-EVID-016",
+        "claim_property": "Owner requirement immediately preceding the strict FROZEN doctrine",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Owner requirement immediately preceding the strict FROZEN doctrine",
+        "identity_kind": "SHA256",
+        "exact_identity": "e585aa493391ce159f5a561ef1cde938f2d497d119a29f049b905329f8330052",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_OWNER_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa7b836-d77c-83ed-9bd5-895e47434eac",
+          "turn_id": "0bc2bae5-608c-42b9-bfe7-ca42ced7a58d",
+          "message_id": "0bc2bae5-608c-42b9-bfe7-ca42ced7a58d"
+        },
+        "claim_attribution": "OWNER_DIRECT",
+        "provenance_limitation": "This owner requirement is context for the later ratification and is not by itself an exhaustive freeze contract.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-23T17:48:58.220Z",
+        "timestamp_basis": "TURN_STARTED_AT"
+      },
+      {
+        "record_id": "PC-EVID-017",
+        "claim_property": "Assistant strict FROZEN doctrine adopted by the subsequent owner ratification",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Assistant strict FROZEN doctrine adopted by the subsequent owner ratification",
+        "identity_kind": "SHA256",
+        "exact_identity": "9dba6f93027f651b5ab1d0e62f1f08e0724fca7387fe47b4a9b530aa49f8fa9d",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-016"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_ASSISTANT_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa7b836-d77c-83ed-9bd5-895e47434eac",
+          "turn_id": "0bc2bae5-608c-42b9-bfe7-ca42ced7a58d",
+          "message_id": "c138115c-4420-4a22-8e0d-ceb133697d9f"
+        },
+        "claim_attribution": "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED",
+        "provenance_limitation": "Assistant-origin doctrine has no standalone owner authority; its preserved meaning depends on the exact later owner ratification.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-23T17:49:04.632Z",
+        "timestamp_basis": "TURN_COMPLETED_AT"
+      },
+      {
+        "record_id": "PC-EVID-018",
+        "claim_property": "Owner ratification: It is considered Frozen under these strict conditions.",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Owner ratification: It is considered Frozen under these strict conditions.",
+        "identity_kind": "SHA256",
+        "exact_identity": "44187ee5ceaab64c515b8b8e24b0ba48d66226df9582e5b12a76251b003300be",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-016",
+          "PC-EVID-017"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_OWNER_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa7b836-d77c-83ed-9bd5-895e47434eac",
+          "turn_id": "98bcd948-3645-4536-9c7b-c63f1fc8c99e",
+          "message_id": "98bcd948-3645-4536-9c7b-c63f1fc8c99e"
+        },
+        "claim_attribution": "ASSISTANT_DEFINED_OWNER_PRESERVED",
+        "provenance_limitation": "The ratification adopts the exact preceding context. NO EXHAUSTIVE OWNER-VERBATIM REOPENING CONTRACT IS CLAIMED.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-23T17:52:03.185Z",
+        "timestamp_basis": "TURN_STARTED_AT"
+      },
+      {
+        "record_id": "PC-EVID-019",
+        "claim_property": "Assistant economic-edge and research-control definitions later preserved by the owner",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Assistant economic-edge and research-control definitions later preserved by the owner",
+        "identity_kind": "SHA256",
+        "exact_identity": "a006935615ccc2774cdcf9fc9271c13da294233e26b5e6e90c038e6e2fe5288c",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_ASSISTANT_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d",
+          "turn_id": "746aad62-4dbe-48f3-98c5-a9e7f09902bf",
+          "message_id": "08f2ae04-0ef9-4969-b63b-bf6c6ede45bc"
+        },
+        "claim_attribution": "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED",
+        "provenance_limitation": "Exact assistant message timestamp was not retained; containing-turn and subsequent-turn times are chronology only and are not source_timestamp.",
+        "timestamp_status": "NOT_RECOVERED",
+        "known_chronology": [
+          "Containing owner turn started 2026-09-09T18:21:22.626Z",
+          "Subsequent owner preservation turn started 2026-09-09T18:21:53.425Z"
+        ]
+      },
+      {
+        "record_id": "PC-EVID-020",
+        "claim_property": "Owner preservation of the preceding assistant research definitions",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Owner preservation of the preceding assistant research definitions",
+        "identity_kind": "SHA256",
+        "exact_identity": "ccd7f284940d6bfa8f8eba2104c93df0a192c6ecef9519955bd92a856b42e298",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-019"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_OWNER_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d",
+          "turn_id": "a5c79fa6-da2b-4f9f-87b4-1c3ccb068845",
+          "message_id": "a5c79fa6-da2b-4f9f-87b4-1c3ccb068845"
+        },
+        "claim_attribution": "ASSISTANT_DEFINED_OWNER_PRESERVED",
+        "provenance_limitation": "Preservation does not convert every assistant definition into an owner-direct statement or a current implementation requirement.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-09T18:21:53.425Z",
+        "timestamp_basis": "TURN_STARTED_AT"
+      },
+      {
+        "record_id": "PC-EVID-021",
+        "claim_property": "Owner-direct economic-edge principles and research-to-production lifecycle",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Owner-direct economic-edge principles and research-to-production lifecycle",
+        "identity_kind": "SHA256",
+        "exact_identity": "78b399541c87fef08d70fe3b06347b15095406280d774c075c319d2801756bfb",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_OWNER_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa1bbe2-ab24-83eb-a175-cced218812ef",
+          "turn_id": "0deccebf-57e8-4dd4-8141-5288a55c2a0a",
+          "message_id": "0deccebf-57e8-4dd4-8141-5288a55c2a0a"
+        },
+        "claim_attribution": "OWNER_DIRECT",
+        "provenance_limitation": "Historical owner principles are provenance input only and do not authorize Stage 3, Stage 4, providers, or trading.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-09T20:04:53.813Z",
+        "timestamp_basis": "TURN_STARTED_AT"
+      },
+      {
+        "record_id": "PC-EVID-022",
+        "claim_property": "Historical v1.3 research and detailed implementation-order artifact",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Historical v1.3 research and detailed implementation-order artifact",
+        "identity_kind": "SHA256",
+        "exact_identity": "eb21b79fd06c381c62a25838f629a6ea03bf6857228ae786f532115327556750",
+        "environment": "OFFICE_DOCUMENT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "AUTHENTICATED_HISTORICAL_ARTIFACT",
+          "source_system": "OFFICE_DOCUMENT",
+          "artifact_name": "Trading_Bot_Master_Backup_2026-09-09_v1.3.docx"
+        },
+        "claim_attribution": "OFFICE_ARTIFACT_ONLY",
+        "provenance_limitation": "Previously authenticated artifact was unavailable as a standalone file for rehashing in the latest inventory run; no derivation edge to other Office artifacts is asserted."
+      },
+      {
+        "record_id": "PC-EVID-023",
+        "claim_property": "Historical FINAL backup research artifact",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Historical FINAL backup research artifact",
+        "identity_kind": "SHA256",
+        "exact_identity": "aa7dc3882b8b5418e65c8dd984ff46b1d7c3ba53fb97584fcca5dbc69f8a9bec",
+        "environment": "OFFICE_DOCUMENT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "AUTHENTICATED_HISTORICAL_ARTIFACT",
+          "source_system": "OFFICE_DOCUMENT",
+          "artifact_name": "Automated_Trading_Bot_Master_Backup_2026-09-10_FINAL.docx"
+        },
+        "claim_attribution": "OFFICE_ARTIFACT_ONLY",
+        "provenance_limitation": "Previously authenticated artifact was unavailable as a standalone file for rehashing in the latest inventory run; no derivation edge to other Office artifacts is asserted."
+      },
+      {
+        "record_id": "PC-EVID-024",
+        "claim_property": "Historical v1.4 corrected audit research artifact",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Historical v1.4 corrected audit research artifact",
+        "identity_kind": "SHA256",
+        "exact_identity": "123fd79991434bfdd101d9bbc2150eadd629f045495f1b3b29985235c460da89",
+        "environment": "OFFICE_DOCUMENT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "AUTHENTICATED_HISTORICAL_ARTIFACT",
+          "source_system": "OFFICE_DOCUMENT",
+          "artifact_name": "Automated_Trading_Bot_Master_Audit_Closure_v1.4_Corrected.docx"
+        },
+        "claim_attribution": "OFFICE_ARTIFACT_ONLY",
+        "provenance_limitation": "Previously authenticated artifact was unavailable as a standalone file for rehashing in the latest inventory run; no derivation edge to other Office artifacts is asserted."
+      },
+      {
+        "record_id": "PC-EVID-025",
+        "claim_property": "Initial assistant component-order proposal",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Initial assistant component-order proposal",
+        "identity_kind": "SHA256",
+        "exact_identity": "91f899e809ffd15483817b07684d572833af7a060459c385f40ff9f43828ea6d",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_ASSISTANT_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d",
+          "turn_id": "fd1456ff-56a7-46ec-a531-03a3f9a5bd73",
+          "message_id": "b9bab15e-f941-45f2-bdf9-e62b34dae5d2"
+        },
+        "claim_attribution": "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED",
+        "provenance_limitation": "Exact assistant message timestamp was not retained; containing-turn and subsequent-turn times are chronology only and are not source_timestamp.",
+        "timestamp_status": "NOT_RECOVERED",
+        "known_chronology": [
+          "Containing owner turn started 2026-09-09T18:24:50.693Z",
+          "Subsequent owner correction turn started 2026-09-09T18:25:25.495Z"
+        ]
+      },
+      {
+        "record_id": "PC-EVID-026",
+        "claim_property": "Owner macro-order correction: audit, technical design, then Python implementation",
+        "evidence_class": "RECOVERED_HISTORICAL_SOURCE_EVIDENCE",
+        "source": "Recovered authenticated historical source for Owner macro-order correction: audit, technical design, then Python implementation",
+        "identity_kind": "SHA256",
+        "exact_identity": "a76b836adc572ae7a16e3e96ce5b08d533a550c26e5e36e20d08d8b441bc555f",
+        "environment": "CHATGPT_ACCOUNT",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-025"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "source tuple mismatch",
+          "content SHA-256 mismatch",
+          "source role or claim attribution disproved"
+        ],
+        "supersedes": null,
+        "gate_consumers": [],
+        "independent_evaluator": null,
+        "notes": "",
+        "recovered_source": {
+          "source_role": "PRIMARY_OWNER_SOURCE",
+          "source_system": "CHATGPT_ACCOUNT",
+          "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d",
+          "turn_id": "47e1de6a-ec3f-4cf3-a4eb-b1541b3eb6c0",
+          "message_id": "47e1de6a-ec3f-4cf3-a4eb-b1541b3eb6c0"
+        },
+        "claim_attribution": "OWNER_DIRECT",
+        "provenance_limitation": "The owner correction establishes macro timing only; it does not owner-approve the detailed assistant or v1.3 component order.",
+        "timestamp_status": "ATTRIBUTABLE",
+        "source_timestamp": "2026-09-09T18:25:25.495Z",
+        "timestamp_basis": "TURN_STARTED_AT"
       }
     ]
   },
@@ -999,70 +1461,84 @@
         "gap_id": "GAP-REVIEW-5",
         "subject": "Original wording of S2-CLOSURE-REVIEW-001 through S2-CLOSURE-REVIEW-005",
         "historical_state": "UNRESOLVED",
-        "classification": "UNRESOLVED",
+        "classification": "CONFIRMED",
         "original_source": "historical closure-record review conversation",
         "missing_information": "original substantive wording",
         "later_evidence": [
-          "docs/stage2/gate-s02-01.json",
-          "docs/stage2/stage2-freeze-record.json"
+          "PC-EVID-014",
+          "PC-EVID-015"
         ],
-        "current_substantive_status": "CURRENT ENGINEERING STATE ATTRIBUTABLE; ORIGINAL WORDING NOT RECOVERED",
-        "verbatim_source_recovered": false,
+        "current_substantive_status": "PRIMARY VERBATIM FAILED REVIEW AND BOUNDED CORRECTION CHRONOLOGY RECOVERED AND AUTHENTICATED",
+        "verbatim_source_recovered": true,
         "engineering_impact": "PROVENANCE_ONLY",
         "affected_controls": [
           "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
         ],
         "resolution_condition": "primary verbatim source is recovered and authenticated",
-        "notes": "Later evidence does not rewrite the historical checkpoint."
+        "notes": "Historical_state remains the original UNRESOLVED checkpoint. The original failed review and all five findings remain historical facts; later correction does not rewrite them."
       },
       {
         "gap_id": "GAP-FROZEN-VERBATIM",
         "subject": "Lost verbatim strict FROZEN wording",
         "historical_state": "UNRESOLVED",
-        "classification": "UNRESOLVED",
+        "classification": "CONFIRMED",
         "original_source": "historical owner conversation",
         "missing_information": "original verbatim wording",
         "later_evidence": [
-          "docs/stage2/stage2-freeze-record.json"
+          "PC-EVID-016",
+          "PC-EVID-017",
+          "PC-EVID-018"
         ],
-        "current_substantive_status": "FREEZE SEMANTICS SUBSTANTIVELY ATTRIBUTABLE; VERBATIM SOURCE NOT RECOVERED",
-        "verbatim_source_recovered": false,
+        "current_substantive_status": "PRIMARY OWNER RATIFICATION RECOVERED AND AUTHENTICATED WITH EXACT PRECEDING CONTEXT",
+        "verbatim_source_recovered": true,
         "engineering_impact": "PROVENANCE_ONLY",
         "affected_controls": [
           "GATE-S02-01"
         ],
         "resolution_condition": "primary verbatim source is recovered and authenticated",
-        "notes": "No semantic-equivalence claim is made."
+        "notes": "Historical_state remains the original UNRESOLVED checkpoint. NO EXHAUSTIVE OWNER-VERBATIM REOPENING CONTRACT IS CLAIMED."
       },
       {
         "gap_id": "GAP-RESEARCH-DEFINITIONS",
         "subject": "Unrecovered late research-control definitions",
         "historical_state": "UNRESOLVED",
-        "classification": "UNRESOLVED",
+        "classification": "RECONSTRUCTED",
         "original_source": "historical programme conversation",
         "missing_information": "late research-control definitions",
-        "later_evidence": [],
-        "current_substantive_status": "UNRESOLVED; NOT ADOPTED AS STAGE-3 REQUIREMENTS",
+        "later_evidence": [
+          "PC-EVID-019",
+          "PC-EVID-020",
+          "PC-EVID-021",
+          "PC-EVID-022",
+          "PC-EVID-023",
+          "PC-EVID-024"
+        ],
+        "current_substantive_status": "ATTRIBUTABLE MULTI-SOURCE RECONCILIATION RECOVERED; ATTRIBUTION LEVELS PRESERVED; NOT STAGE-3 OR STAGE-4 AUTHORITY",
         "verbatim_source_recovered": false,
         "engineering_impact": "FUTURE_RECONCILIATION_INPUT",
         "affected_controls": [],
         "resolution_condition": "separate attributable programme reconciliation",
-        "notes": "This control baseline does not invent research requirements."
+        "notes": "Historical_state remains the original UNRESOLVED checkpoint. Owner-direct, owner-preserved assistant, unapproved assistant, and Office-only claims remain distinct. Later labels such as Hypothesis Lock, Signal Dependency Graph, Edge Decay Protocol, formal three-ledger doctrine, and named six-stream programme are not historical owner authority."
       },
       {
         "gap_id": "GAP-RESEARCH-ORDER",
         "subject": "Unrecovered historical research-control ordering",
         "historical_state": "UNRESOLVED",
-        "classification": "UNRESOLVED",
+        "classification": "RECONSTRUCTED",
         "original_source": "historical programme conversation",
         "missing_information": "original ordering",
-        "later_evidence": [],
-        "current_substantive_status": "UNRESOLVED; NO ORDER IS CANONICALIZED",
+        "later_evidence": [
+          "PC-EVID-021",
+          "PC-EVID-022",
+          "PC-EVID-025",
+          "PC-EVID-026"
+        ],
+        "current_substantive_status": "ATTRIBUTABLE ORDER RECONCILIATION RECOVERED WITH FOUR DISTINCT CLAIM LEVELS; NO CANONICAL OWNER-VERBATIM DETAILED SEQUENCE",
         "verbatim_source_recovered": false,
         "engineering_impact": "FUTURE_RECONCILIATION_INPUT",
         "affected_controls": [],
         "resolution_condition": "separate attributable programme reconciliation",
-        "notes": "Repeated discussion is not approval."
+        "notes": "Historical_state remains the original UNRESOLVED checkpoint. Owner macro order, assistant component proposal, v1.3 artifact order, and owner research-to-production lifecycle remain distinct."
       }
     ]
   },

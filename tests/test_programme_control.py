@@ -10,6 +10,8 @@ import re
 from typing import Any
 
 import pytest
+from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema.exceptions import ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,11 +78,74 @@ EXPECTED_HOUSEKEEPING_EVIDENCE = {
         "f48296b6d8bfa12429979da4c402d68b9acb650044299063f74ad13befd9d49f",
     ),
 }
-EXPECTED_PROVENANCE_GAP_SHA256 = {
-    "GAP-REVIEW-5": "951a7eb6b80e321994cb921d5421a389178bc7e79b6ab2d5c652d467f8d6724f",
-    "GAP-FROZEN-VERBATIM": "ab3e6094512b260f07d566c2cb0794f21eaf6befacb07479bcf586fffef924fe",
-    "GAP-RESEARCH-DEFINITIONS": "e049d63661b57b8ee2da96becaee901dc897bf80d09043fbc5d2033c4ffb717d",
-    "GAP-RESEARCH-ORDER": "7aacab4a13671282614118152c1b441de29e8b9c361d1f4fbf7fb11f2acca00a",
+EXPECTED_PROVENANCE_GAP_SHA256 = {'GAP-REVIEW-5': '423ca344c46c299b7a11a687a33629ee2590efcc130d29dcd2e9221e3e905e23', 'GAP-FROZEN-VERBATIM': '92a6e3718cc02d6e1651f8f38a23fe9991ce581e8395790fa23d34c80502702c', 'GAP-RESEARCH-DEFINITIONS': 'a7c8f55a020bc25adad4991467ff6b09d7e3c6b3bd6a3903c3e4708f63305a97', 'GAP-RESEARCH-ORDER': 'edb575d2570c3b437253e408e3ae211662d3f2065a6fcc2877b0e6578df29a29'}
+
+RECOVERED_IDS = {f"PC-EVID-{number:03d}" for number in range(14, 27)}
+EXPECTED_GAP_EVIDENCE = {
+    "GAP-REVIEW-5": ["PC-EVID-014", "PC-EVID-015"],
+    "GAP-FROZEN-VERBATIM": ["PC-EVID-016", "PC-EVID-017", "PC-EVID-018"],
+    "GAP-RESEARCH-DEFINITIONS": ["PC-EVID-019", "PC-EVID-020", "PC-EVID-021", "PC-EVID-022", "PC-EVID-023", "PC-EVID-024"],
+    "GAP-RESEARCH-ORDER": ["PC-EVID-021", "PC-EVID-022", "PC-EVID-025", "PC-EVID-026"],
+}
+EXPECTED_RECOVERED_TUPLES = {
+    "PC-EVID-014": ("PRIMARY_ASSISTANT_SOURCE", "CODEX_SESSION", "INDEPENDENT_REVIEW_FINDING", "4155a35b7d9aa593c61287fb326870a11e7059e32f722c714a88853f1e44ca92", []),
+    "PC-EVID-015": ("PRIMARY_OWNER_SOURCE", "CODEX_SESSION", "OWNER_DIRECT", "adfbb40b8869ea1c6817aa6a5901b6f170b437c929b9e18b02279184ff811255", ["PC-EVID-014"]),
+    "PC-EVID-016": ("PRIMARY_OWNER_SOURCE", "CHATGPT_ACCOUNT", "OWNER_DIRECT", "e585aa493391ce159f5a561ef1cde938f2d497d119a29f049b905329f8330052", []),
+    "PC-EVID-017": ("PRIMARY_ASSISTANT_SOURCE", "CHATGPT_ACCOUNT", "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED", "9dba6f93027f651b5ab1d0e62f1f08e0724fca7387fe47b4a9b530aa49f8fa9d", ["PC-EVID-016"]),
+    "PC-EVID-018": ("PRIMARY_OWNER_SOURCE", "CHATGPT_ACCOUNT", "ASSISTANT_DEFINED_OWNER_PRESERVED", "44187ee5ceaab64c515b8b8e24b0ba48d66226df9582e5b12a76251b003300be", ["PC-EVID-016", "PC-EVID-017"]),
+    "PC-EVID-019": ("PRIMARY_ASSISTANT_SOURCE", "CHATGPT_ACCOUNT", "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED", "a006935615ccc2774cdcf9fc9271c13da294233e26b5e6e90c038e6e2fe5288c", []),
+    "PC-EVID-020": ("PRIMARY_OWNER_SOURCE", "CHATGPT_ACCOUNT", "ASSISTANT_DEFINED_OWNER_PRESERVED", "ccd7f284940d6bfa8f8eba2104c93df0a192c6ecef9519955bd92a856b42e298", ["PC-EVID-019"]),
+    "PC-EVID-021": ("PRIMARY_OWNER_SOURCE", "CHATGPT_ACCOUNT", "OWNER_DIRECT", "78b399541c87fef08d70fe3b06347b15095406280d774c075c319d2801756bfb", []),
+    "PC-EVID-022": ("AUTHENTICATED_HISTORICAL_ARTIFACT", "OFFICE_DOCUMENT", "OFFICE_ARTIFACT_ONLY", "eb21b79fd06c381c62a25838f629a6ea03bf6857228ae786f532115327556750", []),
+    "PC-EVID-023": ("AUTHENTICATED_HISTORICAL_ARTIFACT", "OFFICE_DOCUMENT", "OFFICE_ARTIFACT_ONLY", "aa7dc3882b8b5418e65c8dd984ff46b1d7c3ba53fb97584fcca5dbc69f8a9bec", []),
+    "PC-EVID-024": ("AUTHENTICATED_HISTORICAL_ARTIFACT", "OFFICE_DOCUMENT", "OFFICE_ARTIFACT_ONLY", "123fd79991434bfdd101d9bbc2150eadd629f045495f1b3b29985235c460da89", []),
+    "PC-EVID-025": ("PRIMARY_ASSISTANT_SOURCE", "CHATGPT_ACCOUNT", "ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED", "91f899e809ffd15483817b07684d572833af7a060459c385f40ff9f43828ea6d", []),
+    "PC-EVID-026": ("PRIMARY_OWNER_SOURCE", "CHATGPT_ACCOUNT", "OWNER_DIRECT", "a76b836adc572ae7a16e3e96ce5b08d533a550c26e5e36e20d08d8b441bc555f", ["PC-EVID-025"]),
+}
+EXPECTED_RECOVERED_LOCATORS = {
+    "PC-EVID-014": {"source_role": "PRIMARY_ASSISTANT_SOURCE", "source_system": "CODEX_SESSION", "session_id": "01a08d3f-e474-72b1-ac46-a12c865268fc", "turn_id": "01a0cf9f-f41a-70b3-beaf-2bdd41ca9d89", "message_id": "msg_0d407a9e2a4f3561016ab4214e38fc87d2adc612795fc72c4a"},
+    "PC-EVID-015": {"source_role": "PRIMARY_OWNER_SOURCE", "source_system": "CODEX_SESSION", "session_id": "01a08d3f-e474-72b1-ac46-a12c865268fc", "turn_id": "01a0cfa5-3103-7721-a214-da00793d4e1c", "message_id": "msg_01a0cfa6-88b2-7910-9d97-2889e28aefed"},
+    "PC-EVID-016": {"source_role": "PRIMARY_OWNER_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa7b836-d77c-83ed-9bd5-895e47434eac", "turn_id": "0bc2bae5-608c-42b9-bfe7-ca42ced7a58d", "message_id": "0bc2bae5-608c-42b9-bfe7-ca42ced7a58d"},
+    "PC-EVID-017": {"source_role": "PRIMARY_ASSISTANT_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa7b836-d77c-83ed-9bd5-895e47434eac", "turn_id": "0bc2bae5-608c-42b9-bfe7-ca42ced7a58d", "message_id": "c138115c-4420-4a22-8e0d-ceb133697d9f"},
+    "PC-EVID-018": {"source_role": "PRIMARY_OWNER_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa7b836-d77c-83ed-9bd5-895e47434eac", "turn_id": "98bcd948-3645-4536-9c7b-c63f1fc8c99e", "message_id": "98bcd948-3645-4536-9c7b-c63f1fc8c99e"},
+    "PC-EVID-019": {"source_role": "PRIMARY_ASSISTANT_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d", "turn_id": "746aad62-4dbe-48f3-98c5-a9e7f09902bf", "message_id": "08f2ae04-0ef9-4969-b63b-bf6c6ede45bc"},
+    "PC-EVID-020": {"source_role": "PRIMARY_OWNER_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d", "turn_id": "a5c79fa6-da2b-4f9f-87b4-1c3ccb068845", "message_id": "a5c79fa6-da2b-4f9f-87b4-1c3ccb068845"},
+    "PC-EVID-021": {"source_role": "PRIMARY_OWNER_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa1bbe2-ab24-83eb-a175-cced218812ef", "turn_id": "0deccebf-57e8-4dd4-8141-5288a55c2a0a", "message_id": "0deccebf-57e8-4dd4-8141-5288a55c2a0a"},
+    "PC-EVID-022": {"source_role": "AUTHENTICATED_HISTORICAL_ARTIFACT", "source_system": "OFFICE_DOCUMENT", "artifact_name": "Trading_Bot_Master_Backup_2026-09-09_v1.3.docx"},
+    "PC-EVID-023": {"source_role": "AUTHENTICATED_HISTORICAL_ARTIFACT", "source_system": "OFFICE_DOCUMENT", "artifact_name": "Automated_Trading_Bot_Master_Backup_2026-09-10_FINAL.docx"},
+    "PC-EVID-024": {"source_role": "AUTHENTICATED_HISTORICAL_ARTIFACT", "source_system": "OFFICE_DOCUMENT", "artifact_name": "Automated_Trading_Bot_Master_Audit_Closure_v1.4_Corrected.docx"},
+    "PC-EVID-025": {"source_role": "PRIMARY_ASSISTANT_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d", "turn_id": "fd1456ff-56a7-46ec-a531-03a3f9a5bd73", "message_id": "b9bab15e-f941-45f2-bdf9-e62b34dae5d2"},
+    "PC-EVID-026": {"source_role": "PRIMARY_OWNER_SOURCE", "source_system": "CHATGPT_ACCOUNT", "conversation_id": "6aa19f14-f764-83ed-90a6-c56d55ac345d", "turn_id": "47e1de6a-ec3f-4cf3-a4eb-b1541b3eb6c0", "message_id": "47e1de6a-ec3f-4cf3-a4eb-b1541b3eb6c0"},
+}
+EXPECTED_ATTRIBUTABLE_TIMESTAMPS = {
+    "PC-EVID-014": ("2026-09-23T19:00:00.511Z", "TURN_COMPLETED_AT"),
+    "PC-EVID-015": ("2026-09-23T19:03:12.818Z", "TURN_STARTED_AT"),
+    "PC-EVID-016": ("2026-09-23T17:48:58.220Z", "TURN_STARTED_AT"),
+    "PC-EVID-017": ("2026-09-23T17:49:04.632Z", "TURN_COMPLETED_AT"),
+    "PC-EVID-018": ("2026-09-23T17:52:03.185Z", "TURN_STARTED_AT"),
+    "PC-EVID-020": ("2026-09-09T18:21:53.425Z", "TURN_STARTED_AT"),
+    "PC-EVID-021": ("2026-09-09T20:04:53.813Z", "TURN_STARTED_AT"),
+    "PC-EVID-026": ("2026-09-09T18:25:25.495Z", "TURN_STARTED_AT"),
+}
+EXPECTED_RECOVERED_RECORD_SHA256 = {
+    "PC-EVID-014": "bb0d0b56e6eb9d673068dea99377d36dba0fcf952f8bcff00cb387c044edcbb3",
+    "PC-EVID-015": "29ad7ccedd04294dfa49d13ca3b705ad517e4db8c4e7ae4674be846b1b4c083d",
+    "PC-EVID-016": "e1dd044d64ff7abfee12b43d454b2e024f16f685c0c1999aaaa03c1b117871a1",
+    "PC-EVID-017": "f0a5db90621c85d04e8b4fb435acc9036d355d1ae3fc005b8dd93db333054b65",
+    "PC-EVID-018": "da2582218a113839f621a7c4954eea44d7e445b1294ac7d785744026c43a06dd",
+    "PC-EVID-019": "b3d2a2e651265cb7e68e01dbf56159d16ca5bed5fa479766275a140f4edc2b28",
+    "PC-EVID-020": "5c7aece6ceb4656c3055d2a0c77d9b521887fc709e0a82ff9edae1fb4bdfc709",
+    "PC-EVID-021": "e71faad2e259a00a7ee90b6f23c614a067f498615e13a740bfc858087b6a71e0",
+    "PC-EVID-022": "d0ee0625328e069f781ec181d2b3a85c92a690df26e6143765f71a4c4bda191e",
+    "PC-EVID-023": "f30761aefa6ead15374eb5cdd14e944f185a13b25ff38222ae106b388e939e9e",
+    "PC-EVID-024": "cab3dc621493960e4c883becdec490b0657f39f810236de73e04d88390c7c732",
+    "PC-EVID-025": "d6801777307a9ce85c17d3879f94194c18332da078bb69df438d1d5c3179e6d5",
+    "PC-EVID-026": "5085578f2b212702a36466a90ea40cea8da4d7bcb1ec0e1e7d556843ae6ade14",
+}
+ROLE_ATTRIBUTION = {
+    "PRIMARY_OWNER_SOURCE": {"OWNER_DIRECT", "ASSISTANT_DEFINED_OWNER_PRESERVED"},
+    "PRIMARY_ASSISTANT_SOURCE": {"ASSISTANT_DEFINED_NOT_SEPARATELY_APPROVED", "INDEPENDENT_REVIEW_FINDING"},
+    "AUTHENTICATED_HISTORICAL_ARTIFACT": {"OFFICE_ARTIFACT_ONLY"},
 }
 
 
@@ -199,9 +264,23 @@ def _git_blob(path: Path) -> str:
     return sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
 
 
+def _canonical_record_sha256(record: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        record,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return sha256(encoded).hexdigest()
+
+
 def validate_control(control: dict[str, Any]) -> None:
     schema = _load(SCHEMA_PATH)
-    _schema_validate(control, schema, schema)
+    Draft202012Validator.check_schema(schema)
+    try:
+        Draft202012Validator(schema, format_checker=FormatChecker()).validate(control)
+    except ValidationError as exc:
+        raise ControlValidationError(f"schema validation failed (pattern/structure): {exc.message}") from exc
     if control["source_baseline"] != EXPECTED_BASELINE:
         raise ControlValidationError("protected baseline identity mismatch")
     records = _all_records(control)
@@ -263,6 +342,80 @@ def validate_control(control: dict[str, Any]) -> None:
             for gate in control["milestone_gate_register"]["records"]:
                 if gate["decision"] == "PASS" and record["record_id"] in gate["required_evidence"]:
                     raise ControlValidationError("non-current evidence satisfies a positive gate")
+
+    recovered = {
+        record["record_id"]: record
+        for record in evidence
+        if record["evidence_class"] == "RECOVERED_HISTORICAL_SOURCE_EVIDENCE"
+    }
+    if recovered.keys() != RECOVERED_IDS:
+        raise ControlValidationError("recovered evidence inventory mismatch")
+    for record_id, expected in EXPECTED_RECOVERED_TUPLES.items():
+        record = recovered[record_id]
+        source = record["recovered_source"]
+        actual = (
+            source["source_role"], source["source_system"], record["claim_attribution"],
+            record["exact_identity"], record["dependencies"],
+        )
+        if actual != expected or source != EXPECTED_RECOVERED_LOCATORS[record_id]:
+            raise ControlValidationError("recovered source tuple mismatch")
+        if record_id in EXPECTED_ATTRIBUTABLE_TIMESTAMPS and (record.get("source_timestamp"), record.get("timestamp_basis")) != EXPECTED_ATTRIBUTABLE_TIMESTAMPS[record_id]:
+            raise ControlValidationError("recovered source timestamp tuple mismatch")
+        if _canonical_record_sha256(record) != EXPECTED_RECOVERED_RECORD_SHA256[record_id]:
+            raise ControlValidationError("recovered source semantic record mismatch")
+        if record["identity_kind"] != "SHA256" or record["gate_consumers"] or record["supersedes"] is not None:
+            raise ControlValidationError("recovered evidence violates provenance-only constraints")
+        if record["claim_attribution"] not in ROLE_ATTRIBUTION[source["source_role"]]:
+            raise ControlValidationError("recovered source role/attribution mismatch")
+        if any(reference not in RECOVERED_IDS for reference in record["dependencies"]):
+            raise ControlValidationError("recovered evidence has an unapproved dependency")
+    not_recovered = {record_id for record_id, record in recovered.items() if record.get("timestamp_status") == "NOT_RECOVERED"}
+    if not_recovered != {"PC-EVID-019", "PC-EVID-025"}:
+        raise ControlValidationError("recovered timestamp-status inventory mismatch")
+    for record_id, record in recovered.items():
+        if record["recovered_source"]["source_system"] == "OFFICE_DOCUMENT":
+            if record["dependencies"]:
+                raise ControlValidationError("Office artifacts must remain independently authenticated")
+            continue
+        if record["timestamp_status"] == "ATTRIBUTABLE":
+            if "source_timestamp" not in record or "timestamp_basis" not in record:
+                raise ControlValidationError("attributable timestamp metadata is incomplete")
+        else:
+            if "source_timestamp" in record or "timestamp_basis" in record or not record.get("known_chronology"):
+                raise ControlValidationError("unrecovered timestamp is being inferred or lacks chronology")
+
+    gap_by_id = {record["gap_id"]: record for record in control["provenance_gap_register"]["records"]}
+    for gap_id, expected_references in EXPECTED_GAP_EVIDENCE.items():
+        if gap_by_id[gap_id]["later_evidence"] != expected_references:
+            raise ControlValidationError("GAP recovered-evidence mapping mismatch")
+        if any(reference not in recovered for reference in expected_references):
+            raise ControlValidationError("GAP later_evidence is unresolved")
+
+    allowed_recovered_paths = {
+        ("evidence_invalidation_register", "records", record_id, "dependencies")
+        for record_id in RECOVERED_IDS
+    } | {
+        ("provenance_gap_register", "records", gap_id, "later_evidence")
+        for gap_id in EXPECTED_GAP_EVIDENCE
+    }
+
+    def scan(value: Any, path: tuple[str, ...]) -> None:
+        if isinstance(value, dict):
+            identity = value.get("record_id") or value.get("gate_id") or value.get("gap_id")
+            for key, item in value.items():
+                if key in {"record_id", "gate_id", "gap_id"}:
+                    continue
+                next_path = path + ((str(identity),) if key in {"dependencies", "later_evidence"} and identity else ()) + (key,)
+                scan(item, next_path)
+        elif isinstance(value, list):
+            for item in value:
+                scan(item, path)
+        elif isinstance(value, str) and value in RECOVERED_IDS:
+            normalized = path[-4:] if len(path) >= 4 else path
+            if normalized not in allowed_recovered_paths:
+                raise ControlValidationError("recovered evidence entered an authority-bearing path")
+
+    scan(control, ())
 
     for record_id, (source, identity) in EXPECTED_HOUSEKEEPING_EVIDENCE.items():
         record = evidence_by_id.get(record_id)
@@ -498,7 +651,12 @@ def test_housekeeping_evidence_identity_mutations_reject() -> None:
 
 def test_unresolved_evidence_supersession_rejects() -> None:
     candidate = deepcopy(_control())
-    candidate["evidence_invalidation_register"]["records"][-1]["supersedes"] = "PC-EVID-999"
+    record = next(
+        item
+        for item in candidate["evidence_invalidation_register"]["records"]
+        if item["record_id"] == "PC-EVID-013"
+    )
+    record["supersedes"] = "PC-EVID-999"
     with pytest.raises(ControlValidationError, match="unresolved evidence supersession"):
         validate_control(candidate)
 
@@ -622,3 +780,280 @@ def test_unauthorized_lifecycle_promotion_is_detectable() -> None:
     gate["authority_granted"] = []
     with pytest.raises(ControlValidationError, match="cannot infer unlisted authority"):
         validate_control(candidate)
+
+
+def test_real_draft_202012_schema_validates_recovered_candidate() -> None:
+    schema = _load(SCHEMA_PATH)
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(_control())
+
+
+def test_exact_recovered_evidence_inventory_and_tuples() -> None:
+    control = _control()
+    recovered = {record["record_id"]: record for record in control["evidence_invalidation_register"]["records"] if record["evidence_class"] == "RECOVERED_HISTORICAL_SOURCE_EVIDENCE"}
+    assert recovered.keys() == RECOVERED_IDS
+    for record_id, expected in EXPECTED_RECOVERED_TUPLES.items():
+        record = recovered[record_id]
+        source = record["recovered_source"]
+        assert (source["source_role"], source["source_system"], record["claim_attribution"], record["exact_identity"], record["dependencies"]) == expected
+        assert source == EXPECTED_RECOVERED_LOCATORS[record_id]
+        if record_id in EXPECTED_ATTRIBUTABLE_TIMESTAMPS:
+            assert (record["source_timestamp"], record["timestamp_basis"]) == EXPECTED_ATTRIBUTABLE_TIMESTAMPS[record_id]
+        assert record["identity_kind"] == "SHA256"
+        assert record["gate_consumers"] == []
+        assert record["supersedes"] is None
+
+
+@pytest.mark.parametrize("record_id", ["PC-EVID-019", "PC-EVID-025"])
+def test_not_recovered_timestamps_never_masquerade_as_source_timestamps(record_id: str) -> None:
+    evidence = {r["record_id"]: r for r in _control()["evidence_invalidation_register"]["records"]}
+    record = evidence[record_id]
+    assert record["timestamp_status"] == "NOT_RECOVERED"
+    assert "source_timestamp" not in record
+    assert "timestamp_basis" not in record
+    assert record["known_chronology"]
+    assert "not source_timestamp" in record["provenance_limitation"]
+
+
+def test_only_authenticated_not_recovered_timestamp_records_are_allowed() -> None:
+    mutated = _control()
+    record = next(r for r in mutated["evidence_invalidation_register"]["records"] if r["record_id"] == "PC-EVID-020")
+    record["timestamp_status"] = "NOT_RECOVERED"
+    record.pop("source_timestamp")
+    record.pop("timestamp_basis")
+    record["known_chronology"] = ["syntactically valid but unauthenticated chronology"]
+    with pytest.raises(ControlValidationError, match="timestamp"):
+        validate_control(mutated)
+
+
+@pytest.mark.parametrize("record_id", sorted(RECOVERED_IDS - {"PC-EVID-019", "PC-EVID-025"}))
+def test_attributable_message_timestamps_or_office_artifacts_are_exact(record_id: str) -> None:
+    evidence = {r["record_id"]: r for r in _control()["evidence_invalidation_register"]["records"]}
+    record = evidence[record_id]
+    if record["recovered_source"]["source_system"] == "OFFICE_DOCUMENT":
+        assert "timestamp_status" not in record
+    else:
+        assert record["timestamp_status"] == "ATTRIBUTABLE"
+        assert record["timestamp_basis"] in {"TURN_STARTED_AT", "TURN_COMPLETED_AT"}
+        assert record["source_timestamp"].endswith("Z")
+
+
+def test_source_role_and_claim_attribution_cannot_be_promoted() -> None:
+    mutated = _control()
+    record = next(r for r in mutated["evidence_invalidation_register"]["records"] if r["record_id"] == "PC-EVID-017")
+    record["recovered_source"]["source_role"] = "PRIMARY_OWNER_SOURCE"
+    with pytest.raises(ControlValidationError, match="tuple mismatch"):
+        validate_control(mutated)
+
+
+def test_right_hash_with_wrong_locator_or_timestamp_rejects() -> None:
+    mutated = _control()
+    record = next(r for r in mutated["evidence_invalidation_register"]["records"] if r["record_id"] == "PC-EVID-021")
+    record["recovered_source"]["conversation_id"] = "00000000-0000-0000-0000-000000000000"
+    with pytest.raises(ControlValidationError, match="tuple mismatch"):
+        validate_control(mutated)
+
+    mutated = _control()
+    record = next(r for r in mutated["evidence_invalidation_register"]["records"] if r["record_id"] == "PC-EVID-021")
+    record["source_timestamp"] = "2026-09-09T20:04:54.813Z"
+    with pytest.raises(ControlValidationError, match="timestamp tuple mismatch"):
+        validate_control(mutated)
+
+
+def test_review5_failure_findings_and_correction_chronology_are_preserved() -> None:
+    evidence = {r["record_id"]: r for r in _control()["evidence_invalidation_register"]["records"]}
+    failed = evidence["PC-EVID-014"]
+    correction = evidence["PC-EVID-015"]
+    assert "FAILED" in failed["notes"]
+    assert len(failed["recovered_findings"]) == 5
+    assert [item.split()[0] for item in failed["recovered_findings"]] == [f"S2-CLOSURE-REVIEW-{number:03d}" for number in range(1, 6)]
+    assert correction["dependencies"] == ["PC-EVID-014"]
+    assert correction["source_timestamp"] > failed["source_timestamp"]
+    assert failed["supersedes"] is None
+
+
+def test_frozen_context_is_exact_and_claims_no_exhaustive_reopening_contract() -> None:
+    evidence = {r["record_id"]: r for r in _control()["evidence_invalidation_register"]["records"]}
+    assert evidence["PC-EVID-016"]["dependencies"] == []
+    assert evidence["PC-EVID-017"]["dependencies"] == ["PC-EVID-016"]
+    assert evidence["PC-EVID-018"]["dependencies"] == ["PC-EVID-016", "PC-EVID-017"]
+    assert evidence["PC-EVID-016"]["source_timestamp"] < evidence["PC-EVID-017"]["source_timestamp"] < evidence["PC-EVID-018"]["source_timestamp"]
+    gap = next(g for g in _control()["provenance_gap_register"]["records"] if g["gap_id"] == "GAP-FROZEN-VERBATIM")
+    assert "NO EXHAUSTIVE OWNER-VERBATIM REOPENING CONTRACT IS CLAIMED" in gap["notes"]
+
+
+def test_frozen_context_detachment_or_substitution_rejects() -> None:
+    mutated = _control()
+    evidence = {r["record_id"]: r for r in mutated["evidence_invalidation_register"]["records"]}
+    evidence["PC-EVID-018"]["dependencies"] = ["PC-EVID-016"]
+    with pytest.raises(ControlValidationError, match="tuple mismatch"):
+        validate_control(mutated)
+
+
+def test_office_artifacts_remain_independently_authenticated() -> None:
+    evidence = {r["record_id"]: r for r in _control()["evidence_invalidation_register"]["records"]}
+    for record_id in ("PC-EVID-022", "PC-EVID-023", "PC-EVID-024"):
+        assert evidence[record_id]["dependencies"] == []
+        assert "unavailable as a standalone file for rehashing" in evidence[record_id]["provenance_limitation"]
+
+
+def test_four_gap_transitions_preserve_historical_state_and_exact_evidence() -> None:
+    gaps = {g["gap_id"]: g for g in _control()["provenance_gap_register"]["records"]}
+    for gap_id, references in EXPECTED_GAP_EVIDENCE.items():
+        assert gaps[gap_id]["historical_state"] == "UNRESOLVED"
+        assert gaps[gap_id]["later_evidence"] == references
+    assert gaps["GAP-REVIEW-5"]["classification"] == "CONFIRMED"
+    assert gaps["GAP-REVIEW-5"]["verbatim_source_recovered"] is True
+    assert gaps["GAP-FROZEN-VERBATIM"]["classification"] == "CONFIRMED"
+    assert gaps["GAP-FROZEN-VERBATIM"]["verbatim_source_recovered"] is True
+    for gap_id in ("GAP-RESEARCH-DEFINITIONS", "GAP-RESEARCH-ORDER"):
+        assert gaps[gap_id]["classification"] == "RECONSTRUCTED"
+        assert gaps[gap_id]["verbatim_source_recovered"] is False
+
+
+@pytest.mark.parametrize(("section", "index", "field"), [("milestone_gate_register", 0, "required_evidence"), ("programme_control_ledger", 0, "acceptance_evidence_references"), ("programme_control_ledger", 0, "implementation_references"), ("programme_control_ledger", 0, "direct_test_references"), ("programme_control_ledger", 0, "independent_verification_references")])
+def test_recovered_evidence_rejects_direct_authority_paths(section: str, index: int, field: str) -> None:
+    mutated = _control()
+    mutated[section]["records"][index][field].append("PC-EVID-014")
+    with pytest.raises(ControlValidationError, match="authority-bearing path"):
+        validate_control(mutated)
+
+
+def test_deferred_work_closure_evidence_cannot_consume_recovered_history() -> None:
+    mutated = _control()
+    mutated["risk_blocker_deferral_register"]["deferred_work"][0]["closure_evidence"].append("PC-EVID-014")
+    with pytest.raises(ControlValidationError, match="authority-bearing path"):
+        validate_control(mutated)
+
+
+def test_nonrecovered_evidence_cannot_transitively_depend_on_recovered_history() -> None:
+    mutated = _control()
+    evidence = {r["record_id"]: r for r in mutated["evidence_invalidation_register"]["records"]}
+    evidence["PC-EVID-013"]["dependencies"].append("PC-EVID-014")
+    with pytest.raises(ControlValidationError, match="authority-bearing path"):
+        validate_control(mutated)
+
+
+def test_supersession_cannot_launder_recovered_history() -> None:
+    mutated = _control()
+    evidence = {r["record_id"]: r for r in mutated["evidence_invalidation_register"]["records"]}
+    evidence["PC-EVID-014"]["supersedes"] = "PC-EVID-006"
+    with pytest.raises(ControlValidationError):
+        validate_control(mutated)
+
+
+def test_later_reconstructed_labels_are_not_historical_owner_authority() -> None:
+    evidence_text = json.dumps(_control()["evidence_invalidation_register"]["records"], ensure_ascii=False)
+    for label in ("Hypothesis Lock", "Signal Dependency Graph", "Edge Decay Protocol", "formal three-ledger doctrine", "named six-stream programme"):
+        assert label not in evidence_text
+
+
+def test_recovered_evidence_never_grants_later_stage_or_trading_authority() -> None:
+    control = _control()
+    recovered_text = json.dumps([r for r in control["evidence_invalidation_register"]["records"] if r["record_id"] in RECOVERED_IDS])
+    assert not FORBIDDEN_AUTHORITY.intersection(re.findall(r"[A-Z][A-Z0-9_]+", recovered_text))
+    validate_control(control)
+
+
+def test_recovered_record_semantic_digests_are_independently_fixed() -> None:
+    evidence = {
+        record["record_id"]: record
+        for record in _control()["evidence_invalidation_register"]["records"]
+        if record["record_id"] in RECOVERED_IDS
+    }
+    assert EXPECTED_RECOVERED_RECORD_SHA256.keys() == RECOVERED_IDS
+    assert {
+        record_id: _canonical_record_sha256(record)
+        for record_id, record in evidence.items()
+    } == EXPECTED_RECOVERED_RECORD_SHA256
+
+
+@pytest.mark.parametrize("record_id", sorted(RECOVERED_IDS))
+def test_every_recovered_record_rejects_semantic_claim_rewriting(record_id: str) -> None:
+    mutated = _control()
+    record = next(
+        item
+        for item in mutated["evidence_invalidation_register"]["records"]
+        if item["record_id"] == record_id
+    )
+    record["claim_property"] += " altered historical meaning"
+    with pytest.raises(ControlValidationError, match="semantic record mismatch"):
+        validate_control(mutated)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "review_failure_to_pass",
+        "review_finding_deleted",
+        "review_finding_replaced",
+        "v13_promoted_to_owner_verbatim",
+        "research_order_levels_collapsed",
+        "later_label_promoted",
+        "known_chronology_fabricated",
+        "provenance_limitation_falsified",
+    ],
+)
+def test_independent_review_semantic_mutations_reject(mutation: str) -> None:
+    mutated = _control()
+    evidence = {
+        record["record_id"]: record
+        for record in mutated["evidence_invalidation_register"]["records"]
+    }
+    if mutation == "review_failure_to_pass":
+        evidence["PC-EVID-014"]["notes"] = "Conclusion: STAGE2_CLOSURE_RECORD_REVIEW_PASS."
+    elif mutation == "review_finding_deleted":
+        evidence["PC-EVID-014"]["recovered_findings"].pop()
+    elif mutation == "review_finding_replaced":
+        evidence["PC-EVID-014"]["recovered_findings"][0] = (
+            "S2-CLOSURE-REVIEW-001 fabricated replacement"
+        )
+    elif mutation == "v13_promoted_to_owner_verbatim":
+        evidence["PC-EVID-022"]["claim_property"] = (
+            "Owner-verbatim detailed order and Stage-4 authority"
+        )
+    elif mutation == "research_order_levels_collapsed":
+        evidence["PC-EVID-025"]["claim_property"] = (
+            "Owner macro order: audit, design, Python"
+        )
+    elif mutation == "later_label_promoted":
+        evidence["PC-EVID-021"]["claim_property"] = (
+            "OWNER_DIRECT Hypothesis Lock and named six-stream programme"
+        )
+    elif mutation == "known_chronology_fabricated":
+        evidence["PC-EVID-019"]["known_chronology"] = [
+            "Fabricated chronology 2099-01-01T00:00:00Z"
+        ]
+    else:
+        evidence["PC-EVID-019"]["provenance_limitation"] = (
+            "Exact timestamp recovered and authoritative."
+        )
+    with pytest.raises(ControlValidationError, match="semantic record mismatch"):
+        validate_control(mutated)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "source",
+        "notes",
+        "provenance_limitation",
+        "evidence_state",
+        "invalidation_triggers",
+    ],
+)
+def test_other_material_recovered_fields_are_tamper_evident(field: str) -> None:
+    mutated = _control()
+    record = next(
+        item
+        for item in mutated["evidence_invalidation_register"]["records"]
+        if item["record_id"] == "PC-EVID-020"
+    )
+    if field == "evidence_state":
+        record[field] = "STALE"
+    elif isinstance(record[field], list):
+        record[field].append("fabricated semantic assertion")
+    else:
+        record[field] = f"{record[field]} fabricated semantic assertion"
+    with pytest.raises(ControlValidationError, match="semantic record mismatch"):
+        validate_control(mutated)
