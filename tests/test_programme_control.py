@@ -552,6 +552,29 @@ def test_cross_references_resolve_and_active_controls_have_authority() -> None:
     validate_control(_control())
 
 
+def test_rb1_design_ratification_is_recorded_without_implementation_authority() -> None:
+    control = _control()
+    decision = next(
+        record for record in control["decision_register"]["records"]
+        if record["record_id"] == "PC-DEC-002"
+    )
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+    assert decision["scope"] == "RB1_BF01_BF02_BF03_DESIGN_ONLY"
+    assert decision["authority_granted"] == [
+        "RECORD_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+    ]
+    assert {
+        "RB1_IMPLEMENTATION", "RB2_IMPLEMENTATION", "RB3_IMPLEMENTATION",
+        "STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION",
+        "STORAGE_SELECTION", "PAPER_TRADING", "LIVE_TRADING",
+        "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
+    } == set(decision["authority_not_granted"])
+    candidate = control["stage3_recording_candidate"]
+    assert candidate["authority_ceiling"]["RB1_IMPLEMENTATION_AUTHORIZED"] is False
+    assert candidate["authority_ceiling"]["IMPLEMENTATION_AUTHORIZED"] is False
+
+
 def test_control_and_evidence_lifecycles_are_distinct() -> None:
     control = _control()
     assert control["control_lifecycle_vocabulary"] != control["evidence_lifecycle_vocabulary"]
@@ -580,7 +603,7 @@ def test_supersession_is_resolved_and_non_self_referential() -> None:
 def test_contradictory_active_decisions_reject() -> None:
     candidate = deepcopy(_control())
     duplicate = deepcopy(candidate["decision_register"]["records"][0])
-    duplicate["record_id"] = "PC-DEC-002"
+    duplicate["record_id"] = "PC-DEC-999"
     duplicate["decision"] = "LOCAL_IMPLEMENTATION_REJECTED"
     candidate["decision_register"]["records"].append(duplicate)
     with pytest.raises(ControlValidationError, match="contradictory active decisions"):

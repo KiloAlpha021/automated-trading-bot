@@ -218,7 +218,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-001` — Stable instrument identity\n\n- **Statement:** An instrument shall retain a stable typed identity across mutable symbol, venue, and reference-data presentations.\n- **Source/class/ownership:** `IMP-005`, `R41-CI025`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies/predecessors:** Stage-2 typed identity contracts.\n- **Verification:** identity stability across reference revisions.\n- **Adversarial:** symbol/venue change cannot silently create identity substitution.\n- **Forward consumers:** Stages 4–8.\n- **Unresolved:** identifier composition is an architecture decision.",
+        "exact_final_section": "### `S3-REQ-001` — Stable instrument identity\n\n- **Statement:** An instrument shall retain a stable typed identity across mutable symbol, venue, and reference-data presentations.\n- **Source/class/ownership:** `IMP-005`, `R41-CI025`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies/predecessors:** Stage-2 typed identity contracts.\n- **Verification:** identity stability across reference revisions.\n- **Adversarial:** symbol/venue change cannot silently create identity substitution.\n- **Forward consumers:** Stages 4–8.\n- **Owner-ratified design:** `ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1`; opaque immutable ATIS-controlled UUIDv4-backed `InstrumentId` and separate `ListingId`; no mutable or external attribute derives canonical identity; continuity is attributable and restrictive.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -230,7 +230,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-002` — Effective-dated reference versions\n\n- **Statement:** Reference attributes shall be versioned and selected according to their attributable effective and knowledge boundaries.\n- **Source/class/ownership:** `IMP-005`, `GATE-S03-01`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 001; Stage-2 version/evidence contracts.\n- **Verification:** before/at/after boundary lookup.\n- **Adversarial:** missing, overlapping, or ambiguous versions remain non-authoritative.\n- **Forward consumers:** Stages 4–8.\n- **Unresolved:** mandatory field set.",
+        "exact_final_section": "### `S3-REQ-002` — Effective-dated reference versions\n\n- **Statement:** Reference attributes shall be versioned and selected according to their attributable effective and knowledge boundaries.\n- **Source/class/ownership:** `IMP-005`, `GATE-S03-01`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 001; Stage-2 version/evidence contracts.\n- **Verification:** before/at/after boundary lookup.\n- **Adversarial:** missing, overlapping, or ambiguous versions remain non-authoritative.\n- **Forward consumers:** Stages 4–8.\n- **Owner-ratified design:** `ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1`; separate immutable instrument/listing reference versions; `[effective_from,effective_to)` UTC intervals; visibility from `knowledge_from`; derived `knowledge_to`; exact PIT resolution; immutable supersession and nonempty provenance.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -242,7 +242,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-003` — Tradability-state history\n\n- **Statement:** Listing and tradability state shall be versioned historically and shall never default to tradable when absent or conflicting.\n- **Source/class/ownership:** `IMP-005`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 001–002.\n- **Verification:** activation, suspension, delisting, historical lookup.\n- **Adversarial:** absent/conflicting state is restrictive.\n- **Forward consumers:** Stages 4, 5, 7, 8.\n- **Unresolved:** venue vocabulary.",
+        "exact_final_section": "### `S3-REQ-003` — Tradability-state history\n\n- **Statement:** Listing and tradability state shall be versioned historically and shall never default to tradable when absent or conflicting.\n- **Source/class/ownership:** `IMP-005`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 001–002.\n- **Verification:** activation, suspension, delisting, historical lookup.\n- **Adversarial:** absent/conflicting state is restrictive.\n- **Forward consumers:** Stages 4, 5, 7, 8.\n- **Owner-ratified design:** `ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1`; factual states are `ACTIVE`, `HALTED`, `SUSPENDED`, `INACTIVE`, `DELISTED`; resolution dispositions are separate; absent/conflicting evidence remains restrictive and no state grants trading authority.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -9673,6 +9673,121 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "18f4ca71598e5eff5c6a506271d95e1b60f0a59223d998832ee617f23cccbc6d"
+    "candidate_digest": "5b884e5dbbc036fdc6350e6f3dc4449b963579a8f86cefa8e4b8a43f843b9abf",
+    "rb1_design_ratification": {
+      "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+      "state": "RATIFIED",
+      "scope": [
+        "BF-01_CANONICAL_IDENTITY",
+        "BF-02_IMMUTABLE_REFERENCE_VERSION",
+        "BF-03_LISTING_TRADABILITY_MODEL"
+      ],
+      "identity_contract": {
+        "instrument_id": "OPAQUE_IMMUTABLE_ATIS_CONTROLLED_UUIDV4_STRONGLY_TYPED",
+        "listing_id": "OPAQUE_IMMUTABLE_ATIS_CONTROLLED_UUIDV4_STRONGLY_TYPED",
+        "namespace_separation": true,
+        "external_attributes_are_identity": false,
+        "prohibited_identity_derivations": [
+          "TICKER_SYMBOL",
+          "MIC",
+          "EXCHANGE_NAME",
+          "ISIN",
+          "FIGI",
+          "CUSIP",
+          "SEDOL",
+          "PROVIDER_ID",
+          "BROKER_ALIAS",
+          "ISSUER_NAME",
+          "OTHER_MUTABLE_OR_EXTERNAL_ATTRIBUTE"
+        ],
+        "continuity_adjudication": "ATTRIBUTABLE_RESTRICTIVE_NO_SILENT_REUSE",
+        "listing_instrument_binding": "PERMANENT_ONE_INSTRUMENT"
+      },
+      "reference_model": {
+        "instrument_reference_version": "SEPARATE_IMMUTABLE_TYPE",
+        "listing_reference_version": "SEPARATE_IMMUTABLE_TYPE",
+        "generic_nullable_mega_record": false,
+        "required_common_fields": [
+          "reference_version_id",
+          "instrument_id",
+          "effective_from",
+          "effective_to",
+          "knowledge_from",
+          "evidence_refs",
+          "validation_policy_id",
+          "validation_state",
+          "content_digest"
+        ],
+        "required_listing_fields": [
+          "listing_id",
+          "tradability_state",
+          "tradability_reason"
+        ],
+        "conditional_fields": [
+          "symbol",
+          "mic",
+          "currency",
+          "security_type",
+          "primary_listing_indicator",
+          "external_identifiers",
+          "source_observed_at",
+          "correction_reason"
+        ],
+        "deferred_fields": [
+          "jurisdiction",
+          "ingested_at"
+        ],
+        "knowledge_to": "DERIVED_NOT_STORED"
+      },
+      "temporal_contract": {
+        "effective_interval": "HALF_OPEN_START_INCLUSIVE_END_EXCLUSIVE",
+        "open_effective_end": "NULL",
+        "timezone": "UTC",
+        "knowledge_visibility": "KNOWLEDGE_FROM_LESS_THAN_OR_EQUAL_TO_CUTOFF",
+        "exact_resolution": true,
+        "current_or_latest_substitution": false
+      },
+      "correction_lineage_contract": {
+        "versions_immutable": true,
+        "lineage_edge": "SUPERSEDES_VERSION_ID_ONLY",
+        "duplicate_predecessor_pointer": false,
+        "predecessors_remain_queryable": true,
+        "branching_successors": "CONFLICTING_RESTRICTIVE",
+        "overwrite_prior_evidence": false
+      },
+      "provenance_contract": {
+        "evidence_refs": "NONEMPTY_IMMUTABLE_COLLECTION",
+        "required_evidence_ref_fields": [
+          "SOURCE_ID",
+          "DATASET_ID",
+          "EVIDENCE_ID"
+        ],
+        "validation_policy_id_required": true,
+        "validation_state_required": true,
+        "canonical_content_identity_required": true,
+        "missing_provenance_or_validation": "NOT_AUTHORITATIVE"
+      },
+      "factual_listing_states": [
+        "ACTIVE",
+        "HALTED",
+        "SUSPENDED",
+        "INACTIVE",
+        "DELISTED"
+      ],
+      "resolution_dispositions": [
+        "ESTABLISHED",
+        "ABSENT",
+        "AMBIGUOUS",
+        "CONFLICTING",
+        "NOT_ESTABLISHED"
+      ],
+      "restrictive_evidence_conditions": [
+        "STALE",
+        "INVALID"
+      ],
+      "absent_semantics": "REQUIRES_AUTHORITATIVE_NEGATIVE_COVERAGE",
+      "trading_authority_effect": "NONE",
+      "implementation_authorized": false
+    }
   }
 }

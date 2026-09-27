@@ -377,6 +377,51 @@ def test_stage3_recording_manifest_cf002_adv_and_authority():
     assert manifest["authority_ceiling"]["IMPLEMENTATION_AUTHORIZED"] is False
     assert manifest["authority_ceiling"]["PROTECTED_RECORDING_AUTHORIZED"] is False
 
+def test_rb1_identity_and_reference_model_v1_is_ratified_without_implementation():
+    data = corpus()
+    manifest = data["stage3_recording_manifest"]
+    decision = manifest["rb1_design_ratification"]
+    assert decision["contract_id"] == "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+    assert decision["state"] == "RATIFIED"
+    assert decision["identity_contract"] == {
+        "instrument_id": "OPAQUE_IMMUTABLE_ATIS_CONTROLLED_UUIDV4_STRONGLY_TYPED",
+        "listing_id": "OPAQUE_IMMUTABLE_ATIS_CONTROLLED_UUIDV4_STRONGLY_TYPED",
+        "namespace_separation": True,
+        "external_attributes_are_identity": False,
+        "prohibited_identity_derivations": [
+            "TICKER_SYMBOL", "MIC", "EXCHANGE_NAME", "ISIN", "FIGI", "CUSIP",
+            "SEDOL", "PROVIDER_ID", "BROKER_ALIAS", "ISSUER_NAME",
+            "OTHER_MUTABLE_OR_EXTERNAL_ATTRIBUTE",
+        ],
+        "continuity_adjudication": "ATTRIBUTABLE_RESTRICTIVE_NO_SILENT_REUSE",
+        "listing_instrument_binding": "PERMANENT_ONE_INSTRUMENT",
+    }
+    assert decision["temporal_contract"] == {
+        "effective_interval": "HALF_OPEN_START_INCLUSIVE_END_EXCLUSIVE",
+        "open_effective_end": "NULL",
+        "timezone": "UTC",
+        "knowledge_visibility": "KNOWLEDGE_FROM_LESS_THAN_OR_EQUAL_TO_CUTOFF",
+        "exact_resolution": True,
+        "current_or_latest_substitution": False,
+    }
+    assert decision["correction_lineage_contract"]["lineage_edge"] == "SUPERSEDES_VERSION_ID_ONLY"
+    assert decision["correction_lineage_contract"]["overwrite_prior_evidence"] is False
+    assert decision["provenance_contract"]["evidence_refs"] == "NONEMPTY_IMMUTABLE_COLLECTION"
+    assert decision["factual_listing_states"] == [
+        "ACTIVE", "HALTED", "SUSPENDED", "INACTIVE", "DELISTED",
+    ]
+    assert decision["resolution_dispositions"] == [
+        "ESTABLISHED", "ABSENT", "AMBIGUOUS", "CONFLICTING", "NOT_ESTABLISHED",
+    ]
+    assert decision["restrictive_evidence_conditions"] == ["STALE", "INVALID"]
+    assert decision["absent_semantics"] == "REQUIRES_AUTHORITATIVE_NEGATIVE_COVERAGE"
+    assert decision["trading_authority_effect"] == "NONE"
+    assert decision["implementation_authorized"] is False
+    requirements = {r["id"]: r["exact_final_section"] for r in catalogues(data)["requirements"]}
+    for requirement_id in ("S3-REQ-001", "S3-REQ-002", "S3-REQ-003"):
+        assert "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1" in requirements[requirement_id]
+        assert "**Unresolved:**" not in requirements[requirement_id]
+
 def test_stage3_recording_manifest_canonicalization():
     manifest = corpus()["stage3_recording_manifest"]
     assert manifest["candidate_digest"] == _recording_digest(manifest)

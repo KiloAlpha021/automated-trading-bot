@@ -435,6 +435,33 @@
           "STAGE3_IMPLEMENTATION",
           "TRADING_OR_FINANCIAL_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-002",
+        "governed_question": "May the BF-01, BF-02 and BF-03 RB-1 design resolution be ratified and recorded without implementation authority?",
+        "scope": "RB1_BF01_BF02_BF03_DESIGN_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+        "source_authority": "Owner-ratified decision supplied for this recording operation and the protected Stage-3 ratification contract",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+        ],
+        "authority_not_granted": [
+          "RB1_IMPLEMENTATION",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
