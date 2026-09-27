@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "5b884e5dbbc036fdc6350e6f3dc4449b963579a8f86cefa8e4b8a43f843b9abf",
+    "candidate_digest": "d2fbd6e9d7efd2930dd8748e1e6587f2148eeb4cf50430add29deb2b08606372",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -9788,6 +9788,168 @@
       "absent_semantics": "REQUIRES_AUTHORITATIVE_NEGATIVE_COVERAGE",
       "trading_authority_effect": "NONE",
       "implementation_authorized": false
+    },
+    "rb1_slice1_implementation_contract": {
+      "contract_id": "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+      "state": "RATIFIED",
+      "parent_design": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+      "scope": "ATIS-S3-RB1-S1_IMPLEMENTATION_CONTRACT_ONLY",
+      "canonical_identity": {
+        "reference_version_id": "DISTINCT_IMMUTABLE_ATIS_CONTROLLED_RFC_UUIDV4_NON_NIL_STRONGLY_TYPED",
+        "canonical_forms": {
+          "instrument_id": "atis:instrument:v1:<lowercase-hyphenated-uuidv4>",
+          "listing_id": "atis:listing:v1:<lowercase-hyphenated-uuidv4>",
+          "reference_version_id": "atis:reference-version:v1:<lowercase-hyphenated-uuidv4>"
+        },
+        "parsing": "EXACT_CASE_SENSITIVE_NO_NORMALIZATION",
+        "reject": [
+          "BARE_UUID",
+          "UPPERCASE_OR_NONCANONICAL",
+          "WHITESPACE",
+          "ALTERNATIVE_UUID_ENCODING",
+          "NIL_UUID",
+          "NON_V4_UUID",
+          "WRONG_IDENTITY_KIND",
+          "ARBITRARY_LEGACY_STRING"
+        ]
+      },
+      "content_identity": {
+        "algorithm": "SHA-256",
+        "external_form": "sha256:<64-lowercase-hex-digits>",
+        "canonicalization": {
+          "encoding": "UTF-8_WITHOUT_BOM",
+          "representation": "CANONICAL_JSON",
+          "object_keys": "FIXED_ASCII_LEXICOGRAPHIC_SORT",
+          "whitespace": "NONE_INSIGNIFICANT",
+          "floats": "PROHIBITED",
+          "semantic_strings": "NFC_REQUIRED_NO_SILENT_NORMALIZATION",
+          "identities": "EXACT_TYPED_CANONICAL_SERIALIZATION",
+          "enums": "EXACT_UPPERCASE_TOKEN",
+          "timestamps": "YYYY-MM-DDTHH:MM:SS.ffffffZ",
+          "absent_model_fields": "EXPLICIT_NULL",
+          "unknown_fields": "REJECTED"
+        },
+        "included_fields": "ALL_SEMANTIC_REFERENCE_VERSION_FIELDS",
+        "included_field_classes": [
+          "RECORD_KIND",
+          "SUBJECT_IDENTITIES",
+          "EFFECTIVE_AND_KNOWLEDGE_TIMES",
+          "FACTUAL_ATTRIBUTES",
+          "LISTING_STATE_AND_REASON",
+          "EVIDENCE_REFS",
+          "VALIDATION_POLICY_AND_STATE",
+          "SUPERSEDES_VERSION_ID",
+          "CORRECTION_REASON",
+          "DEFINED_CONDITIONAL_MODEL_FIELDS"
+        ],
+        "excluded_fields": [
+          "REFERENCE_VERSION_ID",
+          "CONTENT_DIGEST",
+          "RUNTIME_CACHE_STORAGE_METADATA",
+          "PUBLICATION_OR_GIT_IDENTITIES",
+          "FIELDS_OUTSIDE_PROTECTED_MODEL"
+        ],
+        "digest_self_exclusion": true
+      },
+      "evidence_ordering": {
+        "semantics": "UNORDERED",
+        "canonical_order": "SORT_DISTINCT_EVIDENCE_REFS_BY_CANONICAL_BYTES",
+        "same_key_same_digest": "IDEMPOTENT_REPLAY_SINGLE_CANONICAL_MEMBER",
+        "same_key_different_digest": "EVIDENCE_IDENTITY_CONFLICT",
+        "caller_order_has_authority": false
+      },
+      "validation_contract": {
+        "states": [
+          "VALID",
+          "INVALID",
+          "NOT_VALIDATED",
+          "INCOMPATIBLE",
+          "NOT_ESTABLISHED"
+        ],
+        "authoritative_state": "VALID_ONLY",
+        "implicit_default": false,
+        "restrictive_states": [
+          "INVALID",
+          "NOT_VALIDATED",
+          "INCOMPATIBLE",
+          "NOT_ESTABLISHED"
+        ],
+        "policy_or_state_change": "NEW_IMMUTABLE_REFERENCE_VERSION"
+      },
+      "evidence_ref_contract": {
+        "fields": [
+          "SOURCE_ID",
+          "DATASET_ID",
+          "EVIDENCE_ID",
+          "EVIDENCE_CONTENT_DIGEST"
+        ],
+        "validation_policy_id": "SEPARATE_REQUIRED_REFERENCE_VERSION_FIELD",
+        "canonical_forms": {
+          "source_id": "source:<authority>/<local-id>",
+          "dataset_id": "dataset:<authority>/<local-id>",
+          "evidence_id": "evidence:<authority>/<local-id>",
+          "validation_policy_id": "validation-policy:<authority>/<local-id>"
+        },
+        "authority_component": "LOWERCASE_ASCII_1_TO_63_ALPHANUMERIC_DOT_HYPHEN_NO_INVALID_BOUNDARY_OR_ADJACENT_SEPARATOR",
+        "local_id": "CASE_SENSITIVE_ASCII_1_TO_191_BOUNDED_PERMITTED_SET_NO_WHITESPACE_CONTROL_UNICODE_OR_NORMALIZATION",
+        "identifier_maximum_ascii_characters": 255,
+        "evidence_key": [
+          "SOURCE_ID",
+          "DATASET_ID",
+          "EVIDENCE_ID"
+        ],
+        "same_key_same_digest": "IDEMPOTENT_REPLAY",
+        "same_key_different_digest": "EVIDENCE_IDENTITY_CONFLICT",
+        "different_key_same_digest": "PERMITTED_ATTRIBUTABLE_CORROBORATION",
+        "maximum_evidence_refs_per_version": 64
+      },
+      "lineage_contract": {
+        "validation_boundary": "ONE_COMPLETE_FINITE_CANDIDATE_LINEAGE_SET_FOR_ONE_CANONICAL_SUBJECT",
+        "instrument_subject": [
+          "INSTRUMENT_ID"
+        ],
+        "listing_subject": [
+          "INSTRUMENT_ID",
+          "LISTING_ID"
+        ],
+        "requirements": [
+          "ALL_REFERENCED_PREDECESSORS_PRESENT",
+          "NO_SELF_EDGE",
+          "NO_CYCLE",
+          "NO_CROSS_SUBJECT_EDGE",
+          "NO_CROSS_KIND_EDGE",
+          "UNIQUE_REFERENCE_VERSION_ID",
+          "INPUT_ORDER_INDEPENDENT"
+        ],
+        "branching_successors": "BRANCHING_SUCCESSOR_CONFLICT",
+        "missing_predecessor": "MISSING_PREDECESSOR",
+        "cycle": "LINEAGE_CYCLE",
+        "resource_bound_failure": "LINEAGE_RESOURCE_LIMIT_EXCEEDED",
+        "successor_knowledge_order": "STRICTLY_GREATER_THAN_PREDECESSOR",
+        "effective_time_correction_of_earlier_interval": true,
+        "maximum_lineage_set_versions": 4096,
+        "maximum_predecessor_depth_edges": 256,
+        "maximum_evidence_refs_per_version": 64,
+        "limits_are_versioned_contract_values": true
+      },
+      "instrument_id_migration": {
+        "approach": "IMMEDIATE_STRICT_ATOMIC_MIGRATION",
+        "existing_import_location_preserved": true,
+        "authoritative_instrument_id_type_count": 1,
+        "all_production_calls_tests_and_fixtures_migrate_atomically": true,
+        "arbitrary_string_compatibility": false,
+        "automatic_uuid_derivation_from_legacy_string": false,
+        "dual_format_fallback": false,
+        "second_instrument_id_implementation": false,
+        "fixtures": "DETERMINISTIC_UUIDV4_REPLACE_TEST_OTHER_XAUUSD_STYLE_VALUES",
+        "future_persisted_legacy_values": "SEPARATELY_AUTHORIZED_EXPLICIT_MIGRATION_MAPPING"
+      },
+      "authority": {
+        "RB1_IMPLEMENTATION_AUTHORIZED": false,
+        "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "IMPLEMENTATION_AUTHORIZED": false,
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
     }
   }
 }
