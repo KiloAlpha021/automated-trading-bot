@@ -719,6 +719,24 @@ def test_unresolved_evidence_supersession_rejects() -> None:
         validate_control(candidate)
 
 
+
+def test_rb1_slice1_implementation_contract_decision_is_recorded_without_authority() -> None:
+    control = _control()
+    decisions = {record["record_id"]: record for record in control["decision_register"]["records"]}
+    assert decisions["PC-DEC-002"]["decision"] == "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+    decision = decisions["PC-DEC-003"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1"
+    assert decision["scope"] == "RB1_SLICE1_IMPLEMENTATION_CONTRACT_DESIGN_ONLY"
+    assert decision["authority_granted"] == ["RECORD_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1"]
+    assert {
+        "RB1_IMPLEMENTATION", "RB2_IMPLEMENTATION", "RB3_IMPLEMENTATION",
+        "STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION",
+        "STORAGE_SELECTION", "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    }.issubset(decision["authority_not_granted"])
+
+
 def test_evidence_supersession_cycle_rejects() -> None:
     candidate = deepcopy(_control())
     evidence = candidate["evidence_invalidation_register"]["records"]

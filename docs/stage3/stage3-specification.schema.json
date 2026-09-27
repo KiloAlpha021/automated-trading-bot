@@ -93,7 +93,8 @@
         "owner_ratification",
         "canonicalization",
         "candidate_digest",
-        "rb1_design_ratification"
+        "rb1_design_ratification",
+        "rb1_slice1_implementation_contract"
       ],
       "properties": {
         "manifest_id": {
@@ -19991,6 +19992,636 @@
             },
             "implementation_authorized": {
               "const": false
+            }
+          }
+        },
+        "rb1_slice1_implementation_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract_id",
+            "state",
+            "parent_design",
+            "scope",
+            "canonical_identity",
+            "content_identity",
+            "evidence_ordering",
+            "validation_contract",
+            "evidence_ref_contract",
+            "lineage_contract",
+            "instrument_id_migration",
+            "authority"
+          ],
+          "properties": {
+            "contract_id": {
+              "const": "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1"
+            },
+            "state": {
+              "const": "RATIFIED"
+            },
+            "parent_design": {
+              "const": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+            },
+            "scope": {
+              "const": "ATIS-S3-RB1-S1_IMPLEMENTATION_CONTRACT_ONLY"
+            },
+            "canonical_identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "reference_version_id",
+                "canonical_forms",
+                "parsing",
+                "reject"
+              ],
+              "properties": {
+                "reference_version_id": {
+                  "const": "DISTINCT_IMMUTABLE_ATIS_CONTROLLED_RFC_UUIDV4_NON_NIL_STRONGLY_TYPED"
+                },
+                "canonical_forms": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "instrument_id",
+                    "listing_id",
+                    "reference_version_id"
+                  ],
+                  "properties": {
+                    "instrument_id": {
+                      "const": "atis:instrument:v1:<lowercase-hyphenated-uuidv4>"
+                    },
+                    "listing_id": {
+                      "const": "atis:listing:v1:<lowercase-hyphenated-uuidv4>"
+                    },
+                    "reference_version_id": {
+                      "const": "atis:reference-version:v1:<lowercase-hyphenated-uuidv4>"
+                    }
+                  }
+                },
+                "parsing": {
+                  "const": "EXACT_CASE_SENSITIVE_NO_NORMALIZATION"
+                },
+                "reject": {
+                  "type": "array",
+                  "minItems": 8,
+                  "maxItems": 8,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "BARE_UUID"
+                    },
+                    {
+                      "const": "UPPERCASE_OR_NONCANONICAL"
+                    },
+                    {
+                      "const": "WHITESPACE"
+                    },
+                    {
+                      "const": "ALTERNATIVE_UUID_ENCODING"
+                    },
+                    {
+                      "const": "NIL_UUID"
+                    },
+                    {
+                      "const": "NON_V4_UUID"
+                    },
+                    {
+                      "const": "WRONG_IDENTITY_KIND"
+                    },
+                    {
+                      "const": "ARBITRARY_LEGACY_STRING"
+                    }
+                  ]
+                }
+              }
+            },
+            "content_identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "algorithm",
+                "external_form",
+                "canonicalization",
+                "included_fields",
+                "included_field_classes",
+                "excluded_fields",
+                "digest_self_exclusion"
+              ],
+              "properties": {
+                "algorithm": {
+                  "const": "SHA-256"
+                },
+                "external_form": {
+                  "const": "sha256:<64-lowercase-hex-digits>"
+                },
+                "canonicalization": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "encoding",
+                    "representation",
+                    "object_keys",
+                    "whitespace",
+                    "floats",
+                    "semantic_strings",
+                    "identities",
+                    "enums",
+                    "timestamps",
+                    "absent_model_fields",
+                    "unknown_fields"
+                  ],
+                  "properties": {
+                    "encoding": {
+                      "const": "UTF-8_WITHOUT_BOM"
+                    },
+                    "representation": {
+                      "const": "CANONICAL_JSON"
+                    },
+                    "object_keys": {
+                      "const": "FIXED_ASCII_LEXICOGRAPHIC_SORT"
+                    },
+                    "whitespace": {
+                      "const": "NONE_INSIGNIFICANT"
+                    },
+                    "floats": {
+                      "const": "PROHIBITED"
+                    },
+                    "semantic_strings": {
+                      "const": "NFC_REQUIRED_NO_SILENT_NORMALIZATION"
+                    },
+                    "identities": {
+                      "const": "EXACT_TYPED_CANONICAL_SERIALIZATION"
+                    },
+                    "enums": {
+                      "const": "EXACT_UPPERCASE_TOKEN"
+                    },
+                    "timestamps": {
+                      "const": "YYYY-MM-DDTHH:MM:SS.ffffffZ"
+                    },
+                    "absent_model_fields": {
+                      "const": "EXPLICIT_NULL"
+                    },
+                    "unknown_fields": {
+                      "const": "REJECTED"
+                    }
+                  }
+                },
+                "included_fields": {
+                  "const": "ALL_SEMANTIC_REFERENCE_VERSION_FIELDS"
+                },
+                "included_field_classes": {
+                  "type": "array",
+                  "minItems": 10,
+                  "maxItems": 10,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "RECORD_KIND"
+                    },
+                    {
+                      "const": "SUBJECT_IDENTITIES"
+                    },
+                    {
+                      "const": "EFFECTIVE_AND_KNOWLEDGE_TIMES"
+                    },
+                    {
+                      "const": "FACTUAL_ATTRIBUTES"
+                    },
+                    {
+                      "const": "LISTING_STATE_AND_REASON"
+                    },
+                    {
+                      "const": "EVIDENCE_REFS"
+                    },
+                    {
+                      "const": "VALIDATION_POLICY_AND_STATE"
+                    },
+                    {
+                      "const": "SUPERSEDES_VERSION_ID"
+                    },
+                    {
+                      "const": "CORRECTION_REASON"
+                    },
+                    {
+                      "const": "DEFINED_CONDITIONAL_MODEL_FIELDS"
+                    }
+                  ]
+                },
+                "excluded_fields": {
+                  "type": "array",
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "REFERENCE_VERSION_ID"
+                    },
+                    {
+                      "const": "CONTENT_DIGEST"
+                    },
+                    {
+                      "const": "RUNTIME_CACHE_STORAGE_METADATA"
+                    },
+                    {
+                      "const": "PUBLICATION_OR_GIT_IDENTITIES"
+                    },
+                    {
+                      "const": "FIELDS_OUTSIDE_PROTECTED_MODEL"
+                    }
+                  ]
+                },
+                "digest_self_exclusion": {
+                  "const": true
+                }
+              }
+            },
+            "evidence_ordering": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "semantics",
+                "canonical_order",
+                "same_key_same_digest",
+                "same_key_different_digest",
+                "caller_order_has_authority"
+              ],
+              "properties": {
+                "semantics": {
+                  "const": "UNORDERED"
+                },
+                "canonical_order": {
+                  "const": "SORT_DISTINCT_EVIDENCE_REFS_BY_CANONICAL_BYTES"
+                },
+                "same_key_same_digest": {
+                  "const": "IDEMPOTENT_REPLAY_SINGLE_CANONICAL_MEMBER"
+                },
+                "same_key_different_digest": {
+                  "const": "EVIDENCE_IDENTITY_CONFLICT"
+                },
+                "caller_order_has_authority": {
+                  "const": false
+                }
+              }
+            },
+            "validation_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "states",
+                "authoritative_state",
+                "implicit_default",
+                "restrictive_states",
+                "policy_or_state_change"
+              ],
+              "properties": {
+                "states": {
+                  "type": "array",
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "VALID"
+                    },
+                    {
+                      "const": "INVALID"
+                    },
+                    {
+                      "const": "NOT_VALIDATED"
+                    },
+                    {
+                      "const": "INCOMPATIBLE"
+                    },
+                    {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  ]
+                },
+                "authoritative_state": {
+                  "const": "VALID_ONLY"
+                },
+                "implicit_default": {
+                  "const": false
+                },
+                "restrictive_states": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "INVALID"
+                    },
+                    {
+                      "const": "NOT_VALIDATED"
+                    },
+                    {
+                      "const": "INCOMPATIBLE"
+                    },
+                    {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  ]
+                },
+                "policy_or_state_change": {
+                  "const": "NEW_IMMUTABLE_REFERENCE_VERSION"
+                }
+              }
+            },
+            "evidence_ref_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "fields",
+                "validation_policy_id",
+                "canonical_forms",
+                "authority_component",
+                "local_id",
+                "identifier_maximum_ascii_characters",
+                "evidence_key",
+                "same_key_same_digest",
+                "same_key_different_digest",
+                "different_key_same_digest",
+                "maximum_evidence_refs_per_version"
+              ],
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "SOURCE_ID"
+                    },
+                    {
+                      "const": "DATASET_ID"
+                    },
+                    {
+                      "const": "EVIDENCE_ID"
+                    },
+                    {
+                      "const": "EVIDENCE_CONTENT_DIGEST"
+                    }
+                  ]
+                },
+                "validation_policy_id": {
+                  "const": "SEPARATE_REQUIRED_REFERENCE_VERSION_FIELD"
+                },
+                "canonical_forms": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "source_id",
+                    "dataset_id",
+                    "evidence_id",
+                    "validation_policy_id"
+                  ],
+                  "properties": {
+                    "source_id": {
+                      "const": "source:<authority>/<local-id>"
+                    },
+                    "dataset_id": {
+                      "const": "dataset:<authority>/<local-id>"
+                    },
+                    "evidence_id": {
+                      "const": "evidence:<authority>/<local-id>"
+                    },
+                    "validation_policy_id": {
+                      "const": "validation-policy:<authority>/<local-id>"
+                    }
+                  }
+                },
+                "authority_component": {
+                  "const": "LOWERCASE_ASCII_1_TO_63_ALPHANUMERIC_DOT_HYPHEN_NO_INVALID_BOUNDARY_OR_ADJACENT_SEPARATOR"
+                },
+                "local_id": {
+                  "const": "CASE_SENSITIVE_ASCII_1_TO_191_BOUNDED_PERMITTED_SET_NO_WHITESPACE_CONTROL_UNICODE_OR_NORMALIZATION"
+                },
+                "identifier_maximum_ascii_characters": {
+                  "const": 255
+                },
+                "evidence_key": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "SOURCE_ID"
+                    },
+                    {
+                      "const": "DATASET_ID"
+                    },
+                    {
+                      "const": "EVIDENCE_ID"
+                    }
+                  ]
+                },
+                "same_key_same_digest": {
+                  "const": "IDEMPOTENT_REPLAY"
+                },
+                "same_key_different_digest": {
+                  "const": "EVIDENCE_IDENTITY_CONFLICT"
+                },
+                "different_key_same_digest": {
+                  "const": "PERMITTED_ATTRIBUTABLE_CORROBORATION"
+                },
+                "maximum_evidence_refs_per_version": {
+                  "const": 64
+                }
+              }
+            },
+            "lineage_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "validation_boundary",
+                "instrument_subject",
+                "listing_subject",
+                "requirements",
+                "branching_successors",
+                "missing_predecessor",
+                "cycle",
+                "resource_bound_failure",
+                "successor_knowledge_order",
+                "effective_time_correction_of_earlier_interval",
+                "maximum_lineage_set_versions",
+                "maximum_predecessor_depth_edges",
+                "maximum_evidence_refs_per_version",
+                "limits_are_versioned_contract_values"
+              ],
+              "properties": {
+                "validation_boundary": {
+                  "const": "ONE_COMPLETE_FINITE_CANDIDATE_LINEAGE_SET_FOR_ONE_CANONICAL_SUBJECT"
+                },
+                "instrument_subject": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 1,
+                  "uniqueItems": false,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "INSTRUMENT_ID"
+                    }
+                  ]
+                },
+                "listing_subject": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "INSTRUMENT_ID"
+                    },
+                    {
+                      "const": "LISTING_ID"
+                    }
+                  ]
+                },
+                "requirements": {
+                  "type": "array",
+                  "minItems": 7,
+                  "maxItems": 7,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "ALL_REFERENCED_PREDECESSORS_PRESENT"
+                    },
+                    {
+                      "const": "NO_SELF_EDGE"
+                    },
+                    {
+                      "const": "NO_CYCLE"
+                    },
+                    {
+                      "const": "NO_CROSS_SUBJECT_EDGE"
+                    },
+                    {
+                      "const": "NO_CROSS_KIND_EDGE"
+                    },
+                    {
+                      "const": "UNIQUE_REFERENCE_VERSION_ID"
+                    },
+                    {
+                      "const": "INPUT_ORDER_INDEPENDENT"
+                    }
+                  ]
+                },
+                "branching_successors": {
+                  "const": "BRANCHING_SUCCESSOR_CONFLICT"
+                },
+                "missing_predecessor": {
+                  "const": "MISSING_PREDECESSOR"
+                },
+                "cycle": {
+                  "const": "LINEAGE_CYCLE"
+                },
+                "resource_bound_failure": {
+                  "const": "LINEAGE_RESOURCE_LIMIT_EXCEEDED"
+                },
+                "successor_knowledge_order": {
+                  "const": "STRICTLY_GREATER_THAN_PREDECESSOR"
+                },
+                "effective_time_correction_of_earlier_interval": {
+                  "const": true
+                },
+                "maximum_lineage_set_versions": {
+                  "const": 4096
+                },
+                "maximum_predecessor_depth_edges": {
+                  "const": 256
+                },
+                "maximum_evidence_refs_per_version": {
+                  "const": 64
+                },
+                "limits_are_versioned_contract_values": {
+                  "const": true
+                }
+              }
+            },
+            "instrument_id_migration": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "approach",
+                "existing_import_location_preserved",
+                "authoritative_instrument_id_type_count",
+                "all_production_calls_tests_and_fixtures_migrate_atomically",
+                "arbitrary_string_compatibility",
+                "automatic_uuid_derivation_from_legacy_string",
+                "dual_format_fallback",
+                "second_instrument_id_implementation",
+                "fixtures",
+                "future_persisted_legacy_values"
+              ],
+              "properties": {
+                "approach": {
+                  "const": "IMMEDIATE_STRICT_ATOMIC_MIGRATION"
+                },
+                "existing_import_location_preserved": {
+                  "const": true
+                },
+                "authoritative_instrument_id_type_count": {
+                  "const": 1
+                },
+                "all_production_calls_tests_and_fixtures_migrate_atomically": {
+                  "const": true
+                },
+                "arbitrary_string_compatibility": {
+                  "const": false
+                },
+                "automatic_uuid_derivation_from_legacy_string": {
+                  "const": false
+                },
+                "dual_format_fallback": {
+                  "const": false
+                },
+                "second_instrument_id_implementation": {
+                  "const": false
+                },
+                "fixtures": {
+                  "const": "DETERMINISTIC_UUIDV4_REPLACE_TEST_OTHER_XAUUSD_STYLE_VALUES"
+                },
+                "future_persisted_legacy_values": {
+                  "const": "SEPARATELY_AUTHORIZED_EXPLICIT_MIGRATION_MAPPING"
+                }
+              }
+            },
+            "authority": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "RB1_IMPLEMENTATION_AUTHORIZED",
+                "STAGE3_IMPLEMENTATION_AUTHORIZED",
+                "IMPLEMENTATION_AUTHORIZED",
+                "AI_TRADING_AUTHORITY"
+              ],
+              "properties": {
+                "RB1_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "STAGE3_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "AI_TRADING_AUTHORITY": {
+                  "const": "NONE"
+                }
+              }
             }
           }
         }
