@@ -1621,5 +1621,78 @@
     "trailing_newline": true,
     "key_order": "PRESERVED_AS_AUTHORED",
     "machine_local_paths_forbidden": true
+  },
+  "stage3_recording_candidate": {
+    "record_id": "ATIS-STAGE3-RECORDING-CANDIDATE-001",
+    "record_state": "LOCAL_CANDIDATE",
+    "semantic_manifest_subject": "ATIS_STAGE3_RECORDING_INPUT_MANIFEST_CANDIDATE_V1",
+    "semantic_manifest_version": "1.0.0-candidate.1",
+    "canonicalization_contract": "ATIS_STAGE3_CANONICALIZATION_V1",
+    "candidate_digest_algorithm": "SHA-256",
+    "candidate_digest": "18f4ca71598e5eff5c6a506271d95e1b60f0a59223d998832ee617f23cccbc6d",
+    "independent_expected_digest": "NOT_ESTABLISHED",
+    "independent_recomputed_digest": "NOT_ESTABLISHED",
+    "owner_ratification_state": "APPROVED",
+    "protected_programme_decision_id": "NOT_YET_RECORDED",
+    "authority_ceiling": {
+      "OWNER_DESIGN_RATIFIED": true,
+      "ATIS_STAGE3_CANONICALIZATION_V1": "OWNER_APPROVED",
+      "LOCAL_SIX_FILE_CANDIDATE_CONSTRUCTION": "AUTHORIZED",
+      "PROTECTED_RECORDING_AUTHORIZED": false,
+      "RB1_IMPLEMENTATION_AUTHORIZED": false,
+      "RB2_IMPLEMENTATION_AUTHORIZED": false,
+      "RB3_IMPLEMENTATION_AUTHORIZED": false,
+      "CORPORATE_ACTION_IMPLEMENTATION_AUTHORIZED": false,
+      "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+      "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
+      "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+      "STORAGE_SELECTION": "NOT_AUTHORIZED",
+      "PAPER_TRADING": "NOT_AUTHORIZED",
+      "LIVE_TRADING": "NOT_AUTHORIZED",
+      "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
+      "AI_TRADING_AUTHORITY": "NONE",
+      "IMPLEMENTATION_AUTHORIZED": false
+    },
+    "open_obligations": [
+      {
+        "id": "CF002_INTEGRATION",
+        "state": "OPEN_WITH_TRIGGER"
+      },
+      {
+        "id": "GT_ADV_SEMANTIC_COMPATIBILITY",
+        "state": "NOT_ESTABLISHED"
+      },
+      {
+        "id": "GT_ADV_VERIFIED_COVERAGE",
+        "state": "NONE"
+      },
+      {
+        "id": "RB3_RAW_BYTE_RETENTION_POLICY",
+        "state": "OPEN_BLOCKING",
+        "trigger": "before durable raw-byte persistence entry"
+      },
+      {
+        "id": "PROVIDER_SELECTION",
+        "state": "NONE_SELECTED"
+      },
+      {
+        "id": "STORAGE_SELECTION",
+        "state": "NONE_SELECTED"
+      },
+      {
+        "id": "CORPORATE_ACTION_IMPLEMENTATION",
+        "state": "NOT_AUTHORIZED"
+      },
+      {
+        "id": "STAGE3_IMPLEMENTATION",
+        "state": "NOT_AUTHORIZED"
+      },
+      {
+        "id": "STAGE4_IMPLEMENTATION",
+        "state": "NOT_AUTHORIZED"
+      }
+    ],
+    "protected_recording_authorized": false,
+    "non_authorizing_statement": "This local recording candidate grants no protected-recording, implementation, Stage-4, provider, storage, trading, financial or AI authority."
   }
 }
