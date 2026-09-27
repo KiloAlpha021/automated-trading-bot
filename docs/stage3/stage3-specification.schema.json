@@ -92,7 +92,8 @@
         "supersession_ledger",
         "owner_ratification",
         "canonicalization",
-        "candidate_digest"
+        "candidate_digest",
+        "rb1_design_ratification"
       ],
       "properties": {
         "manifest_id": {
@@ -19558,6 +19559,440 @@
         },
         "candidate_digest": {
           "type": "string"
+        },
+        "rb1_design_ratification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract_id",
+            "state",
+            "scope",
+            "identity_contract",
+            "reference_model",
+            "temporal_contract",
+            "correction_lineage_contract",
+            "provenance_contract",
+            "factual_listing_states",
+            "resolution_dispositions",
+            "restrictive_evidence_conditions",
+            "absent_semantics",
+            "trading_authority_effect",
+            "implementation_authorized"
+          ],
+          "properties": {
+            "contract_id": {
+              "const": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1"
+            },
+            "state": {
+              "const": "RATIFIED"
+            },
+            "scope": {
+              "type": "array",
+              "minItems": 3,
+              "uniqueItems": true,
+              "items": false,
+              "prefixItems": [
+                {
+                  "const": "BF-01_CANONICAL_IDENTITY"
+                },
+                {
+                  "const": "BF-02_IMMUTABLE_REFERENCE_VERSION"
+                },
+                {
+                  "const": "BF-03_LISTING_TRADABILITY_MODEL"
+                }
+              ],
+              "maxItems": 3
+            },
+            "identity_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "instrument_id",
+                "listing_id",
+                "namespace_separation",
+                "external_attributes_are_identity",
+                "prohibited_identity_derivations",
+                "continuity_adjudication",
+                "listing_instrument_binding"
+              ],
+              "properties": {
+                "instrument_id": {
+                  "const": "OPAQUE_IMMUTABLE_ATIS_CONTROLLED_UUIDV4_STRONGLY_TYPED"
+                },
+                "listing_id": {
+                  "const": "OPAQUE_IMMUTABLE_ATIS_CONTROLLED_UUIDV4_STRONGLY_TYPED"
+                },
+                "namespace_separation": {
+                  "const": true
+                },
+                "external_attributes_are_identity": {
+                  "const": false
+                },
+                "prohibited_identity_derivations": {
+                  "type": "array",
+                  "minItems": 11,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "TICKER_SYMBOL"
+                    },
+                    {
+                      "const": "MIC"
+                    },
+                    {
+                      "const": "EXCHANGE_NAME"
+                    },
+                    {
+                      "const": "ISIN"
+                    },
+                    {
+                      "const": "FIGI"
+                    },
+                    {
+                      "const": "CUSIP"
+                    },
+                    {
+                      "const": "SEDOL"
+                    },
+                    {
+                      "const": "PROVIDER_ID"
+                    },
+                    {
+                      "const": "BROKER_ALIAS"
+                    },
+                    {
+                      "const": "ISSUER_NAME"
+                    },
+                    {
+                      "const": "OTHER_MUTABLE_OR_EXTERNAL_ATTRIBUTE"
+                    }
+                  ],
+                  "maxItems": 11
+                },
+                "continuity_adjudication": {
+                  "const": "ATTRIBUTABLE_RESTRICTIVE_NO_SILENT_REUSE"
+                },
+                "listing_instrument_binding": {
+                  "const": "PERMANENT_ONE_INSTRUMENT"
+                }
+              }
+            },
+            "reference_model": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "instrument_reference_version",
+                "listing_reference_version",
+                "generic_nullable_mega_record",
+                "required_common_fields",
+                "required_listing_fields",
+                "conditional_fields",
+                "deferred_fields",
+                "knowledge_to"
+              ],
+              "properties": {
+                "instrument_reference_version": {
+                  "const": "SEPARATE_IMMUTABLE_TYPE"
+                },
+                "listing_reference_version": {
+                  "const": "SEPARATE_IMMUTABLE_TYPE"
+                },
+                "generic_nullable_mega_record": {
+                  "const": false
+                },
+                "required_common_fields": {
+                  "type": "array",
+                  "minItems": 9,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "reference_version_id"
+                    },
+                    {
+                      "const": "instrument_id"
+                    },
+                    {
+                      "const": "effective_from"
+                    },
+                    {
+                      "const": "effective_to"
+                    },
+                    {
+                      "const": "knowledge_from"
+                    },
+                    {
+                      "const": "evidence_refs"
+                    },
+                    {
+                      "const": "validation_policy_id"
+                    },
+                    {
+                      "const": "validation_state"
+                    },
+                    {
+                      "const": "content_digest"
+                    }
+                  ],
+                  "maxItems": 9
+                },
+                "required_listing_fields": {
+                  "type": "array",
+                  "minItems": 3,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "listing_id"
+                    },
+                    {
+                      "const": "tradability_state"
+                    },
+                    {
+                      "const": "tradability_reason"
+                    }
+                  ],
+                  "maxItems": 3
+                },
+                "conditional_fields": {
+                  "type": "array",
+                  "minItems": 8,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "symbol"
+                    },
+                    {
+                      "const": "mic"
+                    },
+                    {
+                      "const": "currency"
+                    },
+                    {
+                      "const": "security_type"
+                    },
+                    {
+                      "const": "primary_listing_indicator"
+                    },
+                    {
+                      "const": "external_identifiers"
+                    },
+                    {
+                      "const": "source_observed_at"
+                    },
+                    {
+                      "const": "correction_reason"
+                    }
+                  ],
+                  "maxItems": 8
+                },
+                "deferred_fields": {
+                  "type": "array",
+                  "minItems": 2,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "jurisdiction"
+                    },
+                    {
+                      "const": "ingested_at"
+                    }
+                  ],
+                  "maxItems": 2
+                },
+                "knowledge_to": {
+                  "const": "DERIVED_NOT_STORED"
+                }
+              }
+            },
+            "temporal_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "effective_interval",
+                "open_effective_end",
+                "timezone",
+                "knowledge_visibility",
+                "exact_resolution",
+                "current_or_latest_substitution"
+              ],
+              "properties": {
+                "effective_interval": {
+                  "const": "HALF_OPEN_START_INCLUSIVE_END_EXCLUSIVE"
+                },
+                "open_effective_end": {
+                  "const": "NULL"
+                },
+                "timezone": {
+                  "const": "UTC"
+                },
+                "knowledge_visibility": {
+                  "const": "KNOWLEDGE_FROM_LESS_THAN_OR_EQUAL_TO_CUTOFF"
+                },
+                "exact_resolution": {
+                  "const": true
+                },
+                "current_or_latest_substitution": {
+                  "const": false
+                }
+              }
+            },
+            "correction_lineage_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "versions_immutable",
+                "lineage_edge",
+                "duplicate_predecessor_pointer",
+                "predecessors_remain_queryable",
+                "branching_successors",
+                "overwrite_prior_evidence"
+              ],
+              "properties": {
+                "versions_immutable": {
+                  "const": true
+                },
+                "lineage_edge": {
+                  "const": "SUPERSEDES_VERSION_ID_ONLY"
+                },
+                "duplicate_predecessor_pointer": {
+                  "const": false
+                },
+                "predecessors_remain_queryable": {
+                  "const": true
+                },
+                "branching_successors": {
+                  "const": "CONFLICTING_RESTRICTIVE"
+                },
+                "overwrite_prior_evidence": {
+                  "const": false
+                }
+              }
+            },
+            "provenance_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evidence_refs",
+                "required_evidence_ref_fields",
+                "validation_policy_id_required",
+                "validation_state_required",
+                "canonical_content_identity_required",
+                "missing_provenance_or_validation"
+              ],
+              "properties": {
+                "evidence_refs": {
+                  "const": "NONEMPTY_IMMUTABLE_COLLECTION"
+                },
+                "required_evidence_ref_fields": {
+                  "type": "array",
+                  "minItems": 3,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "SOURCE_ID"
+                    },
+                    {
+                      "const": "DATASET_ID"
+                    },
+                    {
+                      "const": "EVIDENCE_ID"
+                    }
+                  ],
+                  "maxItems": 3
+                },
+                "validation_policy_id_required": {
+                  "const": true
+                },
+                "validation_state_required": {
+                  "const": true
+                },
+                "canonical_content_identity_required": {
+                  "const": true
+                },
+                "missing_provenance_or_validation": {
+                  "const": "NOT_AUTHORITATIVE"
+                }
+              }
+            },
+            "factual_listing_states": {
+              "type": "array",
+              "minItems": 5,
+              "uniqueItems": true,
+              "items": false,
+              "prefixItems": [
+                {
+                  "const": "ACTIVE"
+                },
+                {
+                  "const": "HALTED"
+                },
+                {
+                  "const": "SUSPENDED"
+                },
+                {
+                  "const": "INACTIVE"
+                },
+                {
+                  "const": "DELISTED"
+                }
+              ],
+              "maxItems": 5
+            },
+            "resolution_dispositions": {
+              "type": "array",
+              "minItems": 5,
+              "uniqueItems": true,
+              "items": false,
+              "prefixItems": [
+                {
+                  "const": "ESTABLISHED"
+                },
+                {
+                  "const": "ABSENT"
+                },
+                {
+                  "const": "AMBIGUOUS"
+                },
+                {
+                  "const": "CONFLICTING"
+                },
+                {
+                  "const": "NOT_ESTABLISHED"
+                }
+              ],
+              "maxItems": 5
+            },
+            "restrictive_evidence_conditions": {
+              "type": "array",
+              "minItems": 2,
+              "uniqueItems": true,
+              "items": false,
+              "prefixItems": [
+                {
+                  "const": "STALE"
+                },
+                {
+                  "const": "INVALID"
+                }
+              ],
+              "maxItems": 2
+            },
+            "absent_semantics": {
+              "const": "REQUIRES_AUTHORITATIVE_NEGATIVE_COVERAGE"
+            },
+            "trading_authority_effect": {
+              "const": "NONE"
+            },
+            "implementation_authorized": {
+              "const": false
+            }
+          }
         }
       }
     }
