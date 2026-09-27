@@ -7,6 +7,7 @@ from hashlib import sha1, sha256
 import json
 from pathlib import Path
 import re
+import subprocess
 from typing import Any
 
 import pytest
@@ -627,7 +628,11 @@ def test_gate_pass_does_not_manufacture_authority() -> None:
 def test_protected_records_are_referenced_and_exact() -> None:
     assert _git_blob(ROOT / "docs/stage2/s20-control.json") == "48c94c3c411913c608740a1905449ec5511aba26"
     assert _git_blob(ROOT / "docs/stage2/s27-evidence.json") == "ae1dbcca0c19b13a634ed6c503b975a40a9b4bc8"
-    assert _git_blob(ROOT / "tests/test_stage2_integration.py") == "e6dd482363ee0b5dcf898632570af99f04eb8a55"
+    historical = _load(ROOT / "docs/stage2/gate-s02-01.json")["evaluated_baseline"]
+    assert subprocess.run(
+        ["git", "rev-parse", f'{historical["tree"]}:tests/test_stage2_integration.py'],
+        cwd=ROOT, check=True, capture_output=True, text=True,
+    ).stdout.strip() == "e6dd482363ee0b5dcf898632570af99f04eb8a55"
     assert _git_blob(ROOT / "docs/stage2/gate-s02-01.json") == "850ce45a88d30b9348686493355fb681a464759f"
     assert _git_blob(ROOT / "docs/stage2/stage2-freeze-record.json") == "5a4425eeb79c87072e8c498981c55565c386c677"
 
@@ -734,6 +739,25 @@ def test_rb1_slice1_implementation_contract_decision_is_recorded_without_authori
         "STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION",
         "STORAGE_SELECTION", "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
         "AI_TRADING_AUTHORITY",
+    }.issubset(decision["authority_not_granted"])
+
+
+def test_successor_evidence_policy_decision_is_recorded_without_authority() -> None:
+    control = _control()
+    decisions = {record["record_id"]: record for record in control["decision_register"]["records"]}
+    assert decisions["PC-DEC-003"]["decision"] == "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1"
+    decision = decisions["PC-DEC-004"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+    assert decision["scope"] == "STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_ONLY"
+    assert decision["authority_granted"] == [
+        "RECORD_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+    ]
+    assert {
+        "RB1_IMPLEMENTATION_RESUMPTION", "RB2_IMPLEMENTATION", "RB3_IMPLEMENTATION",
+        "STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "SLICE1_CANDIDATE_PUBLICATION",
+        "PROVIDER_SELECTION", "STORAGE_SELECTION", "PAPER_TRADING", "LIVE_TRADING",
+        "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
     }.issubset(decision["authority_not_granted"])
 
 

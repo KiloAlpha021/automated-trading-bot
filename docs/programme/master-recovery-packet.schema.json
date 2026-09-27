@@ -3,7 +3,7 @@
 "recovery_basis":{"type":"object","additionalProperties":false,"required":["commit","tree","ordered_parents","verification_decision","meaning"],"properties":{"commit":{"$ref":"#/$defs/gitId"},"tree":{"$ref":"#/$defs/gitId"},"ordered_parents":{"type":"array","prefixItems":[{"$ref":"#/$defs/gitId"},{"$ref":"#/$defs/gitId"}],"items":false,"minItems":2,"maxItems":2},"verification_decision":{"const":"ATIS_PR23_FINAL_POST_MERGE_VERIFICATION_PASS"},"meaning":{"const":"RECOVERY_BASIS_NOT_PACKET_PUBLICATION_IDENTITY"}}},
 "reading_precedence":{"type":"array","prefixItems":[{"const":"RECOVERY_BASIS_AND_INDEX"},{"const":"CURRENT_PROGRAMME_CONTROL"},{"const":"CURRENT_MILESTONE_CLOSURE_AND_PROTECTION"},{"const":"PROTECTED_STAGE3_SPECIFICATION"},{"const":"GOVERNING_BASELINE_SPECIFICATION"},{"const":"SUPPLEMENTARY_TRACEABILITY_AND_EVIDENCE"},{"const":"HISTORICAL_OR_SUPERSEDED_EVIDENCE"}],"items":false,"minItems":7,"maxItems":7,"uniqueItems":true},
 "required_sources":{"type":"array","minItems":15,"maxItems":15,"uniqueItems":true,"items":{"$ref":"#/$defs/requiredSource"}},
-"supplementary_sources":{"type":"array","minItems":4,"maxItems":4,"uniqueItems":true,"items":{"$ref":"#/$defs/supplementarySource"}},
+"supplementary_sources":{"type":"array","minItems":5,"maxItems":5,"uniqueItems":true,"items":{"$ref":"#/$defs/supplementarySource"}},
 "historical_sources":{"type":"array","minItems":3,"maxItems":3,"uniqueItems":true,"items":{"$ref":"#/$defs/historicalSource"}},
 "current_state":{"$ref":"#/$defs/currentState"},
 "stale_source_exclusions":{"type":"array","minItems":10,"maxItems":10,"uniqueItems":true,"items":{"$ref":"#/$defs/exclusion"}},

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/programme/master-recovery-packet.json"
 SCHEMA_PATH = ROOT / "docs/programme/master-recovery-packet.schema.json"
 EXPECTED_PACKET_SHA256 = (
-    "12861b1e4d2d3cf99c0e726a0b00594c18a805f57fd752b275a37605d930fde2"
+    "6ea7eb351e0dc9ba545d53aebf8d9f134bd9f8b24bea04aa268e91e1e6560ee0"
 )
 EXPECTED_BASIS = {
     "commit": "119ab879fd96c64a4f04441da03945b5a22ed03d",
@@ -34,19 +34,20 @@ EXPECTED_REQUIRED = {
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx": "8e116c3f3a75b0a038d947c8f66c1c57f1a4ff2e",
     "docs/baseline/specification-provenance.json": "30ea05b9c395fc1051a7c2d3a25ec7a01fb08179",
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
-    "docs/programme/programme-control.json": "34dfe6fb9b9abf1d04a43a426cb2286c90eed045",
+    "docs/programme/programme-control.json": "aa7c01cfe3690021c3f6c86fa581f7076967c419",
     "docs/programme/programme-control.schema.json": "573205a85273424dabbab5fe8720de3a94b7a583",
     "docs/stage2/gate-s02-01.json": "850ce45a88d30b9348686493355fb681a464759f",
     "docs/stage2/stage2-freeze-record.json": "5a4425eeb79c87072e8c498981c55565c386c677",
-    "docs/stage3/stage3-specification.json": "2435ab3c26894fea06e2bca50177e871c018fa32",
-    "docs/stage3/stage3-specification.schema.json": "00952c26f265f0644a0490078e3327e253025bfb",
+    "docs/stage3/stage3-specification.json": "32d19fe6e602c7ecc258a38d22fc8514fb42c9b1",
+    "docs/stage3/stage3-specification.schema.json": "0572ad4eafe1d5b23cd01a1abd802c282795d0e6",
     "pyproject.toml": "f7cf0df47ffc4e1309803b48dc26114851dfb0ee",
     "requirements-dev.lock": "d64b631ccb01ca95a917a144c065a6f25de149b5",
     "scripts/bootstrap.ps1": "78c82833f387ce94f786f58f93947917076fd61a",
-    "tests/test_programme_control.py": "a46ee4f2c16325a16b0388d47eadd59878afa04c",
-    "tests/test_stage3_specification.py": "481c1cca938bdf9e95ab81a1817ea7dff1bfaeea",
+    "tests/test_programme_control.py": "5c91ab3b3dae008dea3f37e7553324c2130487d1",
+    "tests/test_stage3_specification.py": "fd1a50373ac2d7232fea5b8d40b83a0bcb0994ab",
 }
 EXPECTED_SUPPLEMENTARY = {
+    "docs/programme/successor-evidence.json": "e60552199d9c5f483c0d64927f9863240332b89d",
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "f0e4f657069facdda9741411a9566c9fe6b36fa9",
     "docs/m1-closure/stage0b-phase39-67-coverage.json": "8652bffe48add6cb6b8e63d64e9b2647b48e1739",
     "docs/m1-closure/traceability.json": "4261e1ab17f1d839f07f1a355340f54f0d8beb8c",
@@ -197,6 +198,7 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
     supplementary = {x["path"]: x["git_blob"] for x in packet["supplementary_sources"]}
     assert required == EXPECTED_REQUIRED
     assert supplementary == EXPECTED_SUPPLEMENTARY
+    assert (len(required), len(supplementary), len(packet["historical_sources"])) == (15, 5, 3)
     for path, expected in required.items() | supplementary.items():
         assert _blob(ROOT / path) == expected
 
@@ -241,10 +243,16 @@ def test_authoritative_sources_validate_and_align() -> None:
     pcs = _load(ROOT / "docs/programme/programme-control.schema.json")
     s3 = _load(ROOT / "docs/stage3/stage3-specification.json")
     s3s = _load(ROOT / "docs/stage3/stage3-specification.schema.json")
+    successor = _load(ROOT / "docs/programme/successor-evidence.json")
+    successors = _load(ROOT / "docs/programme/successor-evidence.schema.json")
     Draft202012Validator.check_schema(pcs)
     Draft202012Validator(pcs).validate(pc)
     Draft202012Validator.check_schema(s3s)
     Draft202012Validator(s3s).validate(s3)
+    Draft202012Validator.check_schema(successors)
+    Draft202012Validator(successors).validate(successor)
+    assert successor["records"] == []
+    assert successor["authority"]["grants_authority"] is False
     assert (
         _load(ROOT / "docs/m1-closure/closure-manifest.json")["lineage"][
             "current_reclosure"

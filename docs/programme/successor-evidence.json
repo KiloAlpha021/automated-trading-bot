@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "register_id": "ATIS-STAGE3-SUCCESSOR-EVIDENCE-REGISTER-001",
+  "contract_id": "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1",
+  "register_role": "BOUNDED_SUCCESSOR_TRANSITIONS_NOT_COMPLETE_SOURCE_REGISTRY",
+  "records": [],
+  "authority": {
+    "grants_authority": false,
+    "implementation_authorized": false,
+    "publication_authorized": false,
+    "ai_trading_authority": "NONE"
+  }
+}
