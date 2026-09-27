@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/programme/master-recovery-packet.json"
 SCHEMA_PATH = ROOT / "docs/programme/master-recovery-packet.schema.json"
 EXPECTED_PACKET_SHA256 = (
-    "c57503f586c54122cf7a20e76632a9fb7197c11320c77bdda7549234c683a6e6"
+    "0f4ca1a0e124a7caf34de170ecfa77e313ceb9e69d38bc40c0c3d8e9bf088fb1"
 )
 EXPECTED_BASIS = {
     "commit": "119ab879fd96c64a4f04441da03945b5a22ed03d",
@@ -34,17 +34,17 @@ EXPECTED_REQUIRED = {
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx": "8e116c3f3a75b0a038d947c8f66c1c57f1a4ff2e",
     "docs/baseline/specification-provenance.json": "30ea05b9c395fc1051a7c2d3a25ec7a01fb08179",
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
-    "docs/programme/programme-control.json": "c05c702f4bacc6c8edf6434ee4669d8de5d9fc85",
-    "docs/programme/programme-control.schema.json": "923075fe52ec7f1b531a27b07a94ba86d200fee9",
+    "docs/programme/programme-control.json": "a0d18426131f7f720aad03c9b1c71a159448524b",
+    "docs/programme/programme-control.schema.json": "573205a85273424dabbab5fe8720de3a94b7a583",
     "docs/stage2/gate-s02-01.json": "850ce45a88d30b9348686493355fb681a464759f",
     "docs/stage2/stage2-freeze-record.json": "5a4425eeb79c87072e8c498981c55565c386c677",
-    "docs/stage3/stage3-specification.json": "26c2089cf5ec9cde26757397cae2a52ea48ad475",
-    "docs/stage3/stage3-specification.schema.json": "4505fd388115277eb4390bc2e9ada441a040d02d",
+    "docs/stage3/stage3-specification.json": "842c34562ddbda9f9380b662693234c1d029b0c9",
+    "docs/stage3/stage3-specification.schema.json": "6ebca036e6586df65e52147940341fb8b7fcd870",
     "pyproject.toml": "f7cf0df47ffc4e1309803b48dc26114851dfb0ee",
     "requirements-dev.lock": "d64b631ccb01ca95a917a144c065a6f25de149b5",
     "scripts/bootstrap.ps1": "78c82833f387ce94f786f58f93947917076fd61a",
-    "tests/test_programme_control.py": "99119ca06981fa1098dabb54faf14b0394c2c03b",
-    "tests/test_stage3_specification.py": "daf9418dc5c212e7850a8121ab2017d5e55b556a",
+    "tests/test_programme_control.py": "5b492526db2c660b4092a739e31ea60beff45d00",
+    "tests/test_stage3_specification.py": "2acbf93f53bd28a4e374ffea648f9f21c7d965e6",
 }
 EXPECTED_SUPPLEMENTARY = {
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "f0e4f657069facdda9741411a9566c9fe6b36fa9",

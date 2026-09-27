@@ -276,3 +276,124 @@ def test_cross_record_validation_rejects_corruption(_name, mutator):
     mutator(damaged)
     with pytest.raises(ValueError):
         validate_cross_records(damaged)
+
+
+# Stage-3 owner-ratified recording candidate checks.
+RECORDING_EXPECTED_IDS = (
+    [f"OBS-{i:02d}" for i in range(1, 21)]
+    + [f"SEC-{i:02d}" for i in range(1, 13)]
+    + [f"S3-GD-{i:03d}" for i in range(1, 26)]
+    + [f"S3-GT-{i:03d}" for i in range(1, 27)]
+)
+RECORDING_SET_KEYS = {
+    "requirement_ids", "failure_ids", "compound_failure_ids", "control_ids",
+    "direct_test_ids", "adversarial_family_ids", "adversarial_scenario_ids",
+    "constituent_components", "constituent_requirements",
+    "required_adversarial_families", "verified_scenario_coverage",
+}
+RECORDING_DIGEST_EXCLUSIONS = {
+    "candidate_digest", "independent_expected_digest", "independent_recomputed_digest",
+}
+
+def _recording_norm(value, key=None):
+    import unicodedata
+    if isinstance(value, float):
+        raise ValueError("floating point is prohibited")
+    if isinstance(value, str):
+        return unicodedata.normalize("NFC", value)
+    if isinstance(value, list):
+        normalized = [_recording_norm(item) for item in value]
+        if key in RECORDING_SET_KEYS:
+            encoded = [json.dumps(item, sort_keys=True, ensure_ascii=False) for item in normalized]
+            if len(encoded) != len(set(encoded)):
+                raise ValueError("duplicate semantic-set member")
+            normalized = [item for _, item in sorted(zip(encoded, normalized))]
+        return normalized
+    if isinstance(value, dict):
+        return {
+            key_name: _recording_norm(item, key_name)
+            for key_name, item in sorted(value.items())
+            if key_name not in RECORDING_DIGEST_EXCLUSIONS
+        }
+    return value
+
+def _recording_digest(manifest):
+    canonical = json.dumps(
+        _recording_norm(manifest), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return sha256(canonical).hexdigest()
+
+def test_stage3_recording_manifest_inventory_and_layers():
+    manifest = corpus()["stage3_recording_manifest"]
+    assert [row["id"] for row in manifest["historical_catalogue"]] == RECORDING_EXPECTED_IDS
+    assert [row["id"] for row in manifest["prospective_catalogue"]] == RECORDING_EXPECTED_IDS
+    assert [row["id"] for row in manifest["rb1_traceability"]] == RECORDING_EXPECTED_IDS
+    assert len({row["id"] for row in manifest["historical_catalogue"]}) == 83
+    assert all(row["historical_rb1_applicability_state"] == "NOT_HISTORICALLY_ESTABLISHED" for row in manifest["historical_catalogue"])
+    assert sum(row["rb1_applicability"] == "APPLIES_RB1" for row in manifest["prospective_catalogue"]) == 50
+    assert sum(row["traceability_state"] == "FINAL_LITERAL_TRACEABILITY_ESTABLISHED" for row in manifest["rb1_traceability"]) == 50
+    assert all(row["adversarial_scenario_ids"] == [] for row in manifest["rb1_traceability"])
+
+def test_stage3_recording_manifest_repurposed_ids_and_history():
+    manifest = corpus()["stage3_recording_manifest"]
+    historical = {row["id"]: row for row in manifest["historical_catalogue"]}
+    prospective = {row["id"]: row for row in manifest["prospective_catalogue"]}
+    expected = {
+        "OBS-16": "Manifest/lineage integrity failure",
+        "SEC-10": "Freshness/invalidation policy integrity",
+        "S3-GD-020": "External-dependency attribution",
+        "S3-GT-022": "Gate PASS interpreted as automatic Stage-4 implementation authority",
+    }
+    for identifier, meaning in expected.items():
+        assert historical[identifier]["historical_meaning"] == meaning
+        assert historical[identifier]["prospective_relationship"] == "REPURPOSED_ID"
+    assert prospective["SEC-10"]["normative_name"] == "Logical exact-version resolution integrity"
+    assert historical["SEC-10"]["historical_component_requirement_metadata"] == "C10; 010,026,034-035,039,041"
+    assert manifest["gate_threat_evolution"]["initial_records_unchanged"] is True
+
+def test_stage3_recording_manifest_traceability_firewalls():
+    manifest = corpus()["stage3_recording_manifest"]
+    records = manifest["rb1_traceability"]
+    excluded = [r for r in records if r["traceability_state"] == "DOES_NOT_APPLY_RB1"]
+    assert len(excluded) == 33
+    arrays = ("requirement_ids","failure_ids","compound_failure_ids","control_ids","direct_test_ids","adversarial_family_ids","adversarial_scenario_ids")
+    assert all(all(r[k] == [] for k in arrays) for r in excluded)
+    controls = {x for r in records for x in r["control_ids"]}
+    assert controls == {"S3-CTL-001","S3-CTL-005","S3-CTL-006","S3-CTL-012","S3-CTL-014","S3-CTL-015","S3-CTL-017","S3-CTL-022"}
+    assert all("S3-CF-002" not in r["compound_failure_ids"] and "S3-CF-005" not in r["compound_failure_ids"] for r in records)
+
+def test_stage3_recording_manifest_cf002_adv_and_authority():
+    manifest = corpus()["stage3_recording_manifest"]
+    cf = manifest["compound_failure_obligation"]
+    assert cf["compound_failure_id"] == "S3-CF-002"
+    assert cf["global_stage3_cf002_state"] == "OPEN_WITH_TRIGGER"
+    assert cf["activation_trigger"]["all_of"] == [
+        "candidate_consumes_rb1_symbol_or_listing_history",
+        "candidate_consumes_late_or_corrected_corporate_action_evidence",
+    ]
+    assert len(manifest["historical_scenario_bindings"]) == 26
+    assert manifest["verified_scenario_coverage"] == []
+    assert all(not b["coverage_credit"] for b in manifest["historical_scenario_bindings"])
+    assert manifest["authority_ceiling"]["IMPLEMENTATION_AUTHORIZED"] is False
+    assert manifest["authority_ceiling"]["PROTECTED_RECORDING_AUTHORIZED"] is False
+
+def test_stage3_recording_manifest_canonicalization():
+    manifest = corpus()["stage3_recording_manifest"]
+    assert manifest["candidate_digest"] == _recording_digest(manifest)
+    reordered = deepcopy(manifest)
+    reordered["rb1_traceability"][0]["failure_ids"].reverse()
+    assert _recording_digest(reordered) == _recording_digest(manifest)
+    ordered = deepcopy(manifest)
+    ordered["historical_catalogue"][0], ordered["historical_catalogue"][1] = ordered["historical_catalogue"][1], ordered["historical_catalogue"][0]
+    assert _recording_digest(ordered) != _recording_digest(manifest)
+    changed = deepcopy(manifest)
+    changed["historical_catalogue"][0]["historical_meaning"] += " changed"
+    assert _recording_digest(changed) != _recording_digest(manifest)
+
+def test_stage3_recording_manifest_schema_is_closed():
+    data = corpus()
+    validator().validate(data)
+    damaged = deepcopy(data)
+    damaged["stage3_recording_manifest"]["unexpected"] = True
+    with pytest.raises(ValidationError):
+        validator().validate(damaged)

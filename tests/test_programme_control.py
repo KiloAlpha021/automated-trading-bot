@@ -1232,3 +1232,26 @@ def test_pr23_hosted_evidence_does_not_change_recovered_or_gap_contracts() -> No
         gap["gap_id"]: _canonical_record_sha256(gap)
         for gap in control["provenance_gap_register"]["records"]
     } == EXPECTED_PROVENANCE_GAP_SHA256
+
+
+def test_stage3_recording_candidate_programme_control():
+    data = _control()
+    record = data["stage3_recording_candidate"]
+    assert record["record_state"] == "LOCAL_CANDIDATE"
+    assert record["canonicalization_contract"] == "ATIS_STAGE3_CANONICALIZATION_V1"
+    assert re.fullmatch(r"[0-9a-f]{64}", record["candidate_digest"])
+    assert record["independent_expected_digest"] == "NOT_ESTABLISHED"
+    assert record["independent_recomputed_digest"] == "NOT_ESTABLISHED"
+    assert record["protected_recording_authorized"] is False
+    assert record["authority_ceiling"]["IMPLEMENTATION_AUTHORIZED"] is False
+    assert record["authority_ceiling"]["STAGE3_IMPLEMENTATION_AUTHORIZED"] is False
+    assert record["authority_ceiling"]["STAGE4_IMPLEMENTATION_AUTHORIZED"] is False
+
+def test_stage3_recording_candidate_programme_schema_is_closed():
+    data = _control()
+    candidate_schema = _load(SCHEMA_PATH)
+    Draft202012Validator(candidate_schema, format_checker=FormatChecker()).validate(data)
+    damaged = deepcopy(data)
+    damaged["stage3_recording_candidate"]["unexpected"] = True
+    with pytest.raises(ValidationError):
+        Draft202012Validator(candidate_schema, format_checker=FormatChecker()).validate(damaged)
