@@ -1,0 +1,360 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/successor-evidence.schema.json",
+  "title": "ATIS Stage-3 successor evidence register",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "register_id",
+    "contract_id",
+    "register_role",
+    "records",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "register_id": {
+      "const": "ATIS-STAGE3-SUCCESSOR-EVIDENCE-REGISTER-001"
+    },
+    "contract_id": {
+      "const": "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+    },
+    "register_role": {
+      "const": "BOUNDED_SUCCESSOR_TRANSITIONS_NOT_COMPLETE_SOURCE_REGISTRY"
+    },
+    "records": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "record_id",
+              "record_type",
+              "governing_stage",
+              "governing_rb",
+              "governing_slice",
+              "predecessor_evidence",
+              "predecessor_commit",
+              "predecessor_tree",
+              "authorization_references",
+              "path_transitions",
+              "transition_reason",
+              "verification_evidence",
+              "candidate_state",
+              "authority"
+            ],
+            "properties": {
+              "record_id": {
+                "type": "string",
+                "pattern": "^SE-(?:CAND|PUB)-[0-9]{3}$"
+              },
+              "record_type": {
+                "const": "CANDIDATE_SUCCESSOR"
+              },
+              "governing_stage": {
+                "type": "string",
+                "minLength": 1
+              },
+              "governing_rb": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "governing_slice": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "predecessor_evidence": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "predecessor_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "predecessor_tree": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "authorization_references": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "path_transitions": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "predecessor_blob",
+                    "successor_candidate_blob",
+                    "role",
+                    "requirement_references"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$",
+                      "minLength": 1
+                    },
+                    "predecessor_blob": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[0-9a-f]{40}$"
+                        },
+                        {
+                          "const": "ABSENT"
+                        }
+                      ]
+                    },
+                    "successor_candidate_blob": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{40}$"
+                    },
+                    "role": {
+                      "enum": [
+                        "IMPLEMENTATION",
+                        "TEST",
+                        "CONSISTENCY_ENVELOPE"
+                      ]
+                    },
+                    "requirement_references": {
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              },
+              "transition_reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "verification_evidence": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "candidate_state": {
+                "const": "VERIFIED_LOCAL_UNPUBLISHED"
+              },
+              "authority": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "granted",
+                  "not_granted"
+                ],
+                "properties": {
+                  "granted": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "not_granted": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "record_id",
+              "record_type",
+              "candidate_record_id",
+              "protected_commit",
+              "protected_tree",
+              "ordered_merge_parents",
+              "publication_reference",
+              "protected_path_blobs",
+              "hosted_checks",
+              "post_publication_verification",
+              "open_obligations_preserved",
+              "authority"
+            ],
+            "properties": {
+              "record_id": {
+                "type": "string",
+                "pattern": "^SE-(?:CAND|PUB)-[0-9]{3}$"
+              },
+              "record_type": {
+                "const": "PROTECTED_PUBLICATION"
+              },
+              "candidate_record_id": {
+                "type": "string",
+                "pattern": "^SE-CAND-[0-9]{3}$"
+              },
+              "protected_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "protected_tree": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "ordered_merge_parents": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                }
+              },
+              "publication_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "protected_path_blobs": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "blob"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9._/-]+$",
+                      "minLength": 1
+                    },
+                    "blob": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{40}$"
+                    }
+                  }
+                }
+              },
+              "hosted_checks": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "conclusion"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "conclusion": {
+                      "const": "SUCCESS"
+                    }
+                  }
+                }
+              },
+              "post_publication_verification": {
+                "const": "PASS"
+              },
+              "open_obligations_preserved": {
+                "const": true
+              },
+              "authority": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "granted",
+                  "not_granted"
+                ],
+                "properties": {
+                  "granted": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  },
+                  "not_granted": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "uniqueItems": true
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grants_authority",
+        "implementation_authorized",
+        "publication_authorized",
+        "ai_trading_authority"
+      ],
+      "properties": {
+        "grants_authority": {
+          "const": false
+        },
+        "implementation_authorized": {
+          "const": false
+        },
+        "publication_authorized": {
+          "const": false
+        },
+        "ai_trading_authority": {
+          "const": "NONE"
+        }
+      }
+    }
+  }
+}

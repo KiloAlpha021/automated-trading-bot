@@ -442,6 +442,40 @@ def test_rb1_slice1_implementation_contract_v1_is_ratified_without_implementatio
     }
 
 
+def test_successor_evidence_recovery_policy_is_ratified_without_authority():
+    policy = corpus()["stage3_recording_manifest"]["successor_evidence_recovery_policy"]
+    assert policy["contract_id"] == "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+    assert policy["state"] == "RATIFIED"
+    assert policy["historical_evidence"] == {
+        "immutability": "CREATION_TIME_CONTENT_MEMBERSHIP_CONCLUSIONS_LIMITATIONS_AND_GIT_IDENTITIES_PRESERVED",
+        "later_source_content_rewrites_history": False,
+        "protected_or_frozen_prohibits_authorized_successor": False,
+        "verification_source": "ATTRIBUTABLE_HISTORICAL_GIT_COMMIT_AND_TREE",
+        "current_worktree_substitution": "PROHIBITED",
+        "missing_or_mismatched_historical_object": "FAIL_CLOSED",
+    }
+    assert policy["successor_evidence"]["record_types"] == [
+        "CANDIDATE_SUCCESSOR", "PROTECTED_PUBLICATION",
+    ]
+    assert policy["successor_evidence"]["candidate_path_cardinality"] == "EVERY_CHANGED_PATH_EXACTLY_ONCE"
+    assert policy["successor_evidence"]["candidate_future_publication_identities"] == "PROHIBITED"
+    assert policy["recovery"] == {
+        "packet_role": "RECOVERY_INDEX_ONLY",
+        "complete_repository_recovery_object": "PROTECTED_GIT_COMMIT_AND_TREE",
+        "ordinary_implementation_and_test_membership": "NOT_AUTOMATIC",
+        "successor_register_classification": "SUPPLEMENTARY_SOURCE",
+        "future_transition_membership": "UPDATE_SINGLE_REGISTER_NOT_PER_IMPLEMENTATION_FILE",
+        "required_sources": 15,
+        "supplementary_sources": 5,
+        "historical_sources": 3,
+    }
+    assert policy["authority"]["successor_evidence_grants_authority"] is False
+    assert policy["authority"]["RB1_IMPLEMENTATION_RESUMPTION"] == "NOT_AUTHORIZED"
+    assert policy["authority"]["SLICE1_CANDIDATE_PUBLICATION"] == "NOT_AUTHORIZED"
+    assert policy["authority"]["IMPLEMENTATION_AUTHORIZED"] is False
+    assert policy["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
+
+
 def test_stage3_recording_manifest_canonicalization():
     manifest = corpus()["stage3_recording_manifest"]
     assert manifest["candidate_digest"] == _recording_digest(manifest)

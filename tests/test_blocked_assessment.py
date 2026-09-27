@@ -34,6 +34,7 @@ SELECTION = [
 
 INPUT_HASH_MODEL = "sha256:utf8:newlines-lf:v1"
 M1_SOURCE_PATHS_SHA256 = "4da0cfdf9cd6dafbd55864cb91f1faabee4bff56e40669ae8a814d497c920e2c"
+M1_HISTORICAL_REVISION = "841d903cb5670777f8ce23fe8433a0c5dd7dac49"
 
 
 def _checkout_independent_text_sha256(path: Path) -> str:
@@ -58,11 +59,37 @@ def _historical_m1_source_hashes(root: Path, recorded: dict[str, str]) -> dict[s
     return result
 
 
+def _historical_git_input_hashes(recorded: dict[str, str]) -> dict[str, str]:
+    paths = sorted(recorded)
+    source_paths = [path for path in paths if path.startswith("src/")]
+    inventory = hashlib.sha256("\n".join(source_paths).encode("utf-8")).hexdigest()
+    assert inventory == M1_SOURCE_PATHS_SHA256, "Frozen M1 source inventory changed"
+    resolved = subprocess.run(
+        ["git", "rev-parse", f"{M1_HISTORICAL_REVISION}^{{tree}}"],
+        cwd=ROOT, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert resolved, "Historical M1 tree is unavailable"
+    result = {}
+    for relative in paths:
+        raw = subprocess.run(
+            ["git", "show", f"{M1_HISTORICAL_REVISION}:{relative}"],
+            cwd=ROOT, check=True, capture_output=True,
+        ).stdout
+        if b"\x00" in raw:
+            raise ValueError(f"Evidence input is not text: {relative}")
+        normalized = raw.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        result[relative] = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    return result
+
+
 def _run_evidence() -> dict:
     with tempfile.TemporaryDirectory(prefix="m1-evidence-") as directory:
         report = Path(directory) / "execution.xml"
         run = subprocess.run(
-            [sys.executable, "-m", "pytest", "-q", *SELECTION, f"--junitxml={report}"],
+            [
+                sys.executable, "-m", "pytest", "-q", *SELECTION,
+                f"--junitxml={report}", f"--basetemp={Path(directory) / 'pytest'}",
+            ],
             cwd=ROOT, capture_output=True, text=True, timeout=120,
         )
         assert report.is_file(), "Evidence execution produced no report"
@@ -79,52 +106,15 @@ def _run_evidence() -> dict:
         assert run.returncode == 0, "Underlying evidence tests failed"
         assert cases and all(outcome == "passed" for _, outcome in cases)
     recorded = json.loads((ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json").read_text())
-    source_hashes = _historical_m1_source_hashes(ROOT, recorded["current_evidence"]["input_sha256"])
-    inputs = [
-        ROOT / "tests/test_money.py",
-        ROOT / "tests/test_quantity.py",
-        ROOT / "docs/m1-closure/M1-core-contracts-scope-clarification.md",
-        ROOT / "docs/m1-closure/M1-financial-primitives-scope-clarification.md",
-        ROOT / "docs/m1-closure/owner-dispositions.json",
-        ROOT / "tests/test_alerts.py",
-        ROOT / "docs/m1-closure/M1-alert-scope-clarification.md",
-        ROOT / "tests/test_health.py",
-        ROOT / "docs/m1-closure/M1-health-scope-clarification.md",
-        ROOT / "docs/m1-closure/M1-telemetry-degradation-scope-clarification.md",
-        ROOT / "tests/test_metrics.py",
-        ROOT / "docs/m1-closure/M1-metrics-scope-clarification.md",
-        ROOT / "tests/test_diagnostics.py",
-        ROOT / "docs/m1-closure/M1-foundation-logging.md",
-        ROOT / "tests/test_secret_provider_contract.py",
-        ROOT / "docs/m1-closure/M1-secret-provider-contract.md",
-        ROOT / "tests/test_initial_migration_specification.py",
-        ROOT / "docs/m1-closure/M1-initial-migration-specification.md",
-        ROOT / "tests/test_event_storage_design.py",
-        ROOT / "docs/m1-closure/M1-event-storage-design.md",
-        ROOT / "tests/test_decision.py",
-        ROOT / "tests/test_clock.py",
-        ROOT / "tests/test_timestamp.py",
-        ROOT / "docs/m1-closure/M1-calendar-scope-clarification.md",
-        ROOT / "tests/test_closure_security.py",
-        ROOT / "tests/test_architecture.py",
-        ROOT / "tests/test_specification_provenance.py",
-        ROOT / "scripts/extract_specification_text.py",
-        ROOT / "docs/baseline/specification-provenance.json",
-        ROOT / "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt",
-        ROOT / "tests/test_closure_traceability.py",
-        ROOT / "docs/M1.8-evidence.md",
-        ROOT / "docs/m1-closure/M1-scope-clarification.md",
-        ROOT / "docs/m1-closure/traceability.json",
-    ]
+    source_hashes = _historical_git_input_hashes(
+        recorded["current_evidence"]["input_sha256"]
+    )
     return {
         "selection": SELECTION,
         "test_cases": sorted(cases),
         "passed": len(cases), "failed": 0,
         "input_hash_model": INPUT_HASH_MODEL,
-        "input_sha256": source_hashes | {
-            p.relative_to(ROOT).as_posix(): _checkout_independent_text_sha256(p)
-            for p in inputs
-        },
+        "input_sha256": source_hashes,
     }
 
 
@@ -204,10 +194,17 @@ def test_evidence_input_hash_rejects_non_text(content, error, tmp_path):
 def test_frozen_m1_source_inventory_survives_stage2_without_losing_binding(tmp_path):
     recorded = _inputs()[0]["current_evidence"]["input_sha256"]
     expected = {key: value for key, value in recorded.items() if key.startswith("src/")}
+    assert {
+        key: value for key, value in _historical_git_input_hashes(recorded).items()
+        if key.startswith("src/")
+    } == expected
     for relative in expected:
         destination = tmp_path / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes((ROOT / relative).read_bytes())
+        destination.write_bytes(subprocess.run(
+            ["git", "show", f"{M1_HISTORICAL_REVISION}:{relative}"],
+            cwd=ROOT, check=True, capture_output=True,
+        ).stdout)
 
     assert _historical_m1_source_hashes(tmp_path, recorded) == expected
 

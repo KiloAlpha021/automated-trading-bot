@@ -489,6 +489,34 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-004",
+        "governed_question": "May ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1 be ratified and recorded without implementation or Slice-1 publication authority?",
+        "scope": "STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1",
+        "source_authority": "Owner-ratified policy supplied for this controlled recording and publication operation",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+        ],
+        "authority_not_granted": [
+          "RB1_IMPLEMENTATION_RESUMPTION",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

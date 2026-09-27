@@ -94,7 +94,8 @@
         "canonicalization",
         "candidate_digest",
         "rb1_design_ratification",
-        "rb1_slice1_implementation_contract"
+        "rb1_slice1_implementation_contract",
+        "successor_evidence_recovery_policy"
       ],
       "properties": {
         "manifest_id": {
@@ -20620,6 +20621,231 @@
                 },
                 "AI_TRADING_AUTHORITY": {
                   "const": "NONE"
+                }
+              }
+            }
+          }
+        },
+        "successor_evidence_recovery_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract_id",
+            "state",
+            "scope",
+            "historical_evidence",
+            "successor_evidence",
+            "recovery",
+            "authority"
+          ],
+          "properties": {
+            "contract_id": {
+              "const": "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+            },
+            "state": {
+              "const": "RATIFIED"
+            },
+            "scope": {
+              "const": "STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_ONLY"
+            },
+            "historical_evidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "immutability",
+                "later_source_content_rewrites_history",
+                "protected_or_frozen_prohibits_authorized_successor",
+                "verification_source",
+                "current_worktree_substitution",
+                "missing_or_mismatched_historical_object"
+              ],
+              "properties": {
+                "immutability": {
+                  "const": "CREATION_TIME_CONTENT_MEMBERSHIP_CONCLUSIONS_LIMITATIONS_AND_GIT_IDENTITIES_PRESERVED"
+                },
+                "later_source_content_rewrites_history": {
+                  "const": false
+                },
+                "protected_or_frozen_prohibits_authorized_successor": {
+                  "const": false
+                },
+                "verification_source": {
+                  "const": "ATTRIBUTABLE_HISTORICAL_GIT_COMMIT_AND_TREE"
+                },
+                "current_worktree_substitution": {
+                  "const": "PROHIBITED"
+                },
+                "missing_or_mismatched_historical_object": {
+                  "const": "FAIL_CLOSED"
+                }
+              }
+            },
+            "successor_evidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "legitimate_later_version",
+                "record_types",
+                "candidate_path_cardinality",
+                "predecessor_binding",
+                "candidate_future_publication_identities",
+                "publication_identity_timing",
+                "invalid_evidence_response"
+              ],
+              "properties": {
+                "legitimate_later_version": {
+                  "const": "ATTRIBUTABLE_SUCCESSOR"
+                },
+                "record_types": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "CANDIDATE_SUCCESSOR"
+                    },
+                    {
+                      "const": "PROTECTED_PUBLICATION"
+                    }
+                  ]
+                },
+                "candidate_path_cardinality": {
+                  "const": "EVERY_CHANGED_PATH_EXACTLY_ONCE"
+                },
+                "predecessor_binding": {
+                  "type": "array",
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "uniqueItems": true,
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "const": "PREDECESSOR_EVIDENCE"
+                    },
+                    {
+                      "const": "HISTORICAL_COMMIT"
+                    },
+                    {
+                      "const": "HISTORICAL_TREE"
+                    },
+                    {
+                      "const": "PREDECESSOR_BLOB_OR_ABSENT"
+                    },
+                    {
+                      "const": "SUCCESSOR_CANDIDATE_BLOB"
+                    }
+                  ]
+                },
+                "candidate_future_publication_identities": {
+                  "const": "PROHIBITED"
+                },
+                "publication_identity_timing": {
+                  "const": "ACTUAL_IDENTITIES_ONLY_AFTER_PUBLICATION"
+                },
+                "invalid_evidence_response": {
+                  "const": "FAIL_CLOSED"
+                }
+              }
+            },
+            "recovery": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "packet_role",
+                "complete_repository_recovery_object",
+                "ordinary_implementation_and_test_membership",
+                "successor_register_classification",
+                "future_transition_membership",
+                "required_sources",
+                "supplementary_sources",
+                "historical_sources"
+              ],
+              "properties": {
+                "packet_role": {
+                  "const": "RECOVERY_INDEX_ONLY"
+                },
+                "complete_repository_recovery_object": {
+                  "const": "PROTECTED_GIT_COMMIT_AND_TREE"
+                },
+                "ordinary_implementation_and_test_membership": {
+                  "const": "NOT_AUTOMATIC"
+                },
+                "successor_register_classification": {
+                  "const": "SUPPLEMENTARY_SOURCE"
+                },
+                "future_transition_membership": {
+                  "const": "UPDATE_SINGLE_REGISTER_NOT_PER_IMPLEMENTATION_FILE"
+                },
+                "required_sources": {
+                  "const": 15
+                },
+                "supplementary_sources": {
+                  "const": 5
+                },
+                "historical_sources": {
+                  "const": 3
+                }
+              }
+            },
+            "authority": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "successor_evidence_grants_authority",
+                "RB1_IMPLEMENTATION_RESUMPTION",
+                "RB2_IMPLEMENTATION",
+                "RB3_IMPLEMENTATION",
+                "STAGE3_IMPLEMENTATION",
+                "SLICE1_CANDIDATE_PUBLICATION",
+                "PROVIDER_SELECTION",
+                "STORAGE_SELECTION",
+                "PAPER_TRADING",
+                "LIVE_TRADING",
+                "FINANCIAL_EFFECTS",
+                "AI_TRADING_AUTHORITY",
+                "IMPLEMENTATION_AUTHORIZED"
+              ],
+              "properties": {
+                "successor_evidence_grants_authority": {
+                  "const": false
+                },
+                "RB1_IMPLEMENTATION_RESUMPTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "RB2_IMPLEMENTATION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "RB3_IMPLEMENTATION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "STAGE3_IMPLEMENTATION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "SLICE1_CANDIDATE_PUBLICATION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "PROVIDER_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "STORAGE_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "PAPER_TRADING": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "LIVE_TRADING": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "FINANCIAL_EFFECTS": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "AI_TRADING_AUTHORITY": {
+                  "const": "NONE"
+                },
+                "IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
                 }
               }
             }

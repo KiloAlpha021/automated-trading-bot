@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "d2fbd6e9d7efd2930dd8748e1e6587f2148eeb4cf50430add29deb2b08606372",
+    "candidate_digest": "733fbdb7b1ef7d4f2ad8d69ffae6807652a497eddad0abcda9692b5a6757d4ee",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -9949,6 +9949,62 @@
         "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
         "IMPLEMENTATION_AUTHORIZED": false,
         "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "successor_evidence_recovery_policy": {
+      "contract_id": "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1",
+      "state": "RATIFIED",
+      "scope": "STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_ONLY",
+      "historical_evidence": {
+        "immutability": "CREATION_TIME_CONTENT_MEMBERSHIP_CONCLUSIONS_LIMITATIONS_AND_GIT_IDENTITIES_PRESERVED",
+        "later_source_content_rewrites_history": false,
+        "protected_or_frozen_prohibits_authorized_successor": false,
+        "verification_source": "ATTRIBUTABLE_HISTORICAL_GIT_COMMIT_AND_TREE",
+        "current_worktree_substitution": "PROHIBITED",
+        "missing_or_mismatched_historical_object": "FAIL_CLOSED"
+      },
+      "successor_evidence": {
+        "legitimate_later_version": "ATTRIBUTABLE_SUCCESSOR",
+        "record_types": [
+          "CANDIDATE_SUCCESSOR",
+          "PROTECTED_PUBLICATION"
+        ],
+        "candidate_path_cardinality": "EVERY_CHANGED_PATH_EXACTLY_ONCE",
+        "predecessor_binding": [
+          "PREDECESSOR_EVIDENCE",
+          "HISTORICAL_COMMIT",
+          "HISTORICAL_TREE",
+          "PREDECESSOR_BLOB_OR_ABSENT",
+          "SUCCESSOR_CANDIDATE_BLOB"
+        ],
+        "candidate_future_publication_identities": "PROHIBITED",
+        "publication_identity_timing": "ACTUAL_IDENTITIES_ONLY_AFTER_PUBLICATION",
+        "invalid_evidence_response": "FAIL_CLOSED"
+      },
+      "recovery": {
+        "packet_role": "RECOVERY_INDEX_ONLY",
+        "complete_repository_recovery_object": "PROTECTED_GIT_COMMIT_AND_TREE",
+        "ordinary_implementation_and_test_membership": "NOT_AUTOMATIC",
+        "successor_register_classification": "SUPPLEMENTARY_SOURCE",
+        "future_transition_membership": "UPDATE_SINGLE_REGISTER_NOT_PER_IMPLEMENTATION_FILE",
+        "required_sources": 15,
+        "supplementary_sources": 5,
+        "historical_sources": 3
+      },
+      "authority": {
+        "successor_evidence_grants_authority": false,
+        "RB1_IMPLEMENTATION_RESUMPTION": "NOT_AUTHORIZED",
+        "RB2_IMPLEMENTATION": "NOT_AUTHORIZED",
+        "RB3_IMPLEMENTATION": "NOT_AUTHORIZED",
+        "STAGE3_IMPLEMENTATION": "NOT_AUTHORIZED",
+        "SLICE1_CANDIDATE_PUBLICATION": "NOT_AUTHORIZED",
+        "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+        "STORAGE_SELECTION": "NOT_AUTHORIZED",
+        "PAPER_TRADING": "NOT_AUTHORIZED",
+        "LIVE_TRADING": "NOT_AUTHORIZED",
+        "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
+        "AI_TRADING_AUTHORITY": "NONE",
+        "IMPLEMENTATION_AUTHORIZED": false
       }
     }
   }

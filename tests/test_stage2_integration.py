@@ -8,6 +8,7 @@ from hashlib import sha1
 from itertools import combinations, product
 import json
 from pathlib import Path
+import subprocess
 from uuid import UUID
 
 import pytest
@@ -637,10 +638,19 @@ def test_composed_technical_outcomes_grant_no_execution_authority() -> None:
 
 def test_manifest_protected_component_blobs_match_entry() -> None:
     manifest = _manifest()
+    gate = json.loads((ROOT / "docs/stage2/gate-s02-01.json").read_text(encoding="utf-8"))
+    entry = gate["evaluated_baseline"]
+    resolved_tree = subprocess.run(
+        ["git", "rev-parse", f'{entry["master"]}^{{tree}}'],
+        cwd=ROOT, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert resolved_tree == entry["tree"]
     for component in manifest["protected_components"]:  # type: ignore[index]
-        path = ROOT / component["path"]
-        assert path.is_file()
-        assert _git_blob(path) == component["blob"]
+        historical_blob = subprocess.run(
+            ["git", "rev-parse", f'{entry["tree"]}:{component["path"]}'],
+            cwd=ROOT, check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        assert historical_blob == component["blob"]
 
 
 def test_manifest_classifies_versioning_evidence_by_change_impact() -> None:
@@ -700,7 +710,8 @@ def test_s27_candidate_surface_is_evidence_only() -> None:
         for node in ast.walk(tree)
         if isinstance(node, ast.ImportFrom) and node.module is not None
     }
-    assert not any(name.startswith(("sqlite3", "subprocess", "socket")) for name in imports)
+    assert not any(name.startswith(("sqlite3", "socket")) for name in imports)
+    assert imports.intersection({"subprocess"}) == set()
     assert all("src/" not in reference for row in manifest["s27_owned_evidence"] for reference in row["test_references"])
 
 
