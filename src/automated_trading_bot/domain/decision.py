@@ -57,7 +57,6 @@ class ApprovalScope:
         ):
             if not isinstance(getattr(self, name), expected):
                 raise TypeError(f"{name} must be a {expected.__name__}")
-        _text(self.instrument_id.value, "instrument_id")
         _text(self.strategy_id.value, "strategy_id")
         _text(self.account, "account")
         _text(self.environment, "environment")

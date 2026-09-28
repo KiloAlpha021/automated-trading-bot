@@ -14,9 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTER = ROOT / "docs/programme/successor-evidence.json"
 SCHEMA = ROOT / "docs/programme/successor-evidence.schema.json"
 POLICY = "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
-BASE_COMMIT = "d0876c53634a39e4f5aa610af3e6f3d8ee9ab063"
-BASE_TREE = "0cfc613f6bbfcba40844a7816aa84eb0999312b1"
-PROGRAMME_BLOB = "34dfe6fb9b9abf1d04a43a426cb2286c90eed045"
+BASE_COMMIT = "b5782f41bf2e687d9ee6ffe55c62ca2e9daa28b5"
+BASE_TREE = "d8c90c91cc24f9b581ee4321389767d53fae5c3e"
+PROGRAMME_BLOB = "aa7c01cfe3690021c3f6c86fa581f7076967c419"
 DENIALS = ["RB1_IMPLEMENTATION_RESUMPTION", "STAGE3_IMPLEMENTATION", "SLICE1_CANDIDATE_PUBLICATION", "AI_TRADING_AUTHORITY"]
 
 
@@ -133,7 +133,27 @@ def test_register_and_closed_schema_validate() -> None:
     schema = load(SCHEMA)
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(load(REGISTER))
-    assert load(REGISTER)["records"] == []
+    records = load(REGISTER)["records"]
+    assert len(records) == 1
+    record = records[0]
+    assert record["record_id"] == "SE-CAND-001"
+    assert record["candidate_state"] == "VERIFIED_LOCAL_UNPUBLISHED"
+    assert record["authorization_references"] == ["PC-DEC-005"]
+    assert record["predecessor_commit"] == BASE_COMMIT
+    assert record["predecessor_tree"] == BASE_TREE
+    assert {
+        row["path"]: (row["predecessor_blob"], row["successor_candidate_blob"], row["role"])
+        for row in record["path_transitions"]
+    } == {
+        "src/automated_trading_bot/domain/decision.py": ("ef9f26caac51a9dbb50161699a7f3d71840efc10", "23dd735bf239e529a9863ee66a044ec12bd40712", "IMPLEMENTATION"),
+        "src/automated_trading_bot/domain/identifiers.py": ("97f27cb0fa456f58f54a5a3f5e9093a2ac70152c", "e03e3bc2b934bd639477dc717fd47af4842339f7", "IMPLEMENTATION"),
+        "src/automated_trading_bot/instruments/__init__.py": ("ABSENT", "1f1ee477e4d682d76c8a568fcccddcf9c6e29faa", "IMPLEMENTATION"),
+        "src/automated_trading_bot/instruments/model.py": ("ABSENT", "348f4ce64a32a5a43445011a4a0028a875f18170", "IMPLEMENTATION"),
+        "tests/test_decision.py": ("3a7bb65314c05fbcfb99d8641f8dac72eb4f6f52", "a43a21de51e7ef3c2a032e87be0a907b41f8fae3", "TEST"),
+        "tests/test_identifiers.py": ("a71dba9fcd447f82626e75f393395adb866beda4", "aec0d60d52b3ac9f5698f55153c2d880d6d01bf0", "TEST"),
+        "tests/test_instrument_reference_model.py": ("ABSENT", "789fc96a11438463ebd8ad15ffce0be75352c2b8", "TEST"),
+    }
+    validate_cross(load(REGISTER), set(row["path"] for row in record["path_transitions"]))
     assert load(REGISTER)["authority"] == {
         "grants_authority": False,
         "implementation_authorized": False,

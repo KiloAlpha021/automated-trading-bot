@@ -23,11 +23,7 @@ UUID_IDENTIFIER_TYPES = [
     CausationId,
 ]
 
-STRING_IDENTIFIER_TYPES = [
-    StrategyId,
-    InstrumentId,
-    IdempotencyKey,
-]
+STRING_IDENTIFIER_TYPES = [StrategyId, IdempotencyKey]
 
 
 def test_order_id_stores_uuid() -> None:
@@ -76,10 +72,13 @@ def test_strategy_id_stores_string() -> None:
     assert strategy_id.value == "strategy-001"
 
 
-def test_instrument_id_stores_string() -> None:
-    instrument_id = InstrumentId("XAUUSD")
+def test_instrument_id_uses_exact_typed_uuidv4_representation() -> None:
+    value = UUID("00000000-0000-4000-8000-000000000001")
+    instrument_id = InstrumentId(value)
 
-    assert instrument_id.value == "XAUUSD"
+    assert instrument_id.value == value
+    assert instrument_id.to_string() == "atis:instrument:v1:00000000-0000-4000-8000-000000000001"
+    assert InstrumentId.parse(instrument_id.to_string()) == instrument_id
 
 
 def test_idempotency_key_stores_string() -> None:
@@ -157,7 +156,8 @@ def test_uuid_identifiers_preserve_uuid(identifier_type) -> None:
         (CorrelationId, UUID(int=0), UUID(int=1)),
         (CausationId, UUID(int=0), UUID(int=1)),
         (StrategyId, "strategy", "replacement"),
-        (InstrumentId, "instrument", "replacement"),
+        (InstrumentId, UUID("00000000-0000-4000-8000-000000000001"),
+         UUID("00000000-0000-4000-8000-000000000002")),
         (IdempotencyKey, "key", "replacement"),
     ],
 )
@@ -194,6 +194,31 @@ def test_uuid_identifier_classes_remain_distinct() -> None:
 def test_string_identifier_classes_remain_distinct() -> None:
     value = "same"
 
-    assert StrategyId(value) != InstrumentId(value)
     assert StrategyId(value) != IdempotencyKey(value)
-    assert InstrumentId(value) != IdempotencyKey(value)
+
+
+@pytest.mark.parametrize("value", [UUID(int=0), UUID(int=1), UUID("00000000-0000-1000-8000-000000000001")])
+def test_instrument_id_rejects_nil_and_non_v4_uuid(value: UUID) -> None:
+    with pytest.raises(ValueError, match="non-nil RFC UUIDv4"):
+        InstrumentId(value)
+
+
+@pytest.mark.parametrize("value", ["XAUUSD", "TEST", "00000000-0000-4000-8000-000000000001", 1, None])
+def test_instrument_id_rejects_legacy_or_untyped_construction(value: object) -> None:
+    with pytest.raises(TypeError):
+        InstrumentId(value)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "atis:listing:v1:00000000-0000-4000-8000-000000000001",
+        "atis:instrument:v1:00000000-0000-4000-8000-000000000001 ",
+        "atis:instrument:v1:00000000-0000-4000-8000-000000000001".upper(),
+        "atis:instrument:v1:00000000000040008000000000000001",
+        "atis:instrument:v1:00000000-0000-1000-8000-000000000001",
+    ],
+)
+def test_instrument_id_parser_rejects_wrong_or_noncanonical_identity(value: str) -> None:
+    with pytest.raises(ValueError):
+        InstrumentId.parse(value)

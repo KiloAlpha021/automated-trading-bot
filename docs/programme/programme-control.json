@@ -517,6 +517,39 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-005",
+        "governed_question": "May the exact preserved ATIS-S3-RB1-S1 seven-file implementation candidate be resumed against protected master for complete local assurance and SE-CAND-001 recording without publication authority?",
+        "scope": "RB1_SLICE1_PRESERVED_CANDIDATE_LOCAL_RESUMPTION_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_RB1_SLICE1_PRESERVED_CANDIDATE_LOCAL_RESUMPTION",
+        "source_authority": "Owner-authorized controlled resumption instruction for the exact preserved seven-file candidate",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RESUME_EXACT_PRESERVED_RB1_SLICE1_CANDIDATE_LOCALLY",
+          "PRESERVE_EXACT_SEVEN_CANDIDATE_BLOBS",
+          "RUN_COMPLETE_LOCAL_ASSURANCE",
+          "RECORD_SE_CAND_001",
+          "RECONCILE_DETERMINISTIC_CONSISTENCY_CONSEQUENCES"
+        ],
+        "authority_not_granted": [
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "MERGE",
+          "RB1_IMPLEMENTATION_BEYOND_SLICE1",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
