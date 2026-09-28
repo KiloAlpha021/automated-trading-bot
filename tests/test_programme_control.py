@@ -827,7 +827,7 @@ def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-2:] == ["PC-DEC-007", "PC-DEC-008"]
+    assert list(decisions)[-3:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009"]
     decision = decisions["PC-DEC-007"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -1433,3 +1433,28 @@ def test_pc_dec_008_calendar_joint_ratification_grants_no_implementation():
     assert "CALENDAR_S1_IMPLEMENTATION" in decision["authority_not_granted"]
     assert "CALENDAR_S2_IMPLEMENTATION" in decision["authority_not_granted"]
     assert "AI_TRADING_AUTHORITY" in decision["authority_not_granted"]
+
+
+def test_calendar_s1_protected_publication_closure_decision_is_bounded() -> None:
+    decisions = {record["record_id"]: record for record in _control()["decision_register"]["records"]}
+    assert list(decisions)[-3:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009"]
+    decision = decisions["PC-DEC-009"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == "CALENDAR_S1_PROTECTED_PUBLICATION_AND_BOUNDED_CLOSURE"
+    assert decision["scope"] == "S3_CMP_002_CALENDAR_S1_PROTECTED_PUBLICATION_AND_BOUNDED_CLOSURE_ONLY"
+    assert decision["authority_granted"] == [
+        "RECORD_SE_CAND_003",
+        "RECORD_SE_PUB_003",
+        "RECORD_VERIFIED_CALENDAR_S1_PROTECTED_PUBLICATION",
+        "CLOSE_BOUNDED_CALENDAR_S1_IMPLEMENTATION_LIFECYCLE",
+        "RECORD_S3_REQ_005_SATISFIED",
+        "RECORD_S3_REQ_006_PARTIAL_STRUCTURAL",
+        "RECORD_S3_REQ_007_PARTIAL_STRUCTURAL",
+        "RECORD_S3_REQ_008_PARTIAL_STRUCTURAL_TIMEZONE",
+        "RECORD_S3_REQ_009_NOT_SATISFIED",
+        "RECORD_S3_REQ_010_FOUNDATION_ONLY",
+        "RECORD_S3_REQ_041_FOUNDATION_ONLY",
+        "PRESERVE_CALENDAR_S2_OBLIGATIONS",
+        "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES",
+    ]
+    assert {"CALENDAR_S2_IMPLEMENTATION", "S3_CMP_002_COMPLETION", "STAGE3_GENERAL_IMPLEMENTATION", "AI_TRADING_AUTHORITY"} <= set(decision["authority_not_granted"])
