@@ -3,7 +3,138 @@
   "register_id": "ATIS-STAGE3-SUCCESSOR-EVIDENCE-REGISTER-001",
   "contract_id": "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1",
   "register_role": "BOUNDED_SUCCESSOR_TRANSITIONS_NOT_COMPLETE_SOURCE_REGISTRY",
-  "records": [],
+  "records": [
+    {
+      "record_id": "SE-CAND-001",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": "RB1",
+      "governing_slice": "ATIS-S3-RB1-S1",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json"
+      ],
+      "predecessor_commit": "b5782f41bf2e687d9ee6ffe55c62ca2e9daa28b5",
+      "predecessor_tree": "d8c90c91cc24f9b581ee4321389767d53fae5c3e",
+      "authorization_references": [
+        "PC-DEC-005"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/domain/decision.py",
+          "predecessor_blob": "ef9f26caac51a9dbb50161699a7f3d71840efc10",
+          "successor_candidate_blob": "23dd735bf239e529a9863ee66a044ec12bd40712",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003"
+          ]
+        },
+        {
+          "path": "src/automated_trading_bot/domain/identifiers.py",
+          "predecessor_blob": "97f27cb0fa456f58f54a5a3f5e9093a2ac70152c",
+          "successor_candidate_blob": "e03e3bc2b934bd639477dc717fd47af4842339f7",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003"
+          ]
+        },
+        {
+          "path": "src/automated_trading_bot/instruments/__init__.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "1f1ee477e4d682d76c8a568fcccddcf9c6e29faa",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003",
+            "S3-REQ-004_FOUNDATION_ONLY"
+          ]
+        },
+        {
+          "path": "src/automated_trading_bot/instruments/model.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "348f4ce64a32a5a43445011a4a0028a875f18170",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003",
+            "S3-REQ-004_FOUNDATION_ONLY"
+          ]
+        },
+        {
+          "path": "tests/test_decision.py",
+          "predecessor_blob": "3a7bb65314c05fbcfb99d8641f8dac72eb4f6f52",
+          "successor_candidate_blob": "a43a21de51e7ef3c2a032e87be0a907b41f8fae3",
+          "role": "TEST",
+          "requirement_references": [
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003"
+          ]
+        },
+        {
+          "path": "tests/test_identifiers.py",
+          "predecessor_blob": "a71dba9fcd447f82626e75f393395adb866beda4",
+          "successor_candidate_blob": "aec0d60d52b3ac9f5698f55153c2d880d6d01bf0",
+          "role": "TEST",
+          "requirement_references": [
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003"
+          ]
+        },
+        {
+          "path": "tests/test_instrument_reference_model.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "789fc96a11438463ebd8ad15ffce0be75352c2b8",
+          "role": "TEST",
+          "requirement_references": [
+            "ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1",
+            "S3-REQ-001",
+            "S3-REQ-002",
+            "S3-REQ-003",
+            "S3-REQ-004_FOUNDATION_ONLY"
+          ]
+        }
+      ],
+      "transition_reason": "Owner-authorized resumption of the exact preserved ATIS-S3-RB1-S1 candidate against the protected successor-evidence baseline without changing its seven implementation/test blobs.",
+      "verification_evidence": [
+        "INITIAL_TARGETED_PYTEST_875_OF_875_PASS",
+        "INITIAL_FULL_PYTEST_1795_OF_1795_PASS",
+        "RUFF_PASS",
+        "STRICT_MYPY_47_SOURCE_FILES_PASS",
+        "PIP_CHECK_PASS",
+        "PIP_AUDIT_NO_KNOWN_VULNERABILITIES",
+        "CLOSURE_SECURITY_AND_ARCHITECTURE_65_OF_65_PASS",
+        "DRAFT_2020_12_DIGEST_RECOVERY_AUTHORITY_TESTS_PASS"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "RB1_IMPLEMENTATION_RESUMPTION",
+          "STAGE3_IMPLEMENTATION",
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    }
+  ],
   "authority": {
     "grants_authority": false,
     "implementation_authorized": false,

@@ -26,7 +26,8 @@ def lineage() -> DecisionLineage:
 
 def scope() -> ApprovalScope:
     return ApprovalScope(
-        InstrumentId("TEST"), StrategyId("benchmark"), "account:test", "test",
+        InstrumentId(UUID("00000000-0000-4000-8000-000000000001")),
+        StrategyId("benchmark"), "account:test", "test",
         OrderSide.BUY, Quantity(Decimal("2")), lineage(), 1,
     )
 
@@ -97,7 +98,8 @@ def test_approval_cannot_transfer_to_another_decision() -> None:
 
 
 @pytest.mark.parametrize("name,value", [
-    ("instrument_id", InstrumentId("OTHER")), ("strategy_id", StrategyId("other")),
+    ("instrument_id", InstrumentId(UUID("00000000-0000-4000-8000-000000000002"))),
+    ("strategy_id", StrategyId("other")),
     ("account", "account:other"), ("environment", "other"), ("side", OrderSide.SELL),
     ("quantity", Quantity(Decimal("1"))), ("quantity", Quantity(Decimal("3"))),
     ("control_epoch", 2),
@@ -142,7 +144,7 @@ def test_lineage_rejects_missing_or_mutable_identities(name: str, invalid: objec
 
 @pytest.mark.parametrize("name,invalid,error", [
     ("instrument_id", "TEST", TypeError), ("strategy_id", "benchmark", TypeError),
-    ("instrument_id", InstrumentId(""), ValueError), ("strategy_id", StrategyId(" "), ValueError),
+    ("instrument_id", None, TypeError), ("strategy_id", StrategyId(" "), ValueError),
     ("account", None, TypeError), ("account", "", ValueError),
     ("environment", None, TypeError), ("environment", " ", ValueError),
     ("side", "BUY", TypeError), ("quantity", Decimal("2"), TypeError),

@@ -761,6 +761,39 @@ def test_successor_evidence_policy_decision_is_recorded_without_authority() -> N
     }.issubset(decision["authority_not_granted"])
 
 
+def test_rb1_slice1_preserved_candidate_resumption_decision_is_bounded() -> None:
+    decisions = {
+        record["record_id"]: record
+        for record in _control()["decision_register"]["records"]
+    }
+    assert decisions["PC-DEC-004"]["decision"] == (
+        "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
+    )
+    decision = decisions["PC-DEC-005"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == (
+        "ATIS_RB1_SLICE1_PRESERVED_CANDIDATE_LOCAL_RESUMPTION"
+    )
+    assert decision["scope"] == (
+        "RB1_SLICE1_PRESERVED_CANDIDATE_LOCAL_RESUMPTION_ONLY"
+    )
+    assert decision["authority_granted"] == [
+        "RESUME_EXACT_PRESERVED_RB1_SLICE1_CANDIDATE_LOCALLY",
+        "PRESERVE_EXACT_SEVEN_CANDIDATE_BLOBS",
+        "RUN_COMPLETE_LOCAL_ASSURANCE",
+        "RECORD_SE_CAND_001",
+        "RECONCILE_DETERMINISTIC_CONSISTENCY_CONSEQUENCES",
+    ]
+    assert {
+        "SLICE1_CANDIDATE_PUBLICATION", "MERGE",
+        "RB1_IMPLEMENTATION_BEYOND_SLICE1", "RB2_IMPLEMENTATION",
+        "RB3_IMPLEMENTATION", "STAGE3_GENERAL_IMPLEMENTATION",
+        "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION",
+        "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    }.issubset(decision["authority_not_granted"])
+
+
 def test_evidence_supersession_cycle_rejects() -> None:
     candidate = deepcopy(_control())
     evidence = candidate["evidence_invalidation_register"]["records"]
