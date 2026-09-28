@@ -20,6 +20,15 @@ from automated_trading_bot.instruments.model import (
     validate_lineage,
     verify_content_digest,
 )
+from automated_trading_bot.instruments.resolution import (
+    CandidateSetCoverage,
+    NegativeCoverageEvidence,
+    ReferenceRecordKind,
+    ResolutionDisposition,
+    ResolutionResult,
+    resolve_instrument_reference,
+    resolve_listing_reference,
+)
 
 __all__ = (
     "DatasetId",
@@ -38,6 +47,13 @@ __all__ = (
     "ValidationPolicyId",
     "ValidationState",
     "canonicalize_evidence_refs",
+    "CandidateSetCoverage",
+    "NegativeCoverageEvidence",
+    "ReferenceRecordKind",
+    "ResolutionDisposition",
+    "ResolutionResult",
+    "resolve_instrument_reference",
+    "resolve_listing_reference",
     "validate_lineage",
     "verify_content_digest",
 )
