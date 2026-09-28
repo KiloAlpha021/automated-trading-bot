@@ -827,7 +827,7 @@ def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-3:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009"]
+    assert list(decisions)[-4:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009", "PC-DEC-010"]
     decision = decisions["PC-DEC-007"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -1437,7 +1437,7 @@ def test_pc_dec_008_calendar_joint_ratification_grants_no_implementation():
 
 def test_calendar_s1_protected_publication_closure_decision_is_bounded() -> None:
     decisions = {record["record_id"]: record for record in _control()["decision_register"]["records"]}
-    assert list(decisions)[-3:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009"]
+    assert list(decisions)[-4:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009", "PC-DEC-010"]
     decision = decisions["PC-DEC-009"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == "CALENDAR_S1_PROTECTED_PUBLICATION_AND_BOUNDED_CLOSURE"
@@ -1458,3 +1458,13 @@ def test_calendar_s1_protected_publication_closure_decision_is_bounded() -> None
         "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES",
     ]
     assert {"CALENDAR_S2_IMPLEMENTATION", "S3_CMP_002_COMPLETION", "STAGE3_GENERAL_IMPLEMENTATION", "AI_TRADING_AUTHORITY"} <= set(decision["authority_not_granted"])
+
+
+def test_pc_dec_010_calendar_s2_joint_ratification_is_design_only():
+    decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
+    decision = decisions["PC-DEC-010"]
+    assert decision["state"] == "APPROVED"
+    assert decision["scope"] == "S3_CMP_002_CALENDAR_S2_DESIGN_AND_IMPLEMENTATION_CONTRACT_ONLY"
+    assert decision["decision"] == "ATIS_STAGE3_CALENDAR_S2_DESIGN_AND_IMPLEMENTATION_CONTRACT_JOINT_RATIFICATION"
+    assert decision["authority_granted"] == ["RECORD_ATIS_STAGE3_CALENDAR_S2_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION_V1", "RECORD_ATIS_STAGE3_CALENDAR_S2_IMPLEMENTATION_CONTRACT_V1"]
+    assert {"CALENDAR_S2_IMPLEMENTATION", "S3_CMP_002_COMPLETION", "PROVIDER_SELECTION", "STORAGE_SELECTION", "TIMEZONE_LIBRARY_SELECTION", "OTHER_STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "RESEARCH_BACKTESTING_INTEGRATION", "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY"} == set(decision["authority_not_granted"])

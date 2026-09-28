@@ -573,3 +573,36 @@ def test_calendar_design_resolutions_do_not_claim_implementation():
         assert "**Unresolved:**" not in section
     assert requirements["S3-REQ-009"]["implementation_state"] == "NOT_ESTABLISHED"
     assert requirements["S3-REQ-041"]["implementation_state"] == "NOT_ESTABLISHED"
+
+
+def test_calendar_s2_design_and_contract_are_jointly_ratified_without_implementation():
+    manifest = corpus()["stage3_recording_manifest"]
+    design = manifest["calendar_s2_resolution_and_correction_v1"]
+    contract = manifest["calendar_s2_implementation_contract_v1"]
+    assert design["contract_id"] == "ATIS_STAGE3_CALENDAR_S2_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION_V1"
+    assert contract["contract_id"] == "ATIS_STAGE3_CALENDAR_S2_IMPLEMENTATION_CONTRACT_V1"
+    assert contract["parent_design"] == design["contract_id"]
+    assert design["query_contract"]["fields"] == ["calendar_id", "local_date", "session_kind", "effective_as_of", "knowledge_cutoff", "evaluation_at"]
+    assert design["candidate_completeness_contract"]["knowledge_rule"] == "knowledge_from <= query.knowledge_cutoff"
+    assert design["currentness_contract"]["evaluation_time_equality_required"] is False
+    assert design["negative_coverage_contract"]["regular_day_plus_no_supported_session"] == "CONFLICTING_POSITIVE_NEGATIVE_SESSION_CONFLICT"
+    assert design["global_disposition_ranking"] is False
+    assert len(design["phase_specific_resolution"]) == 11
+    assert design["timezone_corpus_contract"]["fields"] == ["timezone_rule_id", "corpus"]
+    assert design["result_contract"]["evidence"] == "MINIMAL_CANONICAL_SUPPORTING_OR_CONFLICTING_SET"
+    assert design["authority"]["CALENDAR_S2_IMPLEMENTATION_AUTHORIZED"] is False
+    assert contract["implementation_surface"] == ["src/automated_trading_bot/calendars/resolution.py", "src/automated_trading_bot/calendars/__init__.py", "tests/test_calendar_session_resolution.py"]
+    assert contract["prohibited_semantic_modification"] == "src/automated_trading_bot/calendars/model.py"
+
+
+def test_calendar_s2_contract_records_exact_s2_a01_to_s2_a46_matrix():
+    contract = corpus()["stage3_recording_manifest"]["calendar_s2_implementation_contract_v1"]
+    assert [item["id"] for item in contract["adversarial_tests"]] == [f"S2-A{i:02d}" for i in range(1, 47)]
+    attacks = {item["id"]: item["case"] for item in contract["adversarial_tests"]}
+    assert attacks["S2-A41"] == "EFFECTIVE_BOUNDARY_AMBIGUITY_OR_INCONSISTENCY"
+    assert attacks["S2-A42"] == "FUTURE_CANDIDATE_SET_MANIFEST"
+    assert attacks["S2-A43"] == "FUTURE_CANDIDATE_IDENTITY_CONTAMINATION"
+    assert attacks["S2-A44"] == "CURRENTNESS_FUTURE_OR_OUTSIDE_VALIDITY"
+    assert attacks["S2-A45"] == "CORRECTION_AUTHORITY_SELF_CERTIFICATION"
+    assert attacks["S2-A46"] == "DIAGNOSTIC_OR_EVIDENCE_AUTHORITY_LEAKAGE"
+    assert all(item["required_assertions"] == ["VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION", "NO_FALLBACK", "NO_MUTATION", "NO_SIDE_EFFECT", "NO_AUTHORITY_PROMOTION"] for item in contract["adversarial_tests"])

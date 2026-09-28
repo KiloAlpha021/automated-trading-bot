@@ -691,6 +691,35 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-010",
+        "governed_question": "May the independently reviewed Calendar S2 deterministic historical session resolution and correction design and implementation contract be jointly ratified and recorded without implementation authority?",
+        "scope": "S3_CMP_002_CALENDAR_S2_DESIGN_AND_IMPLEMENTATION_CONTRACT_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_CALENDAR_S2_DESIGN_AND_IMPLEMENTATION_CONTRACT_JOINT_RATIFICATION",
+        "source_authority": "Owner-authorized ratification-candidate instruction following one independent adversarial review with mandatory nonblocking refinements",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_ATIS_STAGE3_CALENDAR_S2_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION_V1",
+          "RECORD_ATIS_STAGE3_CALENDAR_S2_IMPLEMENTATION_CONTRACT_V1"
+        ],
+        "authority_not_granted": [
+          "CALENDAR_S2_IMPLEMENTATION",
+          "S3_CMP_002_COMPLETION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "TIMEZONE_LIBRARY_SELECTION",
+          "OTHER_STAGE3_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "1402d08b21ef6a36cfc8ef39161123b40abb60ee2ba75a86987a4e91a8b4accc",
+    "candidate_digest": "c4e5325d07510526f52ce181733c2680cb4782c0b22222ae5ac5ac1acde39d8d",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -10717,6 +10717,1029 @@
         "CORRECTION_ADJUDICATION": "NOT_AUTHORIZED",
         "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
         "TRADING_OR_FINANCIAL_AUTHORITY": "NONE",
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "calendar_s2_resolution_and_correction_v1": {
+      "contract_id": "ATIS_STAGE3_CALENDAR_S2_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION_V1",
+      "state": "RATIFIED",
+      "component_id": "S3-CMP-002",
+      "scope": "CALENDAR_S2_DESIGN_ONLY_NO_IMPLEMENTATION_AUTHORITY",
+      "parent_design": "ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1",
+      "protected_s1_state": "PROTECTED_VERIFIED_BOUNDED_LIFECYCLE_CLOSED",
+      "purpose": "DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION",
+      "query_contract": {
+        "type": "CalendarSessionResolutionQuery",
+        "immutable": true,
+        "fields": [
+          "calendar_id",
+          "local_date",
+          "session_kind",
+          "effective_as_of",
+          "knowledge_cutoff",
+          "evaluation_at"
+        ],
+        "time_types": {
+          "effective_as_of": "Timestamp",
+          "knowledge_cutoff": "Timestamp",
+          "evaluation_at": "Timestamp"
+        },
+        "knowledge_cutoff_lte_evaluation_at": true,
+        "implicit_current_time": false,
+        "implicit_calendar_version": false,
+        "host_timezone": false,
+        "supported_session_kinds": [
+          "REGULAR"
+        ],
+        "unsupported_disposition": "NOT_ESTABLISHED"
+      },
+      "correction_authority_contract": {
+        "decision_type": "CalendarCorrectionAuthorityDecision",
+        "decisions": [
+          "AUTHORIZED",
+          "NOT_AUTHORIZED"
+        ],
+        "assessment_type": "CalendarCorrectionAuthorityAssessment",
+        "fields": [
+          "calendar_id",
+          "successor_version_id",
+          "predecessor_version_id",
+          "knowledge_from",
+          "evaluated_at",
+          "authority_policy_id",
+          "decision",
+          "evidence_refs",
+          "validation_state",
+          "content_digest"
+        ],
+        "policy_identity_type": "ValidationPolicyId",
+        "knowledge_cutoff_aware": true,
+        "independent_evidence_excludes": [
+          "SUCCESSOR_CALENDAR_VERSION_EVIDENCE",
+          "SUCCESSOR_CORRECTION_EVIDENCE_REFS",
+          "PREDECESSOR_CALENDAR_VERSION_EVIDENCE",
+          "SAME_CORRECTION_PUBLICATION_CHILD_FACT_EVIDENCE"
+        ],
+        "self_certification": "NOT_ESTABLISHED_CORRECTION_AUTHORITY_SELF_CERTIFIED",
+        "branching_successor": "CONFLICTING",
+        "hidden_source_precedence": false,
+        "newest_record_fallback": false,
+        "candidate_self_authorization": false
+      },
+      "currentness_contract": {
+        "type": "CalendarCurrentnessAssessment",
+        "immutable": true,
+        "fields": [
+          "calendar_id",
+          "calendar_version_id",
+          "knowledge_from",
+          "evaluation_at",
+          "valid_from",
+          "valid_to",
+          "state",
+          "validation_policy_id",
+          "evidence_refs",
+          "validation_state",
+          "content_digest"
+        ],
+        "states": [
+          "CURRENT",
+          "STALE",
+          "UNKNOWN"
+        ],
+        "policy_identity_type": "ValidationPolicyId",
+        "valid_to_open_ended": true,
+        "applicability": [
+          "knowledge_from <= query.knowledge_cutoff",
+          "valid_from <= query.evaluation_at",
+          "query.evaluation_at < valid_to when valid_to is not null"
+        ],
+        "evaluation_time_equality_required": false,
+        "hard_coded_freshness_duration": false,
+        "implicit_current_time": false,
+        "stale_or_unknown_disposition": "NOT_ESTABLISHED"
+      },
+      "candidate_completeness_contract": {
+        "type": "CalendarCandidateSetCoverage",
+        "immutable": true,
+        "fields": [
+          "calendar_id",
+          "local_date",
+          "session_kind",
+          "effective_as_of",
+          "knowledge_cutoff",
+          "evaluation_at",
+          "knowledge_from",
+          "candidate_version_ids",
+          "candidate_fact_descriptors",
+          "evidence_refs",
+          "validation_policy_id",
+          "validation_state",
+          "content_digest"
+        ],
+        "fact_descriptor_type": "CalendarFactDescriptor",
+        "fact_descriptor_fields": [
+          "fact_kind",
+          "calendar_version_id",
+          "date_or_range_identity",
+          "session_kind",
+          "fact_content_digest"
+        ],
+        "domain": "EXACT_KNOWLEDGE_VISIBLE_BOUNDED_SEARCH_DOMAIN",
+        "knowledge_rule": "knowledge_from <= query.knowledge_cutoff",
+        "future_records": {
+          "resource_bounded": true,
+          "semantic_validation": false,
+          "candidate_identity": false,
+          "result_evidence": false,
+          "changes_historical_disposition": false
+        },
+        "child_fact_knowledge": "INHERITS_EXACT_CALENDAR_VERSION_PUBLICATION_BOUNDARY",
+        "candidate_self_certification": "PROHIBITED",
+        "omission": "NOT_ESTABLISHED",
+        "surplus": "NOT_ESTABLISHED",
+        "order_independent": true
+      },
+      "negative_coverage_contract": {
+        "type": "CalendarNegativeCoverageEvidence",
+        "negative_fact_type": "CalendarNegativeFact",
+        "negative_facts": [
+          "NO_SUPPORTED_SESSION"
+        ],
+        "fields": [
+          "calendar_id",
+          "local_date",
+          "session_kind",
+          "effective_as_of",
+          "knowledge_cutoff",
+          "evaluation_at",
+          "candidate_set_digest",
+          "negative_fact",
+          "knowledge_from",
+          "evidence_refs",
+          "validation_policy_id",
+          "validation_state",
+          "content_digest"
+        ],
+        "no_record_is_absent": false,
+        "no_record_is_holiday": false,
+        "no_record_is_closed": false,
+        "outside_coverage": "NOT_ESTABLISHED",
+        "incomplete_coverage": "NOT_ESTABLISHED",
+        "conflicting_coverage": "CONFLICTING",
+        "regular_day_plus_no_supported_session": "CONFLICTING_POSITIVE_NEGATIVE_SESSION_CONFLICT",
+        "independent_authoritative_evidence_required": true
+      },
+      "timezone_corpus_contract": {
+        "type": "TimezoneRuleCorpusInput",
+        "fields": [
+          "timezone_rule_id",
+          "corpus"
+        ],
+        "digest_computation": "EvidenceContentDigest.from_bytes(corpus)",
+        "expected_digest": "SELECTED_TIMEZONE_RULE_REF_RULE_CONTENT_DIGEST",
+        "host_or_current_tzdata_fallback": false,
+        "implicit_fold": false,
+        "nonexistent_local_time": "NOT_ESTABLISHED",
+        "ambiguous_local_time": "NOT_ESTABLISHED_UNLESS_EXACT_GOVERNED_BINDING",
+        "utc_disagreement": "CONFLICTING"
+      },
+      "result_contract": {
+        "type": "CalendarSessionResolutionResult",
+        "immutable": true,
+        "fields": [
+          "disposition",
+          "calendar_id",
+          "local_date",
+          "session_kind",
+          "effective_as_of",
+          "knowledge_cutoff",
+          "evaluation_at",
+          "selected_calendar_version_id",
+          "trading_day",
+          "session",
+          "utc_open",
+          "utc_close",
+          "timezone_rule_id",
+          "timezone_rule_content_digest",
+          "currentness_assessment_digest",
+          "correction_authority_assessment_digests",
+          "evidence_refs",
+          "reason_code"
+        ],
+        "value_bearing_disposition": "ESTABLISHED",
+        "non_established_value_fields": "ALL_NULL_OR_EMPTY",
+        "evidence": "MINIMAL_CANONICAL_SUPPORTING_OR_CONFLICTING_SET",
+        "max_evidence_refs": 64,
+        "reason_codes": [
+          "UNIQUE_AUTHORITATIVE_SESSION",
+          "AUTHORITATIVE_NON_TRADING_DAY",
+          "AUTHORITATIVE_NEGATIVE_COVERAGE",
+          "UNSUPPORTED_SESSION_KIND",
+          "RESOURCE_LIMIT_EXCEEDED",
+          "EFFECTIVE_BOUNDARY_MISMATCH",
+          "CANDIDATE_SET_COVERAGE_MISSING",
+          "CANDIDATE_SET_COVERAGE_MISMATCH",
+          "CANDIDATE_SET_COVERAGE_FUTURE",
+          "CANDIDATE_SET_COVERAGE_NOT_AUTHORITATIVE",
+          "CANDIDATE_SET_INCOMPLETE",
+          "CANDIDATE_SET_SURPLUS",
+          "CANDIDATE_SELF_CERTIFIED_COVERAGE",
+          "WRONG_CALENDAR_SUBJECT",
+          "INVALID_OR_CONFLICTING_LINEAGE",
+          "NO_APPLICABLE_VERSION",
+          "COVERAGE_NOT_ESTABLISHED",
+          "COVERAGE_CONFLICT",
+          "CORRECTION_AUTHORITY_MISSING",
+          "CORRECTION_AUTHORITY_NOT_ESTABLISHED",
+          "CORRECTION_AUTHORITY_SELF_CERTIFIED",
+          "CORRECTION_AUTHORITY_CONFLICT",
+          "MULTIPLE_PLAUSIBLE_VERSIONS",
+          "MATERIAL_QUALIFYING_CONFLICT",
+          "CURRENTNESS_ASSESSMENT_MISSING",
+          "CURRENTNESS_ASSESSMENT_NOT_AUTHORITATIVE",
+          "CURRENTNESS_ASSESSMENT_FUTURE",
+          "CURRENTNESS_ASSESSMENT_OUTSIDE_VALIDITY",
+          "CALENDAR_VERSION_STALE",
+          "CALENDAR_CURRENTNESS_UNKNOWN",
+          "CURRENTNESS_ASSESSMENT_CONFLICT",
+          "TRADING_DAY_NOT_ESTABLISHED",
+          "TRADING_DAY_CONFLICT",
+          "SESSION_NOT_ESTABLISHED",
+          "SESSION_CONFLICT",
+          "POSITIVE_NEGATIVE_SESSION_CONFLICT",
+          "TIMEZONE_RULE_NOT_ESTABLISHED",
+          "TIMEZONE_RULE_CORPUS_DIGEST_MISMATCH",
+          "LOCAL_TIME_NOT_ESTABLISHED",
+          "UTC_BOUNDARY_CONFLICT"
+        ]
+      },
+      "phase_specific_resolution": [
+        {
+          "phase": 1,
+          "name": "API_CONSTRUCTION",
+          "behavior": "TYPE_OR_VALUE_EXCEPTION"
+        },
+        {
+          "phase": 2,
+          "name": "SCOPE_AND_RESOURCE_CHECKS",
+          "behavior": "RESTRICTIVE_NOT_ESTABLISHED"
+        },
+        {
+          "phase": 3,
+          "name": "KNOWLEDGE_VISIBLE_DOMAIN_CONSTRUCTION",
+          "behavior": "EXCLUDE_FUTURE_SEMANTICS"
+        },
+        {
+          "phase": 4,
+          "name": "INTRINSIC_EVIDENCE_INTEGRITY",
+          "behavior": "CONFLICTING_FOR_MATERIAL_INCOMPATIBILITY"
+        },
+        {
+          "phase": 5,
+          "name": "CANDIDATE_COMPLETENESS",
+          "behavior": "NOT_ESTABLISHED_UNLESS_EXACT_AND_AUTHORITATIVE"
+        },
+        {
+          "phase": 6,
+          "name": "EFFECTIVE_KNOWLEDGE_COVERAGE_ELIGIBILITY",
+          "behavior": "FAIL_CLOSED"
+        },
+        {
+          "phase": 7,
+          "name": "CORRECTION_AUTHORITY_AND_TIP",
+          "behavior": "AUTHORIZED_UNIQUE_TIP_ONLY"
+        },
+        {
+          "phase": 8,
+          "name": "CURRENTNESS",
+          "behavior": "CURRENT_AUTHORITATIVE_ONLY"
+        },
+        {
+          "phase": 9,
+          "name": "POSITIVE_NEGATIVE_DAY_SESSION_FACTS",
+          "behavior": "EXACT_FACT_OR_LEGITIMATE_ABSENCE"
+        },
+        {
+          "phase": 10,
+          "name": "TIMEZONE_AND_UTC_VERIFICATION",
+          "behavior": "EXACT_CORPUS_NO_FALLBACK"
+        },
+        {
+          "phase": 11,
+          "name": "POSITIVE_ESTABLISHED_RESULT",
+          "behavior": "ONE_COMPLETE_AUTHORITATIVE_INTERPRETATION"
+        }
+      ],
+      "global_disposition_ranking": false,
+      "resource_bounds": {
+        "MAX_EVIDENCE_REFS": 64,
+        "MAX_LINEAGE_VERSIONS": 4096,
+        "MAX_LINEAGE_DEPTH": 256,
+        "cartesian_candidate_evaluation": "PROHIBITED",
+        "silent_truncation": false,
+        "exhaustion": "EXPLICIT_RESTRICTIVE_FAILURE"
+      },
+      "implementation_target_ceiling": {
+        "S3-REQ-005": "PRESERVE_SATISFIED",
+        "S3-REQ-006": "TARGET_SATISFIED",
+        "S3-REQ-007": "TARGET_SATISFIED",
+        "S3-REQ-008": "TARGET_SATISFIED",
+        "S3-REQ-009": "TARGET_SATISFIED",
+        "S3-REQ-010": "TARGET_SATISFIED",
+        "S3-REQ-041": "TARGET_SATISFIED",
+        "ratification_claims_implementation_satisfaction": false,
+        "component_complete_now": false
+      },
+      "authority": {
+        "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED": false,
+        "S3_CMP_002_COMPLETION_AUTHORIZED": false,
+        "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+        "STORAGE_SELECTION": "NOT_AUTHORIZED",
+        "TIMEZONE_LIBRARY_SELECTION": "NOT_AUTHORIZED",
+        "OTHER_STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
+        "RESEARCH_BACKTESTING_INTEGRATION": "NOT_AUTHORIZED",
+        "PAPER_TRADING": "NOT_AUTHORIZED",
+        "LIVE_TRADING": "NOT_AUTHORIZED",
+        "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "calendar_s2_implementation_contract_v1": {
+      "contract_id": "ATIS_STAGE3_CALENDAR_S2_IMPLEMENTATION_CONTRACT_V1",
+      "state": "RATIFIED",
+      "parent_design": "ATIS_STAGE3_CALENDAR_S2_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION_V1",
+      "scope": "CALENDAR_S2_CONTRACT_ONLY_NO_IMPLEMENTATION_AUTHORITY",
+      "purpose": "IMPLEMENT_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION",
+      "protected_predecessor": {
+        "commit": "cc70f2f60a1d2488e00dc8646fdad6d781e99f26",
+        "tree": "479ae565a1d4f94c7e2dca2b4e667dd83916cc2b"
+      },
+      "implementation_surface": [
+        "src/automated_trading_bot/calendars/resolution.py",
+        "src/automated_trading_bot/calendars/__init__.py",
+        "tests/test_calendar_session_resolution.py"
+      ],
+      "additive_exports_only": true,
+      "prohibited_semantic_modification": "src/automated_trading_bot/calendars/model.py",
+      "compatibility_stop": "STOP_CALENDAR_S2_S1_COMPATIBILITY_REVIEW_REQUIRED",
+      "required_types": [
+        "CalendarSessionResolutionQuery",
+        "CalendarCorrectionAuthorityDecision",
+        "CalendarCorrectionAuthorityAssessment",
+        "CalendarCurrentnessAssessment",
+        "CalendarFactDescriptor",
+        "CalendarCandidateSetCoverage",
+        "CalendarNegativeFact",
+        "CalendarNegativeCoverageEvidence",
+        "TimezoneRuleCorpusInput",
+        "CalendarSessionResolutionCandidates",
+        "CalendarSessionResolutionReason",
+        "CalendarSessionResolutionResult"
+      ],
+      "required_function": "resolve_calendar_session",
+      "protected_reuse": [
+        "CalendarId",
+        "CalendarVersionId",
+        "TimezoneId",
+        "TimezoneRuleId",
+        "TimezoneRuleRef",
+        "CalendarContentDigest",
+        "CalendarVersion",
+        "HistoricalCoverage",
+        "TradingDayDefinition",
+        "SessionDefinition",
+        "LocalWallTime",
+        "CalendarCurrentness",
+        "CalendarCoverageState",
+        "TradingDayKind",
+        "SessionKind",
+        "SessionScheduleVariation",
+        "Timestamp",
+        "EvidenceRef",
+        "EvidenceContentDigest",
+        "ValidationPolicyId",
+        "ValidationState",
+        "ResolutionDisposition",
+        "coverage_disposition",
+        "validate_calendar_lineage",
+        "validate_coverage_independence",
+        "validate_fact_bindings",
+        "verify_calendar_content_digest"
+      ],
+      "direct_tests": [
+        "QUERY_CONSTRUCTION",
+        "EFFECTIVE_HALF_OPEN_BOUNDARIES",
+        "KNOWLEDGE_BOUNDARIES",
+        "ORDINARY_TRADING_DAY",
+        "EXPLICIT_HOLIDAY",
+        "SPECIAL_NON_TRADING_DAY",
+        "STANDARD_REGULAR_SESSION",
+        "EARLY_CLOSE_REGULAR_SESSION",
+        "EXACT_TIMEZONE_CORPUS_AND_UTC",
+        "UNIQUE_AUTHORIZED_CORRECTION_TIP",
+        "EXPLICIT_NOT_AUTHORIZED_SUCCESSOR",
+        "CURRENT_CURRENTNESS",
+        "AUTHORITATIVE_ABSENT",
+        "REPEATED_DETERMINISM",
+        "PERMUTATION_INDEPENDENCE"
+      ],
+      "adversarial_tests": [
+        {
+          "id": "S2-A01",
+          "case": "MALFORMED_QUERY_TYPE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A02",
+          "case": "KNOWLEDGE_CUTOFF_AFTER_EVALUATION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A03",
+          "case": "UNSUPPORTED_SESSION_KIND",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A04",
+          "case": "WRONG_CALENDAR_ID",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A05",
+          "case": "CHILD_BOUND_TO_WRONG_VERSION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A06",
+          "case": "DUPLICATE_FACT_IDENTITY_DIFFERENT_CONTENT",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A07",
+          "case": "CANDIDATE_COVERAGE_MISSING_OR_INVALID",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A08",
+          "case": "CANDIDATE_OMISSION_OR_SURPLUS",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A09",
+          "case": "INPUT_PERMUTATION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A10",
+          "case": "CANDIDATE_SELF_CERTIFIED_COMPLETENESS",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A11",
+          "case": "OUTSIDE_COVERAGE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A12",
+          "case": "INCOMPLETE_COVERAGE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A13",
+          "case": "CONFLICTING_COVERAGE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A14",
+          "case": "FABRICATED_OR_MISMATCHED_NEGATIVE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A15",
+          "case": "NO_RECORD_WITHOUT_NEGATIVE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A16",
+          "case": "POSITIVE_NEGATIVE_CONFLICT",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A17",
+          "case": "EFFECTIVE_BOUNDARIES",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A18",
+          "case": "FUTURE_VERSION_FACT_OR_CORRECTION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A19",
+          "case": "CURRENT_VERSION_SUBSTITUTION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A20",
+          "case": "MISSING_SELF_OR_CROSS_CALENDAR_PREDECESSOR",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A21",
+          "case": "CORRECTION_CYCLE_OR_DEPTH",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A22",
+          "case": "BRANCHING_SUCCESSORS",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A23",
+          "case": "CORRECTION_AUTHORITY_MISSING_INVALID_OR_FUTURE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A24",
+          "case": "CORRECTION_NOT_AUTHORIZED",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A25",
+          "case": "CONFLICTING_CORRECTION_AUTHORITY",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A26",
+          "case": "IN_PLACE_PREDECESSOR_MUTATION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A27",
+          "case": "CURRENTNESS_MISSING_INVALID_OR_POLICY_MISMATCH",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A28",
+          "case": "STALE_OR_UNKNOWN_CURRENTNESS",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A29",
+          "case": "CONFLICTING_CURRENTNESS",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A30",
+          "case": "NON_TRADING_DAY_PROMOTED_TO_SESSION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A31",
+          "case": "STANDARD_EARLY_CLOSE_SUBSTITUTION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A32",
+          "case": "MALFORMED_SESSION_BOUNDARY",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A33",
+          "case": "TIMEZONE_RULE_OR_CORPUS_MISSING",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A34",
+          "case": "TIMEZONE_LABEL_REUSED_DIFFERENT_CORPUS",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A35",
+          "case": "NONEXISTENT_LOCAL_TIME",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A36",
+          "case": "AMBIGUOUS_LOCAL_TIME_NO_GOVERNED_FOLD",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A37",
+          "case": "LOCAL_UTC_DISAGREEMENT",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A38",
+          "case": "HOST_TIMEZONE_OR_CURRENT_TZDATA_SUBSTITUTION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A39",
+          "case": "RESOURCE_EXHAUSTION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A40",
+          "case": "REPEAT_MUTATION_HIDDEN_RETRY",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A41",
+          "case": "EFFECTIVE_BOUNDARY_AMBIGUITY_OR_INCONSISTENCY",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A42",
+          "case": "FUTURE_CANDIDATE_SET_MANIFEST",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A43",
+          "case": "FUTURE_CANDIDATE_IDENTITY_CONTAMINATION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A44",
+          "case": "CURRENTNESS_FUTURE_OR_OUTSIDE_VALIDITY",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A45",
+          "case": "CORRECTION_AUTHORITY_SELF_CERTIFICATION",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        },
+        {
+          "id": "S2-A46",
+          "case": "DIAGNOSTIC_OR_EVIDENCE_AUTHORITY_LEAKAGE",
+          "required_assertions": [
+            "VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION",
+            "NO_FALLBACK",
+            "NO_MUTATION",
+            "NO_SIDE_EFFECT",
+            "NO_AUTHORITY_PROMOTION"
+          ]
+        }
+      ],
+      "quality_gates": [
+        "CALENDAR_S2_DIRECT_AND_S2_A01_TO_S2_A46_PASS",
+        "CALENDAR_S1_REGRESSIONS_PASS",
+        "RB1_PIT_REGRESSIONS_PASS",
+        "STAGE3_GOVERNANCE_TESTS_PASS",
+        "PROGRAMME_AND_RECOVERY_TESTS_PASS_WHERE_AFFECTED",
+        "FULL_PYTEST_PASS",
+        "RUFF_PASS",
+        "STRICT_MYPY_PASS",
+        "PIP_CHECK_PASS",
+        "PIP_AUDIT_PASS",
+        "CLOSURE_SECURITY_AND_ARCHITECTURE_PASS",
+        "SCHEMA_AND_DIGEST_CHECKS_PASS"
+      ],
+      "resource_bounds": {
+        "MAX_EVIDENCE_REFS": 64,
+        "MAX_LINEAGE_VERSIONS": 4096,
+        "MAX_LINEAGE_DEPTH": 256,
+        "cartesian_candidate_evaluation": "PROHIBITED",
+        "silent_truncation": false,
+        "exhaustion": "EXPLICIT_RESTRICTIVE_FAILURE"
+      },
+      "implementation_firewall": [
+        "NO_CALENDAR_S1_REDESIGN",
+        "NO_CALENDAR_MODEL_PY_CHANGE",
+        "NO_EXTENDED_SESSIONS",
+        "NO_PROVIDER_SELECTION_OR_ADAPTER",
+        "NO_STORAGE_OR_DATABASE",
+        "NO_TIMEZONE_LIBRARY_SELECTION",
+        "NO_MARKET_DATA_INGESTION_OR_NORMALIZATION",
+        "NO_QUARANTINE_OR_RELEASE",
+        "NO_UNIVERSE_OR_CORPORATE_ACTIONS",
+        "NO_DATASET_MATERIALIZATION_OR_GENERAL_INVALIDATION",
+        "NO_RESEARCH_BACKTESTING_STRATEGY_PORTFOLIO_RISK_OMS_EXECUTION_BROKER_ACCOUNTING_OR_TRADING"
+      ],
+      "requirement_coverage_ceiling": {
+        "S3-REQ-005": "PRESERVE_SATISFIED",
+        "S3-REQ-006": "TARGET_SATISFIED",
+        "S3-REQ-007": "TARGET_SATISFIED",
+        "S3-REQ-008": "TARGET_SATISFIED",
+        "S3-REQ-009": "TARGET_SATISFIED",
+        "S3-REQ-010": "TARGET_SATISFIED",
+        "S3-REQ-041": "TARGET_SATISFIED",
+        "ratification_claims_implementation_satisfaction": false,
+        "component_complete_now": false
+      },
+      "completion_criteria": [
+        "EXACT_BOUNDED_CANDIDATE",
+        "ALL_RATIFIED_S2_INVARIANTS_IMPLEMENTED",
+        "ALL_DIRECT_AND_S2_A01_TO_S2_A46_TESTS_PASS",
+        "FULL_QUALITY_GATES_PASS",
+        "CANDIDATE_BYTES_FROZEN",
+        "TRUSTED_APPLICABILITY_ASSESSED_BEFORE_ATIS_PR",
+        "NO_REQUIREMENT_SATISFACTION_BEFORE_PROTECTED_EVIDENCE",
+        "NO_PUBLICATION_WITHOUT_SEPARATE_AUTHORITY"
+      ],
+      "publication_preflight": {
+        "before_implementation_pr": [
+          "FREEZE_EXACT_CANDIDATE",
+          "DETERMINE_TRUSTED_APPLICABILITY",
+          "PREPARE_EXACT_TRUSTED_PROFILE_IF_REQUIRED",
+          "INDEPENDENTLY_REVIEW_AND_PROTECT_PROFILE",
+          "OPEN_ATIS_PR_ONLY_AFTERWARD"
+        ],
+        "before_closure_pr": [
+          "FREEZE_EXACT_CLOSURE_CANDIDATE",
+          "DETERMINE_CLOSURE_TRUSTED_APPLICABILITY",
+          "PREPARE_AND_PROTECT_EXACT_CLOSURE_PROFILE_IF_REQUIRED",
+          "OPEN_CLOSURE_PR_ONLY_AFTERWARD"
+        ],
+        "future_sha_prediction": "PROHIBITED",
+        "mandatory_not_guidance": true
+      },
+      "authority": {
+        "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED": false,
+        "S3_CMP_002_COMPLETION_AUTHORIZED": false,
+        "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+        "STORAGE_SELECTION": "NOT_AUTHORIZED",
+        "TIMEZONE_LIBRARY_SELECTION": "NOT_AUTHORIZED",
+        "OTHER_STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
+        "RESEARCH_BACKTESTING_INTEGRATION": "NOT_AUTHORIZED",
+        "PAPER_TRADING": "NOT_AUTHORIZED",
+        "LIVE_TRADING": "NOT_AUTHORIZED",
+        "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
         "AI_TRADING_AUTHORITY": "NONE"
       }
     }
