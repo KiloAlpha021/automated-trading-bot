@@ -150,7 +150,7 @@ def test_register_and_closed_schema_validate() -> None:
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(load(REGISTER))
     records = load(REGISTER)["records"]
-    assert len(records) == 4
+    assert len(records) == 6
     record = records[0]
     assert record["record_id"] == "SE-CAND-001"
     assert record["candidate_state"] == "VERIFIED_LOCAL_UNPUBLISHED"
@@ -289,6 +289,7 @@ def test_register_and_closed_schema_validate() -> None:
         {
             "SE-CAND-001": {row["path"] for row in record["path_transitions"]},
             "SE-CAND-002": {row["path"] for row in slice2_candidate["path_transitions"]},
+            "SE-CAND-003": {row["path"] for row in records[4]["path_transitions"]},
         },
     )
     assert load(REGISTER)["authority"] == {
@@ -354,3 +355,38 @@ def test_transition_order_has_no_semantic_effect() -> None:
     left = sorted(first["records"][0]["path_transitions"], key=lambda row: row["path"])
     right = sorted(second["records"][0]["path_transitions"], key=lambda row: row["path"])
     assert left == right
+
+
+def test_calendar_s1_candidate_and_publication_are_exact_and_bounded() -> None:
+    records = load(REGISTER)["records"]
+    assert [record["record_id"] for record in records[-2:]] == ["SE-CAND-003", "SE-PUB-003"]
+    candidate_record, publication_record = records[-2:]
+    assert candidate_record["governing_rb"] is None
+    assert candidate_record["governing_slice"] == "S3-CMP-002-CALENDAR-S1"
+    assert candidate_record["predecessor_commit"] == "80ad13f74112d145674d901b27922101c76a967f"
+    assert candidate_record["predecessor_tree"] == "4766c97d55e7753d860fe2f16bc5cb14a3545c06"
+    assert candidate_record["authorization_references"] == ["PC-DEC-009"]
+    expected = {
+        "src/automated_trading_bot/calendars/__init__.py": "3554703bd0f56a827df67f4b53427b17200000db",
+        "src/automated_trading_bot/calendars/model.py": "4505295dc3bb5014caea18d347cd51b10e0906ee",
+        "tests/test_calendar_session_model.py": "8c8e07bbc2f3b26f98f49beb282455a42cdded03",
+    }
+    assert {row["path"]: row["successor_candidate_blob"] for row in candidate_record["path_transitions"]} == expected
+    assert publication_record["candidate_record_id"] == "SE-CAND-003"
+    assert publication_record["protected_commit"] == "2cdd03ead05489bba3bee3cdc94339f8a8a53aa1"
+    assert publication_record["protected_tree"] == "1d3b4ce7a2a9b20863844060fc47fecdbe445e14"
+    assert publication_record["ordered_merge_parents"] == [
+        "80ad13f74112d145674d901b27922101c76a967f",
+        "3bdf741b8486e66f5aa6a922a6259a17ebe0b4f0",
+    ]
+    assert {row["path"]: row["blob"] for row in publication_record["protected_path_blobs"]} == expected
+    assert len(publication_record["hosted_checks"]) == 3
+    assert all(row["conclusion"] == "SUCCESS" for row in publication_record["hosted_checks"])
+    assert publication_record["post_publication_verification"] == "PASS"
+    assert publication_record["open_obligations_preserved"] is True
+    assert not publication_record["authority"]["granted"]
+    assert {"CALENDAR_S2_IMPLEMENTATION", "S3_CMP_002_COMPLETION", "AI_TRADING_AUTHORITY"} <= set(publication_record["authority"]["not_granted"])
+    assert git("rev-list", "--parents", "-n", "1", publication_record["protected_commit"]).split() == [
+        publication_record["protected_commit"],
+        *publication_record["ordered_merge_parents"],
+    ]
