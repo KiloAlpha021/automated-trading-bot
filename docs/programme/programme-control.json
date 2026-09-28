@@ -616,6 +616,38 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-008",
+        "governed_question": "May the independently reviewed Calendar / Session Authority Model V1 and Calendar S1 implementation contract be jointly ratified and recorded without implementation authority?",
+        "scope": "S3_CMP_002_CALENDAR_MODEL_AND_S1_IMPLEMENTATION_CONTRACT_DESIGN_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_CALENDAR_MODEL_AND_S1_CONTRACT_JOINT_RATIFICATION",
+        "source_authority": "Owner-approved joint design-ratification recording instruction following the single combined independent adversarial review",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1",
+          "RECORD_ATIS_STAGE3_CALENDAR_S1_IMPLEMENTATION_CONTRACT_V1"
+        ],
+        "authority_not_granted": [
+          "CALENDAR_S1_IMPLEMENTATION",
+          "CALENDAR_S2_IMPLEMENTATION",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "TIMEZONE_LIBRARY_SELECTION",
+          "CORRECTION_ADJUDICATION",
+          "RESEARCH_BACKTESTING",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
@@ -1810,7 +1842,7 @@
     "semantic_manifest_version": "1.0.0-candidate.1",
     "canonicalization_contract": "ATIS_STAGE3_CANONICALIZATION_V1",
     "candidate_digest_algorithm": "SHA-256",
-    "candidate_digest": "18f4ca71598e5eff5c6a506271d95e1b60f0a59223d998832ee617f23cccbc6d",
+    "candidate_digest": "1402d08b21ef6a36cfc8ef39161123b40abb60ee2ba75a86987a4e91a8b4accc",
     "independent_expected_digest": "NOT_ESTABLISHED",
     "independent_recomputed_digest": "NOT_ESTABLISHED",
     "owner_ratification_state": "APPROVED",

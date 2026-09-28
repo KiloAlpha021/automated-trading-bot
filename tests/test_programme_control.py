@@ -827,7 +827,7 @@ def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-1] == "PC-DEC-007"
+    assert list(decisions)[-2:] == ["PC-DEC-007", "PC-DEC-008"]
     decision = decisions["PC-DEC-007"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -1415,3 +1415,21 @@ def test_stage3_recording_candidate_programme_schema_is_closed():
     damaged["stage3_recording_candidate"]["unexpected"] = True
     with pytest.raises(ValidationError):
         Draft202012Validator(candidate_schema, format_checker=FormatChecker()).validate(damaged)
+
+
+
+def test_pc_dec_008_calendar_joint_ratification_grants_no_implementation():
+    decisions = {
+        item["record_id"]: item
+        for item in _control()["decision_register"]["records"]
+    }
+    decision = decisions["PC-DEC-008"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == "ATIS_STAGE3_CALENDAR_MODEL_AND_S1_CONTRACT_JOINT_RATIFICATION"
+    assert decision["authority_granted"] == [
+        "RECORD_ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1",
+        "RECORD_ATIS_STAGE3_CALENDAR_S1_IMPLEMENTATION_CONTRACT_V1",
+    ]
+    assert "CALENDAR_S1_IMPLEMENTATION" in decision["authority_not_granted"]
+    assert "CALENDAR_S2_IMPLEMENTATION" in decision["authority_not_granted"]
+    assert "AI_TRADING_AUTHORITY" in decision["authority_not_granted"]
