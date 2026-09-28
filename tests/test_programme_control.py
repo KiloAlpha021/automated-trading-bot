@@ -799,7 +799,6 @@ def test_rb1_slice1_protected_publication_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-1] == "PC-DEC-006"
     decision = decisions["PC-DEC-006"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -818,6 +817,40 @@ def test_rb1_slice1_protected_publication_closure_decision_is_bounded() -> None:
         "RB1_IMPLEMENTATION_BEYOND_SLICE1", "RB2_IMPLEMENTATION",
         "RB3_IMPLEMENTATION", "STAGE3_GENERAL_IMPLEMENTATION",
         "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION",
+        "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    }.issubset(decision["authority_not_granted"])
+
+
+def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
+    decisions = {
+        record["record_id"]: record
+        for record in _control()["decision_register"]["records"]
+    }
+    assert list(decisions)[-1] == "PC-DEC-007"
+    decision = decisions["PC-DEC-007"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == (
+        "ATIS_RB1_SLICE2_PROTECTED_PUBLICATION_AND_BOUNDED_RB1_CLOSURE"
+    )
+    assert decision["scope"] == (
+        "RB1_SLICE2_PROTECTED_PUBLICATION_AND_BOUNDED_RB1_CLOSURE_ONLY"
+    )
+    assert decision["authority_granted"] == [
+        "RECORD_SE_CAND_002",
+        "RECORD_SE_PUB_002",
+        "RECORD_VERIFIED_RB1_SLICE2_PROTECTED_PUBLICATION",
+        "CLOSE_BOUNDED_RB1_SLICE2_IMPLEMENTATION_LIFECYCLE",
+        "RECORD_S3_REQ_001_THROUGH_S3_REQ_004_SATISFIED",
+        "CLOSE_BOUNDED_RB1_IMPLEMENTATION_LIFECYCLE",
+        "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES",
+    ]
+    assert {
+        "RB1_IMPLEMENTATION_BEYOND_SLICE2", "RB2_IMPLEMENTATION",
+        "RB3_IMPLEMENTATION", "STAGE3_GENERAL_IMPLEMENTATION",
+        "STAGE4_IMPLEMENTATION", "CALENDAR_IMPLEMENTATION",
+        "PROVIDER_SELECTION", "STORAGE_SELECTION",
+        "CORPORATE_ACTION_IMPLEMENTATION", "RESEARCH_STRATEGY_INTEGRATION",
         "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
         "AI_TRADING_AUTHORITY",
     }.issubset(decision["authority_not_granted"])

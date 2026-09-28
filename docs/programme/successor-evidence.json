@@ -201,6 +201,153 @@
           "AI_TRADING_AUTHORITY"
         ]
       }
+    },
+    {
+      "record_id": "SE-CAND-002",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": "RB1",
+      "governing_slice": "ATIS-S3-RB1-S2",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/successor-evidence.json"
+      ],
+      "predecessor_commit": "a7b90227f6817bb7276ec30f90891ca3262d5f03",
+      "predecessor_tree": "f973639c1892fdc44b538daa4e3003d4e61a1392",
+      "authorization_references": [
+        "PC-DEC-007"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/instruments/__init__.py",
+          "predecessor_blob": "1f1ee477e4d682d76c8a568fcccddcf9c6e29faa",
+          "successor_candidate_blob": "9594f8fa3660bd4731c96cc73f60709336eed6c3",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-002",
+            "S3-REQ-003",
+            "S3-REQ-004"
+          ]
+        },
+        {
+          "path": "src/automated_trading_bot/instruments/resolution.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "95c91ffb35ec44f0819afa6277f2521b1cc04d6d",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-002",
+            "S3-REQ-003",
+            "S3-REQ-004"
+          ]
+        },
+        {
+          "path": "tests/test_pit_reference_resolution.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "6ea87aa9348443596c08c686474dec5020436d64",
+          "role": "TEST",
+          "requirement_references": [
+            "S3-REQ-002",
+            "S3-REQ-003",
+            "S3-REQ-004"
+          ]
+        }
+      ],
+      "transition_reason": "Owner-authorized bounded ATIS-S3-RB1-S2 deterministic point-in-time reference-resolution implementation, preserving the protected Slice-1 identity and immutable-reference foundation.",
+      "verification_evidence": [
+        "LOCAL_SLICE2_DIRECT_33_OF_33_PASS",
+        "LOCAL_FULL_PYTEST_1830_OF_1830_PASS",
+        "LOCAL_RUFF_PASS",
+        "LOCAL_STRICT_MYPY_PASS",
+        "LOCAL_PIP_CHECK_PASS",
+        "LOCAL_PIP_AUDIT_NO_KNOWN_VULNERABILITIES",
+        "M1_ENGINEERING_FOUNDATION_PR31_RUN_36425457941_JOB_108938198052_SUCCESS",
+        "TRUSTED_M1_EVALUATOR_PR31_RUN_36425457740_JOB_108938197436_ATTEMPT_1_SUCCESS",
+        "TRUSTED_PROFILE_STAGE3_RB1_SLICE2_IMPLEMENTATION_AT_C2550C07BB95C2A4E5D68E7EE0750BE2BF1B2D54"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "RB1_IMPLEMENTATION_RESUMPTION",
+          "STAGE3_IMPLEMENTATION",
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "RB1_IMPLEMENTATION_BEYOND_SLICE2",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "CALENDAR_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "CORPORATE_ACTION_IMPLEMENTATION",
+          "RESEARCH_STRATEGY_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    },
+    {
+      "record_id": "SE-PUB-002",
+      "record_type": "PROTECTED_PUBLICATION",
+      "candidate_record_id": "SE-CAND-002",
+      "protected_commit": "43150c1eaf80899b9309b36aeceb686cf3b83443",
+      "protected_tree": "2a0372b4aa6c94d003f8d13ce2f8ed449dc4e421",
+      "ordered_merge_parents": [
+        "a7b90227f6817bb7276ec30f90891ca3262d5f03",
+        "f1b0d5978964e5dc8a67e60dc453b0403ca15659"
+      ],
+      "publication_reference": "GitHub pull request 31",
+      "protected_path_blobs": [
+        {
+          "path": "src/automated_trading_bot/instruments/__init__.py",
+          "blob": "9594f8fa3660bd4731c96cc73f60709336eed6c3"
+        },
+        {
+          "path": "src/automated_trading_bot/instruments/resolution.py",
+          "blob": "95c91ffb35ec44f0819afa6277f2521b1cc04d6d"
+        },
+        {
+          "path": "tests/test_pit_reference_resolution.py",
+          "blob": "6ea87aa9348443596c08c686474dec5020436d64"
+        }
+      ],
+      "hosted_checks": [
+        {
+          "name": "m1-engineering-foundation run 36425457941 job 108938198052 attempt 1",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "trusted-m1-evaluator run 36425457740 job 108938197436 attempt 1 profile stage3-rb1-slice2-implementation trusted c2550c07bb95c2a4e5d68e7ee0750be2bf1b2d54",
+          "conclusion": "SUCCESS"
+        }
+      ],
+      "post_publication_verification": "PASS",
+      "open_obligations_preserved": true,
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "RB1_IMPLEMENTATION_RESUMPTION",
+          "STAGE3_IMPLEMENTATION",
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "RB1_IMPLEMENTATION_BEYOND_SLICE2",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "CALENDAR_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "CORPORATE_ACTION_IMPLEMENTATION",
+          "RESEARCH_STRATEGY_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
     }
   ],
   "authority": {
