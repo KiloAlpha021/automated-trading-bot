@@ -19,6 +19,11 @@ BASE_TREE = "d8c90c91cc24f9b581ee4321389767d53fae5c3e"
 PROTECTED_COMMIT = "a72b4ae90c4a02154f7c81cdce010f69996d8e77"
 PROTECTED_TREE = "c7b8b30e9cb6deb4a1ac4c89933a8d3ccb79796d"
 PUBLICATION_HEAD = "f983f96c3290620bc45d24af37d53d928b742d8f"
+SLICE2_BASE_COMMIT = "a7b90227f6817bb7276ec30f90891ca3262d5f03"
+SLICE2_BASE_TREE = "f973639c1892fdc44b538daa4e3003d4e61a1392"
+SLICE2_HEAD = "f1b0d5978964e5dc8a67e60dc453b0403ca15659"
+SLICE2_PROTECTED_COMMIT = "43150c1eaf80899b9309b36aeceb686cf3b83443"
+SLICE2_PROTECTED_TREE = "2a0372b4aa6c94d003f8d13ce2f8ed449dc4e421"
 PROGRAMME_BLOB = "aa7c01cfe3690021c3f6c86fa581f7076967c419"
 DENIALS = ["RB1_IMPLEMENTATION_RESUMPTION", "STAGE3_IMPLEMENTATION", "SLICE1_CANDIDATE_PUBLICATION", "AI_TRADING_AUTHORITY"]
 
@@ -88,7 +93,10 @@ def publication() -> dict[str, Any]:
     }
 
 
-def validate_cross(register: dict[str, Any], candidate_paths: set[str] | None = None) -> None:
+def validate_cross(
+    register: dict[str, Any],
+    candidate_paths: set[str] | dict[str, set[str]] | None = None,
+) -> None:
     records = register["records"]
     ids = [record["record_id"] for record in records]
     if len(ids) != len(set(ids)):
@@ -99,7 +107,12 @@ def validate_cross(register: dict[str, Any], candidate_paths: set[str] | None = 
         paths = [row["path"] for row in transitions]
         if len(paths) != len(set(paths)):
             raise ValueError("duplicate path transition")
-        if candidate_paths is not None and set(paths) != candidate_paths:
+        expected_paths = (
+            candidate_paths.get(record["record_id"])
+            if isinstance(candidate_paths, dict)
+            else candidate_paths
+        )
+        if expected_paths is not None and set(paths) != expected_paths:
             raise ValueError("candidate changed paths differ from successor evidence")
         if git("rev-parse", f'{record["predecessor_commit"]}^{{tree}}') != record["predecessor_tree"]:
             raise ValueError("predecessor commit/tree mismatch")
@@ -137,7 +150,7 @@ def test_register_and_closed_schema_validate() -> None:
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(load(REGISTER))
     records = load(REGISTER)["records"]
-    assert len(records) == 2
+    assert len(records) == 4
     record = records[0]
     assert record["record_id"] == "SE-CAND-001"
     assert record["candidate_state"] == "VERIFIED_LOCAL_UNPUBLISHED"
@@ -206,7 +219,78 @@ def test_register_and_closed_schema_validate() -> None:
         assert git(
             "rev-parse", f'{PROTECTED_COMMIT}:{protected["path"]}'
         ) == protected["blob"]
-    validate_cross(load(REGISTER), set(row["path"] for row in record["path_transitions"]))
+    slice2_candidate = records[2]
+    assert slice2_candidate["record_id"] == "SE-CAND-002"
+    assert slice2_candidate["governing_slice"] == "ATIS-S3-RB1-S2"
+    assert slice2_candidate["predecessor_commit"] == SLICE2_BASE_COMMIT
+    assert slice2_candidate["predecessor_tree"] == SLICE2_BASE_TREE
+    assert slice2_candidate["authorization_references"] == ["PC-DEC-007"]
+    assert {
+        row["path"]: (
+            row["predecessor_blob"],
+            row["successor_candidate_blob"],
+            row["role"],
+            row["requirement_references"],
+        )
+        for row in slice2_candidate["path_transitions"]
+    } == {
+        "src/automated_trading_bot/instruments/__init__.py": (
+            "1f1ee477e4d682d76c8a568fcccddcf9c6e29faa",
+            "9594f8fa3660bd4731c96cc73f60709336eed6c3",
+            "IMPLEMENTATION",
+            ["S3-REQ-002", "S3-REQ-003", "S3-REQ-004"],
+        ),
+        "src/automated_trading_bot/instruments/resolution.py": (
+            "ABSENT",
+            "95c91ffb35ec44f0819afa6277f2521b1cc04d6d",
+            "IMPLEMENTATION",
+            ["S3-REQ-002", "S3-REQ-003", "S3-REQ-004"],
+        ),
+        "tests/test_pit_reference_resolution.py": (
+            "ABSENT",
+            "6ea87aa9348443596c08c686474dec5020436d64",
+            "TEST",
+            ["S3-REQ-002", "S3-REQ-003", "S3-REQ-004"],
+        ),
+    }
+    slice2_publication = records[3]
+    assert slice2_publication["record_id"] == "SE-PUB-002"
+    assert slice2_publication["candidate_record_id"] == "SE-CAND-002"
+    assert slice2_publication["protected_commit"] == SLICE2_PROTECTED_COMMIT
+    assert slice2_publication["protected_tree"] == SLICE2_PROTECTED_TREE
+    assert slice2_publication["ordered_merge_parents"] == [
+        SLICE2_BASE_COMMIT,
+        SLICE2_HEAD,
+    ]
+    assert slice2_publication["publication_reference"] == "GitHub pull request 31"
+    assert {
+        row["path"]: row["blob"]
+        for row in slice2_publication["protected_path_blobs"]
+    } == {
+        row["path"]: row["successor_candidate_blob"]
+        for row in slice2_candidate["path_transitions"]
+    }
+    assert len(slice2_publication["hosted_checks"]) == 2
+    assert all(row["conclusion"] == "SUCCESS" for row in slice2_publication["hosted_checks"])
+    assert slice2_publication["post_publication_verification"] == "PASS"
+    assert slice2_publication["open_obligations_preserved"] is True
+    assert git("rev-parse", f"{SLICE2_PROTECTED_COMMIT}^{{tree}}") == SLICE2_PROTECTED_TREE
+    assert git("rev-list", "--parents", "-n", "1", SLICE2_PROTECTED_COMMIT).split() == [
+        SLICE2_PROTECTED_COMMIT,
+        SLICE2_BASE_COMMIT,
+        SLICE2_HEAD,
+    ]
+    for protected in slice2_publication["protected_path_blobs"]:
+        assert git(
+            "rev-parse", f'{SLICE2_PROTECTED_COMMIT}:{protected["path"]}'
+        ) == protected["blob"]
+    validate_cross(
+        load(REGISTER),
+        {
+            "SE-CAND-001": {row["path"] for row in record["path_transitions"]},
+            "SE-CAND-002": {row["path"] for row in slice2_candidate["path_transitions"]},
+        },
+    )
     assert load(REGISTER)["authority"] == {
         "grants_authority": False,
         "implementation_authorized": False,

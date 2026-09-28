@@ -580,6 +580,42 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-007",
+        "governed_question": "Has the exact ATIS-S3-RB1-S2 deterministic point-in-time reference-resolution implementation been published to protected master with attributable engineering and trusted assurance, fully accounting for S3-REQ-001 through S3-REQ-004 and closing bounded RB-1 without wider authority?",
+        "scope": "RB1_SLICE2_PROTECTED_PUBLICATION_AND_BOUNDED_RB1_CLOSURE_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_RB1_SLICE2_PROTECTED_PUBLICATION_AND_BOUNDED_RB1_CLOSURE",
+        "source_authority": "Owner-authorized protected-publication evidence and RB-1 closure-candidate instruction following verified PR #31 publication and successful hosted engineering and trusted assurance",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_SE_CAND_002",
+          "RECORD_SE_PUB_002",
+          "RECORD_VERIFIED_RB1_SLICE2_PROTECTED_PUBLICATION",
+          "CLOSE_BOUNDED_RB1_SLICE2_IMPLEMENTATION_LIFECYCLE",
+          "RECORD_S3_REQ_001_THROUGH_S3_REQ_004_SATISFIED",
+          "CLOSE_BOUNDED_RB1_IMPLEMENTATION_LIFECYCLE",
+          "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES"
+        ],
+        "authority_not_granted": [
+          "RB1_IMPLEMENTATION_BEYOND_SLICE2",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "CALENDAR_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "CORPORATE_ACTION_IMPLEMENTATION",
+          "RESEARCH_STRATEGY_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
