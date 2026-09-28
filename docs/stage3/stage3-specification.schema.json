@@ -95,7 +95,9 @@
         "candidate_digest",
         "rb1_design_ratification",
         "rb1_slice1_implementation_contract",
-        "successor_evidence_recovery_policy"
+        "successor_evidence_recovery_policy",
+        "calendar_session_authority_model_v1",
+        "calendar_s1_implementation_contract_v1"
       ],
       "properties": {
         "manifest_id": {
@@ -20846,6 +20848,2677 @@
                 },
                 "IMPLEMENTATION_AUTHORIZED": {
                   "const": false
+                }
+              }
+            }
+          }
+        },
+        "calendar_session_authority_model_v1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract_id",
+            "state",
+            "component_id",
+            "component_name",
+            "protected_rb_ordinal",
+            "owned_requirements",
+            "slice_decomposition",
+            "authority_model",
+            "identities",
+            "descriptive_scope_codes",
+            "protected_primitive_reuse",
+            "timezone_rule_ref",
+            "record_model",
+            "currentness_separation",
+            "fact_vocabularies",
+            "initial_session_scope",
+            "coverage_contract",
+            "timezone_dst_contract",
+            "early_close_contract",
+            "content_identity",
+            "lineage_contract",
+            "resource_bounds",
+            "requirement_coverage_ceiling",
+            "authority"
+          ],
+          "properties": {
+            "contract_id": {
+              "const": "ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1"
+            },
+            "state": {
+              "const": "RATIFIED"
+            },
+            "component_id": {
+              "const": "S3-CMP-002"
+            },
+            "component_name": {
+              "const": "CALENDAR_SESSION_AUTHORITY"
+            },
+            "protected_rb_ordinal": {
+              "const": "NOT_ESTABLISHED"
+            },
+            "owned_requirements": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "S3-REQ-005"
+                },
+                {
+                  "const": "S3-REQ-006"
+                },
+                {
+                  "const": "S3-REQ-007"
+                },
+                {
+                  "const": "S3-REQ-008"
+                },
+                {
+                  "const": "S3-REQ-009"
+                },
+                {
+                  "const": "S3-REQ-010"
+                },
+                {
+                  "const": "S3-REQ-041"
+                }
+              ],
+              "items": false,
+              "minItems": 7,
+              "maxItems": 7
+            },
+            "slice_decomposition": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "slice",
+                    "name"
+                  ],
+                  "properties": {
+                    "slice": {
+                      "const": "CALENDAR_S1"
+                    },
+                    "name": {
+                      "const": "CANONICAL_CALENDAR_SESSION_IDENTITY_AND_IMMUTABLE_HISTORICAL_MODEL"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "slice",
+                    "name"
+                  ],
+                  "properties": {
+                    "slice": {
+                      "const": "CALENDAR_S2"
+                    },
+                    "name": {
+                      "const": "DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION"
+                    }
+                  }
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "authority_model": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "authority",
+                "required_separation",
+                "authoritative_fact_requires",
+                "provider_name_url_or_database_row_is_identity",
+                "provider_selection"
+              ],
+              "properties": {
+                "authority": {
+                  "const": "ABSTRACT_ATTRIBUTABLE_PROVIDER_NEUTRAL"
+                },
+                "required_separation": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "SOURCE_ID"
+                    },
+                    {
+                      "const": "DATASET_ID"
+                    },
+                    {
+                      "const": "CALENDAR_ID"
+                    },
+                    {
+                      "const": "CALENDAR_VERSION_ID"
+                    },
+                    {
+                      "const": "EVIDENCE_ID"
+                    },
+                    {
+                      "const": "VALIDATION_POLICY_ID"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 6,
+                  "maxItems": 6
+                },
+                "authoritative_fact_requires": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "EXACT_CALENDAR_ID"
+                    },
+                    {
+                      "const": "EXACT_CALENDAR_VERSION_ID"
+                    },
+                    {
+                      "const": "NONEMPTY_ATTRIBUTABLE_EVIDENCE_REFS"
+                    },
+                    {
+                      "const": "VALIDATION_POLICY_ID"
+                    },
+                    {
+                      "const": "VALIDATION_STATE_VALID"
+                    },
+                    {
+                      "const": "VERIFIED_CALENDAR_CONTENT_DIGEST"
+                    },
+                    {
+                      "const": "VALID_COMPLETE_BOUNDED_LINEAGE"
+                    },
+                    {
+                      "const": "APPLICABLE_INDEPENDENT_COVERAGE"
+                    },
+                    {
+                      "const": "EXACT_TIMEZONE_RULE_REF"
+                    },
+                    {
+                      "const": "NO_UNRESOLVED_CONFLICT"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 10,
+                  "maxItems": 10
+                },
+                "provider_name_url_or_database_row_is_identity": {
+                  "const": false
+                },
+                "provider_selection": {
+                  "const": "NONE"
+                }
+              }
+            },
+            "identities": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "calendar_id",
+                "calendar_version_id",
+                "timezone_id",
+                "timezone_rule_id",
+                "namespace_separation"
+              ],
+              "properties": {
+                "calendar_id": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "semantic_role",
+                    "canonical_form",
+                    "requirements"
+                  ],
+                  "properties": {
+                    "semantic_role": {
+                      "const": "STABLE_GOVERNED_CALENDAR_SUBJECT"
+                    },
+                    "canonical_form": {
+                      "const": "atis:calendar:v1:<lowercase-hyphenated-uuidv4>"
+                    },
+                    "requirements": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "const": "NON_NIL"
+                        },
+                        {
+                          "const": "RFC_UUIDV4"
+                        },
+                        {
+                          "const": "EXACT_TYPE"
+                        },
+                        {
+                          "const": "EXACT_CANONICAL_PARSE"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 4,
+                      "maxItems": 4
+                    }
+                  }
+                },
+                "calendar_version_id": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "semantic_role",
+                    "canonical_form",
+                    "requirements"
+                  ],
+                  "properties": {
+                    "semantic_role": {
+                      "const": "ONE_IMMUTABLE_CALENDAR_SUBJECT_VERSION"
+                    },
+                    "canonical_form": {
+                      "const": "atis:calendar-version:v1:<lowercase-hyphenated-uuidv4>"
+                    },
+                    "requirements": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "const": "NON_NIL"
+                        },
+                        {
+                          "const": "RFC_UUIDV4"
+                        },
+                        {
+                          "const": "EXACT_TYPE"
+                        },
+                        {
+                          "const": "EXACT_CANONICAL_PARSE"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 4,
+                      "maxItems": 4
+                    }
+                  }
+                },
+                "timezone_id": {
+                  "const": "CANONICAL_EXCHANGE_LOCAL_IANA_STYLE_ZONE_IDENTITY"
+                },
+                "timezone_rule_id": {
+                  "const": "NAMESPACE_DISTINCT_ATTRIBUTABLE_RULE_SET_IDENTITY"
+                },
+                "namespace_separation": {
+                  "const": true
+                }
+              }
+            },
+            "descriptive_scope_codes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "fields",
+                "semantic_role",
+                "canonical_pattern",
+                "unicode_allowed",
+                "calendar_id_substitution"
+              ],
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "market_code"
+                    },
+                    {
+                      "const": "venue_code"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "semantic_role": {
+                  "const": "DESCRIPTIVE_VERSIONED_SCOPE_ATTRIBUTES_NOT_IDENTITIES"
+                },
+                "canonical_pattern": {
+                  "const": "[A-Z0-9][A-Z0-9._-]{0,31}"
+                },
+                "unicode_allowed": {
+                  "const": false
+                },
+                "calendar_id_substitution": {
+                  "const": false
+                }
+              }
+            },
+            "protected_primitive_reuse": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "Timestamp"
+                },
+                {
+                  "const": "EvidenceRef"
+                },
+                {
+                  "const": "EvidenceContentDigest"
+                },
+                {
+                  "const": "ValidationPolicyId"
+                },
+                {
+                  "const": "ValidationState"
+                },
+                {
+                  "const": "ResolutionDisposition"
+                }
+              ],
+              "items": false,
+              "minItems": 6,
+              "maxItems": 6
+            },
+            "timezone_rule_ref": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "fields",
+                "rule_content_digest_type",
+                "evidence_refs",
+                "authoritative_state",
+                "exact_corpus_digest_verification",
+                "host_timezone_inference",
+                "current_host_tzdata_substitution"
+              ],
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "timezone_id"
+                    },
+                    {
+                      "const": "timezone_rule_id"
+                    },
+                    {
+                      "const": "rule_content_digest"
+                    },
+                    {
+                      "const": "evidence_refs"
+                    },
+                    {
+                      "const": "validation_policy_id"
+                    },
+                    {
+                      "const": "validation_state"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 6,
+                  "maxItems": 6
+                },
+                "rule_content_digest_type": {
+                  "const": "EvidenceContentDigest"
+                },
+                "evidence_refs": {
+                  "const": "NONEMPTY_AND_BINDS_EXACT_RULE_CORPUS"
+                },
+                "authoritative_state": {
+                  "const": "VALID_ONLY"
+                },
+                "exact_corpus_digest_verification": {
+                  "const": true
+                },
+                "host_timezone_inference": {
+                  "const": false
+                },
+                "current_host_tzdata_substitution": {
+                  "const": false
+                }
+              }
+            },
+            "record_model": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "calendar_version",
+                "historical_coverage",
+                "trading_day_definition",
+                "session_definition",
+                "local_wall_time"
+              ],
+              "properties": {
+                "calendar_version": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "role",
+                    "fields",
+                    "unbounded_day_or_session_aggregate"
+                  ],
+                  "properties": {
+                    "role": {
+                      "const": "IMMUTABLE_AUTHORITY_AND_VERSION_HEADER"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "const": "calendar_version_id"
+                        },
+                        {
+                          "const": "calendar_id"
+                        },
+                        {
+                          "const": "market_code"
+                        },
+                        {
+                          "const": "venue_code"
+                        },
+                        {
+                          "const": "effective_from"
+                        },
+                        {
+                          "const": "effective_to"
+                        },
+                        {
+                          "const": "knowledge_from"
+                        },
+                        {
+                          "const": "timezone_rule_ref"
+                        },
+                        {
+                          "const": "evidence_refs"
+                        },
+                        {
+                          "const": "validation_policy_id"
+                        },
+                        {
+                          "const": "validation_state"
+                        },
+                        {
+                          "const": "supersedes_version_id"
+                        },
+                        {
+                          "const": "correction_reason"
+                        },
+                        {
+                          "const": "correction_evidence_refs"
+                        },
+                        {
+                          "const": "content_digest"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 15,
+                      "maxItems": 15
+                    },
+                    "unbounded_day_or_session_aggregate": {
+                      "const": false
+                    }
+                  }
+                },
+                "historical_coverage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "role",
+                    "fields",
+                    "coverage_knowledge_from"
+                  ],
+                  "properties": {
+                    "role": {
+                      "const": "SEPARATE_IMMUTABLE_VERSION_BOUND_COVERAGE_RECORD"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "const": "calendar_id"
+                        },
+                        {
+                          "const": "calendar_version_id"
+                        },
+                        {
+                          "const": "local_date_from"
+                        },
+                        {
+                          "const": "local_date_to"
+                        },
+                        {
+                          "const": "coverage_state"
+                        },
+                        {
+                          "const": "coverage_knowledge_from"
+                        },
+                        {
+                          "const": "evidence_refs"
+                        },
+                        {
+                          "const": "validation_policy_id"
+                        },
+                        {
+                          "const": "validation_state"
+                        },
+                        {
+                          "const": "content_digest"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 10,
+                      "maxItems": 10
+                    },
+                    "coverage_knowledge_from": {
+                      "const": "NULL_ONLY_FOR_SAME_ATOMIC_PUBLICATION_OTHERWISE_REQUIRED"
+                    }
+                  }
+                },
+                "trading_day_definition": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "role",
+                    "fields"
+                  ],
+                  "properties": {
+                    "role": {
+                      "const": "SEPARATE_IMMUTABLE_VERSION_BOUND_DAY_FACT"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "const": "calendar_id"
+                        },
+                        {
+                          "const": "calendar_version_id"
+                        },
+                        {
+                          "const": "local_date"
+                        },
+                        {
+                          "const": "day_kind"
+                        },
+                        {
+                          "const": "evidence_refs"
+                        },
+                        {
+                          "const": "validation_policy_id"
+                        },
+                        {
+                          "const": "validation_state"
+                        },
+                        {
+                          "const": "content_digest"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 8,
+                      "maxItems": 8
+                    }
+                  }
+                },
+                "session_definition": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "role",
+                    "fields",
+                    "whole_fact_attributable_including_open_and_close",
+                    "separate_boundary_sources_require_both_evidence_refs"
+                  ],
+                  "properties": {
+                    "role": {
+                      "const": "SEPARATE_IMMUTABLE_VERSION_BOUND_SESSION_FACT"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "const": "calendar_id"
+                        },
+                        {
+                          "const": "calendar_version_id"
+                        },
+                        {
+                          "const": "local_date"
+                        },
+                        {
+                          "const": "session_kind"
+                        },
+                        {
+                          "const": "schedule_variation"
+                        },
+                        {
+                          "const": "local_open"
+                        },
+                        {
+                          "const": "local_close"
+                        },
+                        {
+                          "const": "utc_open"
+                        },
+                        {
+                          "const": "utc_close"
+                        },
+                        {
+                          "const": "timezone_rule_ref"
+                        },
+                        {
+                          "const": "evidence_refs"
+                        },
+                        {
+                          "const": "validation_policy_id"
+                        },
+                        {
+                          "const": "validation_state"
+                        },
+                        {
+                          "const": "content_digest"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 14,
+                      "maxItems": 14
+                    },
+                    "whole_fact_attributable_including_open_and_close": {
+                      "const": true
+                    },
+                    "separate_boundary_sources_require_both_evidence_refs": {
+                      "const": true
+                    }
+                  }
+                },
+                "local_wall_time": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "role",
+                    "host_timezone",
+                    "implicit_fold"
+                  ],
+                  "properties": {
+                    "role": {
+                      "const": "CIVIL_TIME_REQUIRING_EXPLICIT_TIMEZONE_RULE_INTERPRETATION"
+                    },
+                    "host_timezone": {
+                      "const": "PROHIBITED"
+                    },
+                    "implicit_fold": {
+                      "const": "PROHIBITED"
+                    }
+                  }
+                }
+              }
+            },
+            "currentness_separation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "vocabulary",
+                "evaluated_assessment",
+                "prohibited_semantic_fields",
+                "passage_of_time_mutates_fact_or_digest",
+                "calendar_s2_behavior"
+              ],
+              "properties": {
+                "vocabulary": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "CURRENT"
+                    },
+                    {
+                      "const": "STALE"
+                    },
+                    {
+                      "const": "UNKNOWN"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "evaluated_assessment": {
+                  "const": true
+                },
+                "prohibited_semantic_fields": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "CalendarVersion"
+                    },
+                    {
+                      "const": "HistoricalCoverage"
+                    },
+                    {
+                      "const": "TradingDayDefinition"
+                    },
+                    {
+                      "const": "SessionDefinition"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 4,
+                  "maxItems": 4
+                },
+                "passage_of_time_mutates_fact_or_digest": {
+                  "const": false
+                },
+                "calendar_s2_behavior": {
+                  "const": true
+                }
+              }
+            },
+            "fact_vocabularies": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "trading_day_kind",
+                "session_kind_v1",
+                "session_schedule_variation",
+                "coverage_state",
+                "validation",
+                "resolution",
+                "state_layers_are_separate"
+              ],
+              "properties": {
+                "trading_day_kind": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "REGULAR_TRADING_DAY"
+                    },
+                    {
+                      "const": "EXCHANGE_HOLIDAY"
+                    },
+                    {
+                      "const": "SPECIAL_NON_TRADING_DAY"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "session_kind_v1": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "REGULAR"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 1,
+                  "maxItems": 1
+                },
+                "session_schedule_variation": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "STANDARD"
+                    },
+                    {
+                      "const": "EARLY_CLOSE"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "coverage_state": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "COVERED"
+                    },
+                    {
+                      "const": "INCOMPLETE"
+                    },
+                    {
+                      "const": "CONFLICTING"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "validation": {
+                  "const": "REUSE_VALIDATION_STATE"
+                },
+                "resolution": {
+                  "const": "REUSE_RESOLUTION_DISPOSITION"
+                },
+                "state_layers_are_separate": {
+                  "const": true
+                }
+              }
+            },
+            "initial_session_scope": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "supported",
+                "unsupported",
+                "unsupported_disposition",
+                "prohibited_unsupported_interpretations"
+              ],
+              "properties": {
+                "supported": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "REGULAR"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 1,
+                  "maxItems": 1
+                },
+                "unsupported": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "PRE_MARKET"
+                    },
+                    {
+                      "const": "POST_MARKET"
+                    },
+                    {
+                      "const": "OVERNIGHT"
+                    },
+                    {
+                      "const": "AUCTION_ONLY"
+                    },
+                    {
+                      "const": "VENUE_SPECIFIC_EXTENDED_SESSION"
+                    },
+                    {
+                      "const": "OTHER_EXTENDED_SESSION"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 6,
+                  "maxItems": 6
+                },
+                "unsupported_disposition": {
+                  "const": "NOT_ESTABLISHED"
+                },
+                "prohibited_unsupported_interpretations": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "ABSENT"
+                    },
+                    {
+                      "const": "CLOSED"
+                    },
+                    {
+                      "const": "NON_TRADING"
+                    },
+                    {
+                      "const": "HOLIDAY"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 4,
+                  "maxItems": 4
+                }
+              }
+            },
+            "coverage_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "interval",
+                "hard_coded_historical_start",
+                "no_record_is",
+                "outside_coverage",
+                "incomplete_coverage",
+                "conflicting_coverage",
+                "authoritative_negative_requires",
+                "candidate_self_certification",
+                "shared_upstream_evidence"
+              ],
+              "properties": {
+                "interval": {
+                  "const": "LOCAL_DATE_HALF_OPEN_START_INCLUSIVE_END_EXCLUSIVE"
+                },
+                "hard_coded_historical_start": {
+                  "const": false
+                },
+                "no_record_is": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "NOT_HOLIDAY"
+                    },
+                    {
+                      "const": "NOT_CLOSED"
+                    },
+                    {
+                      "const": "NOT_ABSENT"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "outside_coverage": {
+                  "const": "NOT_ESTABLISHED"
+                },
+                "incomplete_coverage": {
+                  "const": "NOT_ESTABLISHED"
+                },
+                "conflicting_coverage": {
+                  "const": "CONFLICTING"
+                },
+                "authoritative_negative_requires": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "INDEPENDENT_ATTRIBUTABLE_COVERED_BOUNDARY"
+                    },
+                    {
+                      "const": "EXPLICIT_NEGATIVE_DAY_OR_SESSION_FACT"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "candidate_self_certification": {
+                  "const": "PROHIBITED"
+                },
+                "shared_upstream_evidence": {
+                  "const": "REQUIRES_ADDITIONAL_ATTRIBUTABLE_COMPLETENESS_ARTIFACT"
+                }
+              }
+            },
+            "timezone_dst_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "deterministic_utc_conversion",
+                "historical_reproducibility",
+                "nonexistent_local_time",
+                "ambiguous_local_time",
+                "implicit_fold_selection",
+                "timezone_rule_change"
+              ],
+              "properties": {
+                "deterministic_utc_conversion": {
+                  "const": true
+                },
+                "historical_reproducibility": {
+                  "const": true
+                },
+                "nonexistent_local_time": {
+                  "const": "NOT_ESTABLISHED"
+                },
+                "ambiguous_local_time": {
+                  "const": "NOT_ESTABLISHED_UNLESS_GOVERNED_EVIDENCE_UNIQUELY_BINDS_INSTANT"
+                },
+                "implicit_fold_selection": {
+                  "const": false
+                },
+                "timezone_rule_change": {
+                  "const": "NEW_SUCCESSOR_CALENDAR_VERSION"
+                }
+              }
+            },
+            "early_close_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "representation",
+                "session_kind",
+                "schedule_variation",
+                "ordinary_close_fallback",
+                "relative_clock_inference",
+                "input_order_selection",
+                "correction"
+              ],
+              "properties": {
+                "representation": {
+                  "const": "EXPLICIT_ATTRIBUTABLE_SESSION_FACT"
+                },
+                "session_kind": {
+                  "const": "REGULAR"
+                },
+                "schedule_variation": {
+                  "const": "EARLY_CLOSE"
+                },
+                "ordinary_close_fallback": {
+                  "const": false
+                },
+                "relative_clock_inference": {
+                  "const": false
+                },
+                "input_order_selection": {
+                  "const": false
+                },
+                "correction": {
+                  "const": "NEW_SUCCESSOR_CALENDAR_VERSION_NO_MUTATION"
+                }
+              }
+            },
+            "content_identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "algorithm",
+                "external_form",
+                "canonicalization",
+                "one_digest_per_immutable_record",
+                "digest_self_exclusion",
+                "record_identity_exclusion",
+                "nested_child_reintroduction_of_calendar_version_id"
+              ],
+              "properties": {
+                "algorithm": {
+                  "const": "SHA-256"
+                },
+                "external_form": {
+                  "const": "sha256:<64-lowercase-hex-digits>"
+                },
+                "canonicalization": {
+                  "const": "UTF8_CANONICAL_JSON_SORTED_KEYS_NO_FLOATS_NFC_STRINGS"
+                },
+                "one_digest_per_immutable_record": {
+                  "const": true
+                },
+                "digest_self_exclusion": {
+                  "const": true
+                },
+                "record_identity_exclusion": {
+                  "const": "WHEN_PROTECTED_IDENTITY_INDEPENDENT_CONTENT_PATTERN_APPLIES"
+                },
+                "nested_child_reintroduction_of_calendar_version_id": {
+                  "const": "PROHIBITED"
+                }
+              }
+            },
+            "lineage_contract": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "fields",
+                "requirements",
+                "branching_successor",
+                "correction_approval_and_adjudication"
+              ],
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "supersedes_version_id"
+                    },
+                    {
+                      "const": "correction_reason"
+                    },
+                    {
+                      "const": "correction_evidence_refs"
+                    },
+                    {
+                      "const": "knowledge_from"
+                    },
+                    {
+                      "const": "content_digest"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 5,
+                  "maxItems": 5
+                },
+                "requirements": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "PREDECESSOR_RETAINED"
+                    },
+                    {
+                      "const": "SAME_CALENDAR_ID"
+                    },
+                    {
+                      "const": "ALL_PREDECESSORS_PRESENT"
+                    },
+                    {
+                      "const": "NO_SELF_SUPERSESSION"
+                    },
+                    {
+                      "const": "NO_CYCLE"
+                    },
+                    {
+                      "const": "UNIQUE_CALENDAR_VERSION_ID"
+                    },
+                    {
+                      "const": "NO_CROSS_CALENDAR_EDGE"
+                    },
+                    {
+                      "const": "NO_IN_PLACE_REWRITE"
+                    },
+                    {
+                      "const": "SUCCESSOR_KNOWLEDGE_STRICTLY_LATER"
+                    },
+                    {
+                      "const": "INPUT_ORDER_INDEPENDENT"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 10,
+                  "maxItems": 10
+                },
+                "branching_successor": {
+                  "const": "CONFLICTING"
+                },
+                "correction_approval_and_adjudication": {
+                  "const": "CALENDAR_S2_SCOPE"
+                }
+              }
+            },
+            "resource_bounds": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "MAX_EVIDENCE_REFS",
+                "MAX_LINEAGE_VERSIONS",
+                "MAX_LINEAGE_DEPTH",
+                "exhaustion",
+                "silent_truncation"
+              ],
+              "properties": {
+                "MAX_EVIDENCE_REFS": {
+                  "const": 64
+                },
+                "MAX_LINEAGE_VERSIONS": {
+                  "const": 4096
+                },
+                "MAX_LINEAGE_DEPTH": {
+                  "const": 256
+                },
+                "exhaustion": {
+                  "const": "EXPLICIT_RESTRICTIVE_FAILURE"
+                },
+                "silent_truncation": {
+                  "const": false
+                }
+              }
+            },
+            "requirement_coverage_ceiling": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "S3-REQ-005",
+                "S3-REQ-006",
+                "S3-REQ-007",
+                "S3-REQ-008",
+                "S3-REQ-009",
+                "S3-REQ-010",
+                "S3-REQ-041",
+                "component_complete_after_s1"
+              ],
+              "properties": {
+                "S3-REQ-005": {
+                  "const": "SATISFIED"
+                },
+                "S3-REQ-006": {
+                  "const": "PARTIAL_STRUCTURAL"
+                },
+                "S3-REQ-007": {
+                  "const": "PARTIAL_STRUCTURAL"
+                },
+                "S3-REQ-008": {
+                  "const": "PARTIAL_STRUCTURAL_TIMEZONE"
+                },
+                "S3-REQ-009": {
+                  "const": "NOT_SATISFIED"
+                },
+                "S3-REQ-010": {
+                  "const": "FOUNDATION_ONLY"
+                },
+                "S3-REQ-041": {
+                  "const": "FOUNDATION_ONLY"
+                },
+                "component_complete_after_s1": {
+                  "const": false
+                }
+              }
+            },
+            "authority": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "CALENDAR_S1_IMPLEMENTATION_AUTHORIZED",
+                "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED",
+                "STAGE3_IMPLEMENTATION_AUTHORIZED",
+                "PROVIDER_SELECTION",
+                "STORAGE_SELECTION",
+                "TIMEZONE_LIBRARY_SELECTION",
+                "CORRECTION_ADJUDICATION",
+                "STAGE4_IMPLEMENTATION_AUTHORIZED",
+                "TRADING_OR_FINANCIAL_AUTHORITY",
+                "AI_TRADING_AUTHORITY"
+              ],
+              "properties": {
+                "CALENDAR_S1_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "STAGE3_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "PROVIDER_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "STORAGE_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "TIMEZONE_LIBRARY_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "CORRECTION_ADJUDICATION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "STAGE4_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "TRADING_OR_FINANCIAL_AUTHORITY": {
+                  "const": "NONE"
+                },
+                "AI_TRADING_AUTHORITY": {
+                  "const": "NONE"
+                }
+              }
+            }
+          }
+        },
+        "calendar_s1_implementation_contract_v1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract_id",
+            "state",
+            "parent_design",
+            "scope",
+            "purpose",
+            "protected_predecessor",
+            "implementation_surface",
+            "protected_rb1_semantic_modification",
+            "scope_items",
+            "invariants",
+            "direct_tests",
+            "adversarial_tests",
+            "quality_gates",
+            "resource_bounds",
+            "implementation_firewall",
+            "requirement_coverage_ceiling",
+            "completion_criteria",
+            "publication_preflight",
+            "authority"
+          ],
+          "properties": {
+            "contract_id": {
+              "const": "ATIS_STAGE3_CALENDAR_S1_IMPLEMENTATION_CONTRACT_V1"
+            },
+            "state": {
+              "const": "RATIFIED"
+            },
+            "parent_design": {
+              "const": "ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1"
+            },
+            "scope": {
+              "const": "CALENDAR_S1_CONTRACT_ONLY_NO_IMPLEMENTATION_AUTHORITY"
+            },
+            "purpose": {
+              "const": "IMPLEMENT_PROVIDER_AND_STORAGE_NEUTRAL_CALENDAR_IDENTITY_VERSION_AND_IMMUTABLE_FACT_MODEL"
+            },
+            "protected_predecessor": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "commit",
+                "tree"
+              ],
+              "properties": {
+                "commit": {
+                  "const": "e360986db8f9e718768827388e0b21082e2da68d"
+                },
+                "tree": {
+                  "const": "4ea3f1e8af9f966dd6aaa2dfef2e22f5d421fc1a"
+                }
+              }
+            },
+            "implementation_surface": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "src/automated_trading_bot/calendars/__init__.py"
+                },
+                {
+                  "const": "src/automated_trading_bot/calendars/model.py"
+                },
+                {
+                  "const": "tests/test_calendar_session_model.py"
+                }
+              ],
+              "items": false,
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "protected_rb1_semantic_modification": {
+              "const": "PROHIBITED_STOP_FOR_COMPATIBILITY_REVIEW"
+            },
+            "scope_items": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "CALENDAR_AND_VERSION_IDENTITIES"
+                },
+                {
+                  "const": "TIMEZONE_RULE_REF"
+                },
+                {
+                  "const": "IMMUTABLE_CALENDAR_VERSION_HEADER"
+                },
+                {
+                  "const": "HISTORICAL_COVERAGE_RECORD"
+                },
+                {
+                  "const": "TRADING_DAY_FACT"
+                },
+                {
+                  "const": "SESSION_FACT"
+                },
+                {
+                  "const": "LOCAL_WALL_TIME"
+                },
+                {
+                  "const": "CANONICAL_CONTENT_IDENTITY"
+                },
+                {
+                  "const": "FINITE_COMPLETE_LINEAGE_VALIDATION"
+                }
+              ],
+              "items": false,
+              "minItems": 9,
+              "maxItems": 9
+            },
+            "invariants": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "INV-CAL-001"
+                },
+                {
+                  "const": "INV-CAL-002"
+                },
+                {
+                  "const": "INV-CAL-003"
+                },
+                {
+                  "const": "INV-CAL-004"
+                },
+                {
+                  "const": "INV-CAL-005"
+                },
+                {
+                  "const": "INV-CAL-006"
+                },
+                {
+                  "const": "INV-CAL-007"
+                },
+                {
+                  "const": "INV-CAL-008"
+                },
+                {
+                  "const": "INV-CAL-009"
+                },
+                {
+                  "const": "INV-CAL-010"
+                },
+                {
+                  "const": "INV-CAL-011"
+                },
+                {
+                  "const": "INV-CAL-012"
+                },
+                {
+                  "const": "INV-CAL-013"
+                },
+                {
+                  "const": "INV-CAL-014"
+                },
+                {
+                  "const": "INV-CAL-015"
+                },
+                {
+                  "const": "INV-CAL-016"
+                },
+                {
+                  "const": "INV-CAL-017"
+                },
+                {
+                  "const": "INV-CAL-018"
+                },
+                {
+                  "const": "INV-CAL-019"
+                },
+                {
+                  "const": "INV-CAL-020"
+                },
+                {
+                  "const": "INV-CAL-021"
+                },
+                {
+                  "const": "INV-CAL-022"
+                },
+                {
+                  "const": "INV-CAL-023"
+                },
+                {
+                  "const": "INV-CAL-024"
+                },
+                {
+                  "const": "INV-CAL-025"
+                },
+                {
+                  "const": "INV-CAL-026"
+                },
+                {
+                  "const": "INV-CAL-027"
+                },
+                {
+                  "const": "INV-CAL-028"
+                },
+                {
+                  "const": "INV-CAL-029"
+                },
+                {
+                  "const": "INV-CAL-030"
+                },
+                {
+                  "const": "INV-CAL-031"
+                },
+                {
+                  "const": "INV-CAL-032"
+                },
+                {
+                  "const": "INV-CAL-033"
+                },
+                {
+                  "const": "INV-CAL-034"
+                }
+              ],
+              "items": false,
+              "minItems": 34,
+              "maxItems": 34
+            },
+            "direct_tests": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "CANONICAL_IDENTITY_PARSE_SERIALIZATION"
+                },
+                {
+                  "const": "TYPE_SUBSTITUTION_REJECTION"
+                },
+                {
+                  "const": "ORDINARY_TRADING_DAY"
+                },
+                {
+                  "const": "EXPLICIT_HOLIDAY"
+                },
+                {
+                  "const": "EXPLICIT_SPECIAL_NON_TRADING_DAY"
+                },
+                {
+                  "const": "STANDARD_REGULAR_SESSION"
+                },
+                {
+                  "const": "EXPLICIT_EARLY_CLOSE"
+                },
+                {
+                  "const": "HALF_OPEN_EFFECTIVE_BOUNDARY"
+                },
+                {
+                  "const": "OPEN_ENDED_VERSION"
+                },
+                {
+                  "const": "KNOWLEDGE_VISIBILITY"
+                },
+                {
+                  "const": "AUTHORITATIVE_COVERAGE"
+                },
+                {
+                  "const": "INCOMPLETE_AND_CONFLICTING_COVERAGE"
+                },
+                {
+                  "const": "DETERMINISTIC_CANONICAL_DIGEST"
+                },
+                {
+                  "const": "EVIDENCE_CANONICALIZATION_AND_CONFLICT"
+                },
+                {
+                  "const": "TIMEZONE_RULE_CONTENT_BINDING"
+                },
+                {
+                  "const": "UTC_CONVERSION_AGREEMENT"
+                },
+                {
+                  "const": "DST_FORWARD"
+                },
+                {
+                  "const": "DST_BACKWARD"
+                },
+                {
+                  "const": "IMMUTABLE_CORRECTION_PREDECESSOR"
+                },
+                {
+                  "const": "COMPLETE_VALID_LINEAGE"
+                },
+                {
+                  "const": "INPUT_PERMUTATION_INDEPENDENCE"
+                },
+                {
+                  "const": "RESOURCE_BOUNDARIES"
+                }
+              ],
+              "items": false,
+              "minItems": 22,
+              "maxItems": 22
+            },
+            "adversarial_tests": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A01"
+                    },
+                    "case": {
+                      "const": "MISSING_CALENDAR_ID"
+                    },
+                    "required_result": {
+                      "const": "REJECT_NO_AUTHORITY"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A02"
+                    },
+                    "case": {
+                      "const": "MISSING_CALENDAR_VERSION_ID"
+                    },
+                    "required_result": {
+                      "const": "REJECT_NO_LATEST_FALLBACK"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A03"
+                    },
+                    "case": {
+                      "const": "WRONG_CALENDAR_SUBJECT"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING_NO_SUBSTITUTION"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A04"
+                    },
+                    "case": {
+                      "const": "WRONG_MARKET_OR_VENUE"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING_SCOPE"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A05"
+                    },
+                    "case": {
+                      "const": "OUTSIDE_HISTORICAL_COVERAGE"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A06"
+                    },
+                    "case": {
+                      "const": "INCOMPLETE_HISTORICAL_COVERAGE"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A07"
+                    },
+                    "case": {
+                      "const": "FABRICATED_NEGATIVE_COVERAGE"
+                    },
+                    "required_result": {
+                      "const": "REJECT_NO_NEGATIVE_FACT"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A08"
+                    },
+                    "case": {
+                      "const": "MISSING_HOLIDAY_EVIDENCE"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED_NEVER_OPEN"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A09"
+                    },
+                    "case": {
+                      "const": "CONFLICTING_HOLIDAY_EVIDENCE"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A10"
+                    },
+                    "case": {
+                      "const": "ORDINARY_SESSION_SUBSTITUTED_FOR_EARLY_CLOSE"
+                    },
+                    "required_result": {
+                      "const": "REJECT_NO_FALLBACK"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A11"
+                    },
+                    "case": {
+                      "const": "EARLY_CLOSE_SUBSTITUTED_FOR_ORDINARY"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING_OR_REJECT"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A12"
+                    },
+                    "case": {
+                      "const": "MISSING_CLOSE"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A13"
+                    },
+                    "case": {
+                      "const": "CONFLICTING_CLOSE"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A14"
+                    },
+                    "case": {
+                      "const": "MALFORMED_OPEN_OR_CLOSE"
+                    },
+                    "required_result": {
+                      "const": "REJECT"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A15"
+                    },
+                    "case": {
+                      "const": "CLOSE_NOT_AFTER_OPEN"
+                    },
+                    "required_result": {
+                      "const": "REJECT"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A16"
+                    },
+                    "case": {
+                      "const": "MISSING_TIMEZONE"
+                    },
+                    "required_result": {
+                      "const": "REJECT_AUTHORITY"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A17"
+                    },
+                    "case": {
+                      "const": "TIMEZONE_MISMATCH"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING_OR_NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A18"
+                    },
+                    "case": {
+                      "const": "MISSING_TIMEZONE_RULE_ID"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A19"
+                    },
+                    "case": {
+                      "const": "DST_FORWARD_TRANSITION"
+                    },
+                    "required_result": {
+                      "const": "DETERMINISTIC_OR_NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A20"
+                    },
+                    "case": {
+                      "const": "DST_BACKWARD_TRANSITION"
+                    },
+                    "required_result": {
+                      "const": "DETERMINISTIC_OR_NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A21"
+                    },
+                    "case": {
+                      "const": "AMBIGUOUS_LOCAL_TIME"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED_WITHOUT_EXACT_BINDING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A22"
+                    },
+                    "case": {
+                      "const": "NONEXISTENT_LOCAL_TIME"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A23"
+                    },
+                    "case": {
+                      "const": "UTC_CONVERSION_DISAGREEMENT"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A24"
+                    },
+                    "case": {
+                      "const": "FUTURE_KNOWLEDGE"
+                    },
+                    "required_result": {
+                      "const": "EXCLUDED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A25"
+                    },
+                    "case": {
+                      "const": "CURRENT_CALENDAR_SUBSTITUTION"
+                    },
+                    "required_result": {
+                      "const": "REJECT"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A26"
+                    },
+                    "case": {
+                      "const": "STALE_EVIDENCE"
+                    },
+                    "required_result": {
+                      "const": "NON_AUTHORITATIVE"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A27"
+                    },
+                    "case": {
+                      "const": "INVALID_EVIDENCE"
+                    },
+                    "required_result": {
+                      "const": "NON_AUTHORITATIVE"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A28"
+                    },
+                    "case": {
+                      "const": "CORRECTION_WITHOUT_PREDECESSOR"
+                    },
+                    "required_result": {
+                      "const": "LINEAGE_FAILURE"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A29"
+                    },
+                    "case": {
+                      "const": "CROSS_CALENDAR_CORRECTION"
+                    },
+                    "required_result": {
+                      "const": "REJECT"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A30"
+                    },
+                    "case": {
+                      "const": "CORRECTION_CYCLE"
+                    },
+                    "required_result": {
+                      "const": "LINEAGE_FAILURE"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A31"
+                    },
+                    "case": {
+                      "const": "BRANCHING_CORRECTION"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A32"
+                    },
+                    "case": {
+                      "const": "IN_PLACE_MUTATION_ATTEMPT"
+                    },
+                    "required_result": {
+                      "const": "REJECT_OR_DIGEST_MISMATCH"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A33"
+                    },
+                    "case": {
+                      "const": "INPUT_ORDER_DEPENDENCE"
+                    },
+                    "required_result": {
+                      "const": "REJECT_NONDETERMINISM"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A34"
+                    },
+                    "case": {
+                      "const": "RESOURCE_EXHAUSTION"
+                    },
+                    "required_result": {
+                      "const": "EXPLICIT_RESTRICTIVE_FAILURE_NO_TRUNCATION"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A35"
+                    },
+                    "case": {
+                      "const": "TIMEZONE_RULE_CORPUS_DIGEST_MISMATCH"
+                    },
+                    "required_result": {
+                      "const": "REJECT_NO_HOST_FALLBACK"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A36"
+                    },
+                    "case": {
+                      "const": "TIMEZONE_RULE_LABEL_REUSED_WITH_DIFFERENT_CONTENT"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A37"
+                    },
+                    "case": {
+                      "const": "COVERAGE_SELF_CERTIFICATION"
+                    },
+                    "required_result": {
+                      "const": "NOT_ESTABLISHED"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A38"
+                    },
+                    "case": {
+                      "const": "CURRENTNESS_CHANGE_MUTATES_FACTUAL_VERSION"
+                    },
+                    "required_result": {
+                      "const": "REJECT_FACT_MUTATION"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A39"
+                    },
+                    "case": {
+                      "const": "DUPLICATE_FACT_IDENTITY_DIFFERENT_CONTENT"
+                    },
+                    "required_result": {
+                      "const": "CONFLICTING"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "case",
+                    "required_result"
+                  ],
+                  "properties": {
+                    "id": {
+                      "const": "A40"
+                    },
+                    "case": {
+                      "const": "CHILD_FACT_BOUND_TO_WRONG_CALENDAR_VERSION"
+                    },
+                    "required_result": {
+                      "const": "REJECT_CROSS_VERSION"
+                    }
+                  }
+                }
+              ],
+              "items": false,
+              "minItems": 40,
+              "maxItems": 40
+            },
+            "quality_gates": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "CALENDAR_S1_DIRECT_AND_ADVERSARIAL_TESTS_PASS"
+                },
+                {
+                  "const": "PROTECTED_RB1_REGRESSIONS_PASS"
+                },
+                {
+                  "const": "STAGE3_GOVERNANCE_TESTS_PASS"
+                },
+                {
+                  "const": "PROGRAMME_AND_RECOVERY_TESTS_PASS_WHERE_AFFECTED"
+                },
+                {
+                  "const": "FULL_PYTEST_PASS"
+                },
+                {
+                  "const": "RUFF_PASS"
+                },
+                {
+                  "const": "STRICT_MYPY_PASS"
+                },
+                {
+                  "const": "PIP_CHECK_PASS"
+                },
+                {
+                  "const": "PIP_AUDIT_PASS"
+                },
+                {
+                  "const": "CLOSURE_SECURITY_AND_ARCHITECTURE_PASS"
+                },
+                {
+                  "const": "SCHEMA_AND_DIGEST_CHECKS_PASS"
+                }
+              ],
+              "items": false,
+              "minItems": 11,
+              "maxItems": 11
+            },
+            "resource_bounds": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "MAX_EVIDENCE_REFS",
+                "MAX_LINEAGE_VERSIONS",
+                "MAX_LINEAGE_DEPTH",
+                "exhaustion",
+                "silent_truncation"
+              ],
+              "properties": {
+                "MAX_EVIDENCE_REFS": {
+                  "const": 64
+                },
+                "MAX_LINEAGE_VERSIONS": {
+                  "const": 4096
+                },
+                "MAX_LINEAGE_DEPTH": {
+                  "const": 256
+                },
+                "exhaustion": {
+                  "const": "EXPLICIT_RESTRICTIVE_FAILURE"
+                },
+                "silent_truncation": {
+                  "const": false
+                }
+              }
+            },
+            "implementation_firewall": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "NO_HISTORICAL_PIT_CALENDAR_RESOLVER"
+                },
+                {
+                  "const": "NO_PROVIDER_SELECTION_OR_ADAPTER"
+                },
+                {
+                  "const": "NO_PERSISTENCE_OR_DATABASE"
+                },
+                {
+                  "const": "NO_MARKET_DATA_NORMALIZATION"
+                },
+                {
+                  "const": "NO_QUARANTINE_OR_RELEASE"
+                },
+                {
+                  "const": "NO_UNIVERSE_CONSTRUCTION"
+                },
+                {
+                  "const": "NO_CORPORATE_ACTIONS"
+                },
+                {
+                  "const": "NO_DATASET_MATERIALIZATION"
+                },
+                {
+                  "const": "NO_GENERAL_INVALIDATION_PROPAGATION"
+                },
+                {
+                  "const": "NO_RESEARCH_OR_BACKTESTING"
+                },
+                {
+                  "const": "NO_STRATEGY_PORTFOLIO_RISK_OMS_BROKER_ACCOUNTING_OR_TRADING"
+                }
+              ],
+              "items": false,
+              "minItems": 11,
+              "maxItems": 11
+            },
+            "requirement_coverage_ceiling": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "S3-REQ-005",
+                "S3-REQ-006",
+                "S3-REQ-007",
+                "S3-REQ-008",
+                "S3-REQ-009",
+                "S3-REQ-010",
+                "S3-REQ-041",
+                "component_complete_after_s1"
+              ],
+              "properties": {
+                "S3-REQ-005": {
+                  "const": "SATISFIED"
+                },
+                "S3-REQ-006": {
+                  "const": "PARTIAL_STRUCTURAL"
+                },
+                "S3-REQ-007": {
+                  "const": "PARTIAL_STRUCTURAL"
+                },
+                "S3-REQ-008": {
+                  "const": "PARTIAL_STRUCTURAL_TIMEZONE"
+                },
+                "S3-REQ-009": {
+                  "const": "NOT_SATISFIED"
+                },
+                "S3-REQ-010": {
+                  "const": "FOUNDATION_ONLY"
+                },
+                "S3-REQ-041": {
+                  "const": "FOUNDATION_ONLY"
+                },
+                "component_complete_after_s1": {
+                  "const": false
+                }
+              }
+            },
+            "completion_criteria": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "EXACT_BOUNDED_CANDIDATE"
+                },
+                {
+                  "const": "ALL_CONTRACT_INVARIANTS_IMPLEMENTED"
+                },
+                {
+                  "const": "ALL_DIRECT_AND_A01_TO_A40_TESTS_PASS"
+                },
+                {
+                  "const": "CANDIDATE_BYTES_FROZEN"
+                },
+                {
+                  "const": "NO_REQUIREMENT_OVERCLAIM"
+                },
+                {
+                  "const": "TRUSTED_APPLICABILITY_ASSESSED_BEFORE_ATIS_PR"
+                },
+                {
+                  "const": "NO_PUBLICATION_WITHOUT_SEPARATE_AUTHORITY"
+                }
+              ],
+              "items": false,
+              "minItems": 7,
+              "maxItems": 7
+            },
+            "publication_preflight": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "before_implementation_pr",
+                "before_closure_pr",
+                "future_sha_prediction",
+                "mandatory_not_guidance"
+              ],
+              "properties": {
+                "before_implementation_pr": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "FREEZE_EXACT_CANDIDATE"
+                    },
+                    {
+                      "const": "DETERMINE_TRUSTED_APPLICABILITY"
+                    },
+                    {
+                      "const": "PREPARE_EXACT_TRUSTED_PROFILE_IF_REQUIRED"
+                    },
+                    {
+                      "const": "INDEPENDENTLY_REVIEW_AND_PROTECT_PROFILE"
+                    },
+                    {
+                      "const": "OPEN_ATIS_PR_ONLY_AFTERWARD"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 5,
+                  "maxItems": 5
+                },
+                "before_closure_pr": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "const": "FREEZE_EXACT_CLOSURE_CANDIDATE"
+                    },
+                    {
+                      "const": "DETERMINE_CLOSURE_TRUSTED_APPLICABILITY"
+                    },
+                    {
+                      "const": "PREPARE_AND_PROTECT_EXACT_CLOSURE_PROFILE_IF_REQUIRED"
+                    },
+                    {
+                      "const": "OPEN_CLOSURE_PR_ONLY_AFTERWARD"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 4,
+                  "maxItems": 4
+                },
+                "future_sha_prediction": {
+                  "const": "PROHIBITED"
+                },
+                "mandatory_not_guidance": {
+                  "const": true
+                }
+              }
+            },
+            "authority": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "CALENDAR_S1_IMPLEMENTATION_AUTHORIZED",
+                "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED",
+                "STAGE3_IMPLEMENTATION_AUTHORIZED",
+                "PROVIDER_SELECTION",
+                "STORAGE_SELECTION",
+                "TIMEZONE_LIBRARY_SELECTION",
+                "CORRECTION_ADJUDICATION",
+                "STAGE4_IMPLEMENTATION_AUTHORIZED",
+                "TRADING_OR_FINANCIAL_AUTHORITY",
+                "AI_TRADING_AUTHORITY"
+              ],
+              "properties": {
+                "CALENDAR_S1_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "STAGE3_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "PROVIDER_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "STORAGE_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "TIMEZONE_LIBRARY_SELECTION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "CORRECTION_ADJUDICATION": {
+                  "const": "NOT_AUTHORIZED"
+                },
+                "STAGE4_IMPLEMENTATION_AUTHORIZED": {
+                  "const": false
+                },
+                "TRADING_OR_FINANCIAL_AUTHORITY": {
+                  "const": "NONE"
+                },
+                "AI_TRADING_AUTHORITY": {
+                  "const": "NONE"
                 }
               }
             }

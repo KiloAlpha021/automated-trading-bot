@@ -266,7 +266,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-005` — Calendar identity/version\n\n- **Statement:** Every authoritative calendar result shall bind an attributable calendar identity and version.\n- **Source/class/ownership:** `IMP-004`, `R41-CI025`, `S2-DEF-003`; `CONFIRMED`; `PRIMARY`.\n- **Predecessor:** M1 UTC clock/timestamp contracts.\n- **Verification:** version-bound result.\n- **Adversarial:** missing/conflicting version is restrictive.\n- **Forward consumers:** Stages 4–11+.\n- **Unresolved:** calendar authority/source.",
+        "exact_final_section": "### `S3-REQ-005` — Calendar identity/version\n\n- **Statement:** Every authoritative calendar result shall bind an attributable calendar identity and version.\n- **Source/class/ownership:** `IMP-004`, `R41-CI025`, `S2-DEF-003`; `CONFIRMED`; `PRIMARY`.\n- **Predecessor:** M1 UTC clock/timestamp contracts.\n- **Verification:** version-bound result.\n- **Adversarial:** missing/conflicting version is restrictive.\n- **Forward consumers:** Stages 4–11+.\n- **Ratified design resolution:** ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1 fixes abstract attributable authority without provider selection.\n- **Implementation evidence:** NOT_ESTABLISHED; this design ratification grants no implementation authority.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -278,7 +278,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-006` — Trading-day and holiday semantics\n\n- **Statement:** The calendar service shall deterministically classify trading days, holidays, and attributable leap-date behavior for the supported market boundary.\n- **Source/class/ownership:** `IMP-004`, M1 calendar clarification; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 005.\n- **Verification:** ordinary day, holiday, leap-date cases.\n- **Adversarial:** unknown holiday data cannot become an open session.\n- **Forward consumers:** Stages 4–11+.\n- **Unresolved:** historical source coverage.",
+        "exact_final_section": "### `S3-REQ-006` — Trading-day and holiday semantics\n\n- **Statement:** The calendar service shall deterministically classify trading days, holidays, and attributable leap-date behavior for the supported market boundary.\n- **Source/class/ownership:** `IMP-004`, M1 calendar clarification; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 005.\n- **Verification:** ordinary day, holiday, leap-date cases.\n- **Adversarial:** unknown holiday data cannot become an open session.\n- **Forward consumers:** Stages 4–11+.\n- **Ratified design resolution:** ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1 fixes explicit attributable historical coverage without a hard-coded start date.\n- **Implementation evidence:** NOT_ESTABLISHED; this design ratification grants no implementation authority.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -290,7 +290,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-007` — Session and early-close boundaries\n\n- **Statement:** Supported sessions shall expose deterministic open/close boundaries, including attributable early closes.\n- **Source/class/ownership:** `IMP-004`, `S2-DEF-003`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 005–006.\n- **Verification:** ordinary and early-close vectors.\n- **Adversarial:** missing/conflicting close data cannot fall back to ordinary close.\n- **Forward consumers:** Stages 4–11+.\n- **Unresolved:** extended-hours scope.",
+        "exact_final_section": "### `S3-REQ-007` — Session and early-close boundaries\n\n- **Statement:** Supported sessions shall expose deterministic open/close boundaries, including attributable early closes.\n- **Source/class/ownership:** `IMP-004`, `S2-DEF-003`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 005–006.\n- **Verification:** ordinary and early-close vectors.\n- **Adversarial:** missing/conflicting close data cannot fall back to ordinary close.\n- **Forward consumers:** Stages 4–11+.\n- **Ratified design resolution:** ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1 fixes the initial scope to the regular authoritative exchange session; extended sessions remain NOT_ESTABLISHED.\n- **Implementation evidence:** NOT_ESTABLISHED; this design ratification grants no implementation authority.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -302,7 +302,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-008` — Timezone and DST interpretation\n\n- **Statement:** Exchange-session boundaries shall use explicit timezone rules and deterministic conversion through the protected UTC boundary.\n- **Source/class/ownership:** `IMP-004`, `R41-CI027`, M1 calendar clarification; `CONFIRMED`; `PRIMARY`.\n- **Predecessor:** M1 `Clock`/`TestClock`.\n- **Verification:** DST transitions and UTC conversion.\n- **Adversarial:** timezone disagreement or clock uncertainty is restrictive.\n- **Forward consumers:** Stages 4–11+.\n- **Unresolved:** timezone database/update policy.",
+        "exact_final_section": "### `S3-REQ-008` — Timezone and DST interpretation\n\n- **Statement:** Exchange-session boundaries shall use explicit timezone rules and deterministic conversion through the protected UTC boundary.\n- **Source/class/ownership:** `IMP-004`, `R41-CI027`, M1 calendar clarification; `CONFIRMED`; `PRIMARY`.\n- **Predecessor:** M1 `Clock`/`TestClock`.\n- **Verification:** DST transitions and UTC conversion.\n- **Adversarial:** timezone disagreement or clock uncertainty is restrictive.\n- **Forward consumers:** Stages 4–11+.\n- **Ratified design resolution:** ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1 requires TimezoneRuleRef to bind exact rule-corpus content and evidence.\n- **Implementation evidence:** NOT_ESTABLISHED; this design ratification grants no implementation authority.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -326,7 +326,7 @@
           "01a0d3ca-dd7a-7892-89ca-e429c39c1da9"
         ],
         "final_source_turn_id": "01a0d3ca-dd7a-7892-89ca-e429c39c1da9",
-        "exact_final_section": "### `S3-REQ-010` — Restrictive calendar uncertainty\n\n- **Statement:** Unknown, stale, conflicting, or unverifiable calendar/session evidence shall remain explicitly non-current and ineligible for authoritative promotion.\n- **Source/class/ownership:** `R41-CI026/027`, `GATE-S03-01`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 005–009.\n- **Verification:** state transitions for unknown/stale/conflict.\n- **Adversarial:** retry, fallback, or downstream expectation cannot promote the state.\n- **Forward consumers:** Stages 4–11+.\n- **Unresolved:** state vocabulary.",
+        "exact_final_section": "### `S3-REQ-010` — Restrictive calendar uncertainty\n\n- **Statement:** Unknown, stale, conflicting, or unverifiable calendar/session evidence shall remain explicitly non-current and ineligible for authoritative promotion.\n- **Source/class/ownership:** `R41-CI026/027`, `GATE-S03-01`; `CONFIRMED`; `PRIMARY`.\n- **Dependencies:** 005–009.\n- **Verification:** state transitions for unknown/stale/conflict.\n- **Adversarial:** retry, fallback, or downstream expectation cannot promote the state.\n- **Forward consumers:** Stages 4–11+.\n- **Ratified design resolution:** ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1 fixes separate fact, validation, currentness and resolution vocabularies.\n- **Implementation evidence:** NOT_ESTABLISHED; this design ratification grants no implementation authority.",
         "implementation_state": "NOT_ESTABLISHED",
         "evidence_state": "NOT_ESTABLISHED"
       },
@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "733fbdb7b1ef7d4f2ad8d69ffae6807652a497eddad0abcda9692b5a6757d4ee",
+    "candidate_digest": "1402d08b21ef6a36cfc8ef39161123b40abb60ee2ba75a86987a4e91a8b4accc",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -10005,6 +10005,719 @@
         "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
         "AI_TRADING_AUTHORITY": "NONE",
         "IMPLEMENTATION_AUTHORIZED": false
+      }
+    },
+    "calendar_session_authority_model_v1": {
+      "contract_id": "ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1",
+      "state": "RATIFIED",
+      "component_id": "S3-CMP-002",
+      "component_name": "CALENDAR_SESSION_AUTHORITY",
+      "protected_rb_ordinal": "NOT_ESTABLISHED",
+      "owned_requirements": [
+        "S3-REQ-005",
+        "S3-REQ-006",
+        "S3-REQ-007",
+        "S3-REQ-008",
+        "S3-REQ-009",
+        "S3-REQ-010",
+        "S3-REQ-041"
+      ],
+      "slice_decomposition": [
+        {
+          "slice": "CALENDAR_S1",
+          "name": "CANONICAL_CALENDAR_SESSION_IDENTITY_AND_IMMUTABLE_HISTORICAL_MODEL"
+        },
+        {
+          "slice": "CALENDAR_S2",
+          "name": "DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION"
+        }
+      ],
+      "authority_model": {
+        "authority": "ABSTRACT_ATTRIBUTABLE_PROVIDER_NEUTRAL",
+        "required_separation": [
+          "SOURCE_ID",
+          "DATASET_ID",
+          "CALENDAR_ID",
+          "CALENDAR_VERSION_ID",
+          "EVIDENCE_ID",
+          "VALIDATION_POLICY_ID"
+        ],
+        "authoritative_fact_requires": [
+          "EXACT_CALENDAR_ID",
+          "EXACT_CALENDAR_VERSION_ID",
+          "NONEMPTY_ATTRIBUTABLE_EVIDENCE_REFS",
+          "VALIDATION_POLICY_ID",
+          "VALIDATION_STATE_VALID",
+          "VERIFIED_CALENDAR_CONTENT_DIGEST",
+          "VALID_COMPLETE_BOUNDED_LINEAGE",
+          "APPLICABLE_INDEPENDENT_COVERAGE",
+          "EXACT_TIMEZONE_RULE_REF",
+          "NO_UNRESOLVED_CONFLICT"
+        ],
+        "provider_name_url_or_database_row_is_identity": false,
+        "provider_selection": "NONE"
+      },
+      "identities": {
+        "calendar_id": {
+          "semantic_role": "STABLE_GOVERNED_CALENDAR_SUBJECT",
+          "canonical_form": "atis:calendar:v1:<lowercase-hyphenated-uuidv4>",
+          "requirements": [
+            "NON_NIL",
+            "RFC_UUIDV4",
+            "EXACT_TYPE",
+            "EXACT_CANONICAL_PARSE"
+          ]
+        },
+        "calendar_version_id": {
+          "semantic_role": "ONE_IMMUTABLE_CALENDAR_SUBJECT_VERSION",
+          "canonical_form": "atis:calendar-version:v1:<lowercase-hyphenated-uuidv4>",
+          "requirements": [
+            "NON_NIL",
+            "RFC_UUIDV4",
+            "EXACT_TYPE",
+            "EXACT_CANONICAL_PARSE"
+          ]
+        },
+        "timezone_id": "CANONICAL_EXCHANGE_LOCAL_IANA_STYLE_ZONE_IDENTITY",
+        "timezone_rule_id": "NAMESPACE_DISTINCT_ATTRIBUTABLE_RULE_SET_IDENTITY",
+        "namespace_separation": true
+      },
+      "descriptive_scope_codes": {
+        "fields": [
+          "market_code",
+          "venue_code"
+        ],
+        "semantic_role": "DESCRIPTIVE_VERSIONED_SCOPE_ATTRIBUTES_NOT_IDENTITIES",
+        "canonical_pattern": "[A-Z0-9][A-Z0-9._-]{0,31}",
+        "unicode_allowed": false,
+        "calendar_id_substitution": false
+      },
+      "protected_primitive_reuse": [
+        "Timestamp",
+        "EvidenceRef",
+        "EvidenceContentDigest",
+        "ValidationPolicyId",
+        "ValidationState",
+        "ResolutionDisposition"
+      ],
+      "timezone_rule_ref": {
+        "fields": [
+          "timezone_id",
+          "timezone_rule_id",
+          "rule_content_digest",
+          "evidence_refs",
+          "validation_policy_id",
+          "validation_state"
+        ],
+        "rule_content_digest_type": "EvidenceContentDigest",
+        "evidence_refs": "NONEMPTY_AND_BINDS_EXACT_RULE_CORPUS",
+        "authoritative_state": "VALID_ONLY",
+        "exact_corpus_digest_verification": true,
+        "host_timezone_inference": false,
+        "current_host_tzdata_substitution": false
+      },
+      "record_model": {
+        "calendar_version": {
+          "role": "IMMUTABLE_AUTHORITY_AND_VERSION_HEADER",
+          "fields": [
+            "calendar_version_id",
+            "calendar_id",
+            "market_code",
+            "venue_code",
+            "effective_from",
+            "effective_to",
+            "knowledge_from",
+            "timezone_rule_ref",
+            "evidence_refs",
+            "validation_policy_id",
+            "validation_state",
+            "supersedes_version_id",
+            "correction_reason",
+            "correction_evidence_refs",
+            "content_digest"
+          ],
+          "unbounded_day_or_session_aggregate": false
+        },
+        "historical_coverage": {
+          "role": "SEPARATE_IMMUTABLE_VERSION_BOUND_COVERAGE_RECORD",
+          "fields": [
+            "calendar_id",
+            "calendar_version_id",
+            "local_date_from",
+            "local_date_to",
+            "coverage_state",
+            "coverage_knowledge_from",
+            "evidence_refs",
+            "validation_policy_id",
+            "validation_state",
+            "content_digest"
+          ],
+          "coverage_knowledge_from": "NULL_ONLY_FOR_SAME_ATOMIC_PUBLICATION_OTHERWISE_REQUIRED"
+        },
+        "trading_day_definition": {
+          "role": "SEPARATE_IMMUTABLE_VERSION_BOUND_DAY_FACT",
+          "fields": [
+            "calendar_id",
+            "calendar_version_id",
+            "local_date",
+            "day_kind",
+            "evidence_refs",
+            "validation_policy_id",
+            "validation_state",
+            "content_digest"
+          ]
+        },
+        "session_definition": {
+          "role": "SEPARATE_IMMUTABLE_VERSION_BOUND_SESSION_FACT",
+          "fields": [
+            "calendar_id",
+            "calendar_version_id",
+            "local_date",
+            "session_kind",
+            "schedule_variation",
+            "local_open",
+            "local_close",
+            "utc_open",
+            "utc_close",
+            "timezone_rule_ref",
+            "evidence_refs",
+            "validation_policy_id",
+            "validation_state",
+            "content_digest"
+          ],
+          "whole_fact_attributable_including_open_and_close": true,
+          "separate_boundary_sources_require_both_evidence_refs": true
+        },
+        "local_wall_time": {
+          "role": "CIVIL_TIME_REQUIRING_EXPLICIT_TIMEZONE_RULE_INTERPRETATION",
+          "host_timezone": "PROHIBITED",
+          "implicit_fold": "PROHIBITED"
+        }
+      },
+      "currentness_separation": {
+        "vocabulary": [
+          "CURRENT",
+          "STALE",
+          "UNKNOWN"
+        ],
+        "evaluated_assessment": true,
+        "prohibited_semantic_fields": [
+          "CalendarVersion",
+          "HistoricalCoverage",
+          "TradingDayDefinition",
+          "SessionDefinition"
+        ],
+        "passage_of_time_mutates_fact_or_digest": false,
+        "calendar_s2_behavior": true
+      },
+      "fact_vocabularies": {
+        "trading_day_kind": [
+          "REGULAR_TRADING_DAY",
+          "EXCHANGE_HOLIDAY",
+          "SPECIAL_NON_TRADING_DAY"
+        ],
+        "session_kind_v1": [
+          "REGULAR"
+        ],
+        "session_schedule_variation": [
+          "STANDARD",
+          "EARLY_CLOSE"
+        ],
+        "coverage_state": [
+          "COVERED",
+          "INCOMPLETE",
+          "CONFLICTING"
+        ],
+        "validation": "REUSE_VALIDATION_STATE",
+        "resolution": "REUSE_RESOLUTION_DISPOSITION",
+        "state_layers_are_separate": true
+      },
+      "initial_session_scope": {
+        "supported": [
+          "REGULAR"
+        ],
+        "unsupported": [
+          "PRE_MARKET",
+          "POST_MARKET",
+          "OVERNIGHT",
+          "AUCTION_ONLY",
+          "VENUE_SPECIFIC_EXTENDED_SESSION",
+          "OTHER_EXTENDED_SESSION"
+        ],
+        "unsupported_disposition": "NOT_ESTABLISHED",
+        "prohibited_unsupported_interpretations": [
+          "ABSENT",
+          "CLOSED",
+          "NON_TRADING",
+          "HOLIDAY"
+        ]
+      },
+      "coverage_contract": {
+        "interval": "LOCAL_DATE_HALF_OPEN_START_INCLUSIVE_END_EXCLUSIVE",
+        "hard_coded_historical_start": false,
+        "no_record_is": [
+          "NOT_HOLIDAY",
+          "NOT_CLOSED",
+          "NOT_ABSENT"
+        ],
+        "outside_coverage": "NOT_ESTABLISHED",
+        "incomplete_coverage": "NOT_ESTABLISHED",
+        "conflicting_coverage": "CONFLICTING",
+        "authoritative_negative_requires": [
+          "INDEPENDENT_ATTRIBUTABLE_COVERED_BOUNDARY",
+          "EXPLICIT_NEGATIVE_DAY_OR_SESSION_FACT"
+        ],
+        "candidate_self_certification": "PROHIBITED",
+        "shared_upstream_evidence": "REQUIRES_ADDITIONAL_ATTRIBUTABLE_COMPLETENESS_ARTIFACT"
+      },
+      "timezone_dst_contract": {
+        "deterministic_utc_conversion": true,
+        "historical_reproducibility": true,
+        "nonexistent_local_time": "NOT_ESTABLISHED",
+        "ambiguous_local_time": "NOT_ESTABLISHED_UNLESS_GOVERNED_EVIDENCE_UNIQUELY_BINDS_INSTANT",
+        "implicit_fold_selection": false,
+        "timezone_rule_change": "NEW_SUCCESSOR_CALENDAR_VERSION"
+      },
+      "early_close_contract": {
+        "representation": "EXPLICIT_ATTRIBUTABLE_SESSION_FACT",
+        "session_kind": "REGULAR",
+        "schedule_variation": "EARLY_CLOSE",
+        "ordinary_close_fallback": false,
+        "relative_clock_inference": false,
+        "input_order_selection": false,
+        "correction": "NEW_SUCCESSOR_CALENDAR_VERSION_NO_MUTATION"
+      },
+      "content_identity": {
+        "algorithm": "SHA-256",
+        "external_form": "sha256:<64-lowercase-hex-digits>",
+        "canonicalization": "UTF8_CANONICAL_JSON_SORTED_KEYS_NO_FLOATS_NFC_STRINGS",
+        "one_digest_per_immutable_record": true,
+        "digest_self_exclusion": true,
+        "record_identity_exclusion": "WHEN_PROTECTED_IDENTITY_INDEPENDENT_CONTENT_PATTERN_APPLIES",
+        "nested_child_reintroduction_of_calendar_version_id": "PROHIBITED"
+      },
+      "lineage_contract": {
+        "fields": [
+          "supersedes_version_id",
+          "correction_reason",
+          "correction_evidence_refs",
+          "knowledge_from",
+          "content_digest"
+        ],
+        "requirements": [
+          "PREDECESSOR_RETAINED",
+          "SAME_CALENDAR_ID",
+          "ALL_PREDECESSORS_PRESENT",
+          "NO_SELF_SUPERSESSION",
+          "NO_CYCLE",
+          "UNIQUE_CALENDAR_VERSION_ID",
+          "NO_CROSS_CALENDAR_EDGE",
+          "NO_IN_PLACE_REWRITE",
+          "SUCCESSOR_KNOWLEDGE_STRICTLY_LATER",
+          "INPUT_ORDER_INDEPENDENT"
+        ],
+        "branching_successor": "CONFLICTING",
+        "correction_approval_and_adjudication": "CALENDAR_S2_SCOPE"
+      },
+      "resource_bounds": {
+        "MAX_EVIDENCE_REFS": 64,
+        "MAX_LINEAGE_VERSIONS": 4096,
+        "MAX_LINEAGE_DEPTH": 256,
+        "exhaustion": "EXPLICIT_RESTRICTIVE_FAILURE",
+        "silent_truncation": false
+      },
+      "requirement_coverage_ceiling": {
+        "S3-REQ-005": "SATISFIED",
+        "S3-REQ-006": "PARTIAL_STRUCTURAL",
+        "S3-REQ-007": "PARTIAL_STRUCTURAL",
+        "S3-REQ-008": "PARTIAL_STRUCTURAL_TIMEZONE",
+        "S3-REQ-009": "NOT_SATISFIED",
+        "S3-REQ-010": "FOUNDATION_ONLY",
+        "S3-REQ-041": "FOUNDATION_ONLY",
+        "component_complete_after_s1": false
+      },
+      "authority": {
+        "CALENDAR_S1_IMPLEMENTATION_AUTHORIZED": false,
+        "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED": false,
+        "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+        "STORAGE_SELECTION": "NOT_AUTHORIZED",
+        "TIMEZONE_LIBRARY_SELECTION": "NOT_AUTHORIZED",
+        "CORRECTION_ADJUDICATION": "NOT_AUTHORIZED",
+        "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
+        "TRADING_OR_FINANCIAL_AUTHORITY": "NONE",
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "calendar_s1_implementation_contract_v1": {
+      "contract_id": "ATIS_STAGE3_CALENDAR_S1_IMPLEMENTATION_CONTRACT_V1",
+      "state": "RATIFIED",
+      "parent_design": "ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1",
+      "scope": "CALENDAR_S1_CONTRACT_ONLY_NO_IMPLEMENTATION_AUTHORITY",
+      "purpose": "IMPLEMENT_PROVIDER_AND_STORAGE_NEUTRAL_CALENDAR_IDENTITY_VERSION_AND_IMMUTABLE_FACT_MODEL",
+      "protected_predecessor": {
+        "commit": "e360986db8f9e718768827388e0b21082e2da68d",
+        "tree": "4ea3f1e8af9f966dd6aaa2dfef2e22f5d421fc1a"
+      },
+      "implementation_surface": [
+        "src/automated_trading_bot/calendars/__init__.py",
+        "src/automated_trading_bot/calendars/model.py",
+        "tests/test_calendar_session_model.py"
+      ],
+      "protected_rb1_semantic_modification": "PROHIBITED_STOP_FOR_COMPATIBILITY_REVIEW",
+      "scope_items": [
+        "CALENDAR_AND_VERSION_IDENTITIES",
+        "TIMEZONE_RULE_REF",
+        "IMMUTABLE_CALENDAR_VERSION_HEADER",
+        "HISTORICAL_COVERAGE_RECORD",
+        "TRADING_DAY_FACT",
+        "SESSION_FACT",
+        "LOCAL_WALL_TIME",
+        "CANONICAL_CONTENT_IDENTITY",
+        "FINITE_COMPLETE_LINEAGE_VALIDATION"
+      ],
+      "invariants": [
+        "INV-CAL-001",
+        "INV-CAL-002",
+        "INV-CAL-003",
+        "INV-CAL-004",
+        "INV-CAL-005",
+        "INV-CAL-006",
+        "INV-CAL-007",
+        "INV-CAL-008",
+        "INV-CAL-009",
+        "INV-CAL-010",
+        "INV-CAL-011",
+        "INV-CAL-012",
+        "INV-CAL-013",
+        "INV-CAL-014",
+        "INV-CAL-015",
+        "INV-CAL-016",
+        "INV-CAL-017",
+        "INV-CAL-018",
+        "INV-CAL-019",
+        "INV-CAL-020",
+        "INV-CAL-021",
+        "INV-CAL-022",
+        "INV-CAL-023",
+        "INV-CAL-024",
+        "INV-CAL-025",
+        "INV-CAL-026",
+        "INV-CAL-027",
+        "INV-CAL-028",
+        "INV-CAL-029",
+        "INV-CAL-030",
+        "INV-CAL-031",
+        "INV-CAL-032",
+        "INV-CAL-033",
+        "INV-CAL-034"
+      ],
+      "direct_tests": [
+        "CANONICAL_IDENTITY_PARSE_SERIALIZATION",
+        "TYPE_SUBSTITUTION_REJECTION",
+        "ORDINARY_TRADING_DAY",
+        "EXPLICIT_HOLIDAY",
+        "EXPLICIT_SPECIAL_NON_TRADING_DAY",
+        "STANDARD_REGULAR_SESSION",
+        "EXPLICIT_EARLY_CLOSE",
+        "HALF_OPEN_EFFECTIVE_BOUNDARY",
+        "OPEN_ENDED_VERSION",
+        "KNOWLEDGE_VISIBILITY",
+        "AUTHORITATIVE_COVERAGE",
+        "INCOMPLETE_AND_CONFLICTING_COVERAGE",
+        "DETERMINISTIC_CANONICAL_DIGEST",
+        "EVIDENCE_CANONICALIZATION_AND_CONFLICT",
+        "TIMEZONE_RULE_CONTENT_BINDING",
+        "UTC_CONVERSION_AGREEMENT",
+        "DST_FORWARD",
+        "DST_BACKWARD",
+        "IMMUTABLE_CORRECTION_PREDECESSOR",
+        "COMPLETE_VALID_LINEAGE",
+        "INPUT_PERMUTATION_INDEPENDENCE",
+        "RESOURCE_BOUNDARIES"
+      ],
+      "adversarial_tests": [
+        {
+          "id": "A01",
+          "case": "MISSING_CALENDAR_ID",
+          "required_result": "REJECT_NO_AUTHORITY"
+        },
+        {
+          "id": "A02",
+          "case": "MISSING_CALENDAR_VERSION_ID",
+          "required_result": "REJECT_NO_LATEST_FALLBACK"
+        },
+        {
+          "id": "A03",
+          "case": "WRONG_CALENDAR_SUBJECT",
+          "required_result": "CONFLICTING_NO_SUBSTITUTION"
+        },
+        {
+          "id": "A04",
+          "case": "WRONG_MARKET_OR_VENUE",
+          "required_result": "CONFLICTING_SCOPE"
+        },
+        {
+          "id": "A05",
+          "case": "OUTSIDE_HISTORICAL_COVERAGE",
+          "required_result": "NOT_ESTABLISHED"
+        },
+        {
+          "id": "A06",
+          "case": "INCOMPLETE_HISTORICAL_COVERAGE",
+          "required_result": "NOT_ESTABLISHED"
+        },
+        {
+          "id": "A07",
+          "case": "FABRICATED_NEGATIVE_COVERAGE",
+          "required_result": "REJECT_NO_NEGATIVE_FACT"
+        },
+        {
+          "id": "A08",
+          "case": "MISSING_HOLIDAY_EVIDENCE",
+          "required_result": "NOT_ESTABLISHED_NEVER_OPEN"
+        },
+        {
+          "id": "A09",
+          "case": "CONFLICTING_HOLIDAY_EVIDENCE",
+          "required_result": "CONFLICTING"
+        },
+        {
+          "id": "A10",
+          "case": "ORDINARY_SESSION_SUBSTITUTED_FOR_EARLY_CLOSE",
+          "required_result": "REJECT_NO_FALLBACK"
+        },
+        {
+          "id": "A11",
+          "case": "EARLY_CLOSE_SUBSTITUTED_FOR_ORDINARY",
+          "required_result": "CONFLICTING_OR_REJECT"
+        },
+        {
+          "id": "A12",
+          "case": "MISSING_CLOSE",
+          "required_result": "NOT_ESTABLISHED"
+        },
+        {
+          "id": "A13",
+          "case": "CONFLICTING_CLOSE",
+          "required_result": "CONFLICTING"
+        },
+        {
+          "id": "A14",
+          "case": "MALFORMED_OPEN_OR_CLOSE",
+          "required_result": "REJECT"
+        },
+        {
+          "id": "A15",
+          "case": "CLOSE_NOT_AFTER_OPEN",
+          "required_result": "REJECT"
+        },
+        {
+          "id": "A16",
+          "case": "MISSING_TIMEZONE",
+          "required_result": "REJECT_AUTHORITY"
+        },
+        {
+          "id": "A17",
+          "case": "TIMEZONE_MISMATCH",
+          "required_result": "CONFLICTING_OR_NOT_ESTABLISHED"
+        },
+        {
+          "id": "A18",
+          "case": "MISSING_TIMEZONE_RULE_ID",
+          "required_result": "NOT_ESTABLISHED"
+        },
+        {
+          "id": "A19",
+          "case": "DST_FORWARD_TRANSITION",
+          "required_result": "DETERMINISTIC_OR_NOT_ESTABLISHED"
+        },
+        {
+          "id": "A20",
+          "case": "DST_BACKWARD_TRANSITION",
+          "required_result": "DETERMINISTIC_OR_NOT_ESTABLISHED"
+        },
+        {
+          "id": "A21",
+          "case": "AMBIGUOUS_LOCAL_TIME",
+          "required_result": "NOT_ESTABLISHED_WITHOUT_EXACT_BINDING"
+        },
+        {
+          "id": "A22",
+          "case": "NONEXISTENT_LOCAL_TIME",
+          "required_result": "NOT_ESTABLISHED"
+        },
+        {
+          "id": "A23",
+          "case": "UTC_CONVERSION_DISAGREEMENT",
+          "required_result": "CONFLICTING"
+        },
+        {
+          "id": "A24",
+          "case": "FUTURE_KNOWLEDGE",
+          "required_result": "EXCLUDED"
+        },
+        {
+          "id": "A25",
+          "case": "CURRENT_CALENDAR_SUBSTITUTION",
+          "required_result": "REJECT"
+        },
+        {
+          "id": "A26",
+          "case": "STALE_EVIDENCE",
+          "required_result": "NON_AUTHORITATIVE"
+        },
+        {
+          "id": "A27",
+          "case": "INVALID_EVIDENCE",
+          "required_result": "NON_AUTHORITATIVE"
+        },
+        {
+          "id": "A28",
+          "case": "CORRECTION_WITHOUT_PREDECESSOR",
+          "required_result": "LINEAGE_FAILURE"
+        },
+        {
+          "id": "A29",
+          "case": "CROSS_CALENDAR_CORRECTION",
+          "required_result": "REJECT"
+        },
+        {
+          "id": "A30",
+          "case": "CORRECTION_CYCLE",
+          "required_result": "LINEAGE_FAILURE"
+        },
+        {
+          "id": "A31",
+          "case": "BRANCHING_CORRECTION",
+          "required_result": "CONFLICTING"
+        },
+        {
+          "id": "A32",
+          "case": "IN_PLACE_MUTATION_ATTEMPT",
+          "required_result": "REJECT_OR_DIGEST_MISMATCH"
+        },
+        {
+          "id": "A33",
+          "case": "INPUT_ORDER_DEPENDENCE",
+          "required_result": "REJECT_NONDETERMINISM"
+        },
+        {
+          "id": "A34",
+          "case": "RESOURCE_EXHAUSTION",
+          "required_result": "EXPLICIT_RESTRICTIVE_FAILURE_NO_TRUNCATION"
+        },
+        {
+          "id": "A35",
+          "case": "TIMEZONE_RULE_CORPUS_DIGEST_MISMATCH",
+          "required_result": "REJECT_NO_HOST_FALLBACK"
+        },
+        {
+          "id": "A36",
+          "case": "TIMEZONE_RULE_LABEL_REUSED_WITH_DIFFERENT_CONTENT",
+          "required_result": "CONFLICTING"
+        },
+        {
+          "id": "A37",
+          "case": "COVERAGE_SELF_CERTIFICATION",
+          "required_result": "NOT_ESTABLISHED"
+        },
+        {
+          "id": "A38",
+          "case": "CURRENTNESS_CHANGE_MUTATES_FACTUAL_VERSION",
+          "required_result": "REJECT_FACT_MUTATION"
+        },
+        {
+          "id": "A39",
+          "case": "DUPLICATE_FACT_IDENTITY_DIFFERENT_CONTENT",
+          "required_result": "CONFLICTING"
+        },
+        {
+          "id": "A40",
+          "case": "CHILD_FACT_BOUND_TO_WRONG_CALENDAR_VERSION",
+          "required_result": "REJECT_CROSS_VERSION"
+        }
+      ],
+      "quality_gates": [
+        "CALENDAR_S1_DIRECT_AND_ADVERSARIAL_TESTS_PASS",
+        "PROTECTED_RB1_REGRESSIONS_PASS",
+        "STAGE3_GOVERNANCE_TESTS_PASS",
+        "PROGRAMME_AND_RECOVERY_TESTS_PASS_WHERE_AFFECTED",
+        "FULL_PYTEST_PASS",
+        "RUFF_PASS",
+        "STRICT_MYPY_PASS",
+        "PIP_CHECK_PASS",
+        "PIP_AUDIT_PASS",
+        "CLOSURE_SECURITY_AND_ARCHITECTURE_PASS",
+        "SCHEMA_AND_DIGEST_CHECKS_PASS"
+      ],
+      "resource_bounds": {
+        "MAX_EVIDENCE_REFS": 64,
+        "MAX_LINEAGE_VERSIONS": 4096,
+        "MAX_LINEAGE_DEPTH": 256,
+        "exhaustion": "EXPLICIT_RESTRICTIVE_FAILURE",
+        "silent_truncation": false
+      },
+      "implementation_firewall": [
+        "NO_HISTORICAL_PIT_CALENDAR_RESOLVER",
+        "NO_PROVIDER_SELECTION_OR_ADAPTER",
+        "NO_PERSISTENCE_OR_DATABASE",
+        "NO_MARKET_DATA_NORMALIZATION",
+        "NO_QUARANTINE_OR_RELEASE",
+        "NO_UNIVERSE_CONSTRUCTION",
+        "NO_CORPORATE_ACTIONS",
+        "NO_DATASET_MATERIALIZATION",
+        "NO_GENERAL_INVALIDATION_PROPAGATION",
+        "NO_RESEARCH_OR_BACKTESTING",
+        "NO_STRATEGY_PORTFOLIO_RISK_OMS_BROKER_ACCOUNTING_OR_TRADING"
+      ],
+      "requirement_coverage_ceiling": {
+        "S3-REQ-005": "SATISFIED",
+        "S3-REQ-006": "PARTIAL_STRUCTURAL",
+        "S3-REQ-007": "PARTIAL_STRUCTURAL",
+        "S3-REQ-008": "PARTIAL_STRUCTURAL_TIMEZONE",
+        "S3-REQ-009": "NOT_SATISFIED",
+        "S3-REQ-010": "FOUNDATION_ONLY",
+        "S3-REQ-041": "FOUNDATION_ONLY",
+        "component_complete_after_s1": false
+      },
+      "completion_criteria": [
+        "EXACT_BOUNDED_CANDIDATE",
+        "ALL_CONTRACT_INVARIANTS_IMPLEMENTED",
+        "ALL_DIRECT_AND_A01_TO_A40_TESTS_PASS",
+        "CANDIDATE_BYTES_FROZEN",
+        "NO_REQUIREMENT_OVERCLAIM",
+        "TRUSTED_APPLICABILITY_ASSESSED_BEFORE_ATIS_PR",
+        "NO_PUBLICATION_WITHOUT_SEPARATE_AUTHORITY"
+      ],
+      "publication_preflight": {
+        "before_implementation_pr": [
+          "FREEZE_EXACT_CANDIDATE",
+          "DETERMINE_TRUSTED_APPLICABILITY",
+          "PREPARE_EXACT_TRUSTED_PROFILE_IF_REQUIRED",
+          "INDEPENDENTLY_REVIEW_AND_PROTECT_PROFILE",
+          "OPEN_ATIS_PR_ONLY_AFTERWARD"
+        ],
+        "before_closure_pr": [
+          "FREEZE_EXACT_CLOSURE_CANDIDATE",
+          "DETERMINE_CLOSURE_TRUSTED_APPLICABILITY",
+          "PREPARE_AND_PROTECT_EXACT_CLOSURE_PROFILE_IF_REQUIRED",
+          "OPEN_CLOSURE_PR_ONLY_AFTERWARD"
+        ],
+        "future_sha_prediction": "PROHIBITED",
+        "mandatory_not_guidance": true
+      },
+      "authority": {
+        "CALENDAR_S1_IMPLEMENTATION_AUTHORIZED": false,
+        "CALENDAR_S2_IMPLEMENTATION_AUTHORIZED": false,
+        "STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+        "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+        "STORAGE_SELECTION": "NOT_AUTHORIZED",
+        "TIMEZONE_LIBRARY_SELECTION": "NOT_AUTHORIZED",
+        "CORRECTION_ADJUDICATION": "NOT_AUTHORIZED",
+        "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
+        "TRADING_OR_FINANCIAL_AUTHORITY": "NONE",
+        "AI_TRADING_AUTHORITY": "NONE"
       }
     }
   }

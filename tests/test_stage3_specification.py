@@ -496,3 +496,80 @@ def test_stage3_recording_manifest_schema_is_closed():
     damaged["stage3_recording_manifest"]["unexpected"] = True
     with pytest.raises(ValidationError):
         validator().validate(damaged)
+
+
+
+def test_calendar_session_authority_model_v1_is_ratified_without_implementation():
+    manifest = corpus()["stage3_recording_manifest"]
+    model = manifest["calendar_session_authority_model_v1"]
+    assert model["contract_id"] == "ATIS_STAGE3_CALENDAR_SESSION_AUTHORITY_MODEL_V1"
+    assert model["state"] == "RATIFIED"
+    assert model["component_id"] == "S3-CMP-002"
+    assert model["protected_rb_ordinal"] == "NOT_ESTABLISHED"
+    assert model["owned_requirements"] == [
+        "S3-REQ-005", "S3-REQ-006", "S3-REQ-007", "S3-REQ-008",
+        "S3-REQ-009", "S3-REQ-010", "S3-REQ-041",
+    ]
+    assert model["currentness_separation"] == {
+        "vocabulary": ["CURRENT", "STALE", "UNKNOWN"],
+        "evaluated_assessment": True,
+        "prohibited_semantic_fields": [
+            "CalendarVersion", "HistoricalCoverage", "TradingDayDefinition",
+            "SessionDefinition",
+        ],
+        "passage_of_time_mutates_fact_or_digest": False,
+        "calendar_s2_behavior": True,
+    }
+    assert model["timezone_rule_ref"]["exact_corpus_digest_verification"] is True
+    assert model["record_model"]["calendar_version"]["unbounded_day_or_session_aggregate"] is False
+    assert model["coverage_contract"]["candidate_self_certification"] == "PROHIBITED"
+    assert model["descriptive_scope_codes"]["canonical_pattern"] == r"[A-Z0-9][A-Z0-9._-]{0,31}"
+    assert model["initial_session_scope"]["supported"] == ["REGULAR"]
+    assert model["resource_bounds"] == {
+        "MAX_EVIDENCE_REFS": 64,
+        "MAX_LINEAGE_VERSIONS": 4096,
+        "MAX_LINEAGE_DEPTH": 256,
+        "exhaustion": "EXPLICIT_RESTRICTIVE_FAILURE",
+        "silent_truncation": False,
+    }
+    assert model["authority"]["CALENDAR_S1_IMPLEMENTATION_AUTHORIZED"] is False
+    assert model["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
+
+
+def test_calendar_s1_contract_is_ratified_with_exact_adversarial_matrix():
+    manifest = corpus()["stage3_recording_manifest"]
+    model = manifest["calendar_session_authority_model_v1"]
+    contract = manifest["calendar_s1_implementation_contract_v1"]
+    assert contract["contract_id"] == "ATIS_STAGE3_CALENDAR_S1_IMPLEMENTATION_CONTRACT_V1"
+    assert contract["parent_design"] == model["contract_id"]
+    assert contract["implementation_surface"] == [
+        "src/automated_trading_bot/calendars/__init__.py",
+        "src/automated_trading_bot/calendars/model.py",
+        "tests/test_calendar_session_model.py",
+    ]
+    assert [item["id"] for item in contract["adversarial_tests"]] == [
+        f"A{i:02d}" for i in range(1, 41)
+    ]
+    attacks = {item["id"]: item for item in contract["adversarial_tests"]}
+    assert attacks["A35"]["case"] == "TIMEZONE_RULE_CORPUS_DIGEST_MISMATCH"
+    assert attacks["A36"]["case"] == "TIMEZONE_RULE_LABEL_REUSED_WITH_DIFFERENT_CONTENT"
+    assert attacks["A37"]["case"] == "COVERAGE_SELF_CERTIFICATION"
+    assert attacks["A38"]["case"] == "CURRENTNESS_CHANGE_MUTATES_FACTUAL_VERSION"
+    assert attacks["A39"]["case"] == "DUPLICATE_FACT_IDENTITY_DIFFERENT_CONTENT"
+    assert attacks["A40"]["case"] == "CHILD_FACT_BOUND_TO_WRONG_CALENDAR_VERSION"
+    assert contract["publication_preflight"]["mandatory_not_guidance"] is True
+    assert contract["publication_preflight"]["future_sha_prediction"] == "PROHIBITED"
+    assert contract["authority"]["CALENDAR_S1_IMPLEMENTATION_AUTHORIZED"] is False
+
+
+def test_calendar_design_resolutions_do_not_claim_implementation():
+    requirements = {
+        item["id"]: item for item in catalogues(corpus())["requirements"]
+    }
+    for requirement_id in ("S3-REQ-005", "S3-REQ-006", "S3-REQ-007", "S3-REQ-008", "S3-REQ-010"):
+        section = requirements[requirement_id]["exact_final_section"]
+        assert "**Ratified design resolution:**" in section
+        assert "Implementation evidence:** NOT_ESTABLISHED" in section
+        assert "**Unresolved:**" not in section
+    assert requirements["S3-REQ-009"]["implementation_state"] == "NOT_ESTABLISHED"
+    assert requirements["S3-REQ-041"]["implementation_state"] == "NOT_ESTABLISHED"
