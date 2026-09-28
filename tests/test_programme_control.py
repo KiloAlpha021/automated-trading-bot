@@ -794,6 +794,35 @@ def test_rb1_slice1_preserved_candidate_resumption_decision_is_bounded() -> None
     }.issubset(decision["authority_not_granted"])
 
 
+def test_rb1_slice1_protected_publication_closure_decision_is_bounded() -> None:
+    decisions = {
+        record["record_id"]: record
+        for record in _control()["decision_register"]["records"]
+    }
+    assert list(decisions)[-1] == "PC-DEC-006"
+    decision = decisions["PC-DEC-006"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == (
+        "ATIS_RB1_SLICE1_PROTECTED_PUBLICATION_AND_BOUNDED_LIFECYCLE_CLOSURE"
+    )
+    assert decision["scope"] == (
+        "RB1_SLICE1_PROTECTED_PUBLICATION_AND_BOUNDED_LIFECYCLE_CLOSURE_ONLY"
+    )
+    assert decision["authority_granted"] == [
+        "RECORD_SE_PUB_001",
+        "RECORD_VERIFIED_RB1_SLICE1_PROTECTED_PUBLICATION",
+        "CLOSE_BOUNDED_RB1_SLICE1_IMPLEMENTATION_LIFECYCLE",
+        "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES",
+    ]
+    assert {
+        "RB1_IMPLEMENTATION_BEYOND_SLICE1", "RB2_IMPLEMENTATION",
+        "RB3_IMPLEMENTATION", "STAGE3_GENERAL_IMPLEMENTATION",
+        "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION",
+        "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    }.issubset(decision["authority_not_granted"])
+
+
 def test_evidence_supersession_cycle_rejects() -> None:
     candidate = deepcopy(_control())
     evidence = candidate["evidence_invalidation_register"]["records"]

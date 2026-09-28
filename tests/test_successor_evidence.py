@@ -16,6 +16,9 @@ SCHEMA = ROOT / "docs/programme/successor-evidence.schema.json"
 POLICY = "ATIS_STAGE3_SUCCESSOR_EVIDENCE_AND_RECOVERY_POLICY_V1"
 BASE_COMMIT = "b5782f41bf2e687d9ee6ffe55c62ca2e9daa28b5"
 BASE_TREE = "d8c90c91cc24f9b581ee4321389767d53fae5c3e"
+PROTECTED_COMMIT = "a72b4ae90c4a02154f7c81cdce010f69996d8e77"
+PROTECTED_TREE = "c7b8b30e9cb6deb4a1ac4c89933a8d3ccb79796d"
+PUBLICATION_HEAD = "f983f96c3290620bc45d24af37d53d928b742d8f"
 PROGRAMME_BLOB = "aa7c01cfe3690021c3f6c86fa581f7076967c419"
 DENIALS = ["RB1_IMPLEMENTATION_RESUMPTION", "STAGE3_IMPLEMENTATION", "SLICE1_CANDIDATE_PUBLICATION", "AI_TRADING_AUTHORITY"]
 
@@ -134,7 +137,7 @@ def test_register_and_closed_schema_validate() -> None:
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(load(REGISTER))
     records = load(REGISTER)["records"]
-    assert len(records) == 1
+    assert len(records) == 2
     record = records[0]
     assert record["record_id"] == "SE-CAND-001"
     assert record["candidate_state"] == "VERIFIED_LOCAL_UNPUBLISHED"
@@ -153,6 +156,56 @@ def test_register_and_closed_schema_validate() -> None:
         "tests/test_identifiers.py": ("a71dba9fcd447f82626e75f393395adb866beda4", "aec0d60d52b3ac9f5698f55153c2d880d6d01bf0", "TEST"),
         "tests/test_instrument_reference_model.py": ("ABSENT", "789fc96a11438463ebd8ad15ffce0be75352c2b8", "TEST"),
     }
+    publication_record = records[1]
+    assert publication_record == {
+        "record_id": "SE-PUB-001",
+        "record_type": "PROTECTED_PUBLICATION",
+        "candidate_record_id": "SE-CAND-001",
+        "protected_commit": PROTECTED_COMMIT,
+        "protected_tree": PROTECTED_TREE,
+        "ordered_merge_parents": [BASE_COMMIT, PUBLICATION_HEAD],
+        "publication_reference": "GitHub pull request 29",
+        "protected_path_blobs": [
+            {"path": row["path"], "blob": row["successor_candidate_blob"]}
+            for row in record["path_transitions"]
+        ],
+        "hosted_checks": [
+            {
+                "name": "m1-engineering-foundation run 36396898552 job 108845332338",
+                "conclusion": "SUCCESS",
+            }
+        ],
+        "post_publication_verification": "PASS",
+        "open_obligations_preserved": True,
+        "authority": {
+            "granted": [],
+            "not_granted": [
+                "RB1_IMPLEMENTATION_RESUMPTION",
+                "STAGE3_IMPLEMENTATION",
+                "SLICE1_CANDIDATE_PUBLICATION",
+                "RB1_IMPLEMENTATION_BEYOND_SLICE1",
+                "RB2_IMPLEMENTATION",
+                "RB3_IMPLEMENTATION",
+                "STAGE4_IMPLEMENTATION",
+                "PROVIDER_SELECTION",
+                "STORAGE_SELECTION",
+                "PAPER_TRADING",
+                "LIVE_TRADING",
+                "FINANCIAL_EFFECTS",
+                "AI_TRADING_AUTHORITY",
+            ],
+        },
+    }
+    assert git("rev-parse", f"{PROTECTED_COMMIT}^{{tree}}") == PROTECTED_TREE
+    assert git("rev-list", "--parents", "-n", "1", PROTECTED_COMMIT).split() == [
+        PROTECTED_COMMIT,
+        BASE_COMMIT,
+        PUBLICATION_HEAD,
+    ]
+    for protected in publication_record["protected_path_blobs"]:
+        assert git(
+            "rev-parse", f'{PROTECTED_COMMIT}:{protected["path"]}'
+        ) == protected["blob"]
     validate_cross(load(REGISTER), set(row["path"] for row in record["path_transitions"]))
     assert load(REGISTER)["authority"] == {
         "grants_authority": False,

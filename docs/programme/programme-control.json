@@ -550,6 +550,36 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-006",
+        "governed_question": "Has the exact ATIS-S3-RB1-S1 implementation candidate been published to protected master with attributable successor evidence, complete verification, preserved obligations and no wider authority?",
+        "scope": "RB1_SLICE1_PROTECTED_PUBLICATION_AND_BOUNDED_LIFECYCLE_CLOSURE_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_RB1_SLICE1_PROTECTED_PUBLICATION_AND_BOUNDED_LIFECYCLE_CLOSURE",
+        "source_authority": "Owner-authorized protected-publication evidence and closure-candidate instruction following independently verified PR #29 merge",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_SE_PUB_001",
+          "RECORD_VERIFIED_RB1_SLICE1_PROTECTED_PUBLICATION",
+          "CLOSE_BOUNDED_RB1_SLICE1_IMPLEMENTATION_LIFECYCLE",
+          "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES"
+        ],
+        "authority_not_granted": [
+          "RB1_IMPLEMENTATION_BEYOND_SLICE1",
+          "RB2_IMPLEMENTATION",
+          "RB3_IMPLEMENTATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
