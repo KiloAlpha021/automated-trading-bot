@@ -803,6 +803,38 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-013",
+        "governed_question": "May the independently reviewed B1/C1 targeted public-contract refinements be ratified without implementation or publication authority?",
+        "scope": "STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_RATIFICATION_CANDIDATE_ONLY",
+        "state": "OPEN",
+        "decision": "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1",
+        "source_authority": "Owner-authorized recovery-run B1/C1 reconciliation, one independent targeted review and minimum local candidate preparation; owner confirmed recovery instructions as authoritative gap scope. Ratification remains pending.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [],
+        "authority_not_granted": [
+          "A1_MODIFICATION",
+          "C03_IMPLEMENTATION",
+          "C04_IMPLEMENTATION",
+          "C05_IMPLEMENTATION",
+          "C06_IMPLEMENTATION",
+          "C07_IMPLEMENTATION",
+          "C08_TO_C11_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PUSH",
+          "PR",
+          "MERGE",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
@@ -1997,7 +2029,7 @@
     "semantic_manifest_version": "1.0.0-candidate.1",
     "canonicalization_contract": "ATIS_STAGE3_CANONICALIZATION_V1",
     "candidate_digest_algorithm": "SHA-256",
-    "candidate_digest": "1402d08b21ef6a36cfc8ef39161123b40abb60ee2ba75a86987a4e91a8b4accc",
+    "candidate_digest": "63277fe5b2ec75e45e85b9afd26368ea1aa0838a794d323d37242400a14ab8cb",
     "independent_expected_digest": "NOT_ESTABLISHED",
     "independent_recomputed_digest": "NOT_ESTABLISHED",
     "owner_ratification_state": "APPROVED",

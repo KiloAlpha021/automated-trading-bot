@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "ab85464a02bfa4ce152fc5663efa54eae5244941f984bbe65019204ec2bca2be",
+    "candidate_digest": "63277fe5b2ec75e45e85b9afd26368ea1aa0838a794d323d37242400a14ab8cb",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -11926,6 +11926,448 @@
         "LIVE_TRADING": "NOT_AUTHORIZED",
         "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
         "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "wave1_b1_c1_targeted_contract_refinement_v1": {
+      "record_id": "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1",
+      "state": "RATIFICATION_CANDIDATE",
+      "protected_predecessor": {
+        "commit": "9e86aa4587d1e905258e4ec070e3b0089d886e1b",
+        "tree": "3bcb5ac8ab1497ca3a95c5289123358b94cadc06"
+      },
+      "scope_source": "Owner recovery-run instructions and explicit confirmation that those instructions are the authoritative activation-assessment gap scope; no separate protected assessment artifact is asserted.",
+      "parent_contract": "ATIS_STAGE3_PARALLEL_WAVE1_ABC_DESIGN_AND_IMPLEMENTATION_CONTRACTS_V1",
+      "shared_primitives": {
+        "reuse": [
+          "Timestamp",
+          "InstrumentId",
+          "SourceId",
+          "DatasetId",
+          "EvidenceId",
+          "EvidenceRef",
+          "EvidenceContentDigest",
+          "ValidationPolicyId",
+          "ValidationState",
+          "ContractVersion"
+        ],
+        "locations": [
+          "src/automated_trading_bot/domain/timestamp.py",
+          "src/automated_trading_bot/domain/identifiers.py",
+          "src/automated_trading_bot/domain/versioning.py",
+          "src/automated_trading_bot/instruments/model.py"
+        ],
+        "rule": "Reuse protected types and their exact canonical forms. C05 result dimensions and C07 action/version namespaces are lane-specific contracts, not replacements for generic ValidationState, evidence, source identity or digest primitives. No source change is authorized."
+      },
+      "b1": {
+        "contract_id": "ATIS_C05_PROVIDER_INDEPENDENT_QUALITY_CONTRACT_V1",
+        "preserved_refinements": [
+          "B-R1",
+          "B-R2",
+          "B-R3",
+          "B-R4",
+          "B-R5",
+          "B-R6"
+        ],
+        "result": {
+          "representation": "One immutable result per descriptor and declared check scope; retain every dimension below, each with attributable reason/evidence refs. Never replace dimensions with one good/bad flag. ValidationState describes whether the requested quality evaluation is established, not C06 eligibility or C10 currentness.",
+          "dimensions": {
+            "presence": [
+              "PRESENT",
+              "MISSING",
+              "NOT_ESTABLISHED"
+            ],
+            "structure": [
+              "WELL_FORMED",
+              "MALFORMED",
+              "NOT_ESTABLISHED",
+              "NOT_APPLICABLE"
+            ],
+            "identity": [
+              "UNIQUE",
+              "EXACT_DUPLICATE",
+              "MATERIAL_CONFLICT",
+              "NOT_ESTABLISHED",
+              "NOT_APPLICABLE"
+            ],
+            "outlier": [
+              "WITHIN_POLICY",
+              "OUTSIDE_POLICY",
+              "NOT_ESTABLISHED",
+              "NOT_APPLICABLE"
+            ],
+            "sequence_coverage": [
+              "COMPLETE",
+              "GAP",
+              "NOT_ESTABLISHED",
+              "NOT_APPLICABLE"
+            ],
+            "sequence_order": [
+              "CONSISTENT",
+              "REORDERED",
+              "AMBIGUOUS_ORDER",
+              "NOT_ESTABLISHED",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "validation_states": [
+            "VALID",
+            "INVALID",
+            "NOT_VALIDATED",
+            "INCOMPATIBLE",
+            "NOT_ESTABLISHED"
+          ],
+          "validation_state_rule": "INVALID if any established check yields MISSING, MALFORMED, MATERIAL_CONFLICT, OUTSIDE_POLICY, GAP or AMBIGUOUS_ORDER. Otherwise INCOMPATIBLE for unsupported requested contract/policy versions; otherwise NOT_VALIDATED if no requested check ran; otherwise NOT_ESTABLISHED if any requested check lacks evidence or has unresolved applicability; otherwise VALID. REORDERED is a factual condition, not automatically invalid when order has no authority. EXACT_DUPLICATE is not a conflict or automatic invalidity. Preserve all dimensions even when INVALID wins summary precedence.",
+          "scope_rule": "VALID means only non-problematic within the explicit completed scope. Omitted checks are not implicit successes. NOT_APPLICABLE requires affirmative version-bound applicability evidence; absence of policy or evidence means NOT_ESTABLISHED. MISSING is not MALFORMED. With established absent observation, structure/identity/outlier are NOT_APPLICABLE; presence and sequence_coverage still retain the gap. No batch-wide validity is inferred from an empty result set.",
+          "required_output_fields": [
+            "descriptor_digest",
+            "evaluation_scope_ref",
+            "validation_policy_id",
+            "validation_policy_ref",
+            "validation_state",
+            "presence",
+            "structure",
+            "identity",
+            "outlier",
+            "sequence_coverage",
+            "sequence_order",
+            "dimension_reasons",
+            "dimension_evidence_refs",
+            "logical_group_members",
+            "evaluated_at"
+          ],
+          "reasons": "Nonempty exact policy-version reason identifiers per dimension; absent prerequisite named explicitly. evaluated_at is supplied Timestamp context, never knowledge time or currentness authority.",
+          "sequence_rule": "sequence_coverage and sequence_order are independent required dimensions with separate reasons and evidence. Expected [1,2,3] with authoritative delivered [3,1] retains GAP and REORDERED simultaneously. GAP and AMBIGUOUS_ORDER may also coexist. Either dimension may remain NOT_ESTABLISHED independently; complete coverage does not prove ordering. GAP or AMBIGUOUS_ORDER makes the summary INVALID without erasing the other result. Both production dimensions require SYNC-2."
+        },
+        "input_descriptor": {
+          "required_fields": {
+            "descriptor_version": "ContractVersion('ATIS_C05_QUALITY_INPUT', 1)",
+            "input_ref": "EvidenceRef identifying the input, including malformed raw evidence; null only for an explicit expected-but-absent slot",
+            "evaluation_scope_ref": "EvidenceRef for the immutable requested checks, applicability, comparison scope and finite input cohort; not inferred from delivered records",
+            "validation_policy_id": "Protected ValidationPolicyId",
+            "validation_policy_ref": "EvidenceRef binding exact approved quality-policy contents/version and deterministic check definitions",
+            "representation_contract_ref": "EvidenceRef for the exact admitted input representation/interpretation contract; null means NOT_ESTABLISHED, unknown version INCOMPATIBLE",
+            "logical_identity": "null or {namespace_ref: EvidenceRef, key: nonempty NFC string}; key is opaque and case-sensitive, never synthesized by B1",
+            "semantic_content": "null or {contract_ref: EvidenceRef, canonical_bytes_ref: EvidenceRef, digest: EvidenceContentDigest}; digest recomputed over resolved semantic bytes",
+            "cohort_ref": "EvidenceRef for a finite immutable comparison cohort with an explicit completeness declaration, logical identities and semantic bindings",
+            "expected_sequence_ref": "null or EvidenceRef defining expected slots, ordering rule, scope, and bound reference/calendar evidence; null cannot establish missingness or completeness",
+            "metric_inputs_ref": "null or EvidenceRef for typed finite check inputs and their representation contract; no unversioned floats, thresholds or provider field meanings",
+            "order_evidence_ref": "null or EvidenceRef establishing whether source order is authoritative and, if so, the declared order relation; arrival order alone has no authority",
+            "evaluated_at": "Timestamp supplied evaluation context"
+          },
+          "resolving_inputs": "EvidenceRefs must be resolved and content hashes checked against a caller-supplied immutable evidence set. Referencing bytes is not validating their meaning or approval. Missing references, identity collisions, partial cohorts, unknown contracts or unverified policies remain restrictive. The whole evidence set, supported policy definitions and check scope are explicit deterministic inputs; no network, wall clock, mutable registry or provider lookup is implied.",
+          "descriptor_digest": "EvidenceContentDigest over canonical descriptor JSON using protected canonical JSON rules; includes nulls, all declared fields and evaluated_at. This evaluation identity is distinct from observation semantic content identity.",
+          "malformed_boundary": "Structural failure of delivered evidence is reported as MALFORMED under the admitted representation contract, retaining raw input_ref. A malformed descriptor that cannot identify its subject is rejected with attributable descriptor diagnostics; it cannot be admitted as a valid observation.",
+          "missing_boundary": "An absent expected slot can be MISSING only with established expectation evidence. Empty delivery, no source response, or a null value alone cannot establish an expected observation.",
+          "policy_boundary": "Generic B1 checks consume exact supported deterministic policy definitions and typed inputs; no thresholds or production policy owner is selected here. Missing/unapproved policy yields NOT_ESTABLISHED, unsupported policy version INCOMPATIBLE; neither silently skips a requested outlier check."
+        },
+        "identity_rules": {
+          "comparison_key": [
+            "logical_identity.namespace_ref",
+            "logical_identity.key"
+          ],
+          "duplicate": "Within the same established logical group and semantic contract, verified equal semantic digests are EXACT_DUPLICATE. Byte/provenance/acquisition changes alone do not create semantic conflicts.",
+          "conflict": "Within that logical group, two or more verified unequal semantic digests under the same supported semantic contract are MATERIAL_CONFLICT. Every group member retains the conflict, even if some deliveries also match one another. No arrival-order winner and no silently discarded member.",
+          "unknown": "Missing/unverified semantic bindings or incomparable contract versions yield NOT_ESTABLISHED, never exact duplicate, unique or non-conflicting. An established conflicting subset remains MATERIAL_CONFLICT even if additional members are unknown.",
+          "unique": "UNIQUE requires a complete declared comparison cohort and exactly one semantic occurrence in its logical group. Same content under distinct logical keys is not a duplicate by digest alone.",
+          "evidence_conflict": "Same EvidenceRef key with different content digest remains the protected EVIDENCE_IDENTITY_CONFLICT; it is not the observation duplicate rule.",
+          "materiality": "C04 or an independently admitted abstract test contract defines semantic bytes and material fields. B1 cannot omit fields, normalize bytes, equate policy versions or define C04 identity/materiality."
+        },
+        "synchronization": {
+          "pre_sync_2": [
+            "Closed result/descriptor validation",
+            "Evidence/policy binding and immutable attribution",
+            "Opaque logical-key grouping and semantic-digest comparisons on explicit abstract contract fixtures",
+            "Generic deterministic policy invocation and result aggregation",
+            "Permutation-invariance of evaluation over equivalent abstract inputs"
+          ],
+          "post_sync_2": [
+            "Concrete C04 observation adapters, logical keys, canonical bytes and material-field bindings",
+            "Production missing-observation and expected-sequence/gap checks",
+            "Production session/calendar/holiday coverage and sequence completeness",
+            "Production temporal-order interpretation and ambiguous-order checks",
+            "Production OHLC/volume/price-field checks and concrete outlier metric extraction"
+          ],
+          "rule": "PRE-SYNC-2 fixtures prove generic mechanics only. No production C04 binding or actual observation-quality/requirement-satisfaction claim before C04 is protected and consumable. Expected sequence/calendar evidence must be exact, attributable and compatible; its absence produces NOT_ESTABLISHED. Test fixtures do not satisfy SYNC-2.",
+          "req_017": "Preserve C03 source-order declaration, C04 semantic normalization and C05 permutation-independent evaluation allocation. B1 neither sorts away authoritative ordering nor claims final S3-REQ-017 satisfaction.",
+          "sync_3": "No quality result creates C06 eligibility, quarantine release or dataset promotion. C10 owns freshness/currentness/invalidation; retry/cache/fallback/downstream use cannot bypass these gates."
+        },
+        "gap_dispositions": {
+          "vocabulary": "RESOLVED",
+          "generic_descriptor": "RESOLVED",
+          "c04_boundary": "RESOLVED",
+          "expected_sequence_calendar": "RESOLVED_BEHIND_SYNC_2",
+          "semantic_duplicate_conflict": "RESOLVED"
+        }
+      },
+      "c1": {
+        "contract_id": "ATIS_C07_PROVIDER_NEUTRAL_ACTION_IDENTITY_VERSION_CONTRACT_V1",
+        "preserved_refinements": [
+          "C-R1",
+          "C-R2",
+          "C-R3",
+          "C-R4",
+          "C-R5"
+        ],
+        "families": [
+          "SPLIT",
+          "DIVIDEND",
+          "SYMBOL_CHANGE",
+          "MAPPED_MERGER_DELISTING"
+        ],
+        "canonicalization": {
+          "contract": "Reuse the protected generic canonical JSON and EvidenceContentDigest representation: UTF-8 without BOM, sorted ASCII object keys, no insignificant whitespace, NFC strings required without normalization, no floats, explicit nulls, exact typed identity serialization, Timestamp as YYYY-MM-DDTHH:MM:SS.ffffffZ. Unknown fields and duplicate JSON keys reject. Unordered evidence/set fields sort by canonical bytes and reject identity/content collisions.",
+          "hash": "H(object) is EvidenceContentDigest.from_bytes(canonical JSON bytes). Its 64 lowercase hex suffix is used in the two C07-specific namespaces. No new hash primitive."
+        },
+        "canonical_identity": {
+          "form": "atis:corporate-action:v1:<64-lowercase-sha256-hex>",
+          "preimage_fields": [
+            "kind",
+            "root_instrument_id",
+            "family",
+            "root_identity_binding_ref"
+          ],
+          "kind": "ATIS_C07_CANONICAL_ACTION_V1",
+          "root_instrument_id": "Protected InstrumentId of the immutable principal subject",
+          "root_identity_binding_ref": "EvidenceRef for one immutable independently admitted ATIS action-occurrence assertion; not a provider event record",
+          "binding_assertion_fields": [
+            "kind",
+            "root_instrument_id",
+            "family",
+            "atis_occurrence_key",
+            "identity_policy_id",
+            "supporting_evidence_refs"
+          ],
+          "binding_assertion_rule": "kind=ATIS_C07_IDENTITY_BINDING_V1; atis_occurrence_key is an EvidenceId issued in an independently governed ATIS namespace, scoped to one real action occurrence. identity_policy_id is ValidationPolicyId. Caller supplies protected admissible identity-authority/policy evidence separately from candidate assertions; C07 checks exact subject/family/occurrence binding and evidence digest against it. No self-declared trust flag establishes authority.",
+          "determinism": "The same admitted root assertion, principal instrument and family yield exactly one canonical identity regardless of input/provider order. No fresh UUID, current time, acquisition id, mutable symbol, mutable effective date or provider-native id is generated/used as canonical identity. The root binding is immutable across corrections/cancellations.",
+          "ambiguity": "Two competing root assertions for the same claimed occurrence, or an unestablished occurrence association across providers, stay NOT_ESTABLISHED/conflicting; neither provider precedence nor content coincidence merges them. This contract specifies identity given admitted ATIS association evidence; it does not solve event matching or authorize a registry/provider selection.",
+          "subject_correction": "Changing root instrument, family or occurrence is an identity dispute, not an in-place version correction; fail closed pending separately authorized identity reconciliation."
+        },
+        "version_identity": {
+          "form": "atis:corporate-action-version:v1:<64-lowercase-sha256-hex>",
+          "composition": "H of the complete version_body below, including lineage_authority_refs; no ordinal or arrival-order sequence. Exclude only action_version_id, the recomputed facts_digest/version_digest, and acquisition/evaluation/cache/storage context outside version_body.",
+          "body_fields": [
+            "kind",
+            "canonical_action_id",
+            "root_identity_binding_ref",
+            "root_instrument_id",
+            "family",
+            "operation",
+            "temporal_roles",
+            "action_terms_ref",
+            "provider_native_refs",
+            "source_evidence_refs",
+            "validation_policy_id",
+            "validation_state",
+            "predecessor_version_id",
+            "lineage_reason",
+            "lineage_authority_refs",
+            "affected_dependencies"
+          ],
+          "kind": "ATIS_C07_ACTION_VERSION_V1",
+          "operations": [
+            "ORIGINAL",
+            "CORRECTION",
+            "CANCELLATION"
+          ],
+          "action_terms_ref": "EvidenceRef to immutable family terms under an explicitly admitted provider-neutral contract. C1 binds exact terms evidence but does not select financial formulas or provider subtype mappings. Unsupported/unresolved terms contract is restrictive, never VALID.",
+          "provider_native_refs": "Unordered exact objects {source_id: SourceId, dataset_id: DatasetId, interpretation_ref: EvidenceRef, native_event_id: nonempty NFC string, evidence_ref: EvidenceRef}; may be empty for neutral fixtures, never substituted for canonical identity. Mappings on real provider data remain behind SYNC-1.",
+          "source_evidence_refs": "Nonempty canonicalized protected EvidenceRef set, maximum 64, same-key/different-digest conflict rejects",
+          "validation_policy_id": "Protected ValidationPolicyId",
+          "validation_state": "Reuse protected ValidationState without additions; VALID is possible only with complete required temporal roles, supported family/terms and independently admitted identity/lineage evidence. This is action fact validation, not downstream authority.",
+          "replay": "Same complete version body yields the same id; any included fact, evidence, policy/state, predecessor or dependency declaration change yields a new immutable id. Additional corroborating evidence may therefore create a distinct version, never overwrite a predecessor. Equal hashes with unequal verified preimages fail closed.",
+          "facts_digest": "H of version_body with lineage_authority_refs omitted. Used as the non-circular successor target in independent correction/cancellation authorization; included evidence and predecessor fields are already fixed before authority is bound."
+        },
+        "temporal_roles": {
+          "slot_fields": [
+            "state",
+            "at",
+            "evidence_refs"
+          ],
+          "slot_states": [
+            "ESTABLISHED",
+            "UNAVAILABLE",
+            "NOT_ESTABLISHED",
+            "NOT_APPLICABLE"
+          ],
+          "roles": [
+            "knowledge_from",
+            "announced_at",
+            "effective_at",
+            "ex_at",
+            "record_at",
+            "payable_at"
+          ],
+          "family_required": {
+            "SPLIT": [
+              "knowledge_from",
+              "effective_at"
+            ],
+            "DIVIDEND": [
+              "knowledge_from",
+              "ex_at"
+            ],
+            "SYMBOL_CHANGE": [
+              "knowledge_from",
+              "effective_at"
+            ],
+            "MAPPED_MERGER_DELISTING": [
+              "knowledge_from",
+              "effective_at"
+            ]
+          },
+          "family_optional": {
+            "SPLIT": [
+              "announced_at",
+              "ex_at",
+              "record_at"
+            ],
+            "DIVIDEND": [
+              "announced_at",
+              "record_at",
+              "payable_at",
+              "effective_at"
+            ],
+            "SYMBOL_CHANGE": [
+              "announced_at"
+            ],
+            "MAPPED_MERGER_DELISTING": [
+              "announced_at"
+            ]
+          },
+          "not_applicable": "Roles outside a family's required/optional lists must be explicit NOT_APPLICABLE with at=null. Required means ESTABLISHED for an authoritative action version, not permission to fabricate absent values. All six role slots must be present even when unavailable.",
+          "slot_rule": "ESTABLISHED requires protected Timestamp and nonempty attributable EvidenceRefs. UNAVAILABLE requires at=null and evidence of explicit source/contract unavailability; NOT_ESTABLISHED requires at=null and records unresolved/missing authority; NOT_APPLICABLE requires at=null and family-rule evidence. Optional absent roles remain NOT_ESTABLISHED or evidenced UNAVAILABLE, never invented.",
+          "meaning": "knowledge_from is first attributable knowledge of this version; announced_at is the announcement/publication role; effective_at is the action's legal/market effective boundary; ex_at is the ex-entitlement boundary; record_at and payable_at retain distinct record/payment roles. No equality or total ordering is assumed across these roles. Contradictions under an admitted family contract fail closed.",
+          "precision": "Date-only provider evidence stays date-only in source evidence; it cannot be coerced to midnight UTC. Establishing a Timestamp role requires attributable timezone/calendar/boundary interpretation. Without it the role is NOT_ESTABLISHED and cannot support a point-in-time claim.",
+          "context": "acquired_at and evaluated_at are separate protected Timestamp context fields attached to an evaluation envelope, not substitutions for any family role and not version identity inputs. A cutoff cannot select a version whose established knowledge_from is later than that cutoff.",
+          "lineage_time": "Successor knowledge_from must be strictly later than its predecessor; a correction may amend historical effective/ex/record/payable facts without rewriting predecessor knowledge. Cancellation records its own knowledge_from and preserves predecessor family role facts; cancellation_effective_at belongs only to an explicitly admitted cancellation terms contract, never overloaded onto original effective_at."
+        },
+        "lineage": {
+          "original": "ORIGINAL requires predecessor_version_id=null, lineage_reason=null, lineage_authority_refs empty. It still requires independently admitted root identity evidence.",
+          "successor": "CORRECTION or CANCELLATION requires exact predecessor_version_id, nonempty NFC lineage_reason and nonempty lineage_authority_refs; predecessor must be present in the complete finite lineage and resolve to matching canonical_action_id/root subject/family.",
+          "authority_assertion_fields": [
+            "kind",
+            "operation",
+            "canonical_action_id",
+            "predecessor_version_id",
+            "successor_facts_digest",
+            "authority_policy_id",
+            "decision_evidence_refs"
+          ],
+          "authority_binding": "kind=ATIS_C07_LINEAGE_AUTHORIZATION_V1. Independent evidence binds the exact operation, action id, predecessor and successor facts_digest under the caller-supplied protected authority policy. Validate assertion contents/digests and authority independently of candidate validation_state or candidate-supplied policy. A provider correction flag, receipt timestamp, author name, or the corrected record cannot self-certify authority.",
+          "rules": [
+            "Exactly one ORIGINAL root per canonical action; identical version-body replay collapses to one version, but any second nonidentical ORIGINAL is unresolved conflict",
+            "All referenced predecessors present",
+            "No self-edge or cycle",
+            "No cross-action or cross-family edge",
+            "Unique immutable version id",
+            "Input-order independence",
+            "Multiple nonidentical successors of one predecessor remain unresolved conflict",
+            "No in-place mutation",
+            "Cancellation does not delete any version or execute financial effects"
+          ],
+          "bounds": "Reuse finite-lineage discipline: at most 4096 versions, 256 predecessor edges in a chain, 64 EvidenceRefs in each evidence field. Limit violation is restrictive; truncation does not validate.",
+          "unresolved": "Missing authority/predecessor, ambiguous branch, unsupported correction terms or inconsistent temporal roles prevent authoritative version selection; no implicit last-writer-wins or provider ranking."
+        },
+        "affected_dependency_declaration": {
+          "fields": [
+            "state",
+            "entries",
+            "scope_ref"
+          ],
+          "states": [
+            "DECLARED",
+            "KNOWN_EMPTY",
+            "NOT_ESTABLISHED"
+          ],
+          "entry_fields": [
+            "dependency_kind",
+            "dependency_ref",
+            "instrument_ids",
+            "effective_from",
+            "effective_to",
+            "reason",
+            "evidence_refs"
+          ],
+          "dependency_kinds": [
+            "INSTRUMENT_REFERENCE",
+            "CALENDAR_VERSION",
+            "SOURCE_DATASET",
+            "DATASET_CONTENT",
+            "DATASET_MANIFEST",
+            "DOWNSTREAM_EVIDENCE"
+          ],
+          "dependency_ref": "Protected EvidenceRef resolving exact dependency identity/content; source/dataset identities reuse existing types. No C08/C09 manifest format is defined.",
+          "entry_rules": "instrument_ids is a nonempty sorted distinct InstrumentId set. effective_from/effective_to are Timestamp or null, interpreted as a half-open interval; null denotes unknown boundary, never silently unbounded/all-history. reason is nonempty NFC text and evidence_refs is a nonempty protected canonical EvidenceRef set. Entries sort by canonical bytes, exact repeats collapse, same dependency identity with conflicting declarations stays restrictive.",
+          "scope_rule": "DECLARED has nonempty entries and a scope_ref EvidenceRef establishing covered dependency scope; it asserts only that scope, never global completeness. KNOWN_EMPTY requires empty entries plus independent evidence in scope_ref proving no affected dependencies for that scope. NOT_ESTABLISHED permits partial entries and scope_ref=null and is never equivalent to no impact.",
+          "boundary": "This is a declaration for future consumers only. C07 does not discover/execute C08 materialization, C09 manifest change, C10 invalidation, rematerialization, consumer propagation or accounting/cash/position/order effects."
+        },
+        "gap_dispositions": {
+          "canonical_action_identity": "RESOLVED_GIVEN_INDEPENDENT_ATIS_IDENTITY_BINDING",
+          "immutable_version_identity": "RESOLVED",
+          "family_temporal_roles": "RESOLVED",
+          "lineage_identity_authority": "RESOLVED",
+          "affected_dependencies": "RESOLVED_DECLARATION_ONLY"
+        }
+      },
+      "cross_stream": {
+        "preserved": [
+          "A1/C03 protected ownership",
+          "C04 canonical-observation ownership",
+          "B-R1–B-R6",
+          "C-R1–C-R5",
+          "C10 freshness/currentness/invalidation ownership",
+          "SYNC-1",
+          "SYNC-2",
+          "SYNC-3",
+          "S3-REQ-017 allocation",
+          "C01/C02 closure"
+        ],
+        "provider_mapping": "All real provider-specific C07 interpretation remains behind SYNC-1; unsupported/missing subtype mapping fails closed without selecting a provider or expanding supported families.",
+        "closure_impact": "No Stage-3 requirement satisfaction or gate closure claimed. No C08-C11 activation. Refinement readiness concerns only a subsequent bounded implementation-authorization decision."
+      },
+      "authority": {
+        "implementation_authorized": false,
+        "ratification_approved": false,
+        "publication_authorized": false,
+        "provider_selected": false,
+        "storage_selected": false,
+        "stage4_authorized": false,
+        "trading_or_financial_effects": false,
+        "AI_TRADING_AUTHORITY": "NONE"
+      },
+      "review": {
+        "review_id": "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_INDEPENDENT_ADVERSARIAL_REVIEW_V1",
+        "scope": "Only this B1/C1 refinement; one independent review, no repeat full Wave-1 review.",
+        "reviewed_draft_sha256": "3ff761ff24829b5d8fe34b4afd2e830ead7cfac0130823d14042826330937c03",
+        "reviewer": "Independent sub-agent b1c1_adversarial_review; primary author dispositions the bounded repair.",
+        "b1": "PASS_WITH_BOUNDED_REFINEMENT",
+        "c1": "PASS",
+        "findings": [
+          {
+            "id": "B1-SEQ-001",
+            "counterexample": "Expected [1,2,3], authoritative delivered [3,1]: both GAP and REORDERED must survive; GAP may coexist with AMBIGUOUS_ORDER.",
+            "repair": "Replace exclusive sequence dimension with required independent sequence_coverage and sequence_order dimensions, including independent reasons/evidence and unknown states; preserve summary invalidity for GAP/AMBIGUOUS_ORDER and SYNC-2.",
+            "disposition": "APPLIED_EXACT_REVIEWER_REPAIR"
+          }
+        ],
+        "cross_stream": "PASS",
+        "architectural_redesign_required": false,
+        "final_disposition": {
+          "B1": "RATIFICATION_READY",
+          "C1": "RATIFICATION_READY"
+        },
+        "author_disposition_clarification": "During final recording consistency checks the primary author made the existing fail-closed lineage obligation explicit: exactly one ORIGINAL root; competing nonidentical ORIGINAL versions are unresolved conflict. This is a bounded clarification, not a second independent review or a new identity/authority model."
+      },
+      "readiness": {
+        "current": "RATIFICATION_READY",
+        "after_ratification": "READY_FOR_IMPLEMENTATION_AUTHORIZATION",
+        "conditions": [
+          "Owner ratification and protected publication of this exact refinement",
+          "Fresh protected-master applicability assessment",
+          "Separate bounded owner implementation authorization"
+        ],
+        "permitted_subsequent_scope": "B1 generic PRE-SYNC-2 machinery and C1 provider-neutral identity/version foundation only; real provider mapping remains behind SYNC-1 and concrete observation binding behind SYNC-2.",
+        "implementation_authorized_now": false
       }
     }
   }
