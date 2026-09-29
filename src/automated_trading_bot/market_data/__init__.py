@@ -11,6 +11,22 @@ from automated_trading_bot.market_data.acquisition import (
     TemporalCapability,
     verify_acquisition_content_digest,
 )
+from automated_trading_bot.market_data.normalization import (
+    MAX_NORMALIZATION_FIELDS,
+    MAX_NORMALIZATION_INPUTS,
+    NORMALIZATION_CONTRACT_FAMILY,
+    CanonicalField,
+    CanonicalObservation,
+    MalformedNormalizationInputError,
+    NormalizationContract,
+    NormalizationError,
+    NormalizationInput,
+    SupportedInterpretation,
+    UnsupportedInterpretationError,
+    normalize_observation,
+    normalize_observations,
+    verify_normalization_content_digest,
+)
 
 __all__ = [
     "MAX_ACQUISITION_EVIDENCE_REFS",
@@ -22,4 +38,18 @@ __all__ = [
     "SourceOrderAuthority",
     "TemporalCapability",
     "verify_acquisition_content_digest",
+    "MAX_NORMALIZATION_FIELDS",
+    "MAX_NORMALIZATION_INPUTS",
+    "NORMALIZATION_CONTRACT_FAMILY",
+    "CanonicalField",
+    "CanonicalObservation",
+    "MalformedNormalizationInputError",
+    "NormalizationContract",
+    "NormalizationError",
+    "NormalizationInput",
+    "SupportedInterpretation",
+    "UnsupportedInterpretationError",
+    "normalize_observation",
+    "normalize_observations",
+    "verify_normalization_content_digest",
 ]
