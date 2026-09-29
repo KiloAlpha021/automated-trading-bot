@@ -101,7 +101,8 @@
         "calendar_s2_resolution_and_correction_v1",
         "calendar_s2_implementation_contract_v1",
         "parallel_wave1_abc_design_and_implementation_contracts_v1",
-        "wave1_b1_c1_targeted_contract_refinement_v1"
+        "wave1_b1_c1_targeted_contract_refinement_v1",
+        "c04_c05_compatibility_contract_v1"
       ],
       "properties": {
         "manifest_id": {
@@ -25182,6 +25183,316 @@
                 "Separate bounded owner implementation authorization"
               ],
               "permitted_subsequent_scope": "B1 generic PRE-SYNC-2 machinery and C1 provider-neutral identity/version foundation only; real provider mapping remains behind SYNC-1 and concrete observation binding behind SYNC-2.",
+              "implementation_authorized_now": false
+            }
+          }
+        },
+        "c04_c05_compatibility_contract_v1": {
+          "const": {
+            "record_id": "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1",
+            "state": "RATIFICATION_CANDIDATE",
+            "scope": "C04_TO_C05_COMPATIBILITY_CONTRACT_ONLY",
+            "protected_predecessor": {
+              "commit": "1e50aefde65988d82947c8b0997fd3b3241414fe",
+              "tree": "efdceb38831a697e545d6b9e20180f39faa8892c"
+            },
+            "parent_contracts": [
+              "ATIS_STAGE3_C03_C04_IMPLEMENTATION_CONTRACT_V1",
+              "ATIS_C05_PROVIDER_INDEPENDENT_QUALITY_CONTRACT_V1"
+            ],
+            "ownership": {
+              "C04": [
+                "SEMANTIC_BYTE_PROJECTION",
+                "MATERIAL_FIELD_POLICY",
+                "PRODUCER_ADAPTER"
+              ],
+              "C05": [
+                "QUALITY_CONSUMPTION",
+                "DUPLICATE_CONFLICT_EVALUATION",
+                "QUALITY_POLICY_APPLICATION"
+              ],
+              "CALENDAR_SESSION_AUTHORITY": [
+                "EXPECTED_SEQUENCE_AND_CALENDAR_EVIDENCE"
+              ],
+              "logical_identity": "EXTERNALLY_SUPPLIED_AND_PRESERVED_NO_DERIVATION_BY_C04_OR_C05"
+            },
+            "semantic_projection": {
+              "contract_version": "ContractVersion('ATIS_C04_C05_SEMANTIC_PROJECTION', 1)",
+              "record_kind": "ATIS_C04_C05_CANONICAL_SEMANTIC_PROJECTION_V1",
+              "included": [
+                "projection_contract_version",
+                "material_field_policy_version",
+                "material_field_policy_content_digest",
+                "ordered_material_fields"
+              ],
+              "ordered_material_fields": "C04 selects exactly the named CanonicalField members admitted by the exact producer interpretation and material-field policy; sort by canonical field name; encode each as {name,value}.",
+              "encoding": "Protected canonical JSON: UTF-8 without BOM, sorted ASCII object keys, no insignificant whitespace, NFC strings required without normalization, no floats, explicit nulls, unknown fields rejected.",
+              "excluded": [
+                "ACQUISITION_IDENTITY",
+                "ACQUIRED_AT",
+                "SOURCE_AND_PROVIDER_NATIVE_IDENTITIES",
+                "SOURCE_PAYLOAD_AND_PROVENANCE_REFS",
+                "NORMALIZATION_POLICY_AND_CODE_REFS",
+                "PUBLICATION_AND_KNOWLEDGE_CONTEXT",
+                "SOURCE_ORDER_AND_SEQUENCE_CONTEXT",
+                "COMPLETE_C04_CONTENT_DIGEST",
+                "CACHE_STORAGE_RUNTIME_CONTEXT"
+              ],
+              "complete_observation_digest": "PRESERVED_UNCHANGED_AND_NOT_A_SEMANTIC_DIGEST_FALLBACK",
+              "bounds": {
+                "maximum_material_fields": 256,
+                "maximum_semantic_bytes": 1048576
+              },
+              "policy_identity_rule": "Projection bytes include the verified immutable material-policy content digest and explicit policy/projection versions, not the EvidenceRef key. SourceId, DatasetId, EvidenceId and other policy-reference provenance never enter the semantic digest. The complete policy EvidenceRef remains outside semantic bytes in descriptor evidence binding.",
+              "required_vectors": [
+                "SAME_FIELDS_AND_SAME_VERIFIED_POLICY_CONTENT_UNDER_DIFFERENT_ATTRIBUTABLE_POLICY_REFS_YIELDS_SAME_SEMANTIC_DIGEST",
+                "MATERIAL_FIELD_VALUE_CHANGE_YIELDS_DIFFERENT_SEMANTIC_DIGEST",
+                "POLICY_CONTENT_OR_PROJECTION_VERSION_CHANGE_YIELDS_DIFFERENT_SEMANTIC_DIGEST"
+              ]
+            },
+            "semantic_digest": {
+              "type": "EvidenceContentDigest",
+              "algorithm": "PROTECTED_EVIDENCE_CONTENT_DIGEST_FROM_EXACT_SEMANTIC_PROJECTION_BYTES",
+              "projection_version_bound": true,
+              "independent_of_acquisition_and_provenance": true,
+              "duplicate_rule": "Same established logical identity, projection contract and verified semantic digest is EXACT_DUPLICATE.",
+              "conflict_rule": "Same established logical identity and projection contract with unequal verified semantic digests is MATERIAL_CONFLICT.",
+              "provenance_only_change": "MUST_NOT_CREATE_SEMANTIC_CONFLICT"
+            },
+            "semantic_bytes_evidence": {
+              "canonical_bytes_ref": "EvidenceRef whose content_digest equals the semantic digest and whose resolved bytes equal the exact semantic projection bytes.",
+              "lifecycle": "Immutable attributable evidence; the producer supplies the bytes and EvidenceRef together; same evidence key with different digest is EVIDENCE_IDENTITY_CONFLICT; missing or unresolvable bytes are restrictive.",
+              "contract_ref": "EvidenceRef binding this exact protected projection/adapter contract version."
+            },
+            "material_field_policy": {
+              "owner": "C04",
+              "identity": "EvidenceRef binding an immutable versioned policy for one exact supported interpretation/family.",
+              "contents": [
+                "projection_contract_version",
+                "source_interpretation_id",
+                "sorted_material_field_names",
+                "policy_version"
+              ],
+              "rules": "Every selected name must exist exactly once in the CanonicalObservation fields and be admitted by its SupportedInterpretation. C05 cannot add, omit, normalize or reinterpret fields.",
+              "unsupported": "NOT_ESTABLISHED_OR_INCOMPATIBLE_NO_DESCRIPTOR_PROMOTION",
+              "provider_specific_mapping": "PROHIBITED"
+            },
+            "logical_identity": {
+              "representation": {
+                "namespace_ref": "EvidenceRef",
+                "key": "NONEMPTY_NFC_CASE_SENSITIVE_STRING"
+              },
+              "source": "Caller-supplied identity under an independently protected namespace/mapping contract.",
+              "binding": "Descriptor preserves namespace_ref and key byte-for-byte and binds the mapping contract EvidenceRef.",
+              "prohibited_derivations": [
+                "SEMANTIC_DIGEST",
+                "ACQUISITION_ORDER",
+                "PROVIDER_NATIVE_ID",
+                "QUALITY_RESULT",
+                "HOST_ORDER"
+              ],
+              "missing_or_conflicting": "NOT_ESTABLISHED_NO_DUPLICATE_OR_CONFLICT_CLASSIFICATION",
+              "registry": "NO_OBSERVATION_EQUIVALENCE_REGISTRY_CREATED"
+            },
+            "descriptor": {
+              "contract_version": "ContractVersion('ATIS_C04_C05_COMPATIBILITY_DESCRIPTOR', 1)",
+              "record_kind": "ATIS_C04_C05_COMPATIBILITY_DESCRIPTOR_V1",
+              "required_fields": [
+                "descriptor_version",
+                "canonical_observation_ref",
+                "logical_identity",
+                "logical_identity_mapping_ref",
+                "semantic_projection_contract_ref",
+                "canonical_bytes_ref",
+                "semantic_digest",
+                "material_field_policy_ref",
+                "producer_contract_ref",
+                "adapter_contract_ref",
+                "expected_sequence_evidence",
+                "descriptor_evidence_refs"
+              ],
+              "construction": "C04 producer adapter verifies the protected CanonicalObservation, external logical identity, projection/material policy and resolved evidence, then emits the minimum immutable descriptor. It does not duplicate the complete observation or depend on provider-native schemas.",
+              "descriptor_digest": "EvidenceContentDigest over the complete canonical descriptor including explicit null/state objects and all contract/evidence bindings.",
+              "consumer_mapping": {
+                "representation_contract_ref": "adapter_contract_ref",
+                "logical_identity": "logical_identity preserved exactly",
+                "semantic_content": "{contract_ref: semantic_projection_contract_ref, canonical_bytes_ref, digest: semantic_digest}",
+                "expected_sequence_ref": "expected_sequence_evidence.ref only when state=AVAILABLE"
+              },
+              "bounds": {
+                "maximum_descriptor_evidence_refs": 64
+              },
+              "evidence_canonicalization": "descriptor_evidence_refs and expected_sequence_evidence.evidence_refs are immutable tuples canonicalized by the complete protected EvidenceRef tuple (source_id,dataset_id,evidence_id,content_digest). Exact repeats collapse; same key with different digest rejects; bounds are enforced before hashing; truncation is prohibited.",
+              "required_vectors": [
+                "EVIDENCE_REF_INPUT_PERMUTATIONS_YIELD_IDENTICAL_DESCRIPTOR_DIGEST",
+                "EVIDENCE_IDENTITY_COLLISION_REJECTS",
+                "RESOURCE_LIMIT_REJECTS_WITHOUT_TRUNCATION"
+              ],
+              "compatibility_matrix": {
+                "admitted_v1": {
+                  "producer_contract": "EXACT_PROTECTED_ATIS_STAGE3_C03_C04_IMPLEMENTATION_CONTRACT_V1_REF",
+                  "semantic_projection": "ContractVersion('ATIS_C04_C05_SEMANTIC_PROJECTION', 1)",
+                  "compatibility_descriptor": "ContractVersion('ATIS_C04_C05_COMPATIBILITY_DESCRIPTOR', 1)",
+                  "consumer_descriptor": "ContractVersion('ATIS_C05_QUALITY_INPUT', 1)"
+                },
+                "rule": "Only an explicitly listed exact tuple is admitted. Any unlisted, unresolved or conflicting producer/projection/adapter/consumer tuple is INCOMPATIBLE. No newest-version, nearest-version or default selection."
+              }
+            },
+            "sequence_calendar_evidence": {
+              "owner": "CALENDAR_SESSION_AUTHORITY",
+              "states": [
+                "AVAILABLE",
+                "UNAVAILABLE",
+                "NOT_APPLICABLE",
+                "INCOMPATIBLE",
+                "AMBIGUOUS_CONFLICTING"
+              ],
+              "shape": "{state, ref, contract_version, reason, evidence_refs}; ref is nonnull only for AVAILABLE and binds exact expected slots, order rule, scope and calendar/session version.",
+              "rules": {
+                "AVAILABLE": "Exact attributable compatible evidence; C04 binds and C05 consumes without redefining it.",
+                "UNAVAILABLE": "Explicit attributable absence; no missingness/completeness conclusion.",
+                "NOT_APPLICABLE": "Affirmative version-bound applicability evidence required.",
+                "INCOMPATIBLE": "Unsupported contract/version; restrictive.",
+                "AMBIGUOUS_CONFLICTING": "Competing evidence retained; restrictive."
+              },
+              "fabrication_prohibited": [
+                "CURRENT_CALENDAR",
+                "ACQUISITION_TIME",
+                "ARRIVAL_ORDER",
+                "HOST_ORDER",
+                "IMPLICIT_EXPECTED_SEQUENCE"
+              ],
+              "consumer_boundary": {
+                "AVAILABLE": "Map the exact expected-sequence EvidenceRef after contract and content verification.",
+                "UNAVAILABLE": "Preserve state, reason and evidence; map expected_sequence_ref=null; no missingness or completeness conclusion.",
+                "NOT_APPLICABLE": "Preserve state, reason and affirmative version-bound evidence; map expected_sequence_ref=null; absence of proof becomes NOT_ESTABLISHED.",
+                "INCOMPATIBLE": "Do not promote to a C05 QualityInputDescriptor.",
+                "AMBIGUOUS_CONFLICTING": "Retain competing evidence and do not promote to a C05 QualityInputDescriptor."
+              },
+              "required_vectors": [
+                "AVAILABLE_EXACT_REF",
+                "UNAVAILABLE_NO_CONCLUSION",
+                "NOT_APPLICABLE_WITH_AFFIRMATIVE_EVIDENCE",
+                "NOT_APPLICABLE_WITHOUT_PROOF_BECOMES_NOT_ESTABLISHED",
+                "INCOMPATIBLE_REJECTS_PROMOTION",
+                "AMBIGUOUS_CONFLICTING_REJECTS_PROMOTION"
+              ]
+            },
+            "restrictive_failures": {
+              "SEMANTIC_PROJECTION_ABSENT": "NOT_ESTABLISHED",
+              "SEMANTIC_PROJECTION_VERSION_UNSUPPORTED": "INCOMPATIBLE",
+              "SEMANTIC_DIGEST_MISMATCH": "REJECT",
+              "MATERIAL_FIELD_POLICY_MISSING_OR_UNKNOWN": "NOT_ESTABLISHED",
+              "LOGICAL_IDENTITY_MISSING_OR_CONFLICTING": "NOT_ESTABLISHED",
+              "DESCRIPTOR_CONTRACT_MISMATCH": "INCOMPATIBLE",
+              "PRODUCER_CONSUMER_VERSION_INCOMPATIBLE": "INCOMPATIBLE",
+              "SEQUENCE_CALENDAR_EVIDENCE_MISSING_WHEN_REQUIRED": "NOT_ESTABLISHED",
+              "EVIDENCE_IDENTITY_CONFLICT": "REJECT",
+              "RESOURCE_BOUND_EXHAUSTED": "REJECT_NO_TRUNCATION",
+              "fallbacks_prohibited": [
+                "COMPLETE_C04_CONTENT_DIGEST",
+                "ACQUISITION_TIMESTAMP",
+                "PROVIDER_NATIVE_IDENTITY",
+                "HOST_OR_ARRIVAL_ORDER",
+                "NEWEST_VERSION",
+                "CURRENT_CALENDAR",
+                "INFERRED_MATERIAL_FIELDS"
+              ]
+            },
+            "sync_2_lifecycle": {
+              "contract_ratification_and_protection": "DOES_NOT_MAKE_SYNC_2_CONSUMABLE",
+              "next_steps": [
+                "BOUNDED_COMPATIBILITY_IMPLEMENTATION",
+                "ATTRIBUTABLE_LOCAL_AND_HOSTED_ASSURANCE",
+                "PROTECTED_IMPLEMENTATION",
+                "EXACT_SYNC_2_VERIFICATION",
+                "C05_POST_REASSESSMENT_ONLY_IF_ALL_WAKE_CONDITIONS_PASS"
+              ],
+              "future_verification_evidence": [
+                "PROTECTED_CONTRACT_AND_IMPLEMENTATION_IDENTITIES",
+                "DIRECT_AND_ADVERSARIAL_TEST_IDENTITIES",
+                "SEMANTIC_BYTES_AND_DIGEST_GOLDEN_VECTORS",
+                "PROVENANCE_INDEPENDENCE_VECTORS",
+                "MATERIAL_FIELD_POLICY_AND_LOGICAL_IDENTITY_BINDINGS",
+                "DESCRIPTOR_VERSION_COMPATIBILITY_MATRIX",
+                "SEQUENCE_CALENDAR_STATE_AND_CONTRACT_VECTORS",
+                "C04_AND_C05_REGRESSION",
+                "ATTRIBUTABLE_ENGINEERING_AND_TRUSTED_ASSURANCE",
+                "NATURAL_PROTECTED_MASTER_ASSURANCE"
+              ],
+              "current_sync_2": "NOT_CONSUMABLE",
+              "current_c05_post": "ASLEEP_NOT_REASSESSED"
+            },
+            "review": {
+              "review_id": "ATIS_STAGE3_C04_C05_COMPATIBILITY_INDEPENDENT_ADVERSARIAL_REVIEW_V1",
+              "scope": "Only the bounded C04-to-C05 compatibility contract.",
+              "result": "PASS_WITH_BOUNDED_REFINEMENT",
+              "findings": [
+                {
+                  "id": "C45-R1",
+                  "finding": "Full material-policy EvidenceRef in semantic bytes could leak provenance into semantic digest.",
+                  "repair": "Use verified policy content digest plus explicit versions in projection; keep full EvidenceRef outside semantic bytes.",
+                  "disposition": "APPLIED"
+                },
+                {
+                  "id": "C45-R2",
+                  "finding": "Descriptor evidence collections lacked canonical ordering and collision rules.",
+                  "repair": "Canonicalize complete EvidenceRef tuples, collapse exact repeats, reject collisions and enforce bounds before hashing.",
+                  "disposition": "APPLIED"
+                },
+                {
+                  "id": "C45-R3",
+                  "finding": "Producer/projection/adapter/consumer version compatibility was not an exact admitted tuple.",
+                  "repair": "Define the sole admitted v1 compatibility tuple and reject every unlisted tuple.",
+                  "disposition": "APPLIED"
+                },
+                {
+                  "id": "C45-R4",
+                  "finding": "Non-AVAILABLE sequence/calendar states could be conflated when mapped to null.",
+                  "repair": "Preserve state/reason/evidence and prohibit descriptor promotion for incompatible or conflicting states.",
+                  "disposition": "APPLIED"
+                },
+                {
+                  "id": "C45-R5",
+                  "finding": "C10 and dataset-promotion denial was implicit rather than independently testable.",
+                  "repair": "Add explicit authority booleans and programme denials.",
+                  "disposition": "APPLIED"
+                }
+              ],
+              "attempted_disproofs": [
+                "SEMANTIC_BYTES_EXCLUDE_ACQUISITION_AND_PROVENANCE",
+                "MATERIAL_FIELDS_REMAIN_C04_OWNED",
+                "LOGICAL_IDENTITY_CANNOT_BE_REGENERATED",
+                "SEMANTIC_DIGEST_IGNORES_IRRELEVANT_PROVENANCE",
+                "DESCRIPTOR_CONSTRUCTION_IS_DETERMINISTIC",
+                "ADAPTER_VERSION_COMPATIBILITY_IS_EXPLICIT",
+                "SEQUENCE_CALENDAR_AUTHORITY_CANNOT_BE_FABRICATED",
+                "UNSUPPORTED_VERSIONS_FAIL_CLOSED",
+                "C05_CANNOT_APPROPRIATE_C04_OR_CALENDAR_OWNERSHIP",
+                "NO_C06_C10_OR_DATASET_PROMOTION_AUTHORITY_LEAK"
+              ],
+              "architectural_redesign_required": false,
+              "final_disposition": "RATIFICATION_READY"
+            },
+            "authority": {
+              "ratification_approved": false,
+              "implementation_authorized": false,
+              "sync_2_consumable": false,
+              "c05_post_authorized": false,
+              "c06_authorized": false,
+              "c07_authorized": false,
+              "c08_to_c11_authorized": false,
+              "provider_selected": false,
+              "storage_selected": false,
+              "stage4_authorized": false,
+              "trading_or_financial_effects": false,
+              "AI_TRADING_AUTHORITY": "NONE",
+              "c10_authorized": false,
+              "dataset_promotion_authorized": false
+            },
+            "readiness": {
+              "current": "RATIFICATION_READY",
+              "after_ratification": "READY_FOR_BOUNDED_COMPATIBILITY_IMPLEMENTATION_AUTHORIZATION_ASSESSMENT",
               "implementation_authorized_now": false
             }
           }

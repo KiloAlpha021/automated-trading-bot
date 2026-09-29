@@ -690,3 +690,99 @@ def test_b1_c1_contract_rejects_semantic_or_authority_drift(path, value):
     schema = load(S)["properties"]["stage3_recording_manifest"]["properties"][B1_C1_KEY]
     with pytest.raises(ValidationError):
         Draft202012Validator(schema).validate(record)
+
+
+C04_C05_COMPAT_KEY = "c04_c05_compatibility_contract_v1"
+
+
+def test_c04_c05_compatibility_contract_is_ratification_candidate_only():
+    record = corpus()["stage3_recording_manifest"][C04_C05_COMPAT_KEY]
+    assert record["record_id"] == "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1"
+    assert record["state"] == "RATIFICATION_CANDIDATE"
+    assert record["authority"]["ratification_approved"] is False
+    assert record["authority"]["implementation_authorized"] is False
+    assert record["authority"]["sync_2_consumable"] is False
+    assert record["authority"]["c05_post_authorized"] is False
+    assert record["authority"]["c10_authorized"] is False
+    assert record["authority"]["dataset_promotion_authorized"] is False
+    assert record["sync_2_lifecycle"]["current_sync_2"] == "NOT_CONSUMABLE"
+    assert record["sync_2_lifecycle"]["current_c05_post"] == "ASLEEP_NOT_REASSESSED"
+    assert record["review"]["result"] == "PASS_WITH_BOUNDED_REFINEMENT"
+    assert record["review"]["final_disposition"] == "RATIFICATION_READY"
+    assert record["readiness"]["current"] == "RATIFICATION_READY"
+    assert record["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
+
+
+def test_c04_c05_projection_excludes_context_and_preserves_complete_digest():
+    record = corpus()["stage3_recording_manifest"][C04_C05_COMPAT_KEY]
+    projection = record["semantic_projection"]
+    assert projection["complete_observation_digest"] == (
+        "PRESERVED_UNCHANGED_AND_NOT_A_SEMANTIC_DIGEST_FALLBACK"
+    )
+    assert {
+        "ACQUISITION_IDENTITY", "SOURCE_PAYLOAD_AND_PROVENANCE_REFS",
+        "PUBLICATION_AND_KNOWLEDGE_CONTEXT", "SOURCE_ORDER_AND_SEQUENCE_CONTEXT",
+        "COMPLETE_C04_CONTENT_DIGEST",
+    } <= set(projection["excluded"])
+    assert record["semantic_digest"]["independent_of_acquisition_and_provenance"] is True
+    assert record["material_field_policy"]["owner"] == "C04"
+    assert "material_field_policy_ref" not in projection["included"]
+    assert "material_field_policy_content_digest" in projection["included"]
+    assert len(projection["required_vectors"]) == 3
+
+
+def test_c04_c05_logical_identity_and_calendar_authority_are_not_invented():
+    record = corpus()["stage3_recording_manifest"][C04_C05_COMPAT_KEY]
+    assert record["logical_identity"]["source"].startswith("Caller-supplied")
+    assert {"SEMANTIC_DIGEST", "ACQUISITION_ORDER", "QUALITY_RESULT"} <= set(
+        record["logical_identity"]["prohibited_derivations"]
+    )
+    sequence = record["sequence_calendar_evidence"]
+    assert sequence["owner"] == "CALENDAR_SESSION_AUTHORITY"
+    assert sequence["states"] == [
+        "AVAILABLE", "UNAVAILABLE", "NOT_APPLICABLE", "INCOMPATIBLE",
+        "AMBIGUOUS_CONFLICTING",
+    ]
+    assert "CURRENT_CALENDAR" in sequence["fabrication_prohibited"]
+    assert sequence["consumer_boundary"]["INCOMPATIBLE"].startswith("Do not promote")
+    assert sequence["consumer_boundary"]["AMBIGUOUS_CONFLICTING"].startswith("Retain competing")
+
+
+def test_c04_c05_descriptor_maps_exactly_to_existing_c05_input_contract():
+    record = corpus()["stage3_recording_manifest"][C04_C05_COMPAT_KEY]
+    mapping = record["descriptor"]["consumer_mapping"]
+    assert mapping == {
+        "representation_contract_ref": "adapter_contract_ref",
+        "logical_identity": "logical_identity preserved exactly",
+        "semantic_content": "{contract_ref: semantic_projection_contract_ref, canonical_bytes_ref, digest: semantic_digest}",
+        "expected_sequence_ref": "expected_sequence_evidence.ref only when state=AVAILABLE",
+    }
+    assert record["restrictive_failures"]["SEMANTIC_DIGEST_MISMATCH"] == "REJECT"
+    assert record["restrictive_failures"]["RESOURCE_BOUND_EXHAUSTED"] == "REJECT_NO_TRUNCATION"
+    matrix = record["descriptor"]["compatibility_matrix"]
+    assert matrix["admitted_v1"]["consumer_descriptor"] == (
+        "ContractVersion('ATIS_C05_QUALITY_INPUT', 1)"
+    )
+    assert "No newest-version" in matrix["rule"]
+    assert "canonicalized" in record["descriptor"]["evidence_canonicalization"]
+
+
+@pytest.mark.parametrize("path,value", [
+    (("semantic_projection", "complete_observation_digest"), "USE_AS_SEMANTIC_DIGEST"),
+    (("semantic_digest", "independent_of_acquisition_and_provenance"), False),
+    (("material_field_policy", "owner"), "C05"),
+    (("logical_identity", "source"), "DERIVE_FROM_DIGEST"),
+    (("sequence_calendar_evidence", "owner"), "C05"),
+    (("sync_2_lifecycle", "current_sync_2"), "CONSUMABLE"),
+    (("authority", "implementation_authorized"), True),
+    (("authority", "sync_2_consumable"), True),
+])
+def test_c04_c05_schema_rejects_semantic_or_authority_drift(path, value):
+    record = deepcopy(corpus()["stage3_recording_manifest"][C04_C05_COMPAT_KEY])
+    target = record
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    schema = load(S)["properties"]["stage3_recording_manifest"]["properties"][C04_C05_COMPAT_KEY]
+    with pytest.raises(ValidationError):
+        Draft202012Validator(schema).validate(record)
