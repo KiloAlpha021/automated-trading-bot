@@ -99,7 +99,8 @@
         "calendar_session_authority_model_v1",
         "calendar_s1_implementation_contract_v1",
         "calendar_s2_resolution_and_correction_v1",
-        "calendar_s2_implementation_contract_v1"
+        "calendar_s2_implementation_contract_v1",
+        "parallel_wave1_abc_design_and_implementation_contracts_v1"
       ],
       "properties": {
         "manifest_id": {
@@ -24544,6 +24545,193 @@
               "STORAGE_SELECTION": "NOT_AUTHORIZED",
               "TIMEZONE_LIBRARY_SELECTION": "NOT_AUTHORIZED",
               "OTHER_STAGE3_IMPLEMENTATION_AUTHORIZED": false,
+              "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
+              "RESEARCH_BACKTESTING_INTEGRATION": "NOT_AUTHORIZED",
+              "PAPER_TRADING": "NOT_AUTHORIZED",
+              "LIVE_TRADING": "NOT_AUTHORIZED",
+              "FINANCIAL_EFFECTS": "NOT_AUTHORIZED",
+              "AI_TRADING_AUTHORITY": "NONE"
+            }
+          }
+        },
+        "parallel_wave1_abc_design_and_implementation_contracts_v1": {
+          "const": {
+            "record_id": "ATIS_STAGE3_PARALLEL_WAVE1_ABC_DESIGN_AND_IMPLEMENTATION_CONTRACTS_V1",
+            "state": "RATIFICATION_CANDIDATE",
+            "review": {
+              "id": "ATIS_STAGE3_PARALLEL_WAVE1_ABC_INDEPENDENT_ADVERSARIAL_REVIEW_V1",
+              "stream_outcomes": {
+                "A": "PASS_WITH_BOUNDED_REFINEMENTS",
+                "B": "PASS_WITH_BOUNDED_REFINEMENTS",
+                "C": "PASS_WITH_BOUNDED_REFINEMENTS"
+              },
+              "cross_stream_convergence": "PASS",
+              "architectural_redesign_required": false
+            },
+            "protected_predecessor": {
+              "commit": "8d0b9b124aae84a955ddf5b5e8996e2543456aca",
+              "tree": "bce9a1ac847c9079eb38877be92a6e0c1885bd0d"
+            },
+            "shared_primitives": {
+              "reuse": [
+                "Timestamp",
+                "EvidenceRef",
+                "EvidenceContentDigest",
+                "ValidationPolicyId",
+                "ValidationState",
+                "PROTECTED_GENERIC_IDENTITIES",
+                "PROTECTED_GENERIC_DIGESTS"
+              ],
+              "competing_primitives": "PROHIBITED",
+              "missing_primitive_stop": "STOP_CROSS_LANE_PRIMITIVE_REVIEW_REQUIRED"
+            },
+            "streams": {
+              "A": {
+                "components": [
+                  "C03",
+                  "C04"
+                ],
+                "design_id": "ATIS_STAGE3_C03_C04_ACQUISITION_AND_NORMALIZATION_DESIGN_V1",
+                "implementation_contract_id": "ATIS_STAGE3_C03_C04_IMPLEMENTATION_CONTRACT_V1",
+                "ownership": {
+                  "C03": [
+                    "SOURCE_IDENTITY",
+                    "SOURCE_DATASET_IDENTITY",
+                    "PROVIDER_NATIVE_IDENTITY",
+                    "SOURCE_INTERPRETATION_SCHEMA_VERSION",
+                    "TEMPORAL_CAPABILITIES",
+                    "ACQUISITION_IDENTITY_EVIDENCE"
+                  ],
+                  "C04": [
+                    "CANONICAL_OBSERVATION_SEMANTICS",
+                    "DETERMINISTIC_NORMALIZATION",
+                    "PROVENANCE_AND_TEMPORAL_LIMITATION_PRESERVATION"
+                  ]
+                },
+                "refinements": {
+                  "A-R1": "SOURCE_NATIVE_AND_ATIS_IDENTITY_SEPARATION",
+                  "A-R2": "EXPLICIT_TEMPORAL_CAPABILITY_NO_ACQUISITION_AS_KNOWLEDGE",
+                  "A-R3": "EXACT_SUPPORTED_INTERPRETATION_BEFORE_NORMALIZATION",
+                  "A-R4": "DETERMINISTIC_NORMALIZATION_POLICY_VERSION_AND_CODE_IDENTITY",
+                  "A-R5": "EXPLICIT_SOURCE_ORDER_SEMANTICS_OTHERWISE_PERMUTATION_INDEPENDENT"
+                },
+                "requirement_targets": [
+                  "S3-REQ-011",
+                  "S3-REQ-012",
+                  "S3-REQ-013",
+                  "S3-REQ-014",
+                  "S3-REQ-022",
+                  "S3-REQ-017_C04_PORTION"
+                ],
+                "provider_selected": false,
+                "implementation_authorized": false
+              },
+              "B": {
+                "components": [
+                  "C05",
+                  "C06"
+                ],
+                "design_id": "ATIS_STAGE3_C05_C06_QUALITY_AND_QUARANTINE_DESIGN_V1",
+                "implementation_contract_id": "ATIS_STAGE3_C05_C06_IMPLEMENTATION_CONTRACT_V1",
+                "ownership": {
+                  "C05": [
+                    "QUALITY_ASSESSMENT",
+                    "MISSINGNESS",
+                    "MALFORMED_RECORDS",
+                    "DUPLICATE_AND_CONFLICT_CLASSIFICATION",
+                    "OUTLIER_POLICY_EVALUATION"
+                  ],
+                  "C06": [
+                    "QUARANTINE",
+                    "CLAIM_SPECIFIC_EVIDENCE_ELIGIBILITY",
+                    "ATTRIBUTABLE_RELEASE_SUCCESSORS"
+                  ]
+                },
+                "refinements": {
+                  "B-R1": "PRESERVE_MISSING_MALFORMED_DUPLICATE_CONFLICT_AND_OUTLIER_DISTINCTIONS",
+                  "B-R2": "DUPLICATE_REQUIRES_SEMANTIC_CONTENT_IDENTITY",
+                  "B-R3": "CLAIM_SPECIFIC_ELIGIBILITY_SEPARATE_FROM_HISTORICAL_PRESERVATION",
+                  "B-R4": "RELEASE_CREATES_ATTRIBUTABLE_SUCCESSOR_WITHOUT_HISTORY_ERASURE",
+                  "B-R5": "C10_RETAINS_FRESHNESS_AND_INVALIDATION_AUTHORITY",
+                  "B-R6": "NO_DIRECT_CACHE_RETRY_FALLBACK_OR_DOWNSTREAM_BYPASS"
+                },
+                "requirement_targets": [
+                  "S3-REQ-015",
+                  "S3-REQ-016",
+                  "S3-REQ-018",
+                  "S3-REQ-019",
+                  "S3-REQ-020",
+                  "S3-REQ-021",
+                  "S3-REQ-038",
+                  "S3-REQ-040",
+                  "S3-REQ-017_C05_PORTION"
+                ],
+                "c04_semantics_redefinition": "PROHIBITED",
+                "c10_freshness_authority": "PRESERVED",
+                "implementation_authorized": false
+              },
+              "C": {
+                "components": [
+                  "C07"
+                ],
+                "design_id": "ATIS_STAGE3_C07_CORPORATE_ACTION_AUTHORITY_DESIGN_V1",
+                "implementation_contract_id": "ATIS_STAGE3_C07_IMPLEMENTATION_CONTRACT_V1",
+                "ownership": [
+                  "CANONICAL_ACTION_IDENTITY",
+                  "IMMUTABLE_ACTION_VERSIONS",
+                  "INSTRUMENT_BINDING",
+                  "FAMILY_TEMPORAL_SEMANTICS",
+                  "CORRECTION_CANCELLATION_LINEAGE",
+                  "INDEPENDENT_CORRECTION_AUTHORITY",
+                  "AFFECTED_DATASET_DECLARATION"
+                ],
+                "refinements": {
+                  "C-R1": "CANONICAL_AND_PROVIDER_ACTION_IDENTITY_SEPARATION",
+                  "C-R2": "ACTION_FAMILY_SPECIFIC_TEMPORAL_SEMANTICS",
+                  "C-R3": "UNKNOWN_OR_UNSUPPORTED_SUBTYPE_FAILS_CLOSED",
+                  "C-R4": "INDEPENDENT_CORRECTION_AND_CANCELLATION_AUTHORITY",
+                  "C-R5": "IMPACT_DECLARATION_NOT_INVALIDATION_EXECUTION"
+                },
+                "requirement_targets": [
+                  "S3-REQ-023",
+                  "S3-REQ-024",
+                  "S3-REQ-025",
+                  "S3-REQ-026",
+                  "S3-REQ-039"
+                ],
+                "downstream_execution": [
+                  "C08_MATERIALIZATION",
+                  "C09_MANIFEST_PROVENANCE",
+                  "C10_INVALIDATION",
+                  "DATASET_REMATERIALIZATION",
+                  "CONSUMER_PROPAGATION"
+                ],
+                "implementation_authorized": false
+              }
+            },
+            "synchronization_gates": {
+              "SYNC-1": "C03_SOURCE_IDENTITY_INTERPRETATION_TEMPORAL_CAPABILITY_PROTECTED_CONSUMABLE_BEFORE_SOURCE_DEPENDENT_C04_OR_C07_IMPLEMENTATION",
+              "SYNC-2": "C04_CANONICAL_OBSERVATION_PROTECTED_CONSUMABLE_BEFORE_C05_CONCRETE_BINDING",
+              "SYNC-3": "C05_QUALITY_C06_ELIGIBILITY_AND_FUTURE_C10_FRESHNESS_RECONCILED_BEFORE_AUTHORITATIVE_DATASET_PROMOTION"
+            },
+            "s3_req_017_allocation": {
+              "C03": "PRESERVE_WHETHER_SOURCE_ORDER_IS_AUTHORITATIVE",
+              "C04": "PERMUTATION_INDEPENDENT_WHEN_SOURCE_ORDER_NOT_AUTHORITATIVE",
+              "C05": "EQUIVALENT_CANONICAL_OBSERVATION_EVALUATION_PERMUTATION_INDEPENDENT",
+              "final_satisfaction_claimed": false
+            },
+            "parallel_impact_protocol": [
+              "UNAFFECTED_CONTINUE",
+              "AFFECTED_TARGETED_REVALIDATION",
+              "SEMANTIC_CONFLICT_STOP",
+              "AUTHORITY_INVALIDATED_STOP"
+            ],
+            "requirement_disposition": "TARGET_ONLY_NO_IMPLEMENTATION_SATISFACTION",
+            "authority": {
+              "C03_TO_C07_IMPLEMENTATION_AUTHORIZED": false,
+              "C08_TO_C11_IMPLEMENTATION_AUTHORIZED": false,
+              "PROVIDER_SELECTION": "NOT_AUTHORIZED",
+              "STORAGE_SELECTION": "NOT_AUTHORIZED",
               "STAGE4_IMPLEMENTATION_AUTHORIZED": false,
               "RESEARCH_BACKTESTING_INTEGRATION": "NOT_AUTHORIZED",
               "PAPER_TRADING": "NOT_AUTHORIZED",
