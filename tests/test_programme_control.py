@@ -827,7 +827,7 @@ def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-4:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009", "PC-DEC-010"]
+    assert list(decisions)[-5:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011"]
     decision = decisions["PC-DEC-007"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -1437,7 +1437,7 @@ def test_pc_dec_008_calendar_joint_ratification_grants_no_implementation():
 
 def test_calendar_s1_protected_publication_closure_decision_is_bounded() -> None:
     decisions = {record["record_id"]: record for record in _control()["decision_register"]["records"]}
-    assert list(decisions)[-4:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009", "PC-DEC-010"]
+    assert list(decisions)[-5:] == ["PC-DEC-007", "PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011"]
     decision = decisions["PC-DEC-009"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == "CALENDAR_S1_PROTECTED_PUBLICATION_AND_BOUNDED_CLOSURE"
@@ -1468,3 +1468,24 @@ def test_pc_dec_010_calendar_s2_joint_ratification_is_design_only():
     assert decision["decision"] == "ATIS_STAGE3_CALENDAR_S2_DESIGN_AND_IMPLEMENTATION_CONTRACT_JOINT_RATIFICATION"
     assert decision["authority_granted"] == ["RECORD_ATIS_STAGE3_CALENDAR_S2_DETERMINISTIC_HISTORICAL_SESSION_RESOLUTION_AND_CORRECTION_V1", "RECORD_ATIS_STAGE3_CALENDAR_S2_IMPLEMENTATION_CONTRACT_V1"]
     assert {"CALENDAR_S2_IMPLEMENTATION", "S3_CMP_002_COMPLETION", "PROVIDER_SELECTION", "STORAGE_SELECTION", "TIMEZONE_LIBRARY_SELECTION", "OTHER_STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "RESEARCH_BACKTESTING_INTEGRATION", "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY"} == set(decision["authority_not_granted"])
+
+
+def test_pc_dec_011_closes_calendar_component_but_preserves_downstream_work() -> None:
+    decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
+    assert list(decisions)[-1] == "PC-DEC-011"
+    decision = decisions["PC-DEC-011"]
+    assert decision["state"] == "APPROVED"
+    assert decision["decision"] == "CALENDAR_S2_PROTECTED_PUBLICATION_AND_S3_CMP_002_BOUNDED_CLOSURE"
+    granted = set(decision["authority_granted"])
+    assert {"RECORD_SE_CAND_004", "RECORD_SE_PUB_004", "CLOSE_BOUNDED_CALENDAR_S2_IMPLEMENTATION_LIFECYCLE", "CLOSE_S3_CMP_002_CALENDAR_SESSION_AUTHORITY"} <= granted
+    assert {f"RECORD_S3_REQ_{number}_SATISFIED" for number in ("005", "006", "007", "008", "009", "010", "041")} <= granted
+    assert {
+        "PRESERVE_DT_041_AFFECTED_DATASET_CONSEQUENCES_OPEN_DOWNSTREAM",
+        "PRESERVE_S3_CF_001_DOWNSTREAM_PORTION_OPEN",
+        "PRESERVE_S3_CF_008_DOWNSTREAM_PORTION_OPEN",
+        "PRESERVE_C08_PIT_MATERIALIZATION_OPEN",
+        "PRESERVE_C09_MANIFEST_PROVENANCE_OPEN",
+        "PRESERVE_C10_FRESHNESS_INVALIDATION_PROPAGATION_OPEN",
+        "PRESERVE_DATASET_INVALIDATION_REMATERIALIZATION_CONSUMER_PROPAGATION_OPEN",
+    } <= granted
+    assert {"NEXT_STAGE3_COMPONENT_ACTIVATION", "OTHER_STAGE3_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION", "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY"} <= set(decision["authority_not_granted"])

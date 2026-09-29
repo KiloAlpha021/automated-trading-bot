@@ -510,6 +510,170 @@
           "AI_TRADING_AUTHORITY"
         ]
       }
+    },
+    {
+      "record_id": "SE-CAND-004",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": null,
+      "governing_slice": "S3-CMP-002-CALENDAR-S2",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/successor-evidence.json"
+      ],
+      "predecessor_commit": "ba13b8b9adeb9d1a4521d4529a232064a8be6a31",
+      "predecessor_tree": "1eb2550d583aac38baf4787a28ea139df6f51c4f",
+      "authorization_references": [
+        "PC-DEC-011"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/calendars/__init__.py",
+          "predecessor_blob": "3554703bd0f56a827df67f4b53427b17200000db",
+          "successor_candidate_blob": "64f3a772f7b23cf0ee56b277dd26c2ffa059dc4a",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-005",
+            "S3-REQ-006",
+            "S3-REQ-007",
+            "S3-REQ-008",
+            "S3-REQ-009",
+            "S3-REQ-010",
+            "S3-REQ-041"
+          ]
+        },
+        {
+          "path": "src/automated_trading_bot/calendars/resolution.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "a4d1da4bef37a66ae86f056668a550fd7a60c06f",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-005",
+            "S3-REQ-006",
+            "S3-REQ-007",
+            "S3-REQ-008",
+            "S3-REQ-009",
+            "S3-REQ-010",
+            "S3-REQ-041"
+          ]
+        },
+        {
+          "path": "tests/test_calendar_session_resolution.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "0d3c5d1485da05c9eb70803f5684f4138d207d51",
+          "role": "TEST",
+          "requirement_references": [
+            "S3-REQ-005",
+            "S3-REQ-006",
+            "S3-REQ-007",
+            "S3-REQ-008",
+            "S3-REQ-009",
+            "S3-REQ-010",
+            "S3-REQ-041"
+          ]
+        }
+      ],
+      "transition_reason": "Owner-authorized bounded Calendar S2 deterministic historical session resolution and correction implementation completing the Calendar-local S3-CMP-002 obligations while preserving affected-dataset, C08, C09, C10 and cross-component propagation obligations as downstream-owned and open.",
+      "verification_evidence": [
+        "LOCAL_CALENDAR_S2_DIRECT_AND_ADVERSARIAL_S2_A01_THROUGH_S2_A46_PASS",
+        "LOCAL_FULL_PYTEST_1933_OF_1933_PASS",
+        "LOCAL_RUFF_PASS",
+        "LOCAL_STRICT_MYPY_51_FILES_PASS",
+        "LOCAL_PIP_CHECK_PASS",
+        "LOCAL_PIP_AUDIT_NO_KNOWN_VULNERABILITIES",
+        "M1_ENGINEERING_FOUNDATION_PR37_RUN_36530982263_JOB_109284377230_ATTEMPT_1_SUCCESS",
+        "TRUSTED_M1_EVALUATOR_PR37_RUN_36530982490_JOB_109284377995_ATTEMPT_1_SUCCESS",
+        "TRUSTED_PROFILE_STAGE3_CALENDAR_S2_IMPLEMENTATION_AT_443A1EB80FD9B06F8520A7CF06BE3274D5B8B851",
+        "M1_ENGINEERING_FOUNDATION_PROTECTED_MASTER_RUN_36531577560_JOB_109286214066_ATTEMPT_1_SUCCESS"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "STAGE3_IMPLEMENTATION",
+          "RB1_IMPLEMENTATION_RESUMPTION",
+          "CALENDAR_S1_IMPLEMENTATION_RESUMPTION",
+          "CALENDAR_S2_IMPLEMENTATION_RESUMPTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "TIMEZONE_LIBRARY_SELECTION",
+          "CORRECTION_ADJUDICATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    },
+    {
+      "record_id": "SE-PUB-004",
+      "record_type": "PROTECTED_PUBLICATION",
+      "candidate_record_id": "SE-CAND-004",
+      "protected_commit": "794812518ecf0582931ef5a76ba9d92ce3d93c9a",
+      "protected_tree": "f77b62d99ca18a3ae4c0d2a91cbf754cb68c752f",
+      "ordered_merge_parents": [
+        "ba13b8b9adeb9d1a4521d4529a232064a8be6a31",
+        "72f7c5047e72f8fd1d7df02e7f92de224cf2a1b0"
+      ],
+      "publication_reference": "GitHub pull request 37",
+      "protected_path_blobs": [
+        {
+          "path": "src/automated_trading_bot/calendars/__init__.py",
+          "blob": "64f3a772f7b23cf0ee56b277dd26c2ffa059dc4a"
+        },
+        {
+          "path": "src/automated_trading_bot/calendars/resolution.py",
+          "blob": "a4d1da4bef37a66ae86f056668a550fd7a60c06f"
+        },
+        {
+          "path": "tests/test_calendar_session_resolution.py",
+          "blob": "0d3c5d1485da05c9eb70803f5684f4138d207d51"
+        }
+      ],
+      "hosted_checks": [
+        {
+          "name": "m1-engineering-foundation run 36530982263 job 109284377230 attempt 1",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "trusted-m1-evaluator run 36530982490 job 109284377995 attempt 1 profile stage3-calendar-s2-implementation trusted 443a1eb80fd9b06f8520a7cf06be3274d5b8b851",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "m1-engineering-foundation protected-master run 36531577560 job 109286214066 attempt 1",
+          "conclusion": "SUCCESS"
+        }
+      ],
+      "post_publication_verification": "PASS",
+      "open_obligations_preserved": true,
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "SLICE1_CANDIDATE_PUBLICATION",
+          "STAGE3_IMPLEMENTATION",
+          "RB1_IMPLEMENTATION_RESUMPTION",
+          "CALENDAR_S1_IMPLEMENTATION_RESUMPTION",
+          "CALENDAR_S2_IMPLEMENTATION_RESUMPTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "TIMEZONE_LIBRARY_SELECTION",
+          "CORRECTION_ADJUDICATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
     }
   ],
   "authority": {

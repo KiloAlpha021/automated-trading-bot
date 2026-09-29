@@ -720,6 +720,54 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-011",
+        "governed_question": "Has the exact protected Calendar S2 implementation been published with attributable engineering, trusted and protected-master assurance, satisfying the Calendar-local requirements and supporting one bounded closure of Calendar S2 and S3-CMP-002 while preserving downstream integration obligations?",
+        "scope": "S3_CMP_002_CALENDAR_S2_PROTECTED_PUBLICATION_AND_COMPONENT_BOUNDED_CLOSURE_ONLY",
+        "state": "APPROVED",
+        "decision": "CALENDAR_S2_PROTECTED_PUBLICATION_AND_S3_CMP_002_BOUNDED_CLOSURE",
+        "source_authority": "Owner-authorized combined Calendar S2 publication and S3-CMP-002 closure-candidate instruction following verified PR #37 publication",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_SE_CAND_004",
+          "RECORD_SE_PUB_004",
+          "RECORD_VERIFIED_CALENDAR_S2_PROTECTED_PUBLICATION",
+          "CLOSE_BOUNDED_CALENDAR_S2_IMPLEMENTATION_LIFECYCLE",
+          "RECORD_S3_REQ_005_SATISFIED",
+          "RECORD_S3_REQ_006_SATISFIED",
+          "RECORD_S3_REQ_007_SATISFIED",
+          "RECORD_S3_REQ_008_SATISFIED",
+          "RECORD_S3_REQ_009_SATISFIED",
+          "RECORD_S3_REQ_010_SATISFIED",
+          "RECORD_S3_REQ_041_SATISFIED",
+          "CLOSE_S3_CMP_002_CALENDAR_SESSION_AUTHORITY",
+          "PRESERVE_DT_041_AFFECTED_DATASET_CONSEQUENCES_OPEN_DOWNSTREAM",
+          "PRESERVE_S3_CF_001_DOWNSTREAM_PORTION_OPEN",
+          "PRESERVE_S3_CF_008_DOWNSTREAM_PORTION_OPEN",
+          "PRESERVE_C08_PIT_MATERIALIZATION_OPEN",
+          "PRESERVE_C09_MANIFEST_PROVENANCE_OPEN",
+          "PRESERVE_C10_FRESHNESS_INVALIDATION_PROPAGATION_OPEN",
+          "PRESERVE_DATASET_INVALIDATION_REMATERIALIZATION_CONSUMER_PROPAGATION_OPEN",
+          "RECONCILE_DETERMINISTIC_RECOVERY_CONSEQUENCES"
+        ],
+        "authority_not_granted": [
+          "CALENDAR_S1_IMPLEMENTATION_RESUMPTION",
+          "CALENDAR_S2_IMPLEMENTATION_RESUMPTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "OTHER_STAGE3_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "TIMEZONE_LIBRARY_SELECTION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
