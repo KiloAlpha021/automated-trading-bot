@@ -24745,7 +24745,7 @@
         "wave1_b1_c1_targeted_contract_refinement_v1": {
           "const": {
             "record_id": "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1",
-            "state": "RATIFICATION_CANDIDATE",
+            "state": "RATIFIED",
             "protected_predecessor": {
               "commit": "9e86aa4587d1e905258e4ec070e3b0089d886e1b",
               "tree": "3bcb5ac8ab1497ca3a95c5289123358b94cadc06"
@@ -25142,7 +25142,7 @@
             },
             "authority": {
               "implementation_authorized": false,
-              "ratification_approved": false,
+              "ratification_approved": true,
               "publication_authorized": false,
               "provider_selected": false,
               "storage_selected": false,

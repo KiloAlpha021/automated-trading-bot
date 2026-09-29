@@ -808,13 +808,15 @@
         "record_id": "PC-DEC-013",
         "governed_question": "May the independently reviewed B1/C1 targeted public-contract refinements be ratified without implementation or publication authority?",
         "scope": "STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_RATIFICATION_CANDIDATE_ONLY",
-        "state": "OPEN",
+        "state": "APPROVED",
         "decision": "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1",
-        "source_authority": "Owner-authorized recovery-run B1/C1 reconciliation, one independent targeted review and minimum local candidate preparation; owner confirmed recovery instructions as authoritative gap scope. Ratification remains pending.",
+        "source_authority": "Owner-authorized governance ratification after protected PR #41 publication and exact attributable engineering, trusted and protected-master assurance; no implementation authority.",
         "decision_owner": "ATIS_OWNER",
         "decided_at": null,
         "supersedes": null,
-        "authority_granted": [],
+        "authority_granted": [
+          "RECORD_ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1"
+        ],
         "authority_not_granted": [
           "A1_MODIFICATION",
           "C03_IMPLEMENTATION",

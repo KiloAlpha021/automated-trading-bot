@@ -1500,13 +1500,16 @@ def test_pc_dec_012_ratifies_parallel_wave1_designs_without_implementation():
     assert {"C03_IMPLEMENTATION", "C04_IMPLEMENTATION", "C05_IMPLEMENTATION", "C06_IMPLEMENTATION", "C07_IMPLEMENTATION", "C08_TO_C11_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION", "STAGE4_IMPLEMENTATION", "AI_TRADING_AUTHORITY"} <= set(decision["authority_not_granted"])
 
 
-def test_pc_dec_013_is_open_b1_c1_ratification_candidate_only():
+def test_pc_dec_013_ratifies_b1_c1_contracts_without_implementation_authority():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
     record = decisions["PC-DEC-013"]
-    assert record["state"] == "OPEN"
+    assert record["state"] == "APPROVED"
     assert record["decision"] == "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1"
     assert record["supersedes"] is None
-    assert record["authority_granted"] == []
+    assert record["decided_at"] is None
+    assert record["authority_granted"] == [
+        "RECORD_ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1",
+    ]
     assert {
         "A1_MODIFICATION", "C03_IMPLEMENTATION", "C04_IMPLEMENTATION",
         "C05_IMPLEMENTATION", "C06_IMPLEMENTATION", "C07_IMPLEMENTATION",

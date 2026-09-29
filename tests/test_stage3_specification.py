@@ -624,9 +624,9 @@ def test_parallel_wave1_designs_and_contracts_record_exact_reviewed_refinements(
     assert record["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
 
 
-# B1/C1 reconciliation is a contract candidate, never implementation authority.
+# B1/C1 reconciliation is ratified, never implementation authority.
 B1_C1_KEY = "wave1_b1_c1_targeted_contract_refinement_v1"
-B1_C1_EXPECTED_SHA256 = "12270755493b9a10e99a807771d12b3491fdbbfe4403e669d043da3f2b1bb30d"
+B1_C1_EXPECTED_SHA256 = "a0e540e637b2c7677a330ded0ff83eae422f03cfd16f156620401eb62c7bb8e1"
 WAVE1_PROTECTED_SHA256 = "b06d4f0c02e5c228f3df06d29482a17ceb66f913449f78e0ff241c36320e83d8"
 
 
@@ -637,7 +637,7 @@ def _contract_digest(value):
     ).encode("utf-8")).hexdigest()
 
 
-def test_b1_c1_candidate_exact_identity_and_protected_parent():
+def test_b1_c1_ratified_exact_identity_and_protected_parent():
     manifest = corpus()["stage3_recording_manifest"]
     record = manifest[B1_C1_KEY]
     assert _contract_digest(record) == B1_C1_EXPECTED_SHA256
@@ -647,7 +647,8 @@ def test_b1_c1_candidate_exact_identity_and_protected_parent():
     assert record["review"]["final_disposition"] == {
         "B1": "RATIFICATION_READY", "C1": "RATIFICATION_READY",
     }
-    assert record["authority"]["ratification_approved"] is False
+    assert record["state"] == "RATIFIED"
+    assert record["authority"]["ratification_approved"] is True
     assert record["readiness"]["implementation_authorized_now"] is False
     assert record["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
 
@@ -678,7 +679,7 @@ def test_b1_sequence_coverage_and_order_are_independent_required_results():
     (("c1", "lineage", "rules"), []),
     (("c1", "affected_dependency_declaration", "boundary"), "EXECUTE_INVALIDATION"),
     (("authority", "implementation_authorized"), True),
-    (("authority", "ratification_approved"), True),
+    (("authority", "ratification_approved"), False),
 ])
 def test_b1_c1_contract_rejects_semantic_or_authority_drift(path, value):
     record = deepcopy(corpus()["stage3_recording_manifest"][B1_C1_KEY])

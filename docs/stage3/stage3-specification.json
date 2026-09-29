@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "63277fe5b2ec75e45e85b9afd26368ea1aa0838a794d323d37242400a14ab8cb",
+    "candidate_digest": "ab2d4e5d4184e48b79e193e12acf806e96e6aa7b32bd1e253daf7c17248e6155",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -11930,7 +11930,7 @@
     },
     "wave1_b1_c1_targeted_contract_refinement_v1": {
       "record_id": "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1",
-      "state": "RATIFICATION_CANDIDATE",
+      "state": "RATIFIED",
       "protected_predecessor": {
         "commit": "9e86aa4587d1e905258e4ec070e3b0089d886e1b",
         "tree": "3bcb5ac8ab1497ca3a95c5289123358b94cadc06"
@@ -12327,7 +12327,7 @@
       },
       "authority": {
         "implementation_authorized": false,
-        "ratification_approved": false,
+        "ratification_approved": true,
         "publication_authorized": false,
         "provider_selected": false,
         "storage_selected": false,
