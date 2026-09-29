@@ -827,7 +827,7 @@ def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-5:] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012"]
+    assert list(decisions)[-6:] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012", "PC-DEC-013"]
     decision = decisions["PC-DEC-007"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -1437,7 +1437,7 @@ def test_pc_dec_008_calendar_joint_ratification_grants_no_implementation():
 
 def test_calendar_s1_protected_publication_closure_decision_is_bounded() -> None:
     decisions = {record["record_id"]: record for record in _control()["decision_register"]["records"]}
-    assert list(decisions)[-5:] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012"]
+    assert list(decisions)[-6:] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012", "PC-DEC-013"]
     decision = decisions["PC-DEC-009"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == "CALENDAR_S1_PROTECTED_PUBLICATION_AND_BOUNDED_CLOSURE"
@@ -1493,8 +1493,25 @@ def test_pc_dec_011_closes_calendar_component_but_preserves_downstream_work() ->
 
 def test_pc_dec_012_ratifies_parallel_wave1_designs_without_implementation():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
-    assert list(decisions)[-1] == "PC-DEC-012"
+    assert list(decisions)[-2:] == ["PC-DEC-012", "PC-DEC-013"]
     decision = decisions["PC-DEC-012"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == "ATIS_STAGE3_PARALLEL_WAVE1_DESIGN_AND_IMPLEMENTATION_CONTRACT_JOINT_RATIFICATION"
     assert {"C03_IMPLEMENTATION", "C04_IMPLEMENTATION", "C05_IMPLEMENTATION", "C06_IMPLEMENTATION", "C07_IMPLEMENTATION", "C08_TO_C11_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION", "STAGE4_IMPLEMENTATION", "AI_TRADING_AUTHORITY"} <= set(decision["authority_not_granted"])
+
+
+def test_pc_dec_013_is_open_b1_c1_ratification_candidate_only():
+    decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
+    record = decisions["PC-DEC-013"]
+    assert record["state"] == "OPEN"
+    assert record["decision"] == "ATIS_STAGE3_WAVE1_B1_C1_TARGETED_CONTRACT_REFINEMENT_V1"
+    assert record["supersedes"] is None
+    assert record["authority_granted"] == []
+    assert {
+        "A1_MODIFICATION", "C03_IMPLEMENTATION", "C04_IMPLEMENTATION",
+        "C05_IMPLEMENTATION", "C06_IMPLEMENTATION", "C07_IMPLEMENTATION",
+        "C08_TO_C11_IMPLEMENTATION", "PROVIDER_SELECTION", "STORAGE_SELECTION",
+        "PUSH", "PR", "MERGE", "STAGE4_IMPLEMENTATION",
+        "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
+    } <= set(record["authority_not_granted"])
+    assert decisions["PC-DEC-012"]["state"] == "APPROVED"

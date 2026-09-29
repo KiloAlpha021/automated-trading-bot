@@ -622,3 +622,70 @@ def test_parallel_wave1_designs_and_contracts_record_exact_reviewed_refinements(
     assert record["authority"]["C03_TO_C07_IMPLEMENTATION_AUTHORIZED"] is False
     assert record["authority"]["C08_TO_C11_IMPLEMENTATION_AUTHORIZED"] is False
     assert record["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
+
+
+# B1/C1 reconciliation is a contract candidate, never implementation authority.
+B1_C1_KEY = "wave1_b1_c1_targeted_contract_refinement_v1"
+B1_C1_EXPECTED_SHA256 = "12270755493b9a10e99a807771d12b3491fdbbfe4403e669d043da3f2b1bb30d"
+WAVE1_PROTECTED_SHA256 = "b06d4f0c02e5c228f3df06d29482a17ceb66f913449f78e0ff241c36320e83d8"
+
+
+def _contract_digest(value):
+    return sha256(json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+
+
+def test_b1_c1_candidate_exact_identity_and_protected_parent():
+    manifest = corpus()["stage3_recording_manifest"]
+    record = manifest[B1_C1_KEY]
+    assert _contract_digest(record) == B1_C1_EXPECTED_SHA256
+    assert _contract_digest(
+        manifest["parallel_wave1_abc_design_and_implementation_contracts_v1"]
+    ) == WAVE1_PROTECTED_SHA256
+    assert record["review"]["final_disposition"] == {
+        "B1": "RATIFICATION_READY", "C1": "RATIFICATION_READY",
+    }
+    assert record["authority"]["ratification_approved"] is False
+    assert record["readiness"]["implementation_authorized_now"] is False
+    assert record["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
+
+
+def test_b1_sequence_coverage_and_order_are_independent_required_results():
+    result = corpus()["stage3_recording_manifest"][B1_C1_KEY]["b1"]["result"]
+    assert result["dimensions"]["sequence_coverage"] == [
+        "COMPLETE", "GAP", "NOT_ESTABLISHED", "NOT_APPLICABLE",
+    ]
+    assert result["dimensions"]["sequence_order"] == [
+        "CONSISTENT", "REORDERED", "AMBIGUOUS_ORDER",
+        "NOT_ESTABLISHED", "NOT_APPLICABLE",
+    ]
+    assert "sequence_coverage" in result["required_output_fields"]
+    assert "sequence_order" in result["required_output_fields"]
+    assert "sequence" not in result["dimensions"]
+
+
+@pytest.mark.parametrize("path,value", [
+    (("b1", "result", "dimensions", "presence"), ["PRESENT", "MISSING"]),
+    (("b1", "identity_rules", "duplicate"), "SAME_LOGICAL_ID_IS_DUPLICATE"),
+    (("b1", "synchronization", "post_sync_2"), []),
+    (("b1", "result", "dimensions", "sequence_coverage"), ["COMPLETE"]),
+    (("c1", "canonical_identity", "form"), "PROVIDER_NATIVE_EVENT_ID"),
+    (("c1", "version_identity", "composition"), "ARRIVAL_ORDER"),
+    (("c1", "temporal_roles", "family_required", "DIVIDEND"), ["ex_at"]),
+    (("c1", "lineage", "authority_binding"), "SELF_CERTIFIED"),
+    (("c1", "lineage", "rules"), []),
+    (("c1", "affected_dependency_declaration", "boundary"), "EXECUTE_INVALIDATION"),
+    (("authority", "implementation_authorized"), True),
+    (("authority", "ratification_approved"), True),
+])
+def test_b1_c1_contract_rejects_semantic_or_authority_drift(path, value):
+    record = deepcopy(corpus()["stage3_recording_manifest"][B1_C1_KEY])
+    target = record
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    schema = load(S)["properties"]["stage3_recording_manifest"]["properties"][B1_C1_KEY]
+    with pytest.raises(ValidationError):
+        Draft202012Validator(schema).validate(record)
