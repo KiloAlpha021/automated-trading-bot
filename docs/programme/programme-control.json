@@ -837,6 +837,40 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-014",
+        "governed_question": "May the independently reviewed bounded C04-to-C05 compatibility contract be presented for owner ratification without implementation, synchronization or publication authority?",
+        "scope": "STAGE3_C04_C05_COMPATIBILITY_CONTRACT_RATIFICATION_CANDIDATE_ONLY",
+        "state": "OPEN",
+        "decision": "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1",
+        "source_authority": "Owner-authorized targeted contract-reconciliation preparation; final ratification remains separate.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [],
+        "authority_not_granted": [
+          "CONTRACT_RATIFICATION",
+          "COMPATIBILITY_IMPLEMENTATION",
+          "SYNC_2_CONSUMABILITY",
+          "C05_POST_IMPLEMENTATION",
+          "C06_IMPLEMENTATION",
+          "C10_FRESHNESS_CURRENTNESS_INVALIDATION",
+          "DATASET_PROMOTION",
+          "C07_IMPLEMENTATION",
+          "C08_TO_C11_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PUSH",
+          "PR",
+          "MERGE",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
