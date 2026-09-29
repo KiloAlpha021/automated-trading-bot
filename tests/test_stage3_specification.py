@@ -786,3 +786,68 @@ def test_c04_c05_schema_rejects_semantic_or_authority_drift(path, value):
     schema = load(S)["properties"]["stage3_recording_manifest"]["properties"][C04_C05_COMPAT_KEY]
     with pytest.raises(ValidationError):
         Draft202012Validator(schema).validate(record)
+
+
+C07_CLOSURE_KEY = "c07_minimum_closure_record_v1"
+
+
+def test_c07_minimum_closure_record_is_exact_and_bounded():
+    record = corpus()["stage3_recording_manifest"][C07_CLOSURE_KEY]
+    assert record["record_id"] == "ATIS_STAGE3_C07_MINIMUM_CLOSURE_RECORD_V1"
+    assert record["state"] == "CLOSED"
+    assert record["component"] == {
+        "id": "S3-CMP-007",
+        "name": "C07_PROVIDER_NEUTRAL_CORPORATE_ACTION_FOUNDATION",
+        "implementation_status": "PROTECTED_VERIFIED_CLOSED",
+        "closure_scope": "BOUNDED_C07_LOCAL_OBLIGATIONS_ONLY",
+    }
+    evidence = record["protected_evidence"]
+    assert evidence["merge_commit"] == "1eb783fd0bf2dbea42a3cb78b67df129c16e0c74"
+    assert evidence["tree"] == "9af5aa59734bd02b499959e4d5bebc2bb300e976"
+    assert evidence["assurance_result"] == "SUCCESS"
+    assert len(evidence["implementation_blobs"]) == 3
+
+
+def test_c07_closure_records_only_supported_requirement_dispositions():
+    record = corpus()["stage3_recording_manifest"][C07_CLOSURE_KEY]
+    dispositions = record["requirement_dispositions"]
+    assert set(dispositions) == {
+        "S3-REQ-023", "S3-REQ-024", "S3-REQ-025", "S3-REQ-026", "S3-REQ-039",
+    }
+    assert dispositions["S3-REQ-023"]["global"] == "SATISFIED"
+    assert dispositions["S3-REQ-024"]["global"] == "SATISFIED"
+    assert dispositions["S3-REQ-025"]["c07_scope"] == "SATISFIED_PROVIDER_NEUTRAL_BOUNDARY"
+    assert dispositions["S3-REQ-026"]["global"] == "SATISFIED"
+    assert dispositions["S3-REQ-039"] == {
+        "c07_scope": "SATISFIED_AFFECTED_DEPENDENCY_DECLARATION",
+        "global": "PARTIAL_OPEN_DOWNSTREAM_EXECUTION",
+    }
+
+
+def test_c07_closure_preserves_downstream_sync_and_authority_firewalls():
+    record = corpus()["stage3_recording_manifest"][C07_CLOSURE_KEY]
+    assert all(value.startswith("OPEN") for value in record["downstream_obligations"].values())
+    assert record["synchronization"] == {
+        "SYNC-1": "CONSUMED_PRESERVED",
+        "SYNC-2": "NOT_CONSUMABLE",
+        "SYNC-3": "UNCHANGED_NOT_BYPASSED",
+        "C05_POST": "ASLEEP",
+    }
+    assert set(record["authority"].values()) == {"NONE"}
+
+
+def test_c07_closure_schema_rejects_authority_or_scope_drift():
+    schema = load(S)["properties"]["stage3_recording_manifest"]["properties"][C07_CLOSURE_KEY]
+    for path, value in [
+        (("state",), "OPEN"),
+        (("requirement_dispositions", "S3-REQ-039", "global"), "SATISFIED"),
+        (("synchronization", "SYNC-2"), "CONSUMABLE"),
+        (("authority", "C10_EXECUTION"), "AUTHORIZED"),
+    ]:
+        candidate = deepcopy(corpus()["stage3_recording_manifest"][C07_CLOSURE_KEY])
+        target = candidate
+        for part in path[:-1]:
+            target = target[part]
+        target[path[-1]] = value
+        with pytest.raises(ValidationError):
+            Draft202012Validator(schema).validate(candidate)
