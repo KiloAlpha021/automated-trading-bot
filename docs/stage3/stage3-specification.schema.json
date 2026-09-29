@@ -25190,7 +25190,7 @@
         "c04_c05_compatibility_contract_v1": {
           "const": {
             "record_id": "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1",
-            "state": "RATIFICATION_CANDIDATE",
+            "state": "RATIFIED",
             "scope": "C04_TO_C05_COMPATIBILITY_CONTRACT_ONLY",
             "protected_predecessor": {
               "commit": "1e50aefde65988d82947c8b0997fd3b3241414fe",
@@ -25475,7 +25475,7 @@
               "final_disposition": "RATIFICATION_READY"
             },
             "authority": {
-              "ratification_approved": false,
+              "ratification_approved": true,
               "implementation_authorized": false,
               "sync_2_consumable": false,
               "c05_post_authorized": false,

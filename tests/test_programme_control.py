@@ -1520,16 +1520,16 @@ def test_pc_dec_013_ratifies_b1_c1_contracts_without_implementation_authority():
     assert decisions["PC-DEC-012"]["state"] == "APPROVED"
 
 
-def test_pc_dec_014_is_open_compatibility_ratification_candidate_only():
+def test_pc_dec_014_approves_compatibility_contract_without_implementation_authority():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
     record = decisions["PC-DEC-014"]
-    assert record["state"] == "OPEN"
+    assert record["state"] == "APPROVED"
     assert record["decision"] == "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1"
     assert record["scope"] == "STAGE3_C04_C05_COMPATIBILITY_CONTRACT_RATIFICATION_CANDIDATE_ONLY"
     assert record["decided_at"] is None
     assert record["authority_granted"] == []
     assert {
-        "CONTRACT_RATIFICATION", "COMPATIBILITY_IMPLEMENTATION",
+        "COMPATIBILITY_IMPLEMENTATION",
         "SYNC_2_CONSUMABILITY", "C05_POST_IMPLEMENTATION",
         "C06_IMPLEMENTATION", "C10_FRESHNESS_CURRENTNESS_INVALIDATION",
         "DATASET_PROMOTION", "C07_IMPLEMENTATION", "C08_TO_C11_IMPLEMENTATION",

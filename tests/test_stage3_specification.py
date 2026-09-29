@@ -695,11 +695,11 @@ def test_b1_c1_contract_rejects_semantic_or_authority_drift(path, value):
 C04_C05_COMPAT_KEY = "c04_c05_compatibility_contract_v1"
 
 
-def test_c04_c05_compatibility_contract_is_ratification_candidate_only():
+def test_c04_c05_compatibility_contract_is_ratified_without_implementation_authority():
     record = corpus()["stage3_recording_manifest"][C04_C05_COMPAT_KEY]
     assert record["record_id"] == "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1"
-    assert record["state"] == "RATIFICATION_CANDIDATE"
-    assert record["authority"]["ratification_approved"] is False
+    assert record["state"] == "RATIFIED"
+    assert record["authority"]["ratification_approved"] is True
     assert record["authority"]["implementation_authorized"] is False
     assert record["authority"]["sync_2_consumable"] is False
     assert record["authority"]["c05_post_authorized"] is False
