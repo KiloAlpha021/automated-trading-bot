@@ -102,7 +102,8 @@
         "calendar_s2_implementation_contract_v1",
         "parallel_wave1_abc_design_and_implementation_contracts_v1",
         "wave1_b1_c1_targeted_contract_refinement_v1",
-        "c04_c05_compatibility_contract_v1"
+        "c04_c05_compatibility_contract_v1",
+        "c07_minimum_closure_record_v1"
       ],
       "properties": {
         "manifest_id": {
@@ -25494,6 +25495,88 @@
               "current": "RATIFICATION_READY",
               "after_ratification": "READY_FOR_BOUNDED_COMPATIBILITY_IMPLEMENTATION_AUTHORIZATION_ASSESSMENT",
               "implementation_authorized_now": false
+            }
+          }
+        },
+        "c07_minimum_closure_record_v1": {
+          "const": {
+            "record_id": "ATIS_STAGE3_C07_MINIMUM_CLOSURE_RECORD_V1",
+            "state": "CLOSED",
+            "component": {
+              "id": "S3-CMP-007",
+              "name": "C07_PROVIDER_NEUTRAL_CORPORATE_ACTION_FOUNDATION",
+              "implementation_status": "PROTECTED_VERIFIED_CLOSED",
+              "closure_scope": "BOUNDED_C07_LOCAL_OBLIGATIONS_ONLY"
+            },
+            "protected_evidence": {
+              "repository": "KiloAlpha021/automated-trading-bot",
+              "merge_commit": "1eb783fd0bf2dbea42a3cb78b67df129c16e0c74",
+              "tree": "9af5aa59734bd02b499959e4d5bebc2bb300e976",
+              "ordered_parents": [
+                "6e7fc56247f613d31caf90831cede0f0b52131a1",
+                "ea1d0baf25936bb2ca6827392056a23ff17fc404"
+              ],
+              "implementation_blobs": {
+                "src/automated_trading_bot/corporate_actions/__init__.py": "61e57cbaba1e14c9ac347eed459498785bcbc701",
+                "src/automated_trading_bot/corporate_actions/model.py": "7c727552b22db456d6ed532744a5111ffefd5a41",
+                "tests/test_corporate_actions.py": "30ee0c77302bfac25d656f73f6886179b9b43afc"
+              },
+              "pr": 47,
+              "pr_engineering_run": 36632310857,
+              "pr_engineering_job": 109624317708,
+              "trusted_run": 36632311043,
+              "trusted_job": 109624314714,
+              "protected_master_run": 36633161121,
+              "protected_master_job": 109627139429,
+              "assurance_result": "SUCCESS"
+            },
+            "requirement_dispositions": {
+              "S3-REQ-023": {
+                "c07_scope": "SATISFIED",
+                "global": "SATISFIED"
+              },
+              "S3-REQ-024": {
+                "c07_scope": "SATISFIED",
+                "global": "SATISFIED"
+              },
+              "S3-REQ-025": {
+                "c07_scope": "SATISFIED_PROVIDER_NEUTRAL_BOUNDARY",
+                "global": "SATISFIED_WITH_PROVIDER_MAPPING_SEPARATELY_GOVERNED"
+              },
+              "S3-REQ-026": {
+                "c07_scope": "SATISFIED",
+                "global": "SATISFIED"
+              },
+              "S3-REQ-039": {
+                "c07_scope": "SATISFIED_AFFECTED_DEPENDENCY_DECLARATION",
+                "global": "PARTIAL_OPEN_DOWNSTREAM_EXECUTION"
+              }
+            },
+            "downstream_obligations": {
+              "S3-REQ-039_INVALIDATION_SUPERSESSION_EXECUTION": "OPEN",
+              "C08_MATERIALIZATION": "OPEN_SEPARATELY_OWNED",
+              "C09_MANIFEST_PROVENANCE_EXECUTION": "OPEN_SEPARATELY_OWNED",
+              "C10_INVALIDATION_CURRENTNESS_EXECUTION": "OPEN_SEPARATELY_OWNED",
+              "C11_PUBLICATION_PERSISTENCE": "OPEN_SEPARATELY_OWNED",
+              "FINANCIAL_CONSUMER_EFFECTS": "OPEN_SEPARATELY_OWNED"
+            },
+            "synchronization": {
+              "SYNC-1": "CONSUMED_PRESERVED",
+              "SYNC-2": "NOT_CONSUMABLE",
+              "SYNC-3": "UNCHANGED_NOT_BYPASSED",
+              "C05_POST": "ASLEEP"
+            },
+            "authority": {
+              "provider_specific_mapping": "NONE",
+              "provider_selection": "NONE",
+              "storage_selection": "NONE",
+              "C08_EXECUTION": "NONE",
+              "C09_EXECUTION": "NONE",
+              "C10_EXECUTION": "NONE",
+              "C11_EXECUTION": "NONE",
+              "ACCOUNTING_CASH_POSITION_ORDER_AUTHORITY": "NONE",
+              "STAGE4_AUTHORITY": "NONE",
+              "AI_TRADING_AUTHORITY": "NONE"
             }
           }
         }
