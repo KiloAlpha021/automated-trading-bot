@@ -768,6 +768,41 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-012",
+        "governed_question": "May the independently reviewed Wave-1 C03/C04, C05/C06 and C07 designs and implementation contracts be recorded together with synchronization controls and no implementation authority?",
+        "scope": "STAGE3_PARALLEL_WAVE1_ABC_DESIGN_AND_IMPLEMENTATION_CONTRACT_RATIFICATION_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_PARALLEL_WAVE1_DESIGN_AND_IMPLEMENTATION_CONTRACT_JOINT_RATIFICATION",
+        "source_authority": "Owner-authorized Wave-1 bounded ratification preparation using ATIS_STAGE3_PARALLEL_WAVE1_ABC_INDEPENDENT_ADVERSARIAL_REVIEW_V1",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_STREAM_A_C03_C04_DESIGN_AND_IMPLEMENTATION_CONTRACT",
+          "RECORD_STREAM_B_C05_C06_DESIGN_AND_IMPLEMENTATION_CONTRACT",
+          "RECORD_STREAM_C_C07_DESIGN_AND_IMPLEMENTATION_CONTRACT",
+          "RECORD_SYNC_1_SYNC_2_SYNC_3",
+          "RECORD_S3_REQ_017_ACCEPTANCE_ALLOCATION",
+          "RECORD_TARGET_ONLY_REQUIREMENT_COVERAGE"
+        ],
+        "authority_not_granted": [
+          "C03_IMPLEMENTATION",
+          "C04_IMPLEMENTATION",
+          "C05_IMPLEMENTATION",
+          "C06_IMPLEMENTATION",
+          "C07_IMPLEMENTATION",
+          "C08_TO_C11_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

@@ -606,3 +606,19 @@ def test_calendar_s2_contract_records_exact_s2_a01_to_s2_a46_matrix():
     assert attacks["S2-A45"] == "CORRECTION_AUTHORITY_SELF_CERTIFICATION"
     assert attacks["S2-A46"] == "DIAGNOSTIC_OR_EVIDENCE_AUTHORITY_LEAKAGE"
     assert all(item["required_assertions"] == ["VISIBLE_RESTRICTIVE_RESULT_OR_REJECTION", "NO_FALLBACK", "NO_MUTATION", "NO_SIDE_EFFECT", "NO_AUTHORITY_PROMOTION"] for item in contract["adversarial_tests"])
+
+
+def test_parallel_wave1_designs_and_contracts_record_exact_reviewed_refinements():
+    record = corpus()["stage3_recording_manifest"]["parallel_wave1_abc_design_and_implementation_contracts_v1"]
+    assert record["record_id"] == "ATIS_STAGE3_PARALLEL_WAVE1_ABC_DESIGN_AND_IMPLEMENTATION_CONTRACTS_V1"
+    assert record["review"]["id"] == "ATIS_STAGE3_PARALLEL_WAVE1_ABC_INDEPENDENT_ADVERSARIAL_REVIEW_V1"
+    assert record["review"]["cross_stream_convergence"] == "PASS"
+    assert list(record["streams"]["A"]["refinements"]) == [f"A-R{i}" for i in range(1, 6)]
+    assert list(record["streams"]["B"]["refinements"]) == [f"B-R{i}" for i in range(1, 7)]
+    assert list(record["streams"]["C"]["refinements"]) == [f"C-R{i}" for i in range(1, 6)]
+    assert list(record["synchronization_gates"]) == ["SYNC-1", "SYNC-2", "SYNC-3"]
+    assert record["s3_req_017_allocation"]["final_satisfaction_claimed"] is False
+    assert record["requirement_disposition"] == "TARGET_ONLY_NO_IMPLEMENTATION_SATISFACTION"
+    assert record["authority"]["C03_TO_C07_IMPLEMENTATION_AUTHORIZED"] is False
+    assert record["authority"]["C08_TO_C11_IMPLEMENTATION_AUTHORIZED"] is False
+    assert record["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
