@@ -886,3 +886,29 @@ def test_sync2_record_schema_rejects_state_or_authority_drift():
         target[path[-1]] = value
         with pytest.raises(ValidationError):
             Draft202012Validator(schema).validate(candidate)
+
+
+def test_c06_quarantine_eligibility_release_contract_v1_is_exact_and_non_authorizing():
+    contract = corpus()["stage3_recording_manifest"]["c06_quarantine_eligibility_release_contract_v1"]
+    assert contract["contract_id"] == "ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1"
+    assert contract["classification"] == "RECORDED_CANDIDATE"
+    assert contract["review"] == {"result": "INDEPENDENT_FALSIFICATION_PASS", "implementation_authority": "NONE", "protected_state": "NOT_YET_PROTECTED"}
+    assert contract["resource_bounds"] == {"MAX_C06_EVIDENCE_REFS": 64, "MAX_C06_DECISIONS_PER_BATCH": 4096, "MAX_C06_LINEAGE_VERSIONS": 4096, "MAX_C06_LINEAGE_DEPTH": 256, "MAX_C06_REASON_LENGTH": 255, "RESOURCE_EXHAUSTION": "EXPLICIT_RESTRICTIVE_FAILURE", "SILENT_TRUNCATION": False, "PARTIAL_ELIGIBLE_OUTPUT": "PROHIBITED", "PARTIAL_RELEASE_OUTPUT": "PROHIBITED"}
+    assert contract["authority"]["C06_IMPLEMENTATION"] == "NOT_AUTHORIZED"
+    assert contract["authority"]["SYNC_3_CONSUMABILITY"] == "NOT_AUTHORIZED"
+    assert contract["authority"]["AI_TRADING_AUTHORITY"] == "NONE"
+    assert contract["sync_3"]["c06_closure_makes_sync3_consumable"] is False
+    assert contract["authority_admission"]["c06_creates_release_authority"] is False
+    assert contract["records"]["ReleaseDecision"]["effect"] == "REMOVES_OR_SUPERSEDES_QUARANTINE_RESTRICTION_ONLY"
+    assert contract["temporal"]["knowledge_from"] == "MANDATORY"
+    assert contract["canonicalization"]["identity_content_conflict"] == "REJECT"
+
+
+def test_c06_contract_schema_is_closed_and_exact():
+    data = corpus()
+    schema = load(S)
+    Draft202012Validator(schema).validate(data)
+    damaged = deepcopy(data)
+    damaged["stage3_recording_manifest"]["c06_quarantine_eligibility_release_contract_v1"]["authority"]["C06_IMPLEMENTATION"] = "AUTHORIZED"
+    with pytest.raises(ValidationError):
+        Draft202012Validator(schema).validate(damaged)
