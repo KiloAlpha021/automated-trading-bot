@@ -21,10 +21,16 @@ from automated_trading_bot.market_data import (
     AbstractOutlierDecision,
     AbstractQualityPolicy,
     AbstractSemanticContent,
+    ApprovedMetricRule,
+    ApprovedProductionQualityPolicy,
     IdentityState,
     OutlierState,
     PostSync2BoundaryError,
     PresenceState,
+    ProductionEvidenceState,
+    ProductionMetric,
+    ProductionMetricEvidence,
+    ProductionSequenceEvidence,
     QualityDimension,
     QualityEvaluationError,
     QualityInputDescriptor,
@@ -34,7 +40,10 @@ from automated_trading_bot.market_data import (
     SequenceOrderState,
     StructureState,
     evaluate_quality,
+    evaluate_production_quality,
 )
+
+from test_market_data_compatibility import build as compatibility_descriptor
 
 
 SOURCE = SourceId("source:atis/quality-test")
@@ -313,3 +322,156 @@ def test_descriptor_and_policy_content_identities_change_with_material_inputs() 
     assert baseline.content_digest != changed.content_digest
     with pytest.raises(FrozenInstanceError):
         first.input_ref = None  # type: ignore[misc]
+
+
+def production_ref(book: EvidenceBook, name: str) -> EvidenceRef:
+    return book.add(f"production-{name}", name.encode())
+
+
+def production_inputs(
+    book: EvidenceBook,
+    descriptor: object,
+    *,
+    expected: tuple[str, ...] = ("XYZ@2026-01-02", "XYZ@2026-01-03"),
+    observed: tuple[str, ...] = ("XYZ@2026-01-02",),
+):
+    expectation = descriptor.expected_sequence_evidence.ref  # type: ignore[attr-defined]
+    assert expectation is not None
+    book.values[expectation.key] = ResolvedQualityEvidence(expectation, b"sequence")
+    calendar = production_ref(book, "calendar-v1")
+    knowledge = production_ref(book, "knowledge-bound")
+    sequence = ProductionSequenceEvidence(
+        ProductionEvidenceState.AVAILABLE,
+        ContractVersion("ATIS_C05_PRODUCTION_SEQUENCE_EVIDENCE", 1),
+        expectation,
+        calendar,
+        knowledge,
+        expected,
+        observed,
+        (expectation, calendar, knowledge),
+    )
+    metric_ref = production_ref(book, "metrics")
+    metric_knowledge = production_ref(book, "metric-knowledge")
+    metric = ProductionMetric(descriptor.quality_input.descriptor_digest, "price", "101.25")  # type: ignore[attr-defined]
+    metrics = ProductionMetricEvidence(
+        ProductionEvidenceState.AVAILABLE,
+        ContractVersion("ATIS_C05_PRODUCTION_METRIC_INPUT", 1),
+        metric_ref,
+        metric_knowledge,
+        (metric,),
+        (metric_ref, metric_knowledge),
+    )
+    policy_ref = production_ref(book, "approved-policy")
+    applicability = production_ref(book, "applicability")
+    policy_knowledge = production_ref(book, "policy-knowledge")
+    approved = ApprovedProductionQualityPolicy(
+        ContractVersion("ATIS_C05_PRODUCTION_QUALITY_POLICY", 1),
+        policy_ref,
+        applicability,
+        policy_knowledge,
+        (ApprovedMetricRule("price", "0", "200"),),
+        (policy_ref, applicability, policy_knowledge),
+    )
+    return sequence, metrics, approved
+
+
+def test_production_gap_order_and_exact_policy_are_independent_and_attributable() -> None:
+    book = EvidenceBook()
+    value = compatibility_descriptor()
+    sequence, metrics, approved = production_inputs(book, value)
+    result = evaluate_production_quality((value,), sequence, metrics, approved, book.resolved())
+    assert result.sequence_coverage is SequenceCoverageState.GAP
+    assert result.sequence_order is SequenceOrderState.CONSISTENT
+    assert result.missing_logical_keys == ("XYZ@2026-01-03",)
+    assert result.outlier_states == ((value.quality_input.descriptor_digest, OutlierState.WITHIN_POLICY),)
+    assert result.validation_state is ValidationState.INVALID
+    expectation_refs = set(result.evidence_refs)
+    assert expectation_refs
+    assert sequence.expectation_ref in expectation_refs
+
+
+def test_production_reordered_evidence_is_explicit_and_permutation_independent() -> None:
+    first = compatibility_descriptor()
+    second = compatibility_descriptor(logical_identity=QualityLogicalIdentity(first.logical_identity.namespace_ref, "XYZ@2026-01-03"))
+    book = EvidenceBook()
+    sequence, metrics, approved = production_inputs(book, first, observed=("XYZ@2026-01-03", "XYZ@2026-01-02"))
+    metrics = ProductionMetricEvidence(
+        metrics.state,
+        metrics.version,
+        metrics.metrics_ref,
+        metrics.knowledge_bound_ref,
+        metrics.metrics + (ProductionMetric(second.quality_input.descriptor_digest, "price", "99"),),
+        metrics.evidence_refs,
+    )
+    forward = evaluate_production_quality((first, second), sequence, metrics, approved, book.resolved())
+    reverse = evaluate_production_quality((second, first), sequence, metrics, approved, book.resolved())
+    assert forward == reverse
+    assert forward.sequence_coverage is SequenceCoverageState.COMPLETE
+    assert forward.sequence_order is SequenceOrderState.REORDERED
+
+
+def test_missing_or_incompatible_policy_fails_closed_without_threshold_invention() -> None:
+    book = EvidenceBook()
+    value = compatibility_descriptor()
+    sequence, metrics, approved = production_inputs(book, value, expected=("XYZ@2026-01-02",))
+    missing = evaluate_production_quality((value,), sequence, metrics, None, book.resolved())
+    assert missing.validation_state is ValidationState.NOT_ESTABLISHED
+    incompatible = ApprovedProductionQualityPolicy(
+        ContractVersion("ATIS_C05_PRODUCTION_QUALITY_POLICY", 2),
+        approved.policy_ref,
+        approved.applicability_ref,
+        approved.knowledge_bound_ref,
+        approved.rules,
+        approved.evidence_refs,
+    )
+    result = evaluate_production_quality((value,), sequence, metrics, incompatible, book.resolved())
+    assert result.validation_state is ValidationState.INCOMPATIBLE
+
+
+def test_unavailable_sequence_never_invents_calendar_or_completeness() -> None:
+    book = EvidenceBook()
+    value = compatibility_descriptor()
+    _, metrics, approved = production_inputs(book, value)
+    unavailable_ref = production_ref(book, "sequence-unavailable")
+    unavailable = ProductionSequenceEvidence(
+        ProductionEvidenceState.UNAVAILABLE,
+        None,
+        None,
+        None,
+        None,
+        evidence_refs=(unavailable_ref,),
+    )
+    result = evaluate_production_quality((value,), unavailable, metrics, approved, book.resolved())
+    assert result.sequence_coverage is SequenceCoverageState.NOT_ESTABLISHED
+    assert result.sequence_order is SequenceOrderState.NOT_ESTABLISHED
+    assert result.validation_state is ValidationState.NOT_ESTABLISHED
+
+
+def test_production_rejects_conflicts_nonfinite_values_and_resource_exhaustion() -> None:
+    value = compatibility_descriptor()
+    with pytest.raises(QualityEvaluationError, match="NON_FINITE"):
+        ProductionMetric(value.quality_input.descriptor_digest, "price", "NaN")
+    with pytest.raises(QualityEvaluationError, match="AMBIGUOUS_SEQUENCE"):
+        ProductionSequenceEvidence(
+            ProductionEvidenceState.AVAILABLE,
+            ContractVersion("ATIS_C05_PRODUCTION_SEQUENCE_EVIDENCE", 1),
+            value.expected_sequence_evidence.ref,
+            value.expected_sequence_evidence.ref,
+            value.expected_sequence_evidence.ref,
+            ("slot", "slot"),
+            (),
+            (value.expected_sequence_evidence.ref,),
+        )
+    book = EvidenceBook()
+    sequence, metrics, approved = production_inputs(book, value)
+    with pytest.raises(QualityEvaluationError, match="RESOURCE_BOUND"):
+        evaluate_production_quality((value,) * 4097, sequence, metrics, approved, book.resolved())
+
+
+def test_production_result_has_no_downstream_authority_surface() -> None:
+    book = EvidenceBook()
+    value = compatibility_descriptor()
+    sequence, metrics, approved = production_inputs(book, value)
+    result = evaluate_production_quality((value,), sequence, metrics, approved, book.resolved())
+    for forbidden in ("eligible", "quarantined", "fresh", "current", "invalidated", "persisted", "provider"):
+        assert not hasattr(result, forbidden)
