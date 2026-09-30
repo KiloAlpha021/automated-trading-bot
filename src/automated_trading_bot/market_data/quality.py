@@ -6,6 +6,7 @@ interpret production sequences, decide eligibility, or assess freshness.
 """
 
 from dataclasses import dataclass, field
+from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 import json
 import re
@@ -28,6 +29,12 @@ QUALITY_POLICY_FAMILY = "ATIS_C05_QUALITY_POLICY"
 MAX_QUALITY_DESCRIPTORS = 4096
 MAX_QUALITY_POLICY_DECISIONS = 4096
 MAX_QUALITY_REASON_LENGTH = 255
+MAX_PRODUCTION_COHORT = 4096
+MAX_PRODUCTION_EVIDENCE_REFS = 64
+MAX_PRODUCTION_METRICS = 256
+PRODUCTION_POLICY_FAMILY = "ATIS_C05_PRODUCTION_QUALITY_POLICY"
+PRODUCTION_SEQUENCE_FAMILY = "ATIS_C05_PRODUCTION_SEQUENCE_EVIDENCE"
+PRODUCTION_METRIC_FAMILY = "ATIS_C05_PRODUCTION_METRIC_INPUT"
 
 _REASON = re.compile(r"[A-Z][A-Z0-9_]{0,254}", re.ASCII)
 
@@ -90,6 +97,174 @@ class SequenceOrderState(StrEnum):
     AMBIGUOUS_ORDER = "AMBIGUOUS_ORDER"
     NOT_ESTABLISHED = "NOT_ESTABLISHED"
     NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class ProductionEvidenceState(StrEnum):
+    AVAILABLE = "AVAILABLE"
+    UNAVAILABLE = "UNAVAILABLE"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+    INCOMPATIBLE = "INCOMPATIBLE"
+    AMBIGUOUS_CONFLICTING = "AMBIGUOUS_CONFLICTING"
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionSequenceEvidence:
+    """Externally authoritative historical expectation and order evidence."""
+
+    state: ProductionEvidenceState
+    version: ContractVersion | None
+    expectation_ref: EvidenceRef | None
+    calendar_ref: EvidenceRef | None
+    knowledge_bound_ref: EvidenceRef | None
+    expected_logical_keys: tuple[str, ...] = ()
+    observed_logical_keys: tuple[str, ...] = ()
+    evidence_refs: tuple[EvidenceRef, ...] = ()
+
+    def __post_init__(self) -> None:
+        if type(self.state) is not ProductionEvidenceState:
+            raise TypeError("state must be a ProductionEvidenceState")
+        if len(self.expected_logical_keys) > MAX_PRODUCTION_COHORT or len(self.observed_logical_keys) > MAX_PRODUCTION_COHORT:
+            raise QualityEvaluationError("RESOURCE_BOUND_EXHAUSTED")
+        for values in (self.expected_logical_keys, self.observed_logical_keys):
+            if any(type(item) is not str or not item or item != item.strip() for item in values):
+                raise QualityEvaluationError("MALFORMED_SEQUENCE_IDENTITY")
+            if len(set(values)) != len(values):
+                raise QualityEvaluationError("AMBIGUOUS_SEQUENCE_IDENTITY")
+        refs = canonicalize_evidence_refs(self.evidence_refs)
+        if len(refs) > MAX_PRODUCTION_EVIDENCE_REFS:
+            raise QualityEvaluationError("RESOURCE_BOUND_EXHAUSTED")
+        object.__setattr__(self, "evidence_refs", refs)
+        required = (self.expectation_ref, self.calendar_ref, self.knowledge_bound_ref)
+        if self.state is ProductionEvidenceState.AVAILABLE:
+            if self.version != ContractVersion(PRODUCTION_SEQUENCE_FAMILY, 1) or any(ref is None for ref in required):
+                raise QualityEvaluationError("SEQUENCE_EVIDENCE_BINDING_INCOMPLETE")
+            if not self.expected_logical_keys:
+                raise QualityEvaluationError("EXPECTED_SEQUENCE_MISSING")
+            if any(ref not in refs for ref in required):
+                raise QualityEvaluationError("SEQUENCE_EVIDENCE_NOT_ATTRIBUTABLE")
+        elif self.expected_logical_keys or self.observed_logical_keys:
+            raise QualityEvaluationError("UNAVAILABLE_SEQUENCE_MUST_NOT_CARRY_TRUTH")
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionMetric:
+    descriptor_digest: EvidenceContentDigest
+    name: str
+    value: str
+
+    def __post_init__(self) -> None:
+        if type(self.descriptor_digest) is not EvidenceContentDigest:
+            raise TypeError("descriptor_digest must be an EvidenceContentDigest")
+        if type(self.name) is not str or not self.name or self.name != self.name.strip():
+            raise QualityEvaluationError("MALFORMED_METRIC_NAME")
+        if type(self.value) is not str:
+            raise TypeError("value must be a decimal string")
+        try:
+            parsed = Decimal(self.value)
+        except InvalidOperation as error:
+            raise QualityEvaluationError("MALFORMED_METRIC_VALUE") from error
+        if not parsed.is_finite():
+            raise QualityEvaluationError("NON_FINITE_METRIC_VALUE")
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionMetricEvidence:
+    state: ProductionEvidenceState
+    version: ContractVersion | None
+    metrics_ref: EvidenceRef | None
+    knowledge_bound_ref: EvidenceRef | None
+    metrics: tuple[ProductionMetric, ...] = ()
+    evidence_refs: tuple[EvidenceRef, ...] = ()
+
+    def __post_init__(self) -> None:
+        if len(self.metrics) > MAX_PRODUCTION_METRICS:
+            raise QualityEvaluationError("RESOURCE_BOUND_EXHAUSTED")
+        if any(type(item) is not ProductionMetric for item in self.metrics):
+            raise TypeError("metrics contains an invalid value")
+        keys = [(item.descriptor_digest, item.name) for item in self.metrics]
+        if len(set(keys)) != len(keys):
+            raise QualityEvaluationError("METRIC_IDENTITY_COLLISION")
+        refs = canonicalize_evidence_refs(self.evidence_refs)
+        if len(refs) > MAX_PRODUCTION_EVIDENCE_REFS:
+            raise QualityEvaluationError("RESOURCE_BOUND_EXHAUSTED")
+        object.__setattr__(self, "metrics", tuple(sorted(self.metrics, key=lambda item: (item.descriptor_digest.value, item.name))))
+        object.__setattr__(self, "evidence_refs", refs)
+        if self.state is ProductionEvidenceState.AVAILABLE:
+            if self.version != ContractVersion(PRODUCTION_METRIC_FAMILY, 1):
+                return
+            if self.metrics_ref is None or self.knowledge_bound_ref is None:
+                raise QualityEvaluationError("METRIC_EVIDENCE_BINDING_INCOMPLETE")
+            if self.metrics_ref not in refs or self.knowledge_bound_ref not in refs:
+                raise QualityEvaluationError("METRIC_EVIDENCE_NOT_ATTRIBUTABLE")
+        elif self.metrics:
+            raise QualityEvaluationError("UNAVAILABLE_METRICS_MUST_NOT_CARRY_VALUES")
+
+
+@dataclass(frozen=True, slots=True)
+class ApprovedMetricRule:
+    name: str
+    minimum: str | None
+    maximum: str | None
+
+    def __post_init__(self) -> None:
+        if type(self.name) is not str or not self.name:
+            raise QualityEvaluationError("MALFORMED_POLICY_METRIC")
+        if self.minimum is None and self.maximum is None:
+            raise QualityEvaluationError("POLICY_THRESHOLD_MISSING")
+        values = []
+        for value in (self.minimum, self.maximum):
+            if value is not None:
+                try:
+                    parsed = Decimal(value)
+                except InvalidOperation as error:
+                    raise QualityEvaluationError("MALFORMED_POLICY_THRESHOLD") from error
+                if not parsed.is_finite():
+                    raise QualityEvaluationError("NON_FINITE_POLICY_THRESHOLD")
+                values.append(parsed)
+        if len(values) == 2 and values[0] > values[1]:
+            raise QualityEvaluationError("POLICY_THRESHOLD_ORDER_INVALID")
+
+
+@dataclass(frozen=True, slots=True)
+class ApprovedProductionQualityPolicy:
+    version: ContractVersion
+    policy_ref: EvidenceRef
+    applicability_ref: EvidenceRef
+    knowledge_bound_ref: EvidenceRef
+    rules: tuple[ApprovedMetricRule, ...]
+    evidence_refs: tuple[EvidenceRef, ...]
+
+    def __post_init__(self) -> None:
+        if len(self.rules) > MAX_PRODUCTION_METRICS:
+            raise QualityEvaluationError("RESOURCE_BOUND_EXHAUSTED")
+        if any(type(item) is not ApprovedMetricRule for item in self.rules):
+            raise TypeError("rules contains an invalid value")
+        if len({item.name for item in self.rules}) != len(self.rules):
+            raise QualityEvaluationError("POLICY_METRIC_IDENTITY_COLLISION")
+        refs = canonicalize_evidence_refs(self.evidence_refs)
+        if any(ref not in refs for ref in (self.policy_ref, self.applicability_ref, self.knowledge_bound_ref)):
+            raise QualityEvaluationError("POLICY_EVIDENCE_NOT_ATTRIBUTABLE")
+        object.__setattr__(self, "rules", tuple(sorted(self.rules, key=lambda item: item.name)))
+        object.__setattr__(self, "evidence_refs", refs)
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionQualityResult:
+    descriptor_digests: tuple[EvidenceContentDigest, ...]
+    sequence_coverage: SequenceCoverageState
+    sequence_order: SequenceOrderState
+    outlier_states: tuple[tuple[EvidenceContentDigest, OutlierState], ...]
+    missing_logical_keys: tuple[str, ...]
+    reasons: tuple[str, ...]
+    evidence_refs: tuple[EvidenceRef, ...]
+    validation_state: ValidationState
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "descriptor_digests", tuple(sorted(set(self.descriptor_digests), key=lambda item: item.value)))
+        object.__setattr__(self, "outlier_states", tuple(sorted(self.outlier_states, key=lambda item: item[0].value)))
+        object.__setattr__(self, "missing_logical_keys", tuple(sorted(set(self.missing_logical_keys))))
+        object.__setattr__(self, "reasons", tuple(sorted(set(_reason(item) for item in self.reasons))))
+        object.__setattr__(self, "evidence_refs", canonicalize_evidence_refs(self.evidence_refs))
 
 
 def _canonical_json(value: object) -> bytes:
@@ -666,3 +841,159 @@ def evaluate_quality(
             )
         )
     return tuple(sorted(results, key=lambda item: item.descriptor_digest.value))
+
+
+def evaluate_production_quality(
+    descriptors: tuple[object, ...],
+    sequence: ProductionSequenceEvidence,
+    metric_evidence: ProductionMetricEvidence,
+    policy: ApprovedProductionQualityPolicy | None,
+    resolved_evidence: tuple[ResolvedQualityEvidence, ...],
+) -> ProductionQualityResult:
+    """Evaluate POST-SYNC-2 quality using only supplied historical authority."""
+
+    from automated_trading_bot.market_data.compatibility import CompatibilityDescriptor
+
+    if type(descriptors) is not tuple or not descriptors:
+        raise ValueError("descriptors must be a nonempty tuple")
+    if len(descriptors) > MAX_PRODUCTION_COHORT:
+        raise QualityEvaluationError("RESOURCE_BOUND_EXHAUSTED")
+    if any(type(item) is not CompatibilityDescriptor for item in descriptors):
+        raise TypeError("descriptors must contain CompatibilityDescriptor values")
+    if type(sequence) is not ProductionSequenceEvidence:
+        raise TypeError("sequence must be ProductionSequenceEvidence")
+    if type(metric_evidence) is not ProductionMetricEvidence:
+        raise TypeError("metric_evidence must be ProductionMetricEvidence")
+    if policy is not None and type(policy) is not ApprovedProductionQualityPolicy:
+        raise TypeError("policy must be ApprovedProductionQualityPolicy or None")
+
+    resolved = _resolved_index(resolved_evidence)
+    refs = sequence.evidence_refs + metric_evidence.evidence_refs
+    if policy is not None:
+        refs += policy.evidence_refs
+    for ref in canonicalize_evidence_refs(refs):
+        _require_resolved(ref, resolved)
+
+    quality_inputs = [item.quality_input for item in descriptors]  # type: ignore[attr-defined]
+    descriptor_digests = tuple(item.descriptor_digest for item in quality_inputs)
+    logical_keys = []
+    for item in quality_inputs:
+        if item.logical_identity is None:
+            raise QualityEvaluationError("LOGICAL_IDENTITY_NOT_ESTABLISHED")
+        logical_keys.append(item.logical_identity.key)
+    if len(set(logical_keys)) != len(logical_keys):
+        semantic_by_key: dict[str, set[EvidenceContentDigest]] = {}
+        for item in quality_inputs:
+            if item.logical_identity is None or item.semantic_content is None:
+                raise QualityEvaluationError("LOGICAL_IDENTITY_NOT_ESTABLISHED")
+            semantic_by_key.setdefault(item.logical_identity.key, set()).add(item.semantic_content.digest)
+        if any(len(values) > 1 for values in semantic_by_key.values()):
+            raise QualityEvaluationError("MATERIAL_SEMANTIC_CONFLICT")
+
+    reasons: list[str] = []
+    evidence_refs: list[EvidenceRef] = list(refs)
+    missing: tuple[str, ...] = ()
+    incompatible = False
+    unresolved = False
+    invalid = False
+
+    if sequence.state is ProductionEvidenceState.AVAILABLE:
+        compatibility_refs = {item.expected_sequence_evidence.ref for item in descriptors}  # type: ignore[attr-defined]
+        if compatibility_refs != {sequence.expectation_ref}:
+            raise QualityEvaluationError("EXPECTED_SEQUENCE_BINDING_MISMATCH")
+        observed = tuple(sequence.observed_logical_keys)
+        if set(observed) != set(logical_keys):
+            raise QualityEvaluationError("OBSERVED_COHORT_BINDING_MISMATCH")
+        missing = tuple(sorted(set(sequence.expected_logical_keys) - set(observed)))
+        sequence_coverage = SequenceCoverageState.GAP if missing else SequenceCoverageState.COMPLETE
+        sequence_order = (
+            SequenceOrderState.CONSISTENT
+            if observed == tuple(item for item in sequence.expected_logical_keys if item in set(observed))
+            else SequenceOrderState.REORDERED
+        )
+        reasons.extend(("AUTHORITATIVE_SEQUENCE_EVALUATED", "AUTHORITATIVE_ORDER_EVALUATED"))
+        invalid = bool(missing) or sequence_order is SequenceOrderState.REORDERED
+    elif sequence.state is ProductionEvidenceState.NOT_APPLICABLE:
+        sequence_coverage = SequenceCoverageState.NOT_APPLICABLE
+        sequence_order = SequenceOrderState.NOT_APPLICABLE
+        reasons.append("SEQUENCE_NOT_APPLICABLE")
+    elif sequence.state is ProductionEvidenceState.INCOMPATIBLE:
+        sequence_coverage = SequenceCoverageState.NOT_ESTABLISHED
+        sequence_order = SequenceOrderState.NOT_ESTABLISHED
+        reasons.append("SEQUENCE_EVIDENCE_INCOMPATIBLE")
+        incompatible = True
+    elif sequence.state is ProductionEvidenceState.AMBIGUOUS_CONFLICTING:
+        sequence_coverage = SequenceCoverageState.NOT_ESTABLISHED
+        sequence_order = SequenceOrderState.AMBIGUOUS_ORDER
+        reasons.append("SEQUENCE_EVIDENCE_CONFLICTING")
+        invalid = True
+    else:
+        sequence_coverage = SequenceCoverageState.NOT_ESTABLISHED
+        sequence_order = SequenceOrderState.NOT_ESTABLISHED
+        reasons.append("AUTHORITATIVE_SEQUENCE_UNAVAILABLE")
+        unresolved = True
+
+    states: list[tuple[EvidenceContentDigest, OutlierState]] = []
+    if metric_evidence.state is ProductionEvidenceState.INCOMPATIBLE or (
+        metric_evidence.state is ProductionEvidenceState.AVAILABLE
+        and metric_evidence.version != ContractVersion(PRODUCTION_METRIC_FAMILY, 1)
+    ):
+        states = [(digest, OutlierState.NOT_ESTABLISHED) for digest in descriptor_digests]
+        reasons.append("METRIC_VERSION_INCOMPATIBLE")
+        incompatible = True
+    elif metric_evidence.state is not ProductionEvidenceState.AVAILABLE:
+        states = [(digest, OutlierState.NOT_ESTABLISHED) for digest in descriptor_digests]
+        reasons.append("METRIC_EVIDENCE_NOT_ESTABLISHED")
+        unresolved = True
+    elif policy is None:
+        states = [(digest, OutlierState.NOT_ESTABLISHED) for digest in descriptor_digests]
+        reasons.append("APPROVED_POLICY_NOT_ESTABLISHED")
+        unresolved = True
+    elif policy.version != ContractVersion(PRODUCTION_POLICY_FAMILY, 1):
+        states = [(digest, OutlierState.NOT_ESTABLISHED) for digest in descriptor_digests]
+        reasons.append("POLICY_VERSION_INCOMPATIBLE")
+        incompatible = True
+    else:
+        rules = {item.name: item for item in policy.rules}
+        metrics: dict[EvidenceContentDigest, list[ProductionMetric]] = {}
+        for item in metric_evidence.metrics:
+            if item.descriptor_digest not in descriptor_digests:
+                raise QualityEvaluationError("METRIC_DESCRIPTOR_BINDING_MISMATCH")
+            metrics.setdefault(item.descriptor_digest, []).append(item)
+        for digest in descriptor_digests:
+            supplied = metrics.get(digest, [])
+            if not supplied:
+                states.append((digest, OutlierState.NOT_ESTABLISHED))
+                unresolved = True
+                continue
+            outside = False
+            for metric in supplied:
+                rule = rules.get(metric.name)
+                if rule is None:
+                    raise QualityEvaluationError("UNAPPROVED_METRIC")
+                value = Decimal(metric.value)
+                if rule.minimum is not None and value < Decimal(rule.minimum):
+                    outside = True
+                if rule.maximum is not None and value > Decimal(rule.maximum):
+                    outside = True
+            state = OutlierState.OUTSIDE_POLICY if outside else OutlierState.WITHIN_POLICY
+            states.append((digest, state))
+            invalid = invalid or outside
+        reasons.append("APPROVED_POLICY_EVALUATED")
+
+    validation_state = (
+        ValidationState.INVALID if invalid else
+        ValidationState.INCOMPATIBLE if incompatible else
+        ValidationState.NOT_ESTABLISHED if unresolved else
+        ValidationState.VALID
+    )
+    return ProductionQualityResult(
+        descriptor_digests=descriptor_digests,
+        sequence_coverage=sequence_coverage,
+        sequence_order=sequence_order,
+        outlier_states=tuple(states),
+        missing_logical_keys=missing,
+        reasons=tuple(reasons),
+        evidence_refs=tuple(evidence_refs),
+        validation_state=validation_state,
+    )
