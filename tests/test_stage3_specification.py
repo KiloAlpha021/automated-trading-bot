@@ -851,3 +851,38 @@ def test_c07_closure_schema_rejects_authority_or_scope_drift():
         target[path[-1]] = value
         with pytest.raises(ValidationError):
             Draft202012Validator(schema).validate(candidate)
+
+
+SYNC2_RECORD_KEY = "sync_2_minimum_consumability_record_v1"
+
+def test_sync2_minimum_consumability_record_is_exact_and_bounded():
+    record = corpus()["stage3_recording_manifest"][SYNC2_RECORD_KEY]
+    assert record["record_id"] == "ATIS_STAGE3_SYNC_2_MINIMUM_CONSUMABILITY_RECORD_V1"
+    assert record["state"] == "CONSUMABLE"
+    assert record["technical_decision"] == "SYNC2_TECHNICAL_VERIFICATION_PASS"
+    assert record["protected_inputs"]["protected_merge"] == "453c17611c4ffb59a2f80e58aae74025c455eb1b"
+    assert record["protected_inputs"]["protected_tree"] == "d02780925427ab7ae31ff44c66fe294d2f594364"
+    assert record["assurance"]["result"] == "SUCCESS"
+    assert record["synchronization"] == {
+        "SYNC-1": "CONSUMED_PRESERVED", "SYNC-2": "CONSUMABLE",
+        "sync_2_consumable": True, "SYNC-3": "UNCHANGED_NOT_BYPASSED",
+        "C05_POST": "ASLEEP_NOT_REASSESSED",
+    }
+    assert set(record["authority"].values()) == {"NONE"}
+
+def test_sync2_record_schema_rejects_state_or_authority_drift():
+    schema = load(S)["properties"]["stage3_recording_manifest"]["properties"][SYNC2_RECORD_KEY]
+    for path, value in [
+        (("technical_decision",), "NOT_ESTABLISHED"),
+        (("synchronization", "SYNC-2"), "NOT_CONSUMABLE"),
+        (("synchronization", "sync_2_consumable"), False),
+        (("synchronization", "C05_POST"), "ACTIVE"),
+        (("authority", "C06"), "AUTHORIZED"),
+    ]:
+        candidate = deepcopy(corpus()["stage3_recording_manifest"][SYNC2_RECORD_KEY])
+        target = candidate
+        for part in path[:-1]:
+            target = target[part]
+        target[path[-1]] = value
+        with pytest.raises(ValidationError):
+            Draft202012Validator(schema).validate(candidate)
