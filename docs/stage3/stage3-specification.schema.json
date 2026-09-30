@@ -104,7 +104,8 @@
         "wave1_b1_c1_targeted_contract_refinement_v1",
         "c04_c05_compatibility_contract_v1",
         "c07_minimum_closure_record_v1",
-        "sync_2_minimum_consumability_record_v1"
+        "sync_2_minimum_consumability_record_v1",
+        "c06_quarantine_eligibility_release_contract_v1"
       ],
       "properties": {
         "manifest_id": {
@@ -19569,7 +19570,8 @@
           }
         },
         "candidate_digest": {
-          "type": "string"
+          "type": "string",
+          "const": "77cd185982a5fc5fb1a9f6981af3f6e07a83c83434301997c4ae2ae731b48563"
         },
         "rb1_design_ratification": {
           "type": "object",
@@ -25636,6 +25638,311 @@
               "PROVIDER_SELECTION": "NONE",
               "STORAGE_SELECTION": "NONE",
               "STAGE4": "NONE",
+              "TRADING_OR_FINANCIAL": "NONE",
+              "AI_TRADING_AUTHORITY": "NONE"
+            }
+          }
+        },
+        "c06_quarantine_eligibility_release_contract_v1": {
+          "const": {
+            "contract_id": "ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1",
+            "classification": "RECORDED_CANDIDATE",
+            "review": {
+              "result": "INDEPENDENT_FALSIFICATION_PASS",
+              "implementation_authority": "NONE",
+              "protected_state": "NOT_YET_PROTECTED"
+            },
+            "identity_types": [
+              "QuarantineSubjectId",
+              "QuarantineDecisionId",
+              "ClaimId",
+              "EligibilityDecisionId",
+              "ReleaseDecisionId",
+              "ReleaseAuthorityId",
+              "EligibilityPolicyId",
+              "ReleaseAuthorityPolicyId"
+            ],
+            "contract_versions": {
+              "quarantine_subject": "ATIS_C06_QUARANTINE_SUBJECT/1",
+              "quarantine_decision": "ATIS_C06_QUARANTINE_DECISION/1",
+              "eligibility_decision": "ATIS_C06_ELIGIBILITY_DECISION/1",
+              "release_authority_assertion": "ATIS_C06_RELEASE_AUTHORITY_ASSERTION/1",
+              "release_authority_admission_policy": "ATIS_C06_RELEASE_AUTHORITY_ADMISSION_POLICY/1",
+              "release_decision": "ATIS_C06_RELEASE_DECISION/1"
+            },
+            "records": {
+              "QuarantineSubject": {
+                "fields": [
+                  "contract_version",
+                  "subject_ref",
+                  "c05_quality_result_digest",
+                  "evidence_refs",
+                  "content_digest"
+                ],
+                "identity": "CONTENT_DERIVED_FROM_CANONICAL_SUBJECT_SEMANTICS",
+                "claim_id_in_identity": false
+              },
+              "QuarantineDecision": {
+                "fields": [
+                  "decision_id",
+                  "contract_version",
+                  "quarantine_subject_id",
+                  "c05_quality_result_digest",
+                  "quarantine_policy_id",
+                  "quarantine_policy_ref",
+                  "knowledge_from",
+                  "effective_from",
+                  "disposition",
+                  "reasons",
+                  "evidence_refs",
+                  "content_digest"
+                ],
+                "dispositions": [
+                  "QUARANTINED",
+                  "NOT_QUARANTINED",
+                  "NOT_ESTABLISHED",
+                  "INCOMPATIBLE"
+                ]
+              },
+              "EligibilityDecision": {
+                "fields": [
+                  "decision_id",
+                  "contract_version",
+                  "claim_id",
+                  "claim_contract_version",
+                  "claim_contract_ref",
+                  "quarantine_subject_id",
+                  "c05_quality_result_digest",
+                  "eligibility_policy_id",
+                  "eligibility_policy_ref",
+                  "knowledge_from",
+                  "effective_from",
+                  "prerequisite_evidence_refs",
+                  "external_currentness_ref",
+                  "disposition",
+                  "reasons",
+                  "evidence_refs",
+                  "content_digest"
+                ],
+                "dispositions": [
+                  "ELIGIBLE",
+                  "INELIGIBLE",
+                  "NOT_ESTABLISHED",
+                  "INCOMPATIBLE"
+                ],
+                "claim_identity": "OPAQUE_TYPED_IDENTITY_BOUND_TO_EXACT_ATTRIBUTABLE_CLAIM_CONTRACT"
+              },
+              "ReleaseAuthorityAssertion": {
+                "fields": [
+                  "contract_version",
+                  "assertion_ref",
+                  "authority_id",
+                  "operation",
+                  "predecessor_quarantine_decision_id",
+                  "quarantine_subject_id",
+                  "authorized_claim_scope",
+                  "asserted_release_basis_ref",
+                  "knowledge_from",
+                  "effective_from",
+                  "admission_policy_id",
+                  "content_digest"
+                ],
+                "authority_origin": "EXTERNALLY_SUPPLIED_IMMUTABLE_ASSERTION"
+              },
+              "ReleaseDecision": {
+                "fields": [
+                  "release_decision_id",
+                  "contract_version",
+                  "predecessor_quarantine_decision_id",
+                  "quarantine_subject_id",
+                  "release_authority_assertion_ref",
+                  "release_authority_admission_policy_id",
+                  "release_authority_admission_policy_ref",
+                  "release_basis_ref",
+                  "knowledge_from",
+                  "effective_from",
+                  "reasons",
+                  "evidence_refs",
+                  "supersedes_decision_id",
+                  "content_digest"
+                ],
+                "effect": "REMOVES_OR_SUPERSEDES_QUARANTINE_RESTRICTION_ONLY"
+              }
+            },
+            "authority_admission": {
+              "policy": "INDEPENDENTLY_PROTECTED_EXACT_POLICY_AND_VERSION",
+              "must_define": [
+                "admitted_assertion_contracts",
+                "authority_ids_or_classes",
+                "operation_and_scope",
+                "predecessor_and_subject_rules",
+                "temporal_admissibility",
+                "replay_handling",
+                "stale_handling",
+                "conflict_handling"
+              ],
+              "c06_creates_release_authority": false,
+              "candidate_evidence_ref_alone_is_authority": false,
+              "self_admission": "PROHIBITED",
+              "wildcard_or_approximate_admission": "PROHIBITED",
+              "candidate_selected_authority": "PROHIBITED",
+              "invalid_authority_result": "NO_RELEASE"
+            },
+            "core_invariants": [
+              "C05_VALID_NOT_EQUAL_C06_ELIGIBLE",
+              "NOT_QUARANTINED_NOT_EQUAL_ELIGIBLE",
+              "RELEASED_NOT_EQUAL_ELIGIBLE",
+              "ELIGIBLE_NOT_EQUAL_CURRENT",
+              "ELIGIBLE_PLUS_CURRENT_NOT_EQUAL_DATASET_PROMOTED",
+              "MISSING_OR_CONFLICTING_PREREQUISITE_IS_RESTRICTIVE",
+              "MISSING_OR_INVALID_RELEASE_AUTHORITY_MEANS_NO_RELEASE",
+              "RELEASE_IS_IMMUTABLE_ATTRIBUTABLE_SUCCESSOR_ONLY",
+              "HISTORICAL_QUARANTINE_IS_NEVER_OVERWRITTEN"
+            ],
+            "lineage": {
+              "predecessor_must_exist": true,
+              "self_supersession": "PROHIBITED",
+              "same_subject_required": true,
+              "missing_predecessor": "REJECT",
+              "cycles": "REJECT",
+              "unresolved_branching_successor": "REJECT",
+              "successor_knowledge_from": "STRICTLY_LATER_THAN_PREDECESSOR",
+              "historical_mutation": "PROHIBITED"
+            },
+            "temporal": {
+              "knowledge_from": "MANDATORY",
+              "effective_from": "OPTIONAL_ONLY_WITH_INDEPENDENTLY_PROTECTED_DISTINCT_EFFECTIVE_TIME_SEMANTICS",
+              "historical_reconstruction": "EXACT_KNOWLEDGE_BOUNDARY_ONLY",
+              "latest_or_current_state_fallback": "PROHIBITED",
+              "arrival_or_host_order_authority": "PROHIBITED"
+            },
+            "canonicalization": {
+              "contract": "ATIS_STAGE3_CANONICALIZATION_V1",
+              "encoding": "UTF-8",
+              "json_keys": "SORTED",
+              "json_separators": "COMPACT",
+              "nan": "PROHIBITED",
+              "unordered_collections": "CANONICALLY_SORTED",
+              "decision_ids": "DOMAIN_SEPARATED_CONTENT_DERIVED",
+              "identity_content_conflict": "REJECT",
+              "content_digest_verification": "EXACT"
+            },
+            "resource_bounds": {
+              "MAX_C06_EVIDENCE_REFS": 64,
+              "MAX_C06_DECISIONS_PER_BATCH": 4096,
+              "MAX_C06_LINEAGE_VERSIONS": 4096,
+              "MAX_C06_LINEAGE_DEPTH": 256,
+              "MAX_C06_REASON_LENGTH": 255,
+              "RESOURCE_EXHAUSTION": "EXPLICIT_RESTRICTIVE_FAILURE",
+              "SILENT_TRUNCATION": false,
+              "PARTIAL_ELIGIBLE_OUTPUT": "PROHIBITED",
+              "PARTIAL_RELEASE_OUTPUT": "PROHIBITED"
+            },
+            "security_rules": [
+              "EXACT_IDENTITY_AND_CONTENT_BINDING",
+              "STALE_POLICY_AND_ASSERTION_REJECTION",
+              "REPLAY_AND_CROSS_SUBJECT_REPLAY_REJECTION",
+              "CONFLICT_FAIL_CLOSED",
+              "NO_CANDIDATE_SELECTED_AUTHORITY",
+              "NO_WILDCARD_OR_APPROXIMATE_TRUST",
+              "NO_PARTIAL_POSITIVE_OUTPUT",
+              "NO_AUTHORITY_ESCALATION"
+            ],
+            "ownership": {
+              "owns": [
+                "QUARANTINE",
+                "CLAIM_SPECIFIC_EVIDENCE_ELIGIBILITY",
+                "ATTRIBUTABLE_RELEASE_SUCCESSORS"
+              ],
+              "may_consume": [
+                "EXACT_PROTECTED_C05_QUALITY_RESULTS",
+                "EXACT_SUBJECT_AND_EVIDENCE_IDENTITIES",
+                "EXACT_CLAIM_CONTRACTS",
+                "EXACT_ELIGIBILITY_POLICIES",
+                "INDEPENDENTLY_ADMITTED_RELEASE_AUTHORITY",
+                "EXTERNAL_CURRENTNESS_EVIDENCE_WHERE_REQUIRED"
+              ],
+              "must_not_own": [
+                "C05_QUALITY_CALCULATION_OR_REINTERPRETATION",
+                "CALENDAR_OR_SESSION_TRUTH",
+                "PROVIDER_OR_SOURCE_AUTHORITY",
+                "FRESHNESS_OR_CURRENTNESS",
+                "C10_INVALIDATION_OR_SUPERSESSION_EXECUTION",
+                "PIT_MATERIALIZATION",
+                "MANIFEST_OR_PROVENANCE_EXECUTION",
+                "PERSISTENCE_OR_PUBLICATION",
+                "DATASET_PROMOTION",
+                "STAGE4",
+                "EXECUTION_TRADING_OR_FINANCIAL_AUTHORITY"
+              ]
+            },
+            "sync_3": {
+              "formula": "C05_QUALITY_PLUS_C06_ELIGIBILITY_PLUS_C10_FRESHNESS_CURRENTNESS_BEFORE_AUTHORITATIVE_DATASET_PROMOTION",
+              "c06_output": "ATTRIBUTABLE_CLAIM_SPECIFIC_ELIGIBILITY_CONTRIBUTION_ONLY",
+              "c06_closure_makes_sync3_consumable": false
+            },
+            "direct_acceptance_criteria": [
+              "ATTRIBUTABLE_QUARANTINE",
+              "RESTRICTIVE_C05_RESULT_CAUSES_QUARANTINE_OR_INELIGIBILITY",
+              "CLAIM_SPECIFIC_ELIGIBILITY",
+              "ONE_CLAIM_DOES_NOT_IMPLY_ANOTHER",
+              "EXACT_POLICY_AND_EVIDENCE_BINDING",
+              "MISSING_REQUIRED_CURRENTNESS_REMAINS_RESTRICTIVE",
+              "ADMITTED_RELEASE_CREATES_IMMUTABLE_SUCCESSOR",
+              "RELEASE_DOES_NOT_IMPLY_ELIGIBILITY",
+              "HISTORICAL_QUARANTINE_PRESERVED",
+              "DETERMINISTIC_RESULTS",
+              "PERMUTATION_INDEPENDENT_WHERE_ORDER_HAS_NO_AUTHORITY",
+              "NO_C05_REINTERPRETATION",
+              "NO_C10_AUTHORITY",
+              "NO_DATASET_PROMOTION_AUTHORITY"
+            ],
+            "adversarial_acceptance_criteria": [
+              "MISSING_AUTHORITY",
+              "FORGED_AUTHORITY",
+              "UNADMITTED_AUTHORITY",
+              "CONFLICTING_AUTHORITY",
+              "STALE_AUTHORITY",
+              "REPLAY",
+              "PREDECESSOR_MISMATCH",
+              "SUBJECT_MISMATCH",
+              "CLAIM_SUBSTITUTION",
+              "POLICY_SUBSTITUTION",
+              "EVIDENCE_REF_CONTENT_CONFLICT",
+              "UNSUPPORTED_VERSION",
+              "MISSING_C05_PREREQUISITE",
+              "INCOMPATIBLE_C05_RESULT",
+              "MISSING_CURRENTNESS",
+              "PROVIDER_FALLBACK",
+              "ARRIVAL_ORDER_AUTHORITY",
+              "OVERSIZED_COLLECTIONS",
+              "LINEAGE_EXHAUSTION",
+              "PARTIAL_OUTPUT_ATTEMPT",
+              "HISTORICAL_MUTATION",
+              "PROMOTION_LEAKAGE"
+            ],
+            "closure_criteria": [
+              "ALL_C06_OWNED_REQUIREMENTS_SATISFIED",
+              "EXACT_PROTECTED_IMPLEMENTATION",
+              "PROTECTED_TRUST_WHERE_APPLICABLE",
+              "DIRECT_AND_ADVERSARIAL_ASSURANCE",
+              "PIT_CONTROLS",
+              "SECURITY_CONTROLS",
+              "RESOURCE_BOUNDS",
+              "EXACT_EVIDENCE_ATTRIBUTION",
+              "ACTUAL_VS_PROJECTED_PROTECTED_STATE_MATCH",
+              "DOWNSTREAM_OBLIGATIONS_PRESERVED",
+              "NO_OWNERSHIP_LEAKAGE"
+            ],
+            "authority": {
+              "C06_IMPLEMENTATION": "NOT_AUTHORIZED",
+              "C10_IMPLEMENTATION": "NOT_AUTHORIZED",
+              "SYNC_3_CONSUMABILITY": "NOT_AUTHORIZED",
+              "C08_TO_C11": "NOT_AUTHORIZED",
+              "PROVIDER_SELECTION": "NONE",
+              "STORAGE_SELECTION": "NONE",
+              "CALENDAR_AUTHORITY": "UNCHANGED",
+              "STAGE4": "NOT_AUTHORIZED",
               "TRADING_OR_FINANCIAL": "NONE",
               "AI_TRADING_AUTHORITY": "NONE"
             }

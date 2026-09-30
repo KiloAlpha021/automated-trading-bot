@@ -942,6 +942,36 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-017",
+        "governed_question": "May the independently falsification-reviewed ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1 be recorded without C06 implementation or downstream authority?",
+        "scope": "STAGE3_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_RECORDING_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1",
+        "source_authority": "Owner-authorized controlled recording instruction following independent falsification pass; no implementation authority.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1"
+        ],
+        "authority_not_granted": [
+          "C06_IMPLEMENTATION",
+          "C05_REENTRY",
+          "C10_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "C08_TO_C11_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "CALENDAR_AUTHORITY_EXPANSION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
