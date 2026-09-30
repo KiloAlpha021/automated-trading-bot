@@ -206,7 +206,7 @@
     "m1": "PROTECTED",
     "stage2": "CLOSED / AUDITED / FROZEN / PROTECTED",
     "stage3_specification": "PROTECTED",
-    "stage3_implementation": "NOT_AUTHORIZED",
+    "stage3_implementation": "BOUNDED_COMPONENTS_PROTECTED / GENERAL_STAGE3_NOT_CLOSED",
     "stage4_implementation": "NOT_AUTHORIZED",
     "provider": "NONE_SELECTED",
     "trading_or_financial_authority": "NONE",
@@ -309,6 +309,13 @@
       "current_authority": false,
       "reason": "A server digest is not independent verification of ZIP bytes.",
       "current_source": "ATIS_PR23_FINAL_POST_MERGE_VERIFICATION_PASS"
+    },
+    {
+      "subject": "RECOVERY_PACKET_CREATION_TIME_STAGE3_STATE",
+      "classification": "CREATION_TIME_STATE_ONLY",
+      "current_authority": false,
+      "reason": "The original NOT_AUTHORIZED / NOT_ESTABLISHED Stage-3 wording predates bounded protected Stage-3 component implementations and closures. Current bounded progress is governed by programme control and protected successor evidence; Stage 3 remains not closed and no general later-stage authority is granted.",
+      "current_source": "docs/programme/programme-control.json"
     }
   ],
   "known_limitations": [
@@ -322,7 +329,7 @@
     "ORIGINAL_R39_INDIVIDUAL_SEMANTICS_NOT_RECOVERED",
     "STAGE3_DECISIONS_REMAIN_UNRESOLVED",
     "STAGE3_CORPUS_DIGEST_NOT_ESTABLISHED",
-    "STAGE3_IMPLEMENTATION_AND_ASSURANCE_NOT_ESTABLISHED",
+    "STAGE3_IMPLEMENTATION_PARTIAL_BOUNDED_AND_STAGE3_ASSURANCE_NOT_COMPLETE",
     "NO_PROVIDER_SELECTED",
     "NO_LATER_STAGE_TRADING_OR_FINANCIAL_AUTHORITY",
     "PR23_ARTIFACT_DIGEST_SERVER_REPORTED_ONLY",
@@ -331,7 +338,7 @@
     "PACKET_PUBLICATION_IDENTITY_REQUIRES_EXTERNAL_ESTABLISHMENT"
   ],
   "authority_not_granted": [
-    "STAGE3_IMPLEMENTATION",
+    "STAGE3_GENERAL_IMPLEMENTATION",
     "STAGE4_IMPLEMENTATION",
     "PROVIDER_SELECTION",
     "SHADOW_TRADING",
@@ -361,6 +368,7 @@
     "VERIFY_STALE_SOURCE_EXCLUSIONS",
     "VERIFY_REPRODUCIBLE_ENVIRONMENT_REFERENCES",
     "VERIFY_NO_AUTHORIZED_SUCCESSOR_OPERATION",
-    "ESTABLISH_PACKET_PUBLICATION_IDENTITY_EXTERNALLY"
+    "ESTABLISH_PACKET_PUBLICATION_IDENTITY_EXTERNALLY",
+    "VERIFY_CURRENT_STAGE3_BOUNDED_IMPLEMENTATION_STATE"
   ]
 }
