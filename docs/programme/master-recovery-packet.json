@@ -121,7 +121,7 @@
     },
     {
       "path": "requirements-dev.lock",
-      "git_blob": "d64b631ccb01ca95a917a144c065a6f25de149b5",
+      "git_blob": "cfb3245eef00c6f51e619aa15a5432dfc8893d89",
       "classification": "REQUIRED",
       "required_for": [
         "REPRODUCIBLE_ENVIRONMENT"
