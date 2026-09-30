@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/programme/master-recovery-packet.json"
 SCHEMA_PATH = ROOT / "docs/programme/master-recovery-packet.schema.json"
 EXPECTED_PACKET_SHA256 = (
-    "da500f0281a1763d4e2c97fa25a560df1b81e537f326763ca9a6fde7c5b83389"
+    "4cade0a6fecd9cc8f363a8792299932c2e035ee72d6ed728f0ffb1724e60cdde"
 )
 EXPECTED_BASIS = {
     "commit": "119ab879fd96c64a4f04441da03945b5a22ed03d",
@@ -41,7 +41,7 @@ EXPECTED_REQUIRED = {
     "docs/stage3/stage3-specification.json": "ca1f378cc7740a9e3efebfb1028c4e3b23030a7b",
     "docs/stage3/stage3-specification.schema.json": "897415d47e2b9ac888ed7c9a1f2eb4e7fb12033f",
     "pyproject.toml": "f7cf0df47ffc4e1309803b48dc26114851dfb0ee",
-    "requirements-dev.lock": "d64b631ccb01ca95a917a144c065a6f25de149b5",
+    "requirements-dev.lock": "cfb3245eef00c6f51e619aa15a5432dfc8893d89",
     "scripts/bootstrap.ps1": "78c82833f387ce94f786f58f93947917076fd61a",
     "tests/test_programme_control.py": "fa3e937755db78c84cb86f2a98d782e4b9345345",
     "tests/test_stage3_specification.py": "7ca2cd1af867968fd1280f0a00342bb08be8629d",

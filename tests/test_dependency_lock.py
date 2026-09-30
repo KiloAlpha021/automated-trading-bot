@@ -59,7 +59,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "tomli": "2.4.1",
     "tomli-w": "1.2.0",
     "typing-extensions": "4.16.0",
-    "urllib3": "2.7.0",
+    "urllib3": "2.8.0",
 }
 
 
