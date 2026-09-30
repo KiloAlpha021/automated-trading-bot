@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "e155cec7c7f5ac96fbe12d57d79d90ffa0272a80ebf426f9bc4656b7ebe74867",
+    "candidate_digest": "ffd0c7ecbdcf95e5781ffe51dffb42269daa60caf552a37020b69f6e9014957a",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -12755,6 +12755,64 @@
         "C11_EXECUTION": "NONE",
         "ACCOUNTING_CASH_POSITION_ORDER_AUTHORITY": "NONE",
         "STAGE4_AUTHORITY": "NONE",
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "sync_2_minimum_consumability_record_v1": {
+      "record_id": "ATIS_STAGE3_SYNC_2_MINIMUM_CONSUMABILITY_RECORD_V1",
+      "state": "CONSUMABLE",
+      "technical_decision": "SYNC2_TECHNICAL_VERIFICATION_PASS",
+      "scope": "C04_TO_C05_PROTECTED_COMPATIBILITY_CONSUMABILITY_ONLY",
+      "protected_inputs": {
+        "repository": "KiloAlpha021/automated-trading-bot",
+        "protected_merge": "453c17611c4ffb59a2f80e58aae74025c455eb1b",
+        "protected_tree": "d02780925427ab7ae31ff44c66fe294d2f594364",
+        "c04_canonical_observation": {
+          "src/automated_trading_bot/market_data/normalization.py": "ab16ac03fa99dad293809a1526d0299270df19b9",
+          "tests/test_market_data_normalization.py": "7c0183f38f8b2353f4d2c04aae3979a07cff457f"
+        },
+        "c05_pre_quality": {
+          "src/automated_trading_bot/market_data/quality.py": "46b1225e5624cc61a9d56c750d0f5d39e66b70ab",
+          "tests/test_market_data_quality.py": "6ff0d45e1cd502ede37fb586f39b02245af5e5e0"
+        },
+        "compatibility_contract": {
+          "record_id": "ATIS_STAGE3_C04_C05_COMPATIBILITY_CONTRACT_V1",
+          "state": "RATIFIED",
+          "programme_decision": "PC-DEC-014"
+        },
+        "compatibility_implementation_blobs": {
+          "src/automated_trading_bot/market_data/__init__.py": "032aaa79c39a4525a19df3b2eafc100e600708a1",
+          "src/automated_trading_bot/market_data/compatibility.py": "506efec07d1d0ddda923e1f3b6d6e5598831a855",
+          "tests/test_market_data_compatibility.py": "ae2ee1816648bdc3338d0751eb5670c44f17dd1d"
+        }
+      },
+      "assurance": {
+        "pr": 49,
+        "pr_engineering_run": 36694614397,
+        "pr_engineering_job": 109819475992,
+        "pr_trusted_run": 36694614365,
+        "pr_trusted_job": 109819477080,
+        "protected_master_run": 36695823733,
+        "protected_master_job": 109823420673,
+        "protected_master_artifact_id": 11087977517,
+        "protected_master_artifact_digest": "sha256:88f88eeea52dd5323a268196656c72de1d05ae70838bcb32a8e7149584559991",
+        "result": "SUCCESS"
+      },
+      "synchronization": {
+        "SYNC-1": "CONSUMED_PRESERVED",
+        "SYNC-2": "CONSUMABLE",
+        "sync_2_consumable": true,
+        "SYNC-3": "UNCHANGED_NOT_BYPASSED",
+        "C05_POST": "ASLEEP_NOT_REASSESSED"
+      },
+      "authority": {
+        "C05_POST_IMPLEMENTATION": "NONE",
+        "C06": "NONE",
+        "C08_TO_C11": "NONE",
+        "PROVIDER_SELECTION": "NONE",
+        "STORAGE_SELECTION": "NONE",
+        "STAGE4": "NONE",
+        "TRADING_OR_FINANCIAL": "NONE",
         "AI_TRADING_AUTHORITY": "NONE"
       }
     }

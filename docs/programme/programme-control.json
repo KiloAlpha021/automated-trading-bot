@@ -911,6 +911,37 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-016",
+        "governed_question": "May exact protected C04-to-C05 integration evidence be recorded as authoritative SYNC-2 consumability while C05 POST remains asleep and unassessed?",
+        "scope": "STAGE3_SYNC_2_MINIMUM_CONSUMABILITY_RECORD_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_SYNC_2_MINIMUM_CONSUMABILITY_RECORD_V1",
+        "source_authority": "Owner-authorized minimum governance record based on exact protected PR #49 implementation evidence and explicit SYNC2_TECHNICAL_VERIFICATION_PASS; no C05 POST or downstream implementation authority.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_ATIS_STAGE3_SYNC_2_MINIMUM_CONSUMABILITY_RECORD_V1",
+          "RECORD_SYNC2_TECHNICAL_VERIFICATION_PASS",
+          "MAKE_SYNC_2_CONSUMABLE"
+        ],
+        "authority_not_granted": [
+          "C05_POST_REASSESSMENT",
+          "C05_POST_IMPLEMENTATION",
+          "C06_IMPLEMENTATION",
+          "C07_ENGINEERING_REENTRY",
+          "C08_TO_C11_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_INTEGRATION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
