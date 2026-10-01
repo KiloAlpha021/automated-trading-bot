@@ -1585,7 +1585,6 @@ def test_pc_dec_016_records_only_sync2_consumability():
 
 def test_pc_dec_017_records_c06_contract_without_implementation_authority():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
-    assert list(decisions)[-2] == "PC-DEC-017"
     record = decisions["PC-DEC-017"]
     assert record["state"] == "APPROVED"
     assert record["decision"] == "ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1"
@@ -1595,7 +1594,6 @@ def test_pc_dec_017_records_c06_contract_without_implementation_authority():
 
 def test_pc_dec_018_records_shared_lifecycle_contract_without_implementation_authority():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
-    assert list(decisions)[-1] == "PC-DEC-018"
     assert list(decisions).index("PC-DEC-016") < list(decisions).index("PC-DEC-017") < list(decisions).index("PC-DEC-018")
     record = decisions["PC-DEC-018"]
     assert record["state"] == "APPROVED"
@@ -1608,4 +1606,43 @@ def test_pc_dec_018_records_shared_lifecycle_contract_without_implementation_aut
         "C11_IMPLEMENTATION", "SYNC_3_CONSUMABILITY", "PROVIDER_SELECTION",
         "STORAGE_SELECTION", "PROMOTION_AUTHORITY", "DATASET_PROMOTION",
         "STAGE4_IMPLEMENTATION", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
+    } <= set(record["authority_not_granted"])
+
+
+def test_pc_dec_019_closes_only_the_bounded_c09_s1_foundation_lifecycle() -> None:
+    decisions = {
+        item["record_id"]: item
+        for item in _control()["decision_register"]["records"]
+    }
+    decision_ids = list(decisions)
+    assert decision_ids.index("PC-DEC-018") < decision_ids.index("PC-DEC-019")
+    record = decisions["PC-DEC-019"]
+    assert record["state"] == "APPROVED"
+    assert record["decision"] == "ATIS_STAGE3_C09_S1_MINIMUM_CLOSURE_RECORD_V1"
+    assert record["scope"] == "STAGE3_C09_S1_MINIMUM_GOVERNANCE_CLOSURE_RECORD_ONLY"
+    assert {
+        "RECORD_SE_CAND_005",
+        "RECORD_SE_PUB_005",
+        "CLOSE_BOUNDED_C09_S1_PROVENANCE_DEPENDENCY_GRAPH_FOUNDATION_LIFECYCLE",
+        "PRESERVE_C08_MATERIALIZATION_OPEN",
+        "PRESERVE_C09_POSITIVE_MANIFEST_INTEGRATION_OPEN",
+        "PRESERVE_C10_CURRENTNESS_INVALIDATION_OPEN",
+        "PRESERVE_C11_PERSISTENCE_PUBLICATION_OPEN",
+        "PRESERVE_SYNC_3_NON_CONSUMABLE",
+        "PRESERVE_PROMOTION_AUTHORITY_NOT_ESTABLISHED",
+    } <= set(record["authority_granted"])
+    assert {
+        "C09_S1_IMPLEMENTATION_RESUMPTION",
+        "C08_IMPLEMENTATION",
+        "C09_POSITIVE_MANIFEST_INTEGRATION",
+        "C10_IMPLEMENTATION",
+        "C11_IMPLEMENTATION",
+        "SYNC_3_CONSUMABILITY",
+        "PROMOTION_AUTHORITY",
+        "DATASET_PROMOTION",
+        "STAGE4_IMPLEMENTATION",
+        "PAPER_TRADING",
+        "LIVE_TRADING",
+        "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
     } <= set(record["authority_not_granted"])

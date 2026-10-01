@@ -1009,6 +1009,52 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-019",
+        "governed_question": "May the exact protected and verified C09-S1 provenance/dependency-graph foundation evidence be recorded as bounded C09-S1 closure while preserving C08 materialization, C09 positive-manifest integration, C10 currentness/invalidation, C11 persistence/publication, SYNC-3, promotion authority and all downstream authority as open?",
+        "scope": "STAGE3_C09_S1_MINIMUM_GOVERNANCE_CLOSURE_RECORD_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_C09_S1_MINIMUM_CLOSURE_RECORD_V1",
+        "source_authority": "Owner-authorized minimum governance closure following exact PR #58 protected merge, independent semantic review, targeted provenance-integrity correction, engineering assurance and trusted assurance; records completed bounded C09-S1 lifecycle only and grants no downstream implementation authority.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_ATIS_STAGE3_C09_S1_MINIMUM_CLOSURE_RECORD_V1",
+          "RECORD_SE_CAND_005",
+          "RECORD_SE_PUB_005",
+          "RECORD_VERIFIED_C09_S1_PROTECTED_PUBLICATION",
+          "CLOSE_BOUNDED_C09_S1_PROVENANCE_DEPENDENCY_GRAPH_FOUNDATION_LIFECYCLE",
+          "PRESERVE_C08_MATERIALIZATION_OPEN",
+          "PRESERVE_C09_POSITIVE_MANIFEST_INTEGRATION_OPEN",
+          "PRESERVE_C10_CURRENTNESS_INVALIDATION_OPEN",
+          "PRESERVE_C11_PERSISTENCE_PUBLICATION_OPEN",
+          "PRESERVE_SYNC_3_NON_CONSUMABLE",
+          "PRESERVE_PROMOTION_AUTHORITY_NOT_ESTABLISHED"
+        ],
+        "authority_not_granted": [
+          "C09_S1_IMPLEMENTATION_RESUMPTION",
+          "C08_IMPLEMENTATION",
+          "C09_POSITIVE_MANIFEST_INTEGRATION",
+          "C10_IMPLEMENTATION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

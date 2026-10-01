@@ -674,6 +674,160 @@
           "AI_TRADING_AUTHORITY"
         ]
       }
+    },
+    {
+      "record_id": "SE-CAND-005",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": null,
+      "governing_slice": "ATIS-S3-C09-S1",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/successor-evidence.json"
+      ],
+      "predecessor_commit": "64304ed6626ad37928311d770f77f8babaad782b",
+      "predecessor_tree": "8a92b35f7b7717d4fe784d2282ffe78af241e8dc",
+      "authorization_references": [
+        "PC-DEC-019"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/datasets/__init__.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "40ed6c1fbba13512ff2a409628cb95ae9f2dde10",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-030",
+            "S3-REQ-031",
+            "S3-REQ-032"
+          ]
+        },
+        {
+          "path": "src/automated_trading_bot/datasets/provenance.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "19fd5034f7d2865c723ed5e17c46fc915d8f5282",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-030",
+            "S3-REQ-031",
+            "S3-REQ-032"
+          ]
+        },
+        {
+          "path": "tests/test_dataset_provenance.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "6b44f2abdea5ec29740736cd2e04f9952e4698df",
+          "role": "TEST",
+          "requirement_references": [
+            "S3-REQ-030",
+            "S3-REQ-031",
+            "S3-REQ-032"
+          ]
+        }
+      ],
+      "transition_reason": "Owner-authorized bounded C09-S1 provenance/dependency-graph foundation implementation establishing restrictive provenance, dependency, transformation and manifest-foundation structure while preserving C08 materialization, C09 positive-manifest integration, C10 currentness/invalidation, C11 persistence/publication, SYNC-3 and promotion authority as open.",
+      "verification_evidence": [
+        "LOCAL_C09_S1_FOCUSED_16_OF_16_PASS",
+        "LOCAL_FULL_PYTEST_2124_OF_2124_PASS",
+        "LOCAL_RUFF_PASS",
+        "LOCAL_STRICT_MYPY_60_SOURCE_FILES_PASS",
+        "LOCAL_PIP_CHECK_PASS",
+        "LOCAL_PIP_AUDIT_NO_KNOWN_VULNERABILITIES",
+        "INDEPENDENT_BYTE_LEVEL_SEMANTIC_REVIEW_PASS_AFTER_TARGETED_PROVENANCE_INTEGRITY_CORRECTION",
+        "M1_ENGINEERING_FOUNDATION_PR58_RUN_36855718075_SUCCESS",
+        "TRUSTED_M1_EVALUATOR_PR58_RUN_36855717944_JOB_110360510221_SUCCESS",
+        "TRUSTED_PROFILE_STAGE3_C09_S1_PROVENANCE_FOUNDATION_AT_11A9BEF8F00FFA24C2542F9912B03FD7D64A9DBA"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C09_S1_IMPLEMENTATION_RESUMPTION",
+          "C08_IMPLEMENTATION",
+          "C09_POSITIVE_MANIFEST_INTEGRATION",
+          "C10_IMPLEMENTATION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    },
+    {
+      "record_id": "SE-PUB-005",
+      "record_type": "PROTECTED_PUBLICATION",
+      "candidate_record_id": "SE-CAND-005",
+      "protected_commit": "d65a182889dc678c595b1a5755200e0b0c3c8ef4",
+      "protected_tree": "8fcf706414c955eb64931b1580b72df6c1d37cca",
+      "ordered_merge_parents": [
+        "64304ed6626ad37928311d770f77f8babaad782b",
+        "95f07d0b8404946648361cf79fa79000bd20e222"
+      ],
+      "publication_reference": "GitHub pull request 58",
+      "protected_path_blobs": [
+        {
+          "path": "src/automated_trading_bot/datasets/__init__.py",
+          "blob": "40ed6c1fbba13512ff2a409628cb95ae9f2dde10"
+        },
+        {
+          "path": "src/automated_trading_bot/datasets/provenance.py",
+          "blob": "19fd5034f7d2865c723ed5e17c46fc915d8f5282"
+        },
+        {
+          "path": "tests/test_dataset_provenance.py",
+          "blob": "6b44f2abdea5ec29740736cd2e04f9952e4698df"
+        }
+      ],
+      "hosted_checks": [
+        {
+          "name": "m1-engineering-foundation run 36855718075",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "trusted-m1-evaluator run 36855717944 job 110360510221 profile stage3-c09-s1-provenance-foundation trusted 11a9bef8f00ffa24c2542f9912b03fd7d64a9dba",
+          "conclusion": "SUCCESS"
+        }
+      ],
+      "post_publication_verification": "PASS",
+      "open_obligations_preserved": true,
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C09_S1_IMPLEMENTATION_RESUMPTION",
+          "C08_IMPLEMENTATION",
+          "C09_POSITIVE_MANIFEST_INTEGRATION",
+          "C10_IMPLEMENTATION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
     }
   ],
   "authority": {
