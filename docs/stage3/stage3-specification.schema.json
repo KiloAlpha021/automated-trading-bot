@@ -105,7 +105,8 @@
         "c04_c05_compatibility_contract_v1",
         "c07_minimum_closure_record_v1",
         "sync_2_minimum_consumability_record_v1",
-        "c06_quarantine_eligibility_release_contract_v1"
+        "c06_quarantine_eligibility_release_contract_v1",
+        "shared_dataset_lifecycle_contract_v1"
       ],
       "properties": {
         "manifest_id": {
@@ -19571,7 +19572,7 @@
         },
         "candidate_digest": {
           "type": "string",
-          "const": "77cd185982a5fc5fb1a9f6981af3f6e07a83c83434301997c4ae2ae731b48563"
+          "const": "f249587c03eed793a12f79031197bcf37fc80444e1903836517b389a18f9e403"
         },
         "rb1_design_ratification": {
           "type": "object",
@@ -25946,6 +25947,547 @@
               "TRADING_OR_FINANCIAL": "NONE",
               "AI_TRADING_AUTHORITY": "NONE"
             }
+          }
+        },
+        "shared_dataset_lifecycle_contract_v1": {
+          "const": {
+            "contract_id": "ATIS_STAGE3_SHARED_DATASET_LIFECYCLE_CONTRACT_V1",
+            "classification": "RECORDED_CANDIDATE",
+            "review": {
+              "independent_falsification": "PASS",
+              "owner_review": "PASS",
+              "owner_approved": true,
+              "protected_state": "NOT_YET_PROTECTED",
+              "implementation_authority": "NONE"
+            },
+            "identity_types": [
+              "DatasetVersionId",
+              "LogicalContentId",
+              "CanonicalDatasetRepresentationId",
+              "TransformationId",
+              "TransformationVersionId",
+              "TransformationImplementationId",
+              "TransformationExecutionId",
+              "DependencySetId",
+              "MaterializationRecordId",
+              "ManifestId",
+              "ProvenanceNodeId",
+              "ProvenanceEdgeId",
+              "EntitlementEvidenceId",
+              "EntitlementPolicyId",
+              "FreshnessPolicyId",
+              "CurrentnessAssessmentId",
+              "InvalidationEventId",
+              "AffectedSetId",
+              "PropagationRunId",
+              "StoredVersionId",
+              "PersistenceReceiptId",
+              "PublicationReceiptId",
+              "ExternalUniversePolicyId",
+              "DatasetLifecycleResourcePolicyId",
+              "PromotionEnvelopeId"
+            ],
+            "identity_model": {
+              "logical_content_id_binds": [
+                "SHARED_CONTRACT_VERSION",
+                "CANONICAL_DATASET_REPRESENTATION_ID",
+                "REPRESENTATION_VERSION",
+                "REPRESENTATION_CONTRACT_CONTENT_DIGEST",
+                "LOGICAL_SCHEMA_IDENTITY_AND_VERSION",
+                "CANONICAL_SEMANTIC_DATASET_CONTENT"
+              ],
+              "dataset_version_id_binds": [
+                "SHARED_CONTRACT_VERSION",
+                "DATASET_SCHEMA_IDENTITY_AND_VERSION",
+                "LOGICAL_CONTENT_ID",
+                "CANONICAL_DATASET_REPRESENTATION_ID",
+                "REPRESENTATION_CONTRACT_CONTENT_DIGEST",
+                "PIT_AS_OF_CUTOFF",
+                "TRANSFORMATION_EXECUTION_ID",
+                "DEPENDENCY_SET_ID",
+                "SEMANTIC_CONSTRUCTION_POLICY_IDENTITIES_ONLY"
+              ],
+              "dataset_version_id_excludes": [
+                "MANIFEST_ID",
+                "RESOURCE_POLICY",
+                "PUBLICATION_MECHANICS",
+                "PHYSICAL_STORAGE_LOCATION",
+                "OPERATIONAL_CONTROL_POLICY_UNLESS_SEMANTICALLY_MATERIAL"
+              ],
+              "manifest_id_binds_dataset_version_id": true,
+              "logical_content_distinct_from_physical_storage_bytes": true,
+              "identity_graph": "ACYCLIC",
+              "claimed_identity_unequal_content": "REJECT"
+            },
+            "policy_separation": {
+              "semantic_construction_policies": "MAY_PARTICIPATE_IN_DATASET_VERSION_ID_WHEN_MATERIALLY_SEMANTIC",
+              "operational_control_policies": "MUST_NOT_CHANGE_DATASET_VERSION_ID_UNLESS_PROTECTED_SEMANTICS_EXPLICITLY_REQUIRE",
+              "candidate_selected_authority": "PROHIBITED",
+              "missing_required_policy": "NOT_ESTABLISHED_RESTRICTIVE",
+              "unsupported_policy": "INCOMPATIBLE_RESTRICTIVE"
+            },
+            "canonical_dataset_representation": {
+              "identity": "CanonicalDatasetRepresentationId",
+              "exact_protected_contract_ref_required": true,
+              "required_contract_semantics": [
+                "REPRESENTATION_VERSION",
+                "SEMANTIC_SCHEMA_IDENTITY",
+                "LOGICAL_VALUE_MODEL",
+                "FIELD_AND_RECORD_ORDER_RULES",
+                "NULL_AND_MISSING_REPRESENTATION",
+                "NUMERIC_REPRESENTATION",
+                "TIMESTAMP_REPRESENTATION",
+                "STRING_REQUIREMENTS",
+                "UNORDERED_COLLECTION_TREATMENT",
+                "DIGEST_ALGORITHM_IDENTITY_AND_VERSION",
+                "COMPATIBILITY_RULES",
+                "CONTENT_DIGEST"
+              ],
+              "missing_authority": "NOT_ESTABLISHED",
+              "unsupported_representation_or_version": "INCOMPATIBLE",
+              "different_representations_silently_interchangeable": false,
+              "concrete_representation_selected": null
+            },
+            "transformation_identity": {
+              "implementation_identity": "TransformationImplementationId",
+              "execution_identity": "TransformationExecutionId",
+              "execution_binds": [
+                "TRANSFORMATION_ID",
+                "TRANSFORMATION_VERSION_ID",
+                "TRANSFORMATION_IMPLEMENTATION_ID",
+                "IMPLEMENTATION_IDENTITY_POLICY",
+                "TRANSFORMATION_CONTRACT_REF",
+                "CANONICAL_PARAMETERS_DIGEST",
+                "EXACT_INPUT_IDENTITIES",
+                "EXACT_DEPENDENCY_IDENTITIES",
+                "CANONICAL_DATASET_REPRESENTATION_ID",
+                "APPLICABLE_PIT_CUTOFF"
+              ],
+              "different_implementation_means_different_execution_identity": true,
+              "missing_implementation_identity": "NOT_ESTABLISHED_RESTRICTIVE",
+              "mutable_branch_tag_latest_or_alias": "NOT_AUTHORITATIVE",
+              "physical_identity_mechanism_selected": null
+            },
+            "records": {
+              "MaterializationRecord": {
+                "owner": "C08",
+                "identity": "MaterializationRecordId",
+                "fields": [
+                  "contract_version",
+                  "requested_claim_or_scope_ref",
+                  "dataset_schema_ref",
+                  "pit_cutoff",
+                  "evaluation_time",
+                  "selected_evidence_refs",
+                  "dependency_set_id",
+                  "dependency_refs",
+                  "historical_universe_policy_and_evidence_where_required",
+                  "transformation_id",
+                  "transformation_version_id",
+                  "transformation_implementation_id",
+                  "transformation_execution_id",
+                  "transformation_parameters_digest",
+                  "canonical_dataset_representation_id",
+                  "canonical_representation_contract_ref",
+                  "resulting_logical_content_id",
+                  "pit_sufficiency_state",
+                  "limitations",
+                  "entitlement_provenance_inputs_where_material",
+                  "evidence_refs",
+                  "resource_policy_id",
+                  "content_digest"
+                ],
+                "pit_sufficiency_states": [
+                  "ESTABLISHED",
+                  "NOT_ESTABLISHED",
+                  "INCOMPATIBLE"
+                ]
+              },
+              "DatasetManifest": {
+                "owner": "C09",
+                "identity": "ManifestId",
+                "fields": [
+                  "contract_version",
+                  "dataset_version_id",
+                  "dataset_schema_ref",
+                  "logical_content_id",
+                  "canonical_dataset_representation_id",
+                  "canonical_representation_contract_ref",
+                  "materialization_record_id",
+                  "source_evidence_refs",
+                  "reference_identity_refs",
+                  "calendar_identity_refs",
+                  "corporate_action_identity_refs",
+                  "transformation_id",
+                  "transformation_version_id",
+                  "transformation_implementation_id",
+                  "transformation_execution_id",
+                  "dependency_set_id",
+                  "dependency_refs",
+                  "provenance_nodes",
+                  "provenance_edges",
+                  "pit_cutoff",
+                  "limitations",
+                  "entitlement_provenance_entries",
+                  "entitlement_provenance_scope_ref",
+                  "entitlement_provenance_completeness_state",
+                  "external_policy_refs",
+                  "resource_policy_id",
+                  "content_digest"
+                ],
+                "existence_does_not_create": [
+                  "QUALITY",
+                  "ELIGIBILITY",
+                  "CURRENTNESS",
+                  "LEGAL_PERMISSION",
+                  "PROMOTION"
+                ]
+              },
+              "CurrentnessAssessment": {
+                "owner": "C10",
+                "identity": "CurrentnessAssessmentId",
+                "fields": [
+                  "contract_version",
+                  "dataset_version_id",
+                  "manifest_id",
+                  "freshness_policy_id",
+                  "freshness_policy_ref",
+                  "evaluated_at",
+                  "dependency_set_id",
+                  "dependency_evidence_refs",
+                  "dependency_state_digest",
+                  "state",
+                  "reasons",
+                  "evidence_refs",
+                  "resource_policy_id",
+                  "content_digest"
+                ],
+                "states": [
+                  "CURRENT",
+                  "STALE",
+                  "UNKNOWN"
+                ]
+              },
+              "InvalidationEvent": {
+                "owner": "C10",
+                "identity": "InvalidationEventId",
+                "fields": [
+                  "contract_version",
+                  "trigger_identity",
+                  "trigger_kind",
+                  "predecessor_evidence_ref",
+                  "successor_or_correction_ref",
+                  "knowledge_from",
+                  "effective_from",
+                  "dependency_graph_ref",
+                  "affected_set_id",
+                  "affected_dataset_version_ids",
+                  "scope_ref",
+                  "reasons",
+                  "evidence_refs",
+                  "content_digest"
+                ]
+              },
+              "PropagationRecord": {
+                "owner": "C10",
+                "identity": "PropagationRunId",
+                "fields": [
+                  "contract_version",
+                  "invalidation_event_id",
+                  "affected_set_id",
+                  "graph_identity",
+                  "expected_affected_set_digest",
+                  "processed_set_digest",
+                  "remaining_set_digest",
+                  "state",
+                  "restart_identity",
+                  "evidence_refs",
+                  "content_digest"
+                ],
+                "states": [
+                  "NOT_STARTED",
+                  "IN_PROGRESS",
+                  "COMPLETE",
+                  "FAILED",
+                  "NOT_ESTABLISHED"
+                ],
+                "complete_rule": "PROCESSED_SET_EXACTLY_EQUALS_VERIFIED_AFFECTED_SET"
+              },
+              "PersistenceReceipt": {
+                "owner": "C11",
+                "identity": "PersistenceReceiptId",
+                "fields": [
+                  "contract_version",
+                  "dataset_version_id",
+                  "manifest_id",
+                  "logical_content_id",
+                  "stored_version_id",
+                  "persistence_operation",
+                  "storage_adapter_contract_ref",
+                  "written_content_digest",
+                  "verification_evidence_refs",
+                  "completed_at",
+                  "resource_policy_id",
+                  "content_digest"
+                ]
+              },
+              "PublicationReceipt": {
+                "owner": "C11",
+                "identity": "PublicationReceiptId",
+                "fields": [
+                  "contract_version",
+                  "dataset_version_id",
+                  "manifest_id",
+                  "logical_content_id",
+                  "stored_version_id",
+                  "publication_operation",
+                  "predecessor_publication_ref",
+                  "verification_evidence_refs",
+                  "consumer_visibility_state",
+                  "completed_at",
+                  "content_digest"
+                ]
+              },
+              "PromotionEnvelope": {
+                "identity": "PromotionEnvelopeId",
+                "fields": [
+                  "contract_version",
+                  "dataset_version_id",
+                  "manifest_id",
+                  "logical_content_id",
+                  "publication_receipt_id",
+                  "c06_claim_specific_eligibility_ref",
+                  "c10_currentness_ref",
+                  "promotion_policy_ref",
+                  "promotion_authority_ref",
+                  "evaluation_boundary",
+                  "evidence_refs",
+                  "content_digest"
+                ],
+                "promotion_authority": "NOT_ESTABLISHED"
+              }
+            },
+            "entitlement_licence_provenance": {
+              "entry_identity": "EntitlementEvidenceId",
+              "policy_identity": "EntitlementPolicyId",
+              "states": [
+                "ESTABLISHED",
+                "UNKNOWN",
+                "INCOMPATIBLE",
+                "NOT_APPLICABLE"
+              ],
+              "fields": [
+                "contract_version",
+                "state",
+                "provider_or_source_id",
+                "source_dataset_id",
+                "entitlement_or_licence_evidence_ref",
+                "entitlement_or_licence_version",
+                "evidence_knowledge_from",
+                "effective_from",
+                "effective_to",
+                "acquisition_or_source_artifact_ref",
+                "applicable_dataset_or_dependency_scope",
+                "usage_or_restriction_metadata_refs",
+                "derivation_propagation_state",
+                "predecessor_entry_ref",
+                "reasons",
+                "evidence_refs",
+                "content_digest"
+              ],
+              "derivation_erases_provenance": false,
+              "missing_material_evidence": "UNKNOWN_RESTRICTIVE",
+              "not_applicable_requires_independent_scope_evidence": true,
+              "c09_legal_or_commercial_authority": "NONE"
+            },
+            "canonicalization": {
+              "contract": "ATIS_STAGE3_CANONICALIZATION_V1",
+              "encoding": "UTF-8_WITHOUT_BOM",
+              "object_keys": "SORTED",
+              "json_separators": "COMPACT",
+              "strings": "NFC_REQUIRED_NO_SILENT_NORMALIZATION",
+              "nan_and_infinity": "PROHIBITED",
+              "explicit_nulls": true,
+              "unordered_collections": "CANONICALLY_SORTED",
+              "unknown_fields": "REJECT",
+              "digest_algorithm": "EXPLICIT_INDEPENDENTLY_PROTECTED_IDENTITY_AND_VERSION_REQUIRED"
+            },
+            "pit_temporal_rules": {
+              "event_effective_knowledge_acquisition_evaluation_cutoff_distinct": true,
+              "acquisition_time_is_knowledge_time": false,
+              "later_information_leaks_to_earlier_cutoff": false,
+              "latest_policy_manifest_or_invalidation_fallback": "PROHIBITED",
+              "current_state_is_historical_state_at_cutoff": false,
+              "corrections": "IMMUTABLE_ATTRIBUTABLE_SUCCESSORS_ONLY"
+            },
+            "historical_universe": {
+              "policy_identity": "ExternalUniversePolicyId",
+              "concrete_policy_selected": null,
+              "missing_required_authority": "NOT_ESTABLISHED_RESTRICTIVE",
+              "unsupported_authority": "INCOMPATIBLE_RESTRICTIVE",
+              "current_constituents_as_historical_proof": "REJECT"
+            },
+            "dependency_invalidation": {
+              "sequence": [
+                "VERIFY_ATTRIBUTABLE_TRIGGER",
+                "RESOLVE_DECLARED_DEPENDENCY_GRAPH",
+                "IDENTIFY_DEPENDANTS",
+                "CALCULATE_EXACT_AFFECTED_SET",
+                "APPLY_RESTRICTIVE_CURRENTNESS_CONSEQUENCE",
+                "PROPAGATE",
+                "VERIFY_COMPLETENESS"
+              ],
+              "under_invalidation": "PROHIBITED",
+              "unjustified_over_invalidation": "PROHIBITED",
+              "missing_conflicting_or_incomplete_graph": "UNKNOWN_FOR_EXACT_EVIDENCED_UNRESOLVED_SCOPE",
+              "unverified_propagation_completeness_is_current": false,
+              "c07_and_calendar_truth_recreated_by_c10": false
+            },
+            "resource_policy": {
+              "identity": "DatasetLifecycleResourcePolicyId",
+              "exact_finite_fields_required": [
+                "MAX_MATERIALIZATION_EVIDENCE_REFS",
+                "MAX_DEPENDENCIES_PER_DATASET_VERSION",
+                "MAX_PROVENANCE_NODES",
+                "MAX_PROVENANCE_EDGES",
+                "MAX_AFFECTED_SET_MEMBERS",
+                "MAX_INVALIDATION_TRAVERSAL_DEPTH",
+                "MAX_REASONS_PER_RECORD",
+                "MAX_REASON_LENGTH",
+                "MAX_POLICY_REFS",
+                "MAX_PUBLICATION_RECORDS_PER_BATCH",
+                "MAX_DATASET_VERSIONS_PER_BATCH",
+                "MAX_PROPAGATION_EVENTS_PER_RUN"
+              ],
+              "numeric_values_selected": false,
+              "missing_or_unsupported": "NOT_ESTABLISHED_EXPLICIT_RESTRICTIVE_FAILURE",
+              "silent_truncation": false,
+              "partial_positive_output": "PROHIBITED",
+              "partial_promoted_output": "PROHIBITED"
+            },
+            "ownership": {
+              "C08": "PIT_MATERIALIZATION_ONLY",
+              "C09": "MANIFEST_AND_PROVENANCE_ONLY",
+              "C10": "FRESHNESS_CURRENTNESS_INVALIDATION_ONLY",
+              "C11": "PERSISTENCE_AND_PUBLICATION_ONLY",
+              "promotion_owner": "NOT_ESTABLISHED",
+              "provider_storage_universe_policy_authority": "NONE"
+            },
+            "core_invariants": [
+              "MATERIALIZED_NOT_EQUAL_PROMOTED",
+              "MANIFESTED_NOT_EQUAL_VALID",
+              "MANIFESTED_NOT_EQUAL_CURRENT",
+              "MANIFESTED_NOT_EQUAL_ELIGIBLE",
+              "PERSISTED_NOT_EQUAL_PROMOTED",
+              "PRESERVED_NOT_EQUAL_CURRENTLY_ELIGIBLE",
+              "C05_VALID_NOT_EQUAL_C06_ELIGIBLE",
+              "NOT_QUARANTINED_NOT_EQUAL_ELIGIBLE",
+              "RELEASED_NOT_EQUAL_ELIGIBLE",
+              "ELIGIBLE_NOT_EQUAL_CURRENT",
+              "CURRENT_NOT_EQUAL_PROMOTED",
+              "ELIGIBLE_PLUS_CURRENT_NOT_EQUAL_DATASET_PROMOTED",
+              "NO_DEFAULT_AUTHORITY",
+              "NO_LATEST_FALLBACK",
+              "NO_PROVIDER_FALLBACK"
+            ],
+            "sync_3": {
+              "formula": "C05_QUALITY_PLUS_C06_ELIGIBILITY_PLUS_C10_FRESHNESS_CURRENTNESS_BEFORE_AUTHORITATIVE_DATASET_PROMOTION",
+              "state": "OPEN_NOT_CONSUMABLE_NOT_BYPASSED",
+              "contract_makes_consumable": false
+            },
+            "direct_acceptance_criteria": [
+              "DETERMINISTIC_LOGICAL_CONTENT_AND_DATASET_VERSION_IDENTITY",
+              "DATASET_VERSION_COMPUTABLE_WITHOUT_MANIFEST_ID",
+              "MANIFEST_BINDS_DATASET_VERSION",
+              "CUTOFF_EXCLUDES_FUTURE_EVIDENCE",
+              "HISTORICAL_RECONSTRUCTION_AFTER_CORRECTION",
+              "HISTORICAL_UNIVERSE_EVIDENCE_WHERE_REQUIRED",
+              "ALL_MANIFEST_DEPENDENCIES_RESOLVE",
+              "MANIFEST_DOES_NOT_CREATE_QUALITY_ELIGIBILITY_OR_CURRENTNESS",
+              "CURRENTNESS_BINDS_EXACT_POLICY_DEPENDENCIES_AND_EVALUATION_TIME",
+              "EXACT_AFFECTED_SET_AND_UNAFFECTED_PRESERVATION",
+              "INTERRUPTION_SAFE_PROPAGATION",
+              "C07_AND_CALENDAR_TRUTH_CONSUMED_NOT_RECREATED",
+              "EXACT_VERSION_RETRIEVAL_AND_VERIFICATION",
+              "ATOMIC_COMPLETE_PUBLICATION",
+              "PERSISTENCE_DOES_NOT_IMPLY_CURRENTNESS_OR_PROMOTION",
+              "C06_ELIGIBILITY_AND_C10_CURRENTNESS_REMAIN_DISTINCT",
+              "MISSING_PROMOTION_AUTHORITY_MEANS_NO_PROMOTION",
+              "RESOURCE_EXHAUSTION_IS_RESTRICTIVE",
+              "UNORDERED_PERMUTATIONS_ARE_DETERMINISTIC",
+              "ENTITLEMENT_PROVENANCE_SURVIVES_DERIVATION"
+            ],
+            "adversarial_acceptance_criteria": [
+              "FORGED_DATASET_OR_MANIFEST_IDENTITY",
+              "CIRCULAR_DATASET_MANIFEST_IDENTITY",
+              "IDENTITY_CONTENT_COLLISION",
+              "CONTENT_OR_TRANSFORMATION_SUBSTITUTION",
+              "MUTABLE_TRANSFORMATION_IMPLEMENTATION_REFERENCE",
+              "DEPENDENCY_OMISSION_OR_SCOPE_INFLATION",
+              "MISSING_OR_CYCLIC_PROVENANCE",
+              "MANIFEST_SELF_CERTIFICATION",
+              "CURRENT_CONSTITUENTS_AS_HISTORICAL_MEMBERSHIP",
+              "MISSING_OR_UNSUPPORTED_EXTERNAL_POLICY",
+              "ACQUISITION_AS_KNOWLEDGE_TIME",
+              "LATER_STATE_AT_EARLIER_CUTOFF",
+              "LATEST_FALLBACK",
+              "STALE_DEPENDENCY_AS_CURRENT",
+              "FORGED_OR_REPLAYED_INVALIDATION",
+              "UNDER_OR_UNJUSTIFIED_OVER_INVALIDATION",
+              "INCOMPLETE_PROPAGATION_AS_COMPLETE",
+              "PARTIAL_PROPAGATION_LEAVES_CURRENT",
+              "UPSTREAM_TRUTH_RECREATION_BY_C10",
+              "CORRUPT_OR_MIXED_STORAGE_PUBLICATION",
+              "PARTIAL_CONSUMER_VISIBLE_PUBLICATION",
+              "PERSISTENCE_AS_PROMOTION_AUTHORITY",
+              "CANDIDATE_SELECTED_OR_WILDCARD_AUTHORITY",
+              "PROVIDER_OR_ARRIVAL_HOST_ORDER_FALLBACK",
+              "RESOURCE_EXHAUSTION_OR_SILENT_TRUNCATION",
+              "PARTIAL_POSITIVE_OR_PROMOTED_OUTPUT",
+              "ENTITLEMENT_PROVENANCE_ERASURE_OR_UNRESTRICTED_DEFAULT"
+            ],
+            "eventual_closure_criteria": [
+              "ALL_COMPONENT_ALLOCATED_REQUIREMENTS_SATISFIED",
+              "EXACT_PROTECTED_IMPLEMENTATION",
+              "PROTECTED_CONTRACT_AND_APPLICABLE_TRUST",
+              "DIRECT_AND_ADVERSARIAL_ASSURANCE",
+              "PIT_AND_HISTORICAL_RECONSTRUCTION",
+              "DEPENDENCY_AND_PROPAGATION_COMPLETENESS",
+              "INTERRUPTION_AND_RESTART_PROOF",
+              "SECURITY_AND_RESOURCE_CONTROLS",
+              "EXACT_EVIDENCE_ATTRIBUTION",
+              "PROTECTED_MASTER_ASSURANCE",
+              "ACTUAL_VS_PROJECTED_STATE_MATCH",
+              "OWNERSHIP_AND_SYNC3_FIREWALLS",
+              "NO_PROVIDER_STORAGE_PROMOTION_STAGE4_OR_FINANCIAL_AUTHORITY_LEAKAGE"
+            ],
+            "deferred_choices": {
+              "canonical_dataset_representation": null,
+              "digest_algorithm": null,
+              "transformation_code_identity_mechanism": null,
+              "freshness_horizons": null,
+              "historical_universe_policy": null,
+              "numeric_resource_policy_values": null,
+              "physical_storage": null,
+              "physical_atomic_publication": null,
+              "provider": null,
+              "promotion_authority": "NOT_ESTABLISHED"
+            },
+            "authority": {
+              "C08_IMPLEMENTATION": "NOT_AUTHORIZED",
+              "C09_IMPLEMENTATION": "NOT_AUTHORIZED",
+              "C10_IMPLEMENTATION": "NOT_AUTHORIZED",
+              "C11_IMPLEMENTATION": "NOT_AUTHORIZED",
+              "SYNC_3_CONSUMABILITY": "NOT_AUTHORIZED",
+              "PROVIDER_SELECTION": "NONE",
+              "STORAGE_SELECTION": "NONE",
+              "UNIVERSE_POLICY_SELECTION": "NONE",
+              "STAGE4": "NOT_AUTHORIZED",
+              "TRADING_OR_FINANCIAL": "NONE",
+              "AI_TRADING_AUTHORITY": "NONE"
+            },
+            "semantic_digest": "79d05b7fdb545042eea9945f87398d1a1ed19ef605689dd24057c98f4dcb2cea",
+            "semantic_digest_scope": "CANONICAL_CONTRACT_OBJECT_EXCLUDING_SEMANTIC_DIGEST_AND_SCOPE_FIELDS"
           }
         }
       }
