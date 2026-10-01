@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/programme/master-recovery-packet.json"
 SCHEMA_PATH = ROOT / "docs/programme/master-recovery-packet.schema.json"
 EXPECTED_PACKET_SHA256 = (
-    "5fe097a243db3bfb4a70b5dd1d2f9b8d7611154f08d868ef3cf4485a2ec5a8d9"
+    "17b7aa5e2703cf91b8fb0fe0440bfb258bc106bf9fbe78ad4714ca829edfe738"
 )
 EXPECTED_BASIS = {
     "commit": "119ab879fd96c64a4f04441da03945b5a22ed03d",
@@ -34,7 +34,7 @@ EXPECTED_REQUIRED = {
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx": "8e116c3f3a75b0a038d947c8f66c1c57f1a4ff2e",
     "docs/baseline/specification-provenance.json": "30ea05b9c395fc1051a7c2d3a25ec7a01fb08179",
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
-    "docs/programme/programme-control.json": "7af55f18e4bc304a36e8198c1f8ef88129f6bb66",
+    "docs/programme/programme-control.json": "bd7603a237d412cae41d5b28da8c3c2db37866c2",
     "docs/programme/programme-control.schema.json": "573205a85273424dabbab5fe8720de3a94b7a583",
     "docs/stage2/gate-s02-01.json": "850ce45a88d30b9348686493355fb681a464759f",
     "docs/stage2/stage2-freeze-record.json": "5a4425eeb79c87072e8c498981c55565c386c677",
@@ -43,11 +43,11 @@ EXPECTED_REQUIRED = {
     "pyproject.toml": "f7cf0df47ffc4e1309803b48dc26114851dfb0ee",
     "requirements-dev.lock": "cfb3245eef00c6f51e619aa15a5432dfc8893d89",
     "scripts/bootstrap.ps1": "78c82833f387ce94f786f58f93947917076fd61a",
-    "tests/test_programme_control.py": "b8265316ffbed6ceb915fb9a0540dab3baf70b7c",
+    "tests/test_programme_control.py": "562e95d87df1d87db83124dfb2ac8529b7d4231c",
     "tests/test_stage3_specification.py": "0a37860d9377ed27597d935210d4f08ed414710a",
 }
 EXPECTED_SUPPLEMENTARY = {
-    "docs/programme/successor-evidence.json": "a677e748886a8dbd7906cedcc9f2f645fc085432",
+    "docs/programme/successor-evidence.json": "ebf53480c309511a15cf6489b9797adaef91fcdd",
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0.txt": "f0e4f657069facdda9741411a9566c9fe6b36fa9",
     "docs/m1-closure/stage0b-phase39-67-coverage.json": "8652bffe48add6cb6b8e63d64e9b2647b48e1739",
     "docs/m1-closure/traceability.json": "4261e1ab17f1d839f07f1a355340f54f0d8beb8c",
@@ -263,6 +263,8 @@ def test_authoritative_sources_validate_and_align() -> None:
         "SE-PUB-004",
         "SE-CAND-005",
         "SE-PUB-005",
+        "SE-CAND-006",
+        "SE-PUB-006",
     ]
     assert successor["records"][0]["candidate_state"] == (
         "VERIFIED_LOCAL_UNPUBLISHED"
