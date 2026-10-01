@@ -827,7 +827,9 @@ def test_rb1_slice2_publication_and_rb1_closure_decision_is_bounded() -> None:
         record["record_id"]: record
         for record in _control()["decision_register"]["records"]
     }
-    assert list(decisions)[-10:-1] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012", "PC-DEC-013", "PC-DEC-014", "PC-DEC-015", "PC-DEC-016"]
+    decision_ids = list(decisions)
+    start = decision_ids.index("PC-DEC-008")
+    assert decision_ids[start:start + 9] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012", "PC-DEC-013", "PC-DEC-014", "PC-DEC-015", "PC-DEC-016"]
     decision = decisions["PC-DEC-007"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == (
@@ -1437,7 +1439,9 @@ def test_pc_dec_008_calendar_joint_ratification_grants_no_implementation():
 
 def test_calendar_s1_protected_publication_closure_decision_is_bounded() -> None:
     decisions = {record["record_id"]: record for record in _control()["decision_register"]["records"]}
-    assert list(decisions)[-10:-1] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012", "PC-DEC-013", "PC-DEC-014", "PC-DEC-015", "PC-DEC-016"]
+    decision_ids = list(decisions)
+    start = decision_ids.index("PC-DEC-008")
+    assert decision_ids[start:start + 9] == ["PC-DEC-008", "PC-DEC-009", "PC-DEC-010", "PC-DEC-011", "PC-DEC-012", "PC-DEC-013", "PC-DEC-014", "PC-DEC-015", "PC-DEC-016"]
     decision = decisions["PC-DEC-009"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == "CALENDAR_S1_PROTECTED_PUBLICATION_AND_BOUNDED_CLOSURE"
@@ -1493,7 +1497,9 @@ def test_pc_dec_011_closes_calendar_component_but_preserves_downstream_work() ->
 
 def test_pc_dec_012_ratifies_parallel_wave1_designs_without_implementation():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
-    assert list(decisions)[-6:-1] == ["PC-DEC-012", "PC-DEC-013", "PC-DEC-014", "PC-DEC-015", "PC-DEC-016"]
+    decision_ids = list(decisions)
+    start = decision_ids.index("PC-DEC-012")
+    assert decision_ids[start:start + 5] == ["PC-DEC-012", "PC-DEC-013", "PC-DEC-014", "PC-DEC-015", "PC-DEC-016"]
     decision = decisions["PC-DEC-012"]
     assert decision["state"] == "APPROVED"
     assert decision["decision"] == "ATIS_STAGE3_PARALLEL_WAVE1_DESIGN_AND_IMPLEMENTATION_CONTRACT_JOINT_RATIFICATION"
@@ -1579,9 +1585,27 @@ def test_pc_dec_016_records_only_sync2_consumability():
 
 def test_pc_dec_017_records_c06_contract_without_implementation_authority():
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
-    assert list(decisions)[-1] == "PC-DEC-017"
+    assert list(decisions)[-2] == "PC-DEC-017"
     record = decisions["PC-DEC-017"]
     assert record["state"] == "APPROVED"
     assert record["decision"] == "ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1"
     assert record["authority_granted"] == ["RECORD_ATIS_C06_QUARANTINE_ELIGIBILITY_RELEASE_CONTRACT_V1"]
     assert {"C06_IMPLEMENTATION", "C05_REENTRY", "C10_IMPLEMENTATION", "SYNC_3_CONSUMABILITY", "C08_TO_C11_IMPLEMENTATION", "STAGE4_IMPLEMENTATION", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY"} <= set(record["authority_not_granted"])
+
+
+def test_pc_dec_018_records_shared_lifecycle_contract_without_implementation_authority():
+    decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
+    assert list(decisions)[-1] == "PC-DEC-018"
+    assert list(decisions).index("PC-DEC-016") < list(decisions).index("PC-DEC-017") < list(decisions).index("PC-DEC-018")
+    record = decisions["PC-DEC-018"]
+    assert record["state"] == "APPROVED"
+    assert record["decision"] == "ATIS_STAGE3_SHARED_DATASET_LIFECYCLE_CONTRACT_V1"
+    assert record["authority_granted"] == [
+        "RECORD_AND_PROTECT_ATIS_STAGE3_SHARED_DATASET_LIFECYCLE_CONTRACT_V1"
+    ]
+    assert {
+        "C08_IMPLEMENTATION", "C09_IMPLEMENTATION", "C10_IMPLEMENTATION",
+        "C11_IMPLEMENTATION", "SYNC_3_CONSUMABILITY", "PROVIDER_SELECTION",
+        "STORAGE_SELECTION", "PROMOTION_AUTHORITY", "DATASET_PROMOTION",
+        "STAGE4_IMPLEMENTATION", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
+    } <= set(record["authority_not_granted"])
