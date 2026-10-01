@@ -912,3 +912,44 @@ def test_c06_contract_schema_is_closed_and_exact():
     damaged["stage3_recording_manifest"]["c06_quarantine_eligibility_release_contract_v1"]["authority"]["C06_IMPLEMENTATION"] = "AUTHORIZED"
     with pytest.raises(ValidationError):
         Draft202012Validator(schema).validate(damaged)
+
+
+def test_shared_dataset_lifecycle_contract_v1_is_exact_and_non_authorizing():
+    contract = corpus()["stage3_recording_manifest"]["shared_dataset_lifecycle_contract_v1"]
+    assert contract["contract_id"] == "ATIS_STAGE3_SHARED_DATASET_LIFECYCLE_CONTRACT_V1"
+    assert contract["review"] == {
+        "independent_falsification": "PASS",
+        "owner_review": "PASS",
+        "owner_approved": True,
+        "protected_state": "NOT_YET_PROTECTED",
+        "implementation_authority": "NONE",
+    }
+    assert contract["identity_model"]["manifest_id_binds_dataset_version_id"] is True
+    assert "MANIFEST_ID" in contract["identity_model"]["dataset_version_id_excludes"]
+    assert "CanonicalDatasetRepresentationId" in contract["identity_types"]
+    assert "TransformationImplementationId" in contract["identity_types"]
+    assert "TransformationExecutionId" in contract["identity_types"]
+    assert contract["entitlement_licence_provenance"]["derivation_erases_provenance"] is False
+    assert contract["policy_separation"]["operational_control_policies"].startswith("MUST_NOT_CHANGE_DATASET_VERSION_ID")
+    assert contract["sync_3"] == {
+        "formula": "C05_QUALITY_PLUS_C06_ELIGIBILITY_PLUS_C10_FRESHNESS_CURRENTNESS_BEFORE_AUTHORITATIVE_DATASET_PROMOTION",
+        "state": "OPEN_NOT_CONSUMABLE_NOT_BYPASSED",
+        "contract_makes_consumable": False,
+    }
+    assert set(contract["authority"].values()) <= {"NOT_AUTHORIZED", "NONE"}
+    assert contract["deferred_choices"]["promotion_authority"] == "NOT_ESTABLISHED"
+
+
+def test_shared_dataset_lifecycle_contract_digest_and_schema_are_exact():
+    data = corpus()
+    contract = data["stage3_recording_manifest"]["shared_dataset_lifecycle_contract_v1"]
+    semantic = deepcopy(contract)
+    digest = semantic.pop("semantic_digest")
+    semantic.pop("semantic_digest_scope")
+    canonical = json.dumps(semantic, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    assert sha256(canonical).hexdigest() == digest
+    Draft202012Validator(load(S)).validate(data)
+    damaged = deepcopy(data)
+    damaged["stage3_recording_manifest"]["shared_dataset_lifecycle_contract_v1"]["authority"]["C10_IMPLEMENTATION"] = "AUTHORIZED"
+    with pytest.raises(ValidationError):
+        Draft202012Validator(load(S)).validate(damaged)
