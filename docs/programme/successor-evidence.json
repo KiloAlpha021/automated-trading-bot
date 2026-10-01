@@ -828,6 +828,145 @@
           "AI_TRADING_AUTHORITY"
         ]
       }
+    },
+    {
+      "record_id": "SE-CAND-006",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": null,
+      "governing_slice": "ATIS-S3-C10-S1",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/successor-evidence.json"
+      ],
+      "predecessor_commit": "d7e516d2306ba20aa205d0b42dfa4d5c7a29d6b4",
+      "predecessor_tree": "10290f528dfdca00a9ea4405fe5349c8653fa733",
+      "authorization_references": [
+        "PC-DEC-020"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/datasets/currentness.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "539b2ed55929feaa37d16bf3ac993f2e52a3c90d",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-034",
+            "S3-REQ-035"
+          ]
+        },
+        {
+          "path": "tests/test_dataset_currentness.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "08792a042173dc1a3d705d0fdc6a931462431f99",
+          "role": "TEST",
+          "requirement_references": [
+            "S3-REQ-034",
+            "S3-REQ-035"
+          ]
+        }
+      ],
+      "transition_reason": "Owner-authorized bounded C10-S1 deterministic currentness and dependency-invalidation foundation implementation while preserving remaining C10 obligations for later audit, C08 materialization, C09 positive-manifest integration, C11 persistence/publication, SYNC-3 and promotion authority as open.",
+      "verification_evidence": [
+        "LOCAL_C10_S1_FOCUSED_75_OF_75_PASS",
+        "LOCAL_FULL_PYTEST_2156_OF_2156_PASS",
+        "LOCAL_RUFF_PASS",
+        "LOCAL_STRICT_MYPY_61_SOURCE_FILES_PASS",
+        "LOCAL_PIP_CHECK_PASS",
+        "LOCAL_PIP_AUDIT_NO_KNOWN_VULNERABILITIES",
+        "INDEPENDENT_SEMANTIC_REVIEW_COMPLETED",
+        "BOUNDED_REPAIR_PASS",
+        "TARGETED_REPAIR_VERIFICATION_PASS",
+        "M1_ENGINEERING_FOUNDATION_PR60_RUN_36899466523_JOB_110494712566_SUCCESS",
+        "TRUSTED_M1_EVALUATOR_PR60_RUN_36899466435_JOB_110494712490_SUCCESS",
+        "TRUSTED_PROFILE_STAGE3_C10_S1_CURRENTNESS_INVALIDATION_AT_3F40389FA6EB1973A8A7C2B9E0DCFBFA00D5E3A2"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C10_S1_IMPLEMENTATION_RESUMPTION",
+          "ADDITIONAL_C10_IMPLEMENTATION",
+          "C08_IMPLEMENTATION",
+          "C09_POSITIVE_MANIFEST_INTEGRATION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    },
+    {
+      "record_id": "SE-PUB-006",
+      "record_type": "PROTECTED_PUBLICATION",
+      "candidate_record_id": "SE-CAND-006",
+      "protected_commit": "5857d3a361a49c13f20869b1d94682d1dc3ec426",
+      "protected_tree": "83c05546ad524fb83e005a0b35a1208bb011e0b6",
+      "ordered_merge_parents": [
+        "d7e516d2306ba20aa205d0b42dfa4d5c7a29d6b4",
+        "caff47b07a4a7c75d7e6c8a25fb1598bbe30304d"
+      ],
+      "publication_reference": "GitHub pull request 60",
+      "protected_path_blobs": [
+        {
+          "path": "src/automated_trading_bot/datasets/currentness.py",
+          "blob": "539b2ed55929feaa37d16bf3ac993f2e52a3c90d"
+        },
+        {
+          "path": "tests/test_dataset_currentness.py",
+          "blob": "08792a042173dc1a3d705d0fdc6a931462431f99"
+        }
+      ],
+      "hosted_checks": [
+        {
+          "name": "m1-engineering-foundation run 36899466523 job 110494712566",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "trusted-m1-evaluator run 36899466435 job 110494712490 profile stage3-c10-s1-currentness-invalidation trusted 3f40389fa6eb1973a8a7c2b9e0dcfbfa00d5e3a2",
+          "conclusion": "SUCCESS"
+        }
+      ],
+      "post_publication_verification": "PASS",
+      "open_obligations_preserved": true,
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C10_S1_IMPLEMENTATION_RESUMPTION",
+          "ADDITIONAL_C10_IMPLEMENTATION",
+          "C08_IMPLEMENTATION",
+          "C09_POSITIVE_MANIFEST_INTEGRATION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
     }
   ],
   "authority": {

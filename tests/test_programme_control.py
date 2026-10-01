@@ -1646,3 +1646,49 @@ def test_pc_dec_019_closes_only_the_bounded_c09_s1_foundation_lifecycle() -> Non
         "FINANCIAL_EFFECTS",
         "AI_TRADING_AUTHORITY",
     } <= set(record["authority_not_granted"])
+
+
+def test_pc_dec_020_closes_only_the_bounded_c10_s1_foundation_lifecycle() -> None:
+    decisions = {
+        item["record_id"]: item
+        for item in _control()["decision_register"]["records"]
+    }
+    decision_ids = list(decisions)
+    assert decision_ids.index("PC-DEC-019") < decision_ids.index("PC-DEC-020")
+    record = decisions["PC-DEC-020"]
+    assert record["state"] == "APPROVED"
+    assert record["decision"] == "ATIS_STAGE3_C10_S1_MINIMUM_CLOSURE_RECORD_V1"
+    assert record["scope"] == "STAGE3_C10_S1_MINIMUM_GOVERNANCE_CLOSURE_RECORD_ONLY"
+    assert {
+        "RECORD_SE_CAND_006",
+        "RECORD_SE_PUB_006",
+        "RECORD_VERIFIED_C10_S1_PROTECTED_PUBLICATION",
+        "CLOSE_BOUNDED_C10_S1_CURRENTNESS_INVALIDATION_FOUNDATION_LIFECYCLE",
+        "PRESERVE_REMAINING_C10_OBLIGATIONS_FOR_LATER_AUDIT",
+        "PRESERVE_C08_MATERIALIZATION_OPEN",
+        "PRESERVE_C09_POSITIVE_MANIFEST_INTEGRATION_OPEN",
+        "PRESERVE_C11_PERSISTENCE_PUBLICATION_OPEN",
+        "PRESERVE_SYNC_3_NON_CONSUMABLE",
+        "PRESERVE_PROMOTION_AUTHORITY_NOT_ESTABLISHED",
+    } <= set(record["authority_granted"])
+    assert {
+        "C10_S1_IMPLEMENTATION_RESUMPTION",
+        "ADDITIONAL_C10_IMPLEMENTATION",
+        "C08_IMPLEMENTATION",
+        "C09_POSITIVE_MANIFEST_INTEGRATION",
+        "C11_IMPLEMENTATION",
+        "SYNC_3_CONSUMABILITY",
+        "PROVIDER_SELECTION",
+        "STORAGE_SELECTION",
+        "FRESHNESS_HORIZON_SELECTION",
+        "RESOURCE_POLICY_VALUE_SELECTION",
+        "PROMOTION_AUTHORITY",
+        "DATASET_PROMOTION",
+        "NEXT_STAGE3_COMPONENT_ACTIVATION",
+        "STAGE4_IMPLEMENTATION",
+        "RESEARCH_BACKTESTING_EXECUTION",
+        "PAPER_TRADING",
+        "LIVE_TRADING",
+        "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    } <= set(record["authority_not_granted"])

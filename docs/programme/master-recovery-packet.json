@@ -59,7 +59,7 @@
     },
     {
       "path": "docs/programme/programme-control.json",
-      "git_blob": "7af55f18e4bc304a36e8198c1f8ef88129f6bb66",
+      "git_blob": "bd7603a237d412cae41d5b28da8c3c2db37866c2",
       "classification": "REQUIRED",
       "required_for": [
         "CURRENT_PROGRAMME_STATE",
@@ -138,7 +138,7 @@
     },
     {
       "path": "tests/test_programme_control.py",
-      "git_blob": "b8265316ffbed6ceb915fb9a0540dab3baf70b7c",
+      "git_blob": "562e95d87df1d87db83124dfb2ac8529b7d4231c",
       "classification": "REQUIRED",
       "required_for": [
         "PROGRAMME_CONTROL_VALIDATION",
@@ -178,7 +178,7 @@
     },
     {
       "path": "docs/programme/successor-evidence.json",
-      "git_blob": "a677e748886a8dbd7906cedcc9f2f645fc085432",
+      "git_blob": "ebf53480c309511a15cf6489b9797adaef91fcdd",
       "classification": "SUPPLEMENTARY_DEEP_AUDIT"
     }
   ],
