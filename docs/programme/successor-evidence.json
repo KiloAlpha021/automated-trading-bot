@@ -967,6 +967,147 @@
           "AI_TRADING_AUTHORITY"
         ]
       }
+    },
+    {
+      "record_id": "SE-CAND-007",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": null,
+      "governing_slice": "ATIS-S3-C09-POSITIVE-MANIFEST",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/successor-evidence.json"
+      ],
+      "predecessor_commit": "3c59dddd99376c63b8cdc9461672d080c351c8e3",
+      "predecessor_tree": "03f9115dbfbded05fec89fdea2897ea1eda81944",
+      "authorization_references": [
+        "PC-DEC-021"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/datasets/manifest.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "0cf3965142d6d7107616d1956fc49131f3e54b5f",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-030",
+            "S3-REQ-031",
+            "S3-REQ-032",
+            "S3-REQ-033"
+          ]
+        },
+        {
+          "path": "tests/test_dataset_manifest.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "4cbf20bb5c83b0fb974c359b8ca8b82c269af211",
+          "role": "TEST",
+          "requirement_references": [
+            "S3-REQ-030",
+            "S3-REQ-031",
+            "S3-REQ-032",
+            "S3-REQ-033"
+          ]
+        }
+      ],
+      "transition_reason": "Owner-authorized bounded C09 positive DatasetManifest governance closure recording for the exact independently accepted, protected and verified two-file implementation while preserving C11, SYNC-3, policy selection, promotion and all downstream authority as open.",
+      "verification_evidence": [
+        "LOCAL_C09_POSITIVE_MANIFEST_TARGETED_38_OF_38_PASS",
+        "LOCAL_C09_POSITIVE_MANIFEST_FOCUSED_270_OF_270_PASS",
+        "LOCAL_FULL_PYTEST_2317_OF_2317_PASS",
+        "LOCAL_RUFF_PASS",
+        "LOCAL_STRICT_MYPY_64_SOURCE_FILES_PASS",
+        "LOCAL_PIP_CHECK_PASS",
+        "LOCAL_PIP_AUDIT_NO_KNOWN_VULNERABILITIES",
+        "C09_REPAIRED_CANDIDATE_FINAL_ACCEPTANCE_PASS",
+        "C09_MATERIAL_01_PROVENANCE_LINEAGE_CLOSED",
+        "M1_ENGINEERING_FOUNDATION_PR64_RUN_37012262626_JOB_110854571085_SUCCESS",
+        "TRUSTED_M1_EVALUATOR_PR64_RUN_37012262559_JOB_110854570938_SUCCESS",
+        "PROTECTED_TRUST_PROFILE_STAGE3_C09_POSITIVE_DATASET_MANIFEST_SECURITY_MAIN_DB71C95D9A008C62F5ECAC60F312AC794092269B_TREE_36FE47372434A52507A696D13872D3B1402E187A_PROFILE_BLOB_EBB5151F067258AD581F0EE29529ED24AE11173E_TRUSTED_MANIFEST_BLOB_0E3EA5D7D6D342A2B36CDD18B25586DE604C8CC4"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C09_IMPLEMENTATION_RESUMPTION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    },
+    {
+      "record_id": "SE-PUB-007",
+      "record_type": "PROTECTED_PUBLICATION",
+      "candidate_record_id": "SE-CAND-007",
+      "protected_commit": "d52d57094ee54ad9fa7cc585a356d31bd11a6f60",
+      "protected_tree": "59c0b5b12b96a792b1e967c420e5607ddebab4dd",
+      "ordered_merge_parents": [
+        "3c59dddd99376c63b8cdc9461672d080c351c8e3",
+        "c6757dadb1416a8ef78f8f4372759ecb18ebd9d9"
+      ],
+      "publication_reference": "GitHub pull request 64",
+      "protected_path_blobs": [
+        {
+          "path": "src/automated_trading_bot/datasets/manifest.py",
+          "blob": "0cf3965142d6d7107616d1956fc49131f3e54b5f"
+        },
+        {
+          "path": "tests/test_dataset_manifest.py",
+          "blob": "4cbf20bb5c83b0fb974c359b8ca8b82c269af211"
+        }
+      ],
+      "hosted_checks": [
+        {
+          "name": "m1-engineering-foundation PR64 run 37012262626 job 110854571085",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "trusted-m1-evaluator PR64 run 37012262559 job 110854570938 profile stage3-c09-positive-dataset-manifest protected security main db71c95d9a008c62f5ecac60f312ac794092269b",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "protected-master m1-engineering-foundation run 37012797559 job 110856335638 actual-protected-state-match",
+          "conclusion": "SUCCESS"
+        }
+      ],
+      "post_publication_verification": "PASS",
+      "open_obligations_preserved": true,
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C09_IMPLEMENTATION_RESUMPTION",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
     }
   ],
   "authority": {

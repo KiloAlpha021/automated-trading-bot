@@ -1692,3 +1692,44 @@ def test_pc_dec_020_closes_only_the_bounded_c10_s1_foundation_lifecycle() -> Non
         "FINANCIAL_EFFECTS",
         "AI_TRADING_AUTHORITY",
     } <= set(record["authority_not_granted"])
+
+
+def test_pc_dec_021_closes_only_the_bounded_c09_positive_manifest_lifecycle() -> None:
+    decisions = {
+        item["record_id"]: item
+        for item in _control()["decision_register"]["records"]
+    }
+    decision_ids = list(decisions)
+    assert decision_ids[-1] == "PC-DEC-021"
+    assert decision_ids.index("PC-DEC-020") < decision_ids.index("PC-DEC-021")
+    record = decisions["PC-DEC-021"]
+    assert record["state"] == "APPROVED"
+    assert record["supersedes"] is None
+    assert record["decision"] == "ATIS_STAGE3_C09_POSITIVE_MANIFEST_CLOSURE_RECORD_V1"
+    assert record["scope"] == "STAGE3_C09_POSITIVE_MANIFEST_GOVERNANCE_CLOSURE_RECORD_ONLY"
+    assert record["authority_granted"] == [
+        "RECORD_C09_POSITIVE_MANIFEST_CLOSURE",
+        "RECORD_SE_CAND_007",
+        "RECORD_SE_PUB_007",
+        "RECORD_VERIFIED_C09_PROTECTED_PUBLICATION",
+        "CLOSE_BOUNDED_C09_POSITIVE_MANIFEST_LIFECYCLE",
+    ]
+    assert {
+        "C09_IMPLEMENTATION_RESUMPTION",
+        "C11_IMPLEMENTATION",
+        "SYNC_3_CONSUMABILITY",
+        "PROVIDER_SELECTION",
+        "STORAGE_SELECTION",
+        "FRESHNESS_HORIZON_SELECTION",
+        "RESOURCE_POLICY_VALUE_SELECTION",
+        "PROMOTION_AUTHORITY",
+        "DATASET_PROMOTION",
+        "NEXT_STAGE3_COMPONENT_ACTIVATION",
+        "STAGE3_GENERAL_IMPLEMENTATION",
+        "STAGE4_IMPLEMENTATION",
+        "RESEARCH_BACKTESTING_EXECUTION",
+        "PAPER_TRADING",
+        "LIVE_TRADING",
+        "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    } == set(record["authority_not_granted"])
