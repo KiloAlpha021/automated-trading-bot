@@ -70,6 +70,25 @@ C10_S1_DENIALS = [
     "FINANCIAL_EFFECTS",
     "AI_TRADING_AUTHORITY",
 ]
+C09_POSITIVE_MANIFEST_DENIALS = [
+    "C09_IMPLEMENTATION_RESUMPTION",
+    "C11_IMPLEMENTATION",
+    "SYNC_3_CONSUMABILITY",
+    "PROVIDER_SELECTION",
+    "STORAGE_SELECTION",
+    "FRESHNESS_HORIZON_SELECTION",
+    "RESOURCE_POLICY_VALUE_SELECTION",
+    "PROMOTION_AUTHORITY",
+    "DATASET_PROMOTION",
+    "NEXT_STAGE3_COMPONENT_ACTIVATION",
+    "STAGE3_GENERAL_IMPLEMENTATION",
+    "STAGE4_IMPLEMENTATION",
+    "RESEARCH_BACKTESTING_EXECUTION",
+    "PAPER_TRADING",
+    "LIVE_TRADING",
+    "FINANCIAL_EFFECTS",
+    "AI_TRADING_AUTHORITY",
+]
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -186,6 +205,9 @@ def validate_cross(
         elif record["record_id"] in {"SE-CAND-006", "SE-PUB-006"}:
             if record["authority"]["not_granted"] != C10_S1_DENIALS:
                 raise ValueError("C10-S1 authority boundary mismatch")
+        elif record["record_id"] in {"SE-CAND-007", "SE-PUB-007"}:
+            if record["authority"]["not_granted"] != C09_POSITIVE_MANIFEST_DENIALS:
+                raise ValueError("C09 positive-manifest authority boundary mismatch")
         elif not set(DENIALS) <= set(record["authority"]["not_granted"]):
             raise ValueError("authority escalation")
 
@@ -362,6 +384,10 @@ def test_register_and_closed_schema_validate() -> None:
             "SE-CAND-006": {
                 "src/automated_trading_bot/datasets/currentness.py",
                 "tests/test_dataset_currentness.py",
+            },
+            "SE-CAND-007": {
+                "src/automated_trading_bot/datasets/manifest.py",
+                "tests/test_dataset_manifest.py",
             },
         },
     )
@@ -606,6 +632,69 @@ def test_c10_s1_candidate_and_publication_are_exact_and_bounded() -> None:
     assert publication_record["authority"]["granted"] == []
     assert candidate_record["authority"]["not_granted"] == C10_S1_DENIALS
     assert publication_record["authority"]["not_granted"] == C10_S1_DENIALS
+    assert git(
+        "rev-list", "--parents", "-n", "1", publication_record["protected_commit"]
+    ).split() == [
+        publication_record["protected_commit"],
+        *publication_record["ordered_merge_parents"],
+    ]
+    for protected in publication_record["protected_path_blobs"]:
+        assert git(
+            "rev-parse", f'{publication_record["protected_commit"]}:{protected["path"]}'
+        ) == protected["blob"]
+
+
+def test_c09_positive_manifest_candidate_and_publication_are_exact_and_bounded() -> None:
+    records = load(REGISTER)["records"]
+    by_id = {record["record_id"]: record for record in records}
+    assert [record["record_id"] for record in records[-2:]] == [
+        "SE-CAND-007",
+        "SE-PUB-007",
+    ]
+    candidate_record = by_id["SE-CAND-007"]
+    publication_record = by_id["SE-PUB-007"]
+    assert candidate_record["record_type"] == "CANDIDATE_SUCCESSOR"
+    assert candidate_record["governing_stage"] == "STAGE3"
+    assert candidate_record["governing_slice"] == "ATIS-S3-C09-POSITIVE-MANIFEST"
+    assert candidate_record["predecessor_commit"] == "3c59dddd99376c63b8cdc9461672d080c351c8e3"
+    assert candidate_record["predecessor_tree"] == "03f9115dbfbded05fec89fdea2897ea1eda81944"
+    assert candidate_record["authorization_references"] == ["PC-DEC-021"]
+    expected = {
+        "src/automated_trading_bot/datasets/manifest.py": "0cf3965142d6d7107616d1956fc49131f3e54b5f",
+        "tests/test_dataset_manifest.py": "4cbf20bb5c83b0fb974c359b8ca8b82c269af211",
+    }
+    assert {
+        row["path"]: row["successor_candidate_blob"]
+        for row in candidate_record["path_transitions"]
+    } == expected
+    assert all(
+        set(row["requirement_references"])
+        == {"S3-REQ-030", "S3-REQ-031", "S3-REQ-032", "S3-REQ-033"}
+        for row in candidate_record["path_transitions"]
+    )
+    assert publication_record["candidate_record_id"] == "SE-CAND-007"
+    assert publication_record["protected_commit"] == "d52d57094ee54ad9fa7cc585a356d31bd11a6f60"
+    assert publication_record["protected_tree"] == "59c0b5b12b96a792b1e967c420e5607ddebab4dd"
+    assert publication_record["ordered_merge_parents"] == [
+        "3c59dddd99376c63b8cdc9461672d080c351c8e3",
+        "c6757dadb1416a8ef78f8f4372759ecb18ebd9d9",
+    ]
+    assert publication_record["publication_reference"] == "GitHub pull request 64"
+    assert {
+        row["path"]: row["blob"]
+        for row in publication_record["protected_path_blobs"]
+    } == expected
+    assert len(publication_record["hosted_checks"]) == 3
+    assert all(
+        row["conclusion"] == "SUCCESS"
+        for row in publication_record["hosted_checks"]
+    )
+    assert publication_record["post_publication_verification"] == "PASS"
+    assert publication_record["open_obligations_preserved"] is True
+    assert candidate_record["authority"]["granted"] == []
+    assert publication_record["authority"]["granted"] == []
+    assert candidate_record["authority"]["not_granted"] == C09_POSITIVE_MANIFEST_DENIALS
+    assert publication_record["authority"]["not_granted"] == C09_POSITIVE_MANIFEST_DENIALS
     assert git(
         "rev-list", "--parents", "-n", "1", publication_record["protected_commit"]
     ).split() == [
