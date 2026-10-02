@@ -70,6 +70,8 @@ C10_S1_DENIALS = [
     "FINANCIAL_EFFECTS",
     "AI_TRADING_AUTHORITY",
 ]
+C08_CLOSURE_DENIALS = ['C08_IMPLEMENTATION_RESUMPTION', 'C01_RB1_REENTRY', 'CALENDAR_C02_REENTRY', 'C05_REENTRY', 'C06_REENTRY', 'C07_REENTRY', 'C09_REENTRY', 'C10_REENTRY', 'C11_IMPLEMENTATION', 'SYNC_3_CONSUMABILITY', 'UNIVERSE_POLICY_SELECTION', 'PROVIDER_SELECTION', 'STORAGE_SELECTION', 'FRESHNESS_HORIZON_SELECTION', 'RESOURCE_POLICY_VALUE_SELECTION', 'PROMOTION_AUTHORITY', 'DATASET_PROMOTION', 'NEXT_STAGE3_COMPONENT_ACTIVATION', 'STAGE3_GENERAL_IMPLEMENTATION', 'STAGE4_IMPLEMENTATION', 'RESEARCH_BACKTESTING_EXECUTION', 'PAPER_TRADING', 'LIVE_TRADING', 'FINANCIAL_EFFECTS', 'AI_TRADING_AUTHORITY']
+
 C09_POSITIVE_MANIFEST_DENIALS = [
     "C09_IMPLEMENTATION_RESUMPTION",
     "C11_IMPLEMENTATION",
@@ -208,6 +210,9 @@ def validate_cross(
         elif record["record_id"] in {"SE-CAND-007", "SE-PUB-007"}:
             if record["authority"]["not_granted"] != C09_POSITIVE_MANIFEST_DENIALS:
                 raise ValueError("C09 positive-manifest authority boundary mismatch")
+        elif record["record_id"] in {"SE-CAND-008", "SE-PUB-008"}:
+            if record["authority"]["not_granted"] != C08_CLOSURE_DENIALS:
+                raise ValueError("C08 closure authority boundary mismatch")
         elif not set(DENIALS) <= set(record["authority"]["not_granted"]):
             raise ValueError("authority escalation")
 
@@ -388,6 +393,10 @@ def test_register_and_closed_schema_validate() -> None:
             "SE-CAND-007": {
                 "src/automated_trading_bot/datasets/manifest.py",
                 "tests/test_dataset_manifest.py",
+            },
+            "SE-CAND-008": {
+                "src/automated_trading_bot/datasets/materialization.py",
+                "tests/test_dataset_materialization.py",
             },
         },
     )
@@ -647,10 +656,9 @@ def test_c10_s1_candidate_and_publication_are_exact_and_bounded() -> None:
 def test_c09_positive_manifest_candidate_and_publication_are_exact_and_bounded() -> None:
     records = load(REGISTER)["records"]
     by_id = {record["record_id"]: record for record in records}
-    assert [record["record_id"] for record in records[-2:]] == [
-        "SE-CAND-007",
-        "SE-PUB-007",
-    ]
+    record_ids = [record["record_id"] for record in records]
+    assert record_ids.index("SE-CAND-007") < record_ids.index("SE-PUB-007")
+    assert record_ids.index("SE-PUB-007") < record_ids.index("SE-CAND-008")
     candidate_record = by_id["SE-CAND-007"]
     publication_record = by_id["SE-PUB-007"]
     assert candidate_record["record_type"] == "CANDIDATE_SUCCESSOR"
@@ -705,3 +713,39 @@ def test_c09_positive_manifest_candidate_and_publication_are_exact_and_bounded()
         assert git(
             "rev-parse", f'{publication_record["protected_commit"]}:{protected["path"]}'
         ) == protected["blob"]
+
+
+def test_c08_pit_materialization_candidate_and_publication_are_exact_and_bounded() -> None:
+    records = load(REGISTER)["records"]
+    by_id = {record["record_id"]: record for record in records}
+    assert [record["record_id"] for record in records[-2:]] == ["SE-CAND-008", "SE-PUB-008"]
+    candidate_record = by_id["SE-CAND-008"]
+    publication_record = by_id["SE-PUB-008"]
+    assert candidate_record["governing_slice"] == "ATIS-S3-C08-PIT-MATERIALIZATION"
+    assert candidate_record["predecessor_commit"] == "7b4f6226f6a685fc470a27c2202a64899e95c0e3"
+    assert candidate_record["predecessor_tree"] == "c47083b11a27ecd7bb7d0aa5dfb01116e0fc424d"
+    assert candidate_record["authorization_references"] == ["PC-DEC-022"]
+    expected = {
+        "src/automated_trading_bot/datasets/materialization.py": "3b820451e88fc2bdfcdb08df15d7a2c382d3f3d7",
+        "tests/test_dataset_materialization.py": "cf17922063de30c53530222dec89cd950d26267e",
+    }
+    assert {row["path"]: row["successor_candidate_blob"] for row in candidate_record["path_transitions"]} == expected
+    required = {"S3-REQ-004", "S3-REQ-009", "S3-REQ-013", "S3-REQ-015", "S3-REQ-016", "S3-REQ-017", "S3-REQ-020", "S3-REQ-022", "S3-REQ-024", "S3-REQ-027", "S3-REQ-028", "S3-REQ-029", "S3-REQ-033", "S3-REQ-034", "S3-REQ-037", "S3-REQ-040"}
+    assert all(set(row["requirement_references"]) == required for row in candidate_record["path_transitions"])
+    assert "C08_CANONICAL_OBLIGATIONS_16_OF_16_ACCOUNTED_FOR" in candidate_record["verification_evidence"]
+    assert "C08_GENUINE_RESIDUAL_NONE" in candidate_record["verification_evidence"]
+    assert publication_record["candidate_record_id"] == "SE-CAND-008"
+    assert publication_record["protected_commit"] == "1f17d7bf493cec4e60142398c30ce1bafc5afb70"
+    assert publication_record["protected_tree"] == "83ec1d18135d2bdf8c52138719864534c666f5ef"
+    assert publication_record["ordered_merge_parents"] == ["7b4f6226f6a685fc470a27c2202a64899e95c0e3", "1156b37642db36d37fdeb881e010cb108b1d8493"]
+    assert publication_record["publication_reference"] == "GitHub pull request 62"
+    assert {row["path"]: row["blob"] for row in publication_record["protected_path_blobs"]} == expected
+    assert len(publication_record["hosted_checks"]) == 3
+    assert all(row["conclusion"] == "SUCCESS" for row in publication_record["hosted_checks"])
+    assert publication_record["post_publication_verification"] == "PASS"
+    assert publication_record["open_obligations_preserved"] is True
+    assert candidate_record["authority"]["not_granted"] == C08_CLOSURE_DENIALS
+    assert publication_record["authority"]["not_granted"] == C08_CLOSURE_DENIALS
+    assert git("rev-list", "--parents", "-n", "1", publication_record["protected_commit"]).split() == [publication_record["protected_commit"], *publication_record["ordered_merge_parents"]]
+    for protected in publication_record["protected_path_blobs"]:
+        assert git("rev-parse", f'{publication_record["protected_commit"]}:{protected["path"]}') == protected["blob"]
