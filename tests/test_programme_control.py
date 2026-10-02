@@ -1700,8 +1700,8 @@ def test_pc_dec_021_closes_only_the_bounded_c09_positive_manifest_lifecycle() ->
         for item in _control()["decision_register"]["records"]
     }
     decision_ids = list(decisions)
-    assert decision_ids[-1] == "PC-DEC-021"
     assert decision_ids.index("PC-DEC-020") < decision_ids.index("PC-DEC-021")
+    assert decision_ids.index("PC-DEC-021") < decision_ids.index("PC-DEC-022")
     record = decisions["PC-DEC-021"]
     assert record["state"] == "APPROVED"
     assert record["supersedes"] is None
@@ -1733,3 +1733,32 @@ def test_pc_dec_021_closes_only_the_bounded_c09_positive_manifest_lifecycle() ->
         "FINANCIAL_EFFECTS",
         "AI_TRADING_AUTHORITY",
     } == set(record["authority_not_granted"])
+
+
+def test_pc_dec_022_closes_only_bounded_c08_pit_materialization() -> None:
+    decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
+    assert list(decisions)[-1] == "PC-DEC-022"
+    record = decisions["PC-DEC-022"]
+    assert record["state"] == "APPROVED"
+    assert record["supersedes"] is None
+    assert record["decision"] == "ATIS_STAGE3_C08_PIT_MATERIALIZATION_CLOSURE_RECORD_V1"
+    assert record["scope"] == "STAGE3_C08_PIT_MATERIALIZATION_GOVERNANCE_CLOSURE_RECORD_ONLY"
+    assert record["authority_granted"] == [
+        "RECORD_C08_PIT_MATERIALIZATION_CLOSURE",
+        "RECORD_SE_CAND_008",
+        "RECORD_SE_PUB_008",
+        "RECORD_VERIFIED_C08_PROTECTED_PUBLICATION",
+        "CLOSE_BOUNDED_C08_PIT_MATERIALIZATION_LIFECYCLE",
+    ]
+    assert {
+        "C08_IMPLEMENTATION_RESUMPTION", "C01_RB1_REENTRY", "CALENDAR_C02_REENTRY",
+        "C05_REENTRY", "C06_REENTRY", "C07_REENTRY", "C09_REENTRY", "C10_REENTRY",
+        "C11_IMPLEMENTATION", "SYNC_3_CONSUMABILITY", "UNIVERSE_POLICY_SELECTION",
+        "PROVIDER_SELECTION", "STORAGE_SELECTION", "FRESHNESS_HORIZON_SELECTION",
+        "RESOURCE_POLICY_VALUE_SELECTION", "PROMOTION_AUTHORITY", "DATASET_PROMOTION",
+        "NEXT_STAGE3_COMPONENT_ACTIVATION", "STAGE3_GENERAL_IMPLEMENTATION",
+        "STAGE4_IMPLEMENTATION", "RESEARCH_BACKTESTING_EXECUTION", "PAPER_TRADING",
+        "LIVE_TRADING", "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
+    } == set(record["authority_not_granted"])
+    assert "16 of 16" in record["source_authority"]
+    assert "no genuine C08 residual engineering" in record["source_authority"]

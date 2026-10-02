@@ -1108,6 +1108,181 @@
           "AI_TRADING_AUTHORITY"
         ]
       }
+    },
+    {
+      "record_id": "SE-CAND-008",
+      "record_type": "CANDIDATE_SUCCESSOR",
+      "governing_stage": "STAGE3",
+      "governing_rb": null,
+      "governing_slice": "ATIS-S3-C08-PIT-MATERIALIZATION",
+      "predecessor_evidence": [
+        "docs/stage3/stage3-specification.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/successor-evidence.json"
+      ],
+      "predecessor_commit": "7b4f6226f6a685fc470a27c2202a64899e95c0e3",
+      "predecessor_tree": "c47083b11a27ecd7bb7d0aa5dfb01116e0fc424d",
+      "authorization_references": [
+        "PC-DEC-022"
+      ],
+      "path_transitions": [
+        {
+          "path": "src/automated_trading_bot/datasets/materialization.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "3b820451e88fc2bdfcdb08df15d7a2c382d3f3d7",
+          "role": "IMPLEMENTATION",
+          "requirement_references": [
+            "S3-REQ-004",
+            "S3-REQ-009",
+            "S3-REQ-013",
+            "S3-REQ-015",
+            "S3-REQ-016",
+            "S3-REQ-017",
+            "S3-REQ-020",
+            "S3-REQ-022",
+            "S3-REQ-024",
+            "S3-REQ-027",
+            "S3-REQ-028",
+            "S3-REQ-029",
+            "S3-REQ-033",
+            "S3-REQ-034",
+            "S3-REQ-037",
+            "S3-REQ-040"
+          ]
+        },
+        {
+          "path": "tests/test_dataset_materialization.py",
+          "predecessor_blob": "ABSENT",
+          "successor_candidate_blob": "cf17922063de30c53530222dec89cd950d26267e",
+          "role": "TEST",
+          "requirement_references": [
+            "S3-REQ-004",
+            "S3-REQ-009",
+            "S3-REQ-013",
+            "S3-REQ-015",
+            "S3-REQ-016",
+            "S3-REQ-017",
+            "S3-REQ-020",
+            "S3-REQ-022",
+            "S3-REQ-024",
+            "S3-REQ-027",
+            "S3-REQ-028",
+            "S3-REQ-029",
+            "S3-REQ-033",
+            "S3-REQ-034",
+            "S3-REQ-037",
+            "S3-REQ-040"
+          ]
+        }
+      ],
+      "transition_reason": "Current bounded governance closure recording for the historical exact PR #62 C08 PIT materialisation implementation and publication, following independent reconciliation establishing all 16 canonical C08-associated obligations accounted for and no genuine residual C08 engineering, while preserving historical chronology, integration ownership and every downstream authority boundary.",
+      "verification_evidence": [
+        "C08_PROTECTED_IMPLEMENTATION_COMPLETE_NO_RESIDUAL_ENGINEERING_ESTABLISHED",
+        "C08_CANONICAL_OBLIGATIONS_16_OF_16_ACCOUNTED_FOR",
+        "C08_GENUINE_RESIDUAL_NONE",
+        "M1_ENGINEERING_FOUNDATION_PR62_RUN_36942104798_JOB_110635753561_SUCCESS",
+        "TRUSTED_M1_EVALUATOR_PR62_RUN_36942104696_JOB_110635753229_SUCCESS",
+        "PROTECTED_MASTER_M1_ENGINEERING_FOUNDATION_RUN_36942482151_JOB_110636951389_SUCCESS"
+      ],
+      "candidate_state": "VERIFIED_LOCAL_UNPUBLISHED",
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C08_IMPLEMENTATION_RESUMPTION",
+          "C01_RB1_REENTRY",
+          "CALENDAR_C02_REENTRY",
+          "C05_REENTRY",
+          "C06_REENTRY",
+          "C07_REENTRY",
+          "C09_REENTRY",
+          "C10_REENTRY",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "UNIVERSE_POLICY_SELECTION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
+    },
+    {
+      "record_id": "SE-PUB-008",
+      "record_type": "PROTECTED_PUBLICATION",
+      "candidate_record_id": "SE-CAND-008",
+      "protected_commit": "1f17d7bf493cec4e60142398c30ce1bafc5afb70",
+      "protected_tree": "83ec1d18135d2bdf8c52138719864534c666f5ef",
+      "ordered_merge_parents": [
+        "7b4f6226f6a685fc470a27c2202a64899e95c0e3",
+        "1156b37642db36d37fdeb881e010cb108b1d8493"
+      ],
+      "publication_reference": "GitHub pull request 62",
+      "protected_path_blobs": [
+        {
+          "path": "src/automated_trading_bot/datasets/materialization.py",
+          "blob": "3b820451e88fc2bdfcdb08df15d7a2c382d3f3d7"
+        },
+        {
+          "path": "tests/test_dataset_materialization.py",
+          "blob": "cf17922063de30c53530222dec89cd950d26267e"
+        }
+      ],
+      "hosted_checks": [
+        {
+          "name": "m1-engineering-foundation PR62 run 36942104798 job 110635753561",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "trusted-m1-evaluator PR62 run 36942104696 job 110635753229",
+          "conclusion": "SUCCESS"
+        },
+        {
+          "name": "protected-master m1-engineering-foundation run 36942482151 job 110636951389",
+          "conclusion": "SUCCESS"
+        }
+      ],
+      "post_publication_verification": "PASS",
+      "open_obligations_preserved": true,
+      "authority": {
+        "granted": [],
+        "not_granted": [
+          "C08_IMPLEMENTATION_RESUMPTION",
+          "C01_RB1_REENTRY",
+          "CALENDAR_C02_REENTRY",
+          "C05_REENTRY",
+          "C06_REENTRY",
+          "C07_REENTRY",
+          "C09_REENTRY",
+          "C10_REENTRY",
+          "C11_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "UNIVERSE_POLICY_SELECTION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
+      }
     }
   ],
   "authority": {
