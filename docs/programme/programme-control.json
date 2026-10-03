@@ -1183,6 +1183,41 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-023",
+        "governed_question": "May the owner-approved ATIS_C11_S1_MINIMUM_SEMANTIC_CONTRACT_V1, resolving MATERIAL-01 through MATERIAL-04 for the bounded storage-neutral C11-S1 persistence/publication semantic foundation, be recorded and protected without C11-S1 implementation, C11-S2, storage/provider selection, resource-policy value selection, promotion, SYNC-3, Stage 4, trading or financial authority?",
+        "scope": "STAGE3_C11_S1_MINIMUM_SEMANTIC_CONTRACT_RECORDING_AND_PROTECTION_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_C11_S1_MINIMUM_SEMANTIC_CONTRACT_V1",
+        "source_authority": "Record the owner authorization for this bounded seven-file structured contract-fixation transaction following the completed readiness, pre-mutation ambiguity classification, adversarial contract design and governance-fixation assessment. No C11-S1 implementation authority is granted.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_AND_PROTECT_ATIS_C11_S1_MINIMUM_SEMANTIC_CONTRACT_V1"
+        ],
+        "authority_not_granted": [
+          "C11_S1_IMPLEMENTATION",
+          "C11_S2_IMPLEMENTATION",
+          "C08_REENTRY",
+          "C09_REENTRY",
+          "C10_REENTRY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "SYNC_3_CONSUMABILITY",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/programme/master-recovery-packet.json"
 SCHEMA_PATH = ROOT / "docs/programme/master-recovery-packet.schema.json"
 EXPECTED_PACKET_SHA256 = (
-    "c325877ac68a29661e55002e02e3b9012107d36aafa55a3f7ceb2ecfd672357d"
+    "7c3f80fed7a233b6853eacb4c39925b0fc0f6e92051561699e362f7615f818b6"
 )
 EXPECTED_BASIS = {
     "commit": "119ab879fd96c64a4f04441da03945b5a22ed03d",
@@ -34,17 +34,17 @@ EXPECTED_REQUIRED = {
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx": "8e116c3f3a75b0a038d947c8f66c1c57f1a4ff2e",
     "docs/baseline/specification-provenance.json": "30ea05b9c395fc1051a7c2d3a25ec7a01fb08179",
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
-    "docs/programme/programme-control.json": "50e1dc985e64c680246580d11f9d6a0f58892cd0",
+    "docs/programme/programme-control.json": "6c9b12a218f8c9c8342890e75b990741f0d9c3ae",
     "docs/programme/programme-control.schema.json": "573205a85273424dabbab5fe8720de3a94b7a583",
     "docs/stage2/gate-s02-01.json": "850ce45a88d30b9348686493355fb681a464759f",
     "docs/stage2/stage2-freeze-record.json": "5a4425eeb79c87072e8c498981c55565c386c677",
-    "docs/stage3/stage3-specification.json": "e6e5762e9cf7261136dbcea2b6baa5ca3de748bb",
-    "docs/stage3/stage3-specification.schema.json": "ef918a0f7c91f4d5593b04a47c1ae05dea00ee88",
+    "docs/stage3/stage3-specification.json": "bba37de582045278df2baefdfc90fa56c08bfd5d",
+    "docs/stage3/stage3-specification.schema.json": "ca51bb3e099a9b649d275249aae492b8ea252b9e",
     "pyproject.toml": "f7cf0df47ffc4e1309803b48dc26114851dfb0ee",
     "requirements-dev.lock": "cfb3245eef00c6f51e619aa15a5432dfc8893d89",
     "scripts/bootstrap.ps1": "78c82833f387ce94f786f58f93947917076fd61a",
-    "tests/test_programme_control.py": "f5b1e02c4dfefd414a80fec8f8e5c781d0760e45",
-    "tests/test_stage3_specification.py": "0a37860d9377ed27597d935210d4f08ed414710a",
+    "tests/test_programme_control.py": "de46cc96380dc1f51d9d5874b5c2a9b4cbf2087a",
+    "tests/test_stage3_specification.py": "24e7c2d0c3eac66c9c1cba02467a6a195c068f44",
 }
 EXPECTED_SUPPLEMENTARY = {
     "docs/programme/successor-evidence.json": "af6af201dcac63d420a046fcbc2622348f56776e",
@@ -368,6 +368,7 @@ def test_recovery_packet_resolves_current_c08_closure_state() -> None:
     programme = _load(ROOT / "docs/programme/programme-control.json")
     decisions = {row["record_id"]: row for row in programme["decision_register"]["records"]}
     assert decisions["PC-DEC-022"]["decision"] == "ATIS_STAGE3_C08_PIT_MATERIALIZATION_CLOSURE_RECORD_V1"
+    assert decisions["PC-DEC-023"]["decision"] == "ATIS_C11_S1_MINIMUM_SEMANTIC_CONTRACT_V1"
     successor = _load(ROOT / "docs/programme/successor-evidence.json")
     by_id = {row["record_id"]: row for row in successor["records"]}
     assert by_id["SE-CAND-008"]["candidate_state"] == "VERIFIED_LOCAL_UNPUBLISHED"

@@ -13657,6 +13657,139 @@
       },
       "semantic_digest": "79d05b7fdb545042eea9945f87398d1a1ed19ef605689dd24057c98f4dcb2cea",
       "semantic_digest_scope": "CANONICAL_CONTRACT_OBJECT_EXCLUDING_SEMANTIC_DIGEST_AND_SCOPE_FIELDS"
+    },
+    "c11_s1_minimum_semantic_contract_v1": {
+      "contract_id": "ATIS_C11_S1_MINIMUM_SEMANTIC_CONTRACT_V1",
+      "classification": "OWNER_APPROVED_STRUCTURED_SEMANTIC_CONTRACT",
+      "scope": "STORAGE_NEUTRAL_C11_S1_PERSISTENCE_PUBLICATION_SEMANTIC_FOUNDATION_ONLY",
+      "implementation_authority": "NONE",
+      "identity_contract": {
+        "canonical_digest_model": "ATIS_DOMAIN_SEPARATED_CANONICAL_DIGEST",
+        "StoredVersionId": {
+          "domain": "ATIS:C11:STORED_VERSION:1",
+          "prefix": "c11-stored-version:",
+          "semantic_body": [
+            "contract_version",
+            "dataset_version_id",
+            "manifest_id",
+            "logical_content_id",
+            "written_content_digest"
+          ],
+          "excluded": [
+            "storage_adapter_contract_ref",
+            "physical_path",
+            "uri",
+            "database_key",
+            "provider_locator",
+            "completed_at",
+            "verification_evidence_refs"
+          ],
+          "distinct_from": [
+            "DatasetVersionId",
+            "PHYSICAL_LOCATION"
+          ]
+        },
+        "PersistenceReceiptId": {
+          "domain": "ATIS:C11:PERSISTENCE_RECEIPT:1",
+          "prefix": "c11-persistence-receipt:",
+          "derivation": "COMPLETE_PERSISTENCE_RECEIPT_SEMANTIC_BODY_EXCLUDING_ONLY_CLAIMED_RECEIPT_IDENTITY"
+        },
+        "PublicationReceiptId": {
+          "domain": "ATIS:C11:PUBLICATION_RECEIPT:1",
+          "prefix": "c11-publication-receipt:",
+          "derivation": "COMPLETE_PUBLICATION_RECEIPT_SEMANTIC_BODY_EXCLUDING_ONLY_CLAIMED_RECEIPT_IDENTITY"
+        }
+      },
+      "bounded_vocabularies": {
+        "PersistenceOperation": [
+          "PERSIST_EXACT_VERSION"
+        ],
+        "PublicationOperation": [
+          "PUBLISH_EXACT_VERSION"
+        ],
+        "ConsumerVisibilityState": [
+          "COMPLETE"
+        ],
+        "no_positive_receipt_states": [
+          "PARTIAL",
+          "FAILED",
+          "UNKNOWN",
+          "PENDING",
+          "CORRUPT",
+          "AMBIGUOUS",
+          "UNVERIFIED"
+        ],
+        "non_success_consequence": "NO_POSITIVE_RECEIPT"
+      },
+      "exact_version_retrieval_contract": {
+        "ExactVersionRetrievalRequest": {
+          "fields": [
+            "stored_version_id",
+            "expected_written_content_digest"
+          ]
+        },
+        "ExactVersionRetrievalResult": {
+          "fields": [
+            "stored_version_id",
+            "written_content_digest",
+            "verification_evidence_refs"
+          ]
+        },
+        "required_equalities": [
+          "REQUESTED_STORED_VERSION_ID_EQUALS_RETURNED_STORED_VERSION_ID",
+          "EXPECTED_WRITTEN_CONTENT_DIGEST_EQUALS_RETURNED_WRITTEN_CONTENT_DIGEST"
+        ],
+        "verification_evidence_refs": "NONEMPTY_ATTRIBUTABLE",
+        "prohibited": [
+          "LATEST_FALLBACK",
+          "ALIAS_LOOKUP",
+          "NEAREST_VERSION_SUBSTITUTION",
+          "SILENT_REPLACEMENT",
+          "PHYSICAL_LOCATOR_SEMANTICS",
+          "PHYSICAL_IO_IN_C11_S1"
+        ]
+      },
+      "failure_contract": {
+        "public_error_family": "DatasetPersistenceError(ValueError)",
+        "c11_owned_reasons": [
+          "IDENTITY_CONTENT_CONFLICT",
+          "CONTENT_DIGEST_MISMATCH",
+          "EXACT_VERSION_NOT_ESTABLISHED",
+          "EXACT_VERSION_AMBIGUOUS",
+          "VERIFICATION_EVIDENCE_NOT_ESTABLISHED",
+          "PARTIAL_PUBLICATION_PROHIBITED",
+          "PREDECESSOR_PUBLICATION_MISMATCH",
+          "UNSUPPORTED_OPERATION",
+          "UNSUPPORTED_VISIBILITY_STATE",
+          "RESOURCE_LIMIT_EXCEEDED"
+        ],
+        "upstream_failures_reused": [
+          "EvidenceIdentityConflict",
+          "ResourcePolicyError"
+        ],
+        "universal_failure_consequences": [
+          "NO_POSITIVE_RECEIPT",
+          "NO_PARTIAL_POSITIVE_BATCH",
+          "NO_FALLBACK",
+          "NO_SILENT_REPAIR",
+          "NO_CURRENTNESS_CLAIM",
+          "NO_ELIGIBILITY_CLAIM",
+          "NO_PROMOTION_CLAIM"
+        ]
+      },
+      "permanent_firewall": {
+        "PERSISTED_EQUALS_CURRENT": false,
+        "PUBLISHED_EQUALS_CURRENT": false,
+        "PUBLISHED_EQUALS_PROMOTED": false,
+        "PERSISTENCE_SUCCESS_EQUALS_PROMOTION_AUTHORITY": false,
+        "MISSING_PROMOTION_AUTHORITY": "NO_PROMOTION",
+        "C11_S1_PHYSICAL_IO": "NONE",
+        "C11_S1_PROVIDER_SELECTION": "NONE",
+        "C11_S1_STORAGE_SELECTION": "NONE",
+        "C11_S1_RESOURCE_POLICY_VALUE_SELECTION": "NONE",
+        "C11_S1_PROMOTION_AUTHORITY": "NONE",
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
     }
   }
 }
