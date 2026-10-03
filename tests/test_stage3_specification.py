@@ -953,3 +953,69 @@ def test_shared_dataset_lifecycle_contract_digest_and_schema_are_exact():
     damaged["stage3_recording_manifest"]["shared_dataset_lifecycle_contract_v1"]["authority"]["C10_IMPLEMENTATION"] = "AUTHORIZED"
     with pytest.raises(ValidationError):
         Draft202012Validator(load(S)).validate(damaged)
+
+
+def test_c11_s1_minimum_semantic_contract_v1_is_exact_and_non_authorizing():
+    contract = corpus()["stage3_recording_manifest"]["c11_s1_minimum_semantic_contract_v1"]
+    assert contract["contract_id"] == "ATIS_C11_S1_MINIMUM_SEMANTIC_CONTRACT_V1"
+    assert contract["implementation_authority"] == "NONE"
+    identities = contract["identity_contract"]
+    assert identities["StoredVersionId"] == {
+        "domain": "ATIS:C11:STORED_VERSION:1",
+        "prefix": "c11-stored-version:",
+        "semantic_body": [
+            "contract_version", "dataset_version_id", "manifest_id",
+            "logical_content_id", "written_content_digest",
+        ],
+        "excluded": [
+            "storage_adapter_contract_ref", "physical_path", "uri", "database_key",
+            "provider_locator", "completed_at", "verification_evidence_refs",
+        ],
+        "distinct_from": ["DatasetVersionId", "PHYSICAL_LOCATION"],
+    }
+    assert identities["PersistenceReceiptId"]["domain"] == "ATIS:C11:PERSISTENCE_RECEIPT:1"
+    assert identities["PersistenceReceiptId"]["prefix"] == "c11-persistence-receipt:"
+    assert identities["PublicationReceiptId"]["domain"] == "ATIS:C11:PUBLICATION_RECEIPT:1"
+    assert identities["PublicationReceiptId"]["prefix"] == "c11-publication-receipt:"
+    vocabularies = contract["bounded_vocabularies"]
+    assert vocabularies["PersistenceOperation"] == ["PERSIST_EXACT_VERSION"]
+    assert vocabularies["PublicationOperation"] == ["PUBLISH_EXACT_VERSION"]
+    assert vocabularies["ConsumerVisibilityState"] == ["COMPLETE"]
+    assert vocabularies["non_success_consequence"] == "NO_POSITIVE_RECEIPT"
+    retrieval = contract["exact_version_retrieval_contract"]
+    assert retrieval["ExactVersionRetrievalRequest"]["fields"] == [
+        "stored_version_id", "expected_written_content_digest",
+    ]
+    assert retrieval["ExactVersionRetrievalResult"]["fields"] == [
+        "stored_version_id", "written_content_digest", "verification_evidence_refs",
+    ]
+    assert retrieval["verification_evidence_refs"] == "NONEMPTY_ATTRIBUTABLE"
+    assert "LATEST_FALLBACK" in retrieval["prohibited"]
+    assert "PHYSICAL_IO_IN_C11_S1" in retrieval["prohibited"]
+    failure = contract["failure_contract"]
+    assert failure["public_error_family"] == "DatasetPersistenceError(ValueError)"
+    assert failure["upstream_failures_reused"] == [
+        "EvidenceIdentityConflict", "ResourcePolicyError",
+    ]
+    assert "NO_POSITIVE_RECEIPT" in failure["universal_failure_consequences"]
+    assert "NO_PROMOTION_CLAIM" in failure["universal_failure_consequences"]
+    assert set(contract["permanent_firewall"].values()) <= {False, "NONE", "NO_PROMOTION"}
+
+
+@pytest.mark.parametrize(
+    ("section", "key", "replacement"),
+    [
+        ("identity_contract", "canonical_digest_model", "UNDOMAINED_DIGEST"),
+        ("bounded_vocabularies", "ConsumerVisibilityState", ["PARTIAL"]),
+        ("exact_version_retrieval_contract", "verification_evidence_refs", "OPTIONAL"),
+        ("failure_contract", "public_error_family", "Exception"),
+        ("permanent_firewall", "C11_S1_PHYSICAL_IO", "FILESYSTEM"),
+    ],
+)
+def test_c11_s1_minimum_semantic_contract_schema_rejects_drift(
+    section: str, key: str, replacement: object
+) -> None:
+    damaged = deepcopy(corpus())
+    damaged["stage3_recording_manifest"]["c11_s1_minimum_semantic_contract_v1"][section][key] = replacement
+    with pytest.raises(ValidationError):
+        Draft202012Validator(load(S)).validate(damaged)
