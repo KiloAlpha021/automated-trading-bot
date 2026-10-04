@@ -18,12 +18,15 @@ from automated_trading_bot.datasets.materialization import (
     DatasetVersionId,
     LogicalContentId,
 )
+from automated_trading_bot.datasets.manifest import DatasetManifest
 from automated_trading_bot.datasets.provenance import (
     DatasetLifecycleResourcePolicy,
+    DatasetLifecycleResourcePolicyId,
     ManifestId,
     ResourcePolicyError,
     canonical_json,
 )
+from automated_trading_bot.domain.timestamp import Timestamp
 from automated_trading_bot.instruments.model import (
     EvidenceContentDigest,
     EvidenceRef,
@@ -35,6 +38,8 @@ _ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}", re.ASCII)
 _STORED_VERSION_DOMAIN = "ATIS:C11:STORED_VERSION:1"
 _PERSISTENCE_RECEIPT_DOMAIN = "ATIS:C11:PERSISTENCE_RECEIPT:1"
 _PUBLICATION_RECEIPT_DOMAIN = "ATIS:C11:PUBLICATION_RECEIPT:1"
+_PERSISTENCE_RECEIPT_CONTENT_DOMAIN = "ATIS:C11:PERSISTENCE_RECEIPT_CONTENT:1"
+_PUBLICATION_RECEIPT_CONTENT_DOMAIN = "ATIS:C11:PUBLICATION_RECEIPT_CONTENT:1"
 
 
 class DatasetPersistenceReason(StrEnum):
@@ -112,6 +117,349 @@ class PersistenceReceiptId(_OpaqueId):
 @dataclass(frozen=True, slots=True)
 class PublicationReceiptId(_OpaqueId):
     pass
+
+
+def _evidence_ref_body(value: EvidenceRef) -> dict[str, str]:
+    if type(value) is not EvidenceRef:
+        raise TypeError("expected EvidenceRef")
+    return {
+        "source_id": value.source_id.value,
+        "dataset_id": value.dataset_id.value,
+        "evidence_id": value.evidence_id.value,
+        "content_digest": value.content_digest.value,
+    }
+
+
+def _canonical_verification_evidence(
+    values: tuple[EvidenceRef, ...],
+) -> tuple[EvidenceRef, ...]:
+    if type(values) is not tuple:
+        raise TypeError("verification_evidence_refs must be a tuple")
+    if not values:
+        raise DatasetPersistenceError(
+            DatasetPersistenceReason.VERIFICATION_EVIDENCE_NOT_ESTABLISHED
+        )
+    return canonicalize_evidence_refs(values)
+
+
+def _timestamp_value(value: Timestamp) -> str:
+    if type(value) is not Timestamp:
+        raise TypeError("completed_at must be Timestamp")
+    return value.value.isoformat()
+
+
+@dataclass(frozen=True, slots=True)
+class PersistenceReceipt:
+    contract_version: str
+    dataset_version_id: DatasetVersionId
+    manifest_id: ManifestId
+    logical_content_id: LogicalContentId
+    stored_version_id: StoredVersionId
+    persistence_operation: PersistenceOperation
+    storage_adapter_contract_ref: EvidenceRef
+    written_content_digest: EvidenceContentDigest
+    verification_evidence_refs: tuple[EvidenceRef, ...]
+    completed_at: Timestamp
+    resource_policy_id: DatasetLifecycleResourcePolicyId
+    content_digest: EvidenceContentDigest
+
+    def content_projection(self) -> dict[str, object]:
+        return {
+            "contract_version": self.contract_version,
+            "dataset_version_id": self.dataset_version_id.value,
+            "manifest_id": self.manifest_id.value,
+            "logical_content_id": self.logical_content_id.value,
+            "stored_version_id": self.stored_version_id.value,
+            "persistence_operation": self.persistence_operation.value,
+            "storage_adapter_contract_ref": _evidence_ref_body(
+                self.storage_adapter_contract_ref
+            ),
+            "written_content_digest": self.written_content_digest.value,
+            "verification_evidence_refs": [
+                _evidence_ref_body(item) for item in self.verification_evidence_refs
+            ],
+            "completed_at": _timestamp_value(self.completed_at),
+            "resource_policy_id": self.resource_policy_id.value,
+        }
+
+    def receipt_id_body(self) -> dict[str, object]:
+        return {**self.content_projection(), "content_digest": self.content_digest.value}
+
+    def receipt_id(self) -> PersistenceReceiptId:
+        return derive_persistence_receipt_id(self.receipt_id_body())
+
+    def __post_init__(self) -> None:
+        _validate_common_receipt_fields(
+            self.contract_version,
+            self.dataset_version_id,
+            self.manifest_id,
+            self.logical_content_id,
+            self.stored_version_id,
+            self.completed_at,
+            self.content_digest,
+        )
+        if type(self.persistence_operation) is not PersistenceOperation:
+            raise DatasetPersistenceError(DatasetPersistenceReason.UNSUPPORTED_OPERATION)
+        if type(self.storage_adapter_contract_ref) is not EvidenceRef:
+            raise TypeError("storage_adapter_contract_ref must be EvidenceRef")
+        if type(self.written_content_digest) is not EvidenceContentDigest:
+            raise TypeError("written_content_digest must be EvidenceContentDigest")
+        if type(self.resource_policy_id) is not DatasetLifecycleResourcePolicyId:
+            raise TypeError("resource_policy_id must be DatasetLifecycleResourcePolicyId")
+        object.__setattr__(
+            self,
+            "verification_evidence_refs",
+            _canonical_verification_evidence(self.verification_evidence_refs),
+        )
+        expected = _digest(_PERSISTENCE_RECEIPT_CONTENT_DOMAIN, self.content_projection())
+        if self.content_digest != expected:
+            raise DatasetPersistenceError(DatasetPersistenceReason.CONTENT_DIGEST_MISMATCH)
+
+
+@dataclass(frozen=True, slots=True)
+class PublicationReceipt:
+    contract_version: str
+    dataset_version_id: DatasetVersionId
+    manifest_id: ManifestId
+    logical_content_id: LogicalContentId
+    stored_version_id: StoredVersionId
+    publication_operation: PublicationOperation
+    predecessor_publication_ref: PublicationReceiptId | None
+    verification_evidence_refs: tuple[EvidenceRef, ...]
+    consumer_visibility_state: ConsumerVisibilityState
+    completed_at: Timestamp
+    content_digest: EvidenceContentDigest
+
+    def content_projection(self) -> dict[str, object]:
+        return {
+            "contract_version": self.contract_version,
+            "dataset_version_id": self.dataset_version_id.value,
+            "manifest_id": self.manifest_id.value,
+            "logical_content_id": self.logical_content_id.value,
+            "stored_version_id": self.stored_version_id.value,
+            "publication_operation": self.publication_operation.value,
+            "predecessor_publication_ref": (
+                None
+                if self.predecessor_publication_ref is None
+                else self.predecessor_publication_ref.value
+            ),
+            "verification_evidence_refs": [
+                _evidence_ref_body(item) for item in self.verification_evidence_refs
+            ],
+            "consumer_visibility_state": self.consumer_visibility_state.value,
+            "completed_at": _timestamp_value(self.completed_at),
+        }
+
+    def receipt_id_body(self) -> dict[str, object]:
+        return {**self.content_projection(), "content_digest": self.content_digest.value}
+
+    def receipt_id(self) -> PublicationReceiptId:
+        return derive_publication_receipt_id(self.receipt_id_body())
+
+    def __post_init__(self) -> None:
+        _validate_common_receipt_fields(
+            self.contract_version,
+            self.dataset_version_id,
+            self.manifest_id,
+            self.logical_content_id,
+            self.stored_version_id,
+            self.completed_at,
+            self.content_digest,
+        )
+        if type(self.publication_operation) is not PublicationOperation:
+            raise DatasetPersistenceError(DatasetPersistenceReason.UNSUPPORTED_OPERATION)
+        if (
+            self.predecessor_publication_ref is not None
+            and type(self.predecessor_publication_ref) is not PublicationReceiptId
+        ):
+            raise TypeError("predecessor_publication_ref must be PublicationReceiptId or None")
+        if type(self.consumer_visibility_state) is not ConsumerVisibilityState:
+            raise DatasetPersistenceError(
+                DatasetPersistenceReason.UNSUPPORTED_VISIBILITY_STATE
+            )
+        object.__setattr__(
+            self,
+            "verification_evidence_refs",
+            _canonical_verification_evidence(self.verification_evidence_refs),
+        )
+        expected = _digest(_PUBLICATION_RECEIPT_CONTENT_DOMAIN, self.content_projection())
+        if self.content_digest != expected:
+            raise DatasetPersistenceError(DatasetPersistenceReason.CONTENT_DIGEST_MISMATCH)
+
+
+def _validate_common_receipt_fields(
+    contract_version: str,
+    dataset_version_id: DatasetVersionId,
+    manifest_id: ManifestId,
+    logical_content_id: LogicalContentId,
+    stored_version_id: StoredVersionId,
+    completed_at: Timestamp,
+    content_digest: EvidenceContentDigest,
+) -> None:
+    if contract_version != SHARED_CONTRACT_VERSION:
+        raise DatasetPersistenceError(DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+    expected = (
+        (dataset_version_id, DatasetVersionId, "dataset_version_id"),
+        (manifest_id, ManifestId, "manifest_id"),
+        (logical_content_id, LogicalContentId, "logical_content_id"),
+        (stored_version_id, StoredVersionId, "stored_version_id"),
+        (completed_at, Timestamp, "completed_at"),
+        (content_digest, EvidenceContentDigest, "content_digest"),
+    )
+    for value, kind, name in expected:
+        if type(value) is not kind:
+            raise TypeError(f"{name} must be {kind.__name__}")
+
+
+def _validate_manifest_binding(
+    *,
+    dataset_version_id: DatasetVersionId,
+    manifest_id: ManifestId,
+    logical_content_id: LogicalContentId,
+    manifest: DatasetManifest,
+) -> None:
+    if type(manifest) is not DatasetManifest:
+        raise TypeError("manifest must be DatasetManifest")
+    if (
+        manifest.manifest_id != manifest_id
+        or manifest.dataset_version_id != dataset_version_id
+        or manifest.logical_content_id != logical_content_id
+    ):
+        raise DatasetPersistenceError(DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+
+
+def create_persistence_receipt(
+    *,
+    contract_version: str,
+    dataset_version_id: DatasetVersionId,
+    manifest_id: ManifestId,
+    logical_content_id: LogicalContentId,
+    stored_version_id: StoredVersionId,
+    persistence_operation: PersistenceOperation,
+    storage_adapter_contract_ref: EvidenceRef,
+    written_content_digest: EvidenceContentDigest,
+    verification_evidence_refs: tuple[EvidenceRef, ...],
+    completed_at: Timestamp,
+    resource_policy_id: DatasetLifecycleResourcePolicyId,
+    manifest: DatasetManifest,
+    resource_policy: DatasetLifecycleResourcePolicy,
+) -> PersistenceReceipt:
+    """Construct a typed semantic receipt without performing persistence."""
+    _validate_manifest_binding(
+        dataset_version_id=dataset_version_id,
+        manifest_id=manifest_id,
+        logical_content_id=logical_content_id,
+        manifest=manifest,
+    )
+    if type(resource_policy) is not DatasetLifecycleResourcePolicy:
+        raise ResourcePolicyError("RESOURCE_POLICY_NOT_ESTABLISHED")
+    if resource_policy.policy_id != resource_policy_id:
+        raise DatasetPersistenceError(DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+    expected_stored = derive_stored_version_id(
+        contract_version=contract_version,
+        dataset_version_id=dataset_version_id,
+        manifest_id=manifest_id,
+        logical_content_id=logical_content_id,
+        written_content_digest=written_content_digest,
+    )
+    if stored_version_id != expected_stored:
+        raise DatasetPersistenceError(DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+    canonical_evidence = _canonical_verification_evidence(verification_evidence_refs)
+    projection = {
+        "contract_version": contract_version,
+        "dataset_version_id": dataset_version_id.value,
+        "manifest_id": manifest_id.value,
+        "logical_content_id": logical_content_id.value,
+        "stored_version_id": stored_version_id.value,
+        "persistence_operation": persistence_operation.value,
+        "storage_adapter_contract_ref": _evidence_ref_body(storage_adapter_contract_ref),
+        "written_content_digest": written_content_digest.value,
+        "verification_evidence_refs": [_evidence_ref_body(item) for item in canonical_evidence],
+        "completed_at": _timestamp_value(completed_at),
+        "resource_policy_id": resource_policy_id.value,
+    }
+    return PersistenceReceipt(
+        contract_version,
+        dataset_version_id,
+        manifest_id,
+        logical_content_id,
+        stored_version_id,
+        persistence_operation,
+        storage_adapter_contract_ref,
+        written_content_digest,
+        canonical_evidence,
+        completed_at,
+        resource_policy_id,
+        _digest(_PERSISTENCE_RECEIPT_CONTENT_DOMAIN, projection),
+    )
+
+
+def create_publication_receipt(
+    *,
+    contract_version: str,
+    dataset_version_id: DatasetVersionId,
+    manifest_id: ManifestId,
+    logical_content_id: LogicalContentId,
+    stored_version_id: StoredVersionId,
+    expected_written_content_digest: EvidenceContentDigest,
+    publication_operation: PublicationOperation,
+    predecessor_publication_ref: PublicationReceiptId | None,
+    expected_predecessor_publication_ref: PublicationReceiptId | None,
+    verification_evidence_refs: tuple[EvidenceRef, ...],
+    consumer_visibility_state: ConsumerVisibilityState,
+    completed_at: Timestamp,
+    manifest: DatasetManifest,
+) -> PublicationReceipt:
+    """Construct a typed semantic receipt without publishing or promoting."""
+    _validate_manifest_binding(
+        dataset_version_id=dataset_version_id,
+        manifest_id=manifest_id,
+        logical_content_id=logical_content_id,
+        manifest=manifest,
+    )
+    expected_stored = derive_stored_version_id(
+        contract_version=contract_version,
+        dataset_version_id=dataset_version_id,
+        manifest_id=manifest_id,
+        logical_content_id=logical_content_id,
+        written_content_digest=expected_written_content_digest,
+    )
+    if stored_version_id != expected_stored:
+        raise DatasetPersistenceError(DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+    validate_publication_semantics(
+        operation=publication_operation,
+        visibility_state=consumer_visibility_state,
+        predecessor_publication_ref=predecessor_publication_ref,
+        expected_predecessor_publication_ref=expected_predecessor_publication_ref,
+    )
+    canonical_evidence = _canonical_verification_evidence(verification_evidence_refs)
+    projection = {
+        "contract_version": contract_version,
+        "dataset_version_id": dataset_version_id.value,
+        "manifest_id": manifest_id.value,
+        "logical_content_id": logical_content_id.value,
+        "stored_version_id": stored_version_id.value,
+        "publication_operation": publication_operation.value,
+        "predecessor_publication_ref": (
+            None if predecessor_publication_ref is None else predecessor_publication_ref.value
+        ),
+        "verification_evidence_refs": [_evidence_ref_body(item) for item in canonical_evidence],
+        "consumer_visibility_state": consumer_visibility_state.value,
+        "completed_at": _timestamp_value(completed_at),
+    }
+    return PublicationReceipt(
+        contract_version,
+        dataset_version_id,
+        manifest_id,
+        logical_content_id,
+        stored_version_id,
+        publication_operation,
+        predecessor_publication_ref,
+        canonical_evidence,
+        consumer_visibility_state,
+        completed_at,
+        _digest(_PUBLICATION_RECEIPT_CONTENT_DOMAIN, projection),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -352,10 +700,14 @@ __all__ = (
     "ExactVersionRetrievalRequest",
     "ExactVersionRetrievalResult",
     "PersistenceOperation",
+    "PersistenceReceipt",
     "PersistenceReceiptId",
     "PublicationOperation",
+    "PublicationReceipt",
     "PublicationReceiptId",
     "StoredVersionId",
+    "create_persistence_receipt",
+    "create_publication_receipt",
     "derive_persistence_receipt_id",
     "derive_publication_receipt_id",
     "derive_publication_receipt_ids",
