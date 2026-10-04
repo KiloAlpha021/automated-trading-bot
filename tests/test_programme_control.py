@@ -1768,8 +1768,8 @@ def test_pc_dec_022_closes_only_bounded_c08_pit_materialization() -> None:
 
 def test_pc_dec_023_records_only_c11_s1_semantic_contract_fixation() -> None:
     decisions = {item["record_id"]: item for item in _control()["decision_register"]["records"]}
-    assert list(decisions)[-1] == "PC-DEC-023"
     assert list(decisions).index("PC-DEC-022") < list(decisions).index("PC-DEC-023")
+    assert list(decisions).index("PC-DEC-023") < list(decisions).index("PC-DEC-024")
     record = decisions["PC-DEC-023"]
     assert record["state"] == "APPROVED"
     assert record["supersedes"] is None
@@ -1789,3 +1789,19 @@ def test_pc_dec_023_records_only_c11_s1_semantic_contract_fixation() -> None:
     } == set(record["authority_not_granted"])
     assert "seven-file structured contract-fixation transaction" in record["source_authority"]
     assert "No C11-S1 implementation authority is granted" in record["source_authority"]
+
+
+def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> None:
+    decisions = {row["record_id"]: row for row in _control()["decision_register"]["records"]}
+    record = decisions["PC-DEC-024"]
+    assert list(decisions)[-1] == "PC-DEC-024"
+    assert list(decisions).index("PC-DEC-023") < list(decisions).index("PC-DEC-024")
+    assert record["state"] == "APPROVED"
+    assert record["supersedes"] is None
+    assert record["decision"] == "ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1"
+    assert record["scope"] == "STAGE3_C11_S2_MINIMUM_RECEIPT_CONTRACT_RECORDING_AND_PROTECTION_ONLY"
+    assert record["authority_granted"] == ["RECORD_AND_PROTECT_ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1"]
+    assert set(record["authority_not_granted"]) == {"C11_S2_IMPLEMENTATION","C08_REENTRY","C09_REENTRY","C10_REENTRY","C11_S1_REENTRY","PROVIDER_SELECTION","STORAGE_SELECTION","PHYSICAL_PERSISTENCE","PHYSICAL_PUBLICATION","PHYSICAL_ATOMIC_PUBLICATION","RESOURCE_POLICY_VALUE_SELECTION","CURRENTNESS_AUTHORITY","ELIGIBILITY_AUTHORITY","PROMOTION_AUTHORITY","DATASET_PROMOTION","SYNC_3_CONSUMABILITY","NEXT_STAGE3_COMPONENT_ACTIVATION","STAGE3_GENERAL_IMPLEMENTATION","STAGE4_IMPLEMENTATION","RESEARCH_BACKTESTING_EXECUTION","PAPER_TRADING","LIVE_TRADING","FINANCIAL_EFFECTS","AI_TRADING_AUTHORITY"}
+    assert record["governed_question"].startswith("May the owner-approved ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1")
+    assert "seven-file structured C11-S2 minimum receipt contract-fixation transaction" in record["source_authority"]
+    assert "No C11-S2 implementation authority is granted" in record["source_authority"]

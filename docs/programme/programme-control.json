@@ -1218,6 +1218,46 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-024",
+        "governed_question": "May the owner-approved ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1, defining the bounded storage-neutral typed persistence/publication lifecycle receipt contract, exact Option-B receipt identity model, content-digest domains, receipt field semantics, cross-record invariants and authority firewall, be recorded and protected without C11-S2 implementation, predecessor reentry, physical persistence/publication, provider/storage selection, resource-policy value selection, currentness, eligibility, promotion, SYNC-3, Stage 4, trading or financial authority?",
+        "scope": "STAGE3_C11_S2_MINIMUM_RECEIPT_CONTRACT_RECORDING_AND_PROTECTION_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1",
+        "source_authority": "Record the owner authorization for this bounded seven-file structured C11-S2 minimum receipt contract-fixation transaction following the completed readiness analysis, independent adversarial review, owner approval of the Option-B receipt identity model, and pre-mutation governance assessment. No C11-S2 implementation authority is granted.",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_AND_PROTECT_ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1"
+        ],
+        "authority_not_granted": [
+          "C11_S2_IMPLEMENTATION",
+          "C08_REENTRY",
+          "C09_REENTRY",
+          "C10_REENTRY",
+          "C11_S1_REENTRY",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PHYSICAL_PERSISTENCE",
+          "PHYSICAL_PUBLICATION",
+          "PHYSICAL_ATOMIC_PUBLICATION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "CURRENTNESS_AUTHORITY",
+          "ELIGIBILITY_AUTHORITY",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "SYNC_3_CONSUMABILITY",
+          "NEXT_STAGE3_COMPONENT_ACTIVATION",
+          "STAGE3_GENERAL_IMPLEMENTATION",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

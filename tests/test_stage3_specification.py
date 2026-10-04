@@ -1019,3 +1019,40 @@ def test_c11_s1_minimum_semantic_contract_schema_rejects_drift(
     damaged["stage3_recording_manifest"]["c11_s1_minimum_semantic_contract_v1"][section][key] = replacement
     with pytest.raises(ValidationError):
         Draft202012Validator(load(S)).validate(damaged)
+
+
+def test_c11_s2_minimum_receipt_contract_v1_is_exact_and_non_authorizing():
+    c = corpus()["stage3_recording_manifest"]["c11_s2_minimum_receipt_contract_v1"]
+    assert c["contract_id"] == "ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1"
+    assert c["scope"] == "STORAGE_NEUTRAL_TYPED_PERSISTENCE_PUBLICATION_LIFECYCLE_RECEIPT_CONTRACT_ONLY"
+    assert c["implementation_authority"] == "NONE"
+    assert [f["name"] for f in c["receipt_models"]["PersistenceReceipt"]["fields"]] == ["contract_version","dataset_version_id","manifest_id","logical_content_id","stored_version_id","persistence_operation","storage_adapter_contract_ref","written_content_digest","verification_evidence_refs","completed_at","resource_policy_id","content_digest"]
+    assert [f["name"] for f in c["receipt_models"]["PublicationReceipt"]["fields"]] == ["contract_version","dataset_version_id","manifest_id","logical_content_id","stored_version_id","publication_operation","predecessor_publication_ref","verification_evidence_refs","consumer_visibility_state","completed_at","content_digest"]
+    identity = c["identity_model"]
+    assert identity["model"] == "OPTION_B"
+    assert identity["non_circular"] is True
+    assert identity["c11_s1_literal_conformance"] is True
+    assert identity["all_receipt_fields_bound"] is True
+    assert identity["PersistenceReceipt"]["content_domain"] == "ATIS:C11:PERSISTENCE_RECEIPT_CONTENT:1"
+    assert identity["PublicationReceipt"]["content_domain"] == "ATIS:C11:PUBLICATION_RECEIPT_CONTENT:1"
+    for name in ("PersistenceReceipt", "PublicationReceipt"):
+        assert identity[name]["complete_receipt_id_body"] == identity[name]["content_projection"] + ["content_digest"]
+    assert list(c["invariants"]) == [f"INV-S2-{n:02d}" for n in range(1, 11)]
+    assert c["failure_routing"]["new_c11_s2_failure_reasons"] == []
+    assert set(c["authority_firewall"].values()) <= {"NONE", "NOT_ESTABLISHED", "NOT_AUTHORIZED"}
+
+@pytest.mark.parametrize(("path","value"), [
+    (("identity_model","model"), "OPTION_A"),
+    (("identity_model","PersistenceReceipt","content_domain"), "UNDOMAINED"),
+    (("identity_model","PublicationReceipt","complete_receipt_id_body"), []),
+    (("invariants","INV-S2-10"), "ESTABLISHED"),
+    (("authority_firewall","PHYSICAL_PERSISTENCE"), "FILESYSTEM"),
+])
+def test_c11_s2_minimum_receipt_contract_schema_rejects_drift(path, value):
+    damaged = deepcopy(corpus())
+    target = damaged["stage3_recording_manifest"]["c11_s2_minimum_receipt_contract_v1"]
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    with pytest.raises(ValidationError):
+        Draft202012Validator(load(S)).validate(damaged)

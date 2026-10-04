@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "90569615632ac30da180392f1db4cb7d6e7a4d448e0f34ca64aceef45dc43b9a",
+    "candidate_digest": "2913d7e4d407f35e4c8925b28e5b5d3af337d47fb989e2f165e879b972ed6f93",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -13788,6 +13788,231 @@
         "C11_S1_STORAGE_SELECTION": "NONE",
         "C11_S1_RESOURCE_POLICY_VALUE_SELECTION": "NONE",
         "C11_S1_PROMOTION_AUTHORITY": "NONE",
+        "AI_TRADING_AUTHORITY": "NONE"
+      }
+    },
+    "c11_s2_minimum_receipt_contract_v1": {
+      "contract_id": "ATIS_C11_S2_MINIMUM_RECEIPT_CONTRACT_V1",
+      "classification": "OWNER_APPROVED_STRUCTURED_RECEIPT_CONTRACT",
+      "scope": "STORAGE_NEUTRAL_TYPED_PERSISTENCE_PUBLICATION_LIFECYCLE_RECEIPT_CONTRACT_ONLY",
+      "implementation_authority": "NONE",
+      "receipt_models": {
+        "PersistenceReceipt": {
+          "identity": "PersistenceReceiptId",
+          "fields": [
+            {
+              "name": "contract_version",
+              "type": "PROTECTED_SHARED_CONTRACT_VERSION"
+            },
+            {
+              "name": "dataset_version_id",
+              "type": "DatasetVersionId"
+            },
+            {
+              "name": "manifest_id",
+              "type": "ManifestId"
+            },
+            {
+              "name": "logical_content_id",
+              "type": "LogicalContentId"
+            },
+            {
+              "name": "stored_version_id",
+              "type": "StoredVersionId"
+            },
+            {
+              "name": "persistence_operation",
+              "type": "PersistenceOperation"
+            },
+            {
+              "name": "storage_adapter_contract_ref",
+              "type": "EvidenceRef"
+            },
+            {
+              "name": "written_content_digest",
+              "type": "EvidenceContentDigest"
+            },
+            {
+              "name": "verification_evidence_refs",
+              "type": "tuple[EvidenceRef,...]"
+            },
+            {
+              "name": "completed_at",
+              "type": "Timestamp"
+            },
+            {
+              "name": "resource_policy_id",
+              "type": "DatasetLifecycleResourcePolicyId"
+            },
+            {
+              "name": "content_digest",
+              "type": "EvidenceContentDigest"
+            }
+          ]
+        },
+        "PublicationReceipt": {
+          "identity": "PublicationReceiptId",
+          "fields": [
+            {
+              "name": "contract_version",
+              "type": "PROTECTED_SHARED_CONTRACT_VERSION"
+            },
+            {
+              "name": "dataset_version_id",
+              "type": "DatasetVersionId"
+            },
+            {
+              "name": "manifest_id",
+              "type": "ManifestId"
+            },
+            {
+              "name": "logical_content_id",
+              "type": "LogicalContentId"
+            },
+            {
+              "name": "stored_version_id",
+              "type": "StoredVersionId"
+            },
+            {
+              "name": "publication_operation",
+              "type": "PublicationOperation"
+            },
+            {
+              "name": "predecessor_publication_ref",
+              "type": "PublicationReceiptId|None"
+            },
+            {
+              "name": "verification_evidence_refs",
+              "type": "tuple[EvidenceRef,...]"
+            },
+            {
+              "name": "consumer_visibility_state",
+              "type": "ConsumerVisibilityState"
+            },
+            {
+              "name": "completed_at",
+              "type": "Timestamp"
+            },
+            {
+              "name": "content_digest",
+              "type": "EvidenceContentDigest"
+            }
+          ]
+        }
+      },
+      "identity_model": {
+        "model": "OPTION_B",
+        "canonicalization": "ATIS_DOMAIN_SEPARATED_CANONICAL_DIGEST",
+        "PersistenceReceipt": {
+          "content_domain": "ATIS:C11:PERSISTENCE_RECEIPT_CONTENT:1",
+          "content_projection": [
+            "contract_version",
+            "dataset_version_id",
+            "manifest_id",
+            "logical_content_id",
+            "stored_version_id",
+            "persistence_operation",
+            "storage_adapter_contract_ref",
+            "written_content_digest",
+            "verification_evidence_refs",
+            "completed_at",
+            "resource_policy_id"
+          ],
+          "content_digest_derivation": "DOMAIN_SEPARATED_CANONICAL_DIGEST_OF_CONTENT_PROJECTION",
+          "complete_receipt_id_body": [
+            "contract_version",
+            "dataset_version_id",
+            "manifest_id",
+            "logical_content_id",
+            "stored_version_id",
+            "persistence_operation",
+            "storage_adapter_contract_ref",
+            "written_content_digest",
+            "verification_evidence_refs",
+            "completed_at",
+            "resource_policy_id",
+            "content_digest"
+          ],
+          "receipt_id_derivation": "derive_persistence_receipt_id"
+        },
+        "PublicationReceipt": {
+          "content_domain": "ATIS:C11:PUBLICATION_RECEIPT_CONTENT:1",
+          "content_projection": [
+            "contract_version",
+            "dataset_version_id",
+            "manifest_id",
+            "logical_content_id",
+            "stored_version_id",
+            "publication_operation",
+            "predecessor_publication_ref",
+            "verification_evidence_refs",
+            "consumer_visibility_state",
+            "completed_at"
+          ],
+          "content_digest_derivation": "DOMAIN_SEPARATED_CANONICAL_DIGEST_OF_CONTENT_PROJECTION",
+          "complete_receipt_id_body": [
+            "contract_version",
+            "dataset_version_id",
+            "manifest_id",
+            "logical_content_id",
+            "stored_version_id",
+            "publication_operation",
+            "predecessor_publication_ref",
+            "verification_evidence_refs",
+            "consumer_visibility_state",
+            "completed_at",
+            "content_digest"
+          ],
+          "receipt_id_derivation": "derive_publication_receipt_id"
+        },
+        "non_circular": true,
+        "c11_s1_literal_conformance": true,
+        "all_receipt_fields_bound": true
+      },
+      "invariants": {
+        "INV-S2-01": "STORED_VERSION_ID_EQUALS_PROTECTED_C11_S1_DERIVATION",
+        "INV-S2-02": "SUPPLIED_MANIFEST_IDENTITIES_AGREE_EXACTLY_WITH_RECEIPT",
+        "INV-S2-03": "PERSISTENCE_RESOURCE_POLICY_ID_EQUALS_SUPPLIED_PROTECTED_POLICY_ID",
+        "INV-S2-04": "VERIFICATION_EVIDENCE_REFS_NONEMPTY_ATTRIBUTABLE_CANONICAL_CONFLICT_FREE",
+        "INV-S2-05": "COMPLETED_AT_EXTERNALLY_SUPPLIED_TIMESTAMP_NO_CLOCK_SUBSTITUTION",
+        "INV-S2-06": "PUBLICATION_PREDECESSOR_MISMATCH_FAILS_CLOSED",
+        "INV-S2-07": "COMPLETE_ONLY_POSITIVE_CONSUMER_VISIBILITY",
+        "INV-S2-08": "NO_CURRENTNESS_ELIGIBILITY_OR_PROMOTION_AUTHORITY",
+        "INV-S2-09": "CONTENT_DIGEST_AND_RECEIPT_ID_INDEPENDENTLY_REPRODUCIBLE",
+        "INV-S2-10": "PHYSICAL_ATOMIC_PUBLICATION_NOT_ESTABLISHED"
+      },
+      "failure_routing": {
+        "c11_owned_reasons": [
+          "IDENTITY_CONTENT_CONFLICT",
+          "CONTENT_DIGEST_MISMATCH",
+          "EXACT_VERSION_NOT_ESTABLISHED",
+          "EXACT_VERSION_AMBIGUOUS",
+          "VERIFICATION_EVIDENCE_NOT_ESTABLISHED",
+          "PARTIAL_PUBLICATION_PROHIBITED",
+          "PREDECESSOR_PUBLICATION_MISMATCH",
+          "UNSUPPORTED_OPERATION",
+          "UNSUPPORTED_VISIBILITY_STATE",
+          "RESOURCE_LIMIT_EXCEEDED"
+        ],
+        "upstream_failures_reused": [
+          "EvidenceIdentityConflict",
+          "ResourcePolicyError"
+        ],
+        "new_c11_s2_failure_reasons": []
+      },
+      "authority_firewall": {
+        "PHYSICAL_PERSISTENCE": "NONE",
+        "PHYSICAL_PUBLICATION": "NONE",
+        "PHYSICAL_ATOMIC_PUBLICATION": "NOT_ESTABLISHED",
+        "PROVIDER_SELECTION": "NONE",
+        "STORAGE_SELECTION": "NONE",
+        "RESOURCE_POLICY_VALUE_SELECTION": "NONE",
+        "CURRENTNESS_AUTHORITY": "NONE",
+        "ELIGIBILITY_AUTHORITY": "NONE",
+        "PROMOTION_AUTHORITY": "NONE",
+        "SYNC_3_CONSUMABILITY": "NOT_AUTHORIZED",
+        "STAGE4_IMPLEMENTATION": "NOT_AUTHORIZED",
+        "TRADING_OR_FINANCIAL_AUTHORITY": "NONE",
         "AI_TRADING_AUTHORITY": "NONE"
       }
     }
