@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "4a41788c14950a22a9b1dfeef3835054d54200ce96291509d831a2b06384cce4",
+    "candidate_digest": "15db1e80c8d728f82509a835ba5cf1127e72b4c84a791ceba4c8a5a6d96afd07",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -14230,6 +14230,135 @@
           "authority_firewall": "UNCHANGED",
           "sync3_historical_state": "OPEN_NOT_CONSUMABLE_NOT_BYPASSED",
           "contract_makes_consumable": false
+        }
+      },
+      "state_reason_semantic_clarification_v1": {
+        "clarification_id": "ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1",
+        "target_contract": "ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1",
+        "classification": "MINIMUM_ADDITIVE_STATE_REASON_SEMANTIC_CLOSURE",
+        "rules": [
+          {
+            "id": "SR-CLOSURE-01",
+            "name": "INTEGRITY_BEFORE_SEMANTICS",
+            "rule": "VALIDATE_TYPE_IDENTITY_DIGEST_CANONICALIZATION_ATTRIBUTION_BINDING_AND_APPLICABLE_TEMPORAL_CONSTRAINTS_BEFORE_SEMANTIC_EVALUATION_APPLICABLE_INTEGRITY_FAILURE_FAILS_CLOSED_AND_DOES_NOT_BECOME_AN_ORDINARY_SEMANTIC_REASON_TUPLE"
+          },
+          {
+            "id": "SR-CLOSURE-02",
+            "name": "COMPLETE_STATE_PRECEDENCE",
+            "rule": "FOR_INTEGRITY_VALID_TRUSTWORTHY_EVIDENCE_N_GREATER_THAN_U_GREATER_THAN_P_WHERE_N_IS_ESTABLISHED_NEGATIVE_OR_RESTRICTIVE_U_IS_REQUIRED_CONDITION_NOT_ESTABLISHED_AND_P_IS_REQUIRED_POSITIVE_CONDITION_ESTABLISHED"
+          },
+          {
+            "id": "SR-CLOSURE-03",
+            "name": "NEGATIVE_DOMINANCE",
+            "rule": "ANY_APPLICABLE_N_PRODUCES_NOT_CONSUMABLE_INCLUDING_MIXED_N_U_CASES"
+          },
+          {
+            "id": "SR-CLOSURE-04",
+            "name": "UNESTABLISHED_ROUTE",
+            "rule": "NOT_ESTABLISHED_APPLIES_ONLY_WHEN_NO_N_APPLIES_AND_AT_LEAST_ONE_U_EXISTS"
+          },
+          {
+            "id": "SR-CLOSURE-05",
+            "name": "POSITIVE_ROUTE",
+            "rule": "CONSUMABLE_APPLIES_ONLY_WHEN_EVERY_REQUIRED_CONDITION_IS_P"
+          },
+          {
+            "id": "SR-CLOSURE-06",
+            "name": "COMPLETE_REASON_MEMBERSHIP",
+            "rule": "RETAIN_EVERY_APPLICABLE_ATTRIBUTABLE_PROTECTED_C05_C06_C10_REASON_AND_EVERY_APPLICABLE_PROTECTED_SYNC3_REASON"
+          },
+          {
+            "id": "SR-CLOSURE-07",
+            "name": "CANONICAL_REASON_UNION",
+            "rule": "REASONS_ARE_THE_CANONICAL_SORTED_DISTINCT_UNION_AND_CALLER_OR_EVALUATION_ORDER_HAS_NO_AUTHORITY"
+          },
+          {
+            "id": "SR-CLOSURE-08",
+            "name": "REASON_EXCLUSIONS",
+            "rule": "NON_APPLICABLE_NON_ATTRIBUTABLE_MALFORMED_UNSUPPORTED_OR_FABRICATED_REASONS_ARE_PROHIBITED"
+          },
+          {
+            "id": "SR-CLOSURE-09",
+            "name": "MIXED_STATE_REASONS",
+            "rule": "WHEN_N_AND_U_COEXIST_STATE_IS_NOT_CONSUMABLE_AND_ALL_APPLICABLE_ATTRIBUTABLE_N_AND_U_REASONS_REMAIN"
+          },
+          {
+            "id": "SR-CLOSURE-10",
+            "name": "REVERSE_IMPLICATIONS",
+            "rule": "CONSUMABLE_NOT_CONSUMABLE_AND_NOT_ESTABLISHED_MUST_SATISFY_THEIR_PROTECTED_REVERSE_CONDITIONS"
+          },
+          {
+            "id": "SR-CLOSURE-11",
+            "name": "IDENTITY_CONSEQUENCE",
+            "rule": "STATE_AND_CANONICAL_REASONS_REMAIN_IN_THE_EXISTING_CONTENT_PROJECTION_AND_CHANGING_EITHER_CHANGES_CONTENT_DIGEST_AND_ASSESSMENT_ID_DETERMINISTICALLY"
+          }
+        ],
+        "semantic_classes": {
+          "P": "REQUIRED_POSITIVE_CONDITION_ESTABLISHED",
+          "N": "TRUSTWORTHY_ESTABLISHED_NEGATIVE_OR_RESTRICTIVE_CONDITION",
+          "U": "REQUIRED_CONDITION_NOT_ESTABLISHED",
+          "F": "INTEGRITY_IDENTITY_CANONICALIZATION_ATTRIBUTION_BINDING_OR_APPLICABLE_TEMPORAL_FAILURE"
+        },
+        "evaluation_phases": {
+          "phase_a": "INTEGRITY_VALIDATION",
+          "phase_a_failure": "HARD_FAIL_CLOSED_WITHOUT_ORDINARY_SEMANTIC_ASSESSMENT",
+          "phase_b": "TRUSTWORTHY_SEMANTIC_STATE_AND_REASON_EVALUATION"
+        },
+        "state_precedence": {
+          "trustworthy_order": [
+            "N",
+            "U",
+            "P"
+          ],
+          "all_p": "CONSUMABLE",
+          "any_n": "NOT_CONSUMABLE",
+          "any_u_without_n": "NOT_ESTABLISHED",
+          "mixed_n_u": "NOT_CONSUMABLE"
+        },
+        "reason_aggregation": {
+          "membership": "ALL_APPLICABLE_ATTRIBUTABLE_PROTECTED_C05_C06_C10_AND_SYNC3_REASONS",
+          "operation": "CANONICAL_SORTED_DISTINCT_UNION",
+          "duplicate_handling": "COLLAPSE",
+          "ordering": "CANONICAL_LEXICOGRAPHIC",
+          "evaluation_order": "NO_AUTHORITY",
+          "first_error_wins": "PROHIBITED",
+          "mixed_n_u": "RETAIN_ALL_APPLICABLE_ATTRIBUTABLE_N_AND_U_REASONS",
+          "non_applicable_reasons": "EXCLUDED",
+          "non_attributable_reasons": "REJECTED",
+          "malformed_unsupported_or_fabricated_reasons": "REJECTED",
+          "integrity_failures_as_ordinary_reasons": "PROHIBITED"
+        },
+        "reverse_implications": {
+          "CONSUMABLE": "EVERY_REQUIRED_CONDITION_IS_P",
+          "NOT_CONSUMABLE": "AT_LEAST_ONE_APPLICABLE_N_EXISTS",
+          "NOT_ESTABLISHED": "NO_N_APPLIES_AND_AT_LEAST_ONE_REQUIRED_U_EXISTS"
+        },
+        "identity_consequence": {
+          "content_projection_members": [
+            "state",
+            "reasons"
+          ],
+          "state_or_reason_change": "CHANGES_CONTENT_DIGEST_AND_ASSESSMENT_ID_DETERMINISTICALLY",
+          "replay": "DETERMINISTIC"
+        },
+        "preservation": {
+          "three_result_states": "UNCHANGED",
+          "eight_assessment_fields": "UNCHANGED",
+          "four_sync3_reasons": "UNCHANGED",
+          "claim_contract": "UNCHANGED",
+          "missing_c10_clarification": "UNCHANGED",
+          "content_digest_domain": "UNCHANGED",
+          "assessment_id_domain": "UNCHANGED",
+          "temporal_pit_model": "UNCHANGED",
+          "sync3_invariants_01_through_10": "UNCHANGED",
+          "seven_known_gap_closures": "UNCHANGED",
+          "authority_firewall": "UNCHANGED",
+          "protected_component_semantics": "C05_C06_C08_C09_C10_C11_UNCHANGED",
+          "new_state": "NONE",
+          "new_assessment_field": "NONE",
+          "new_reason_family": "NONE",
+          "new_digest_domain": "NONE",
+          "component_reentry": "NONE"
         }
       }
     }
