@@ -1345,6 +1345,51 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-027",
+        "governed_question": "May the exact ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1 be recorded and protected as one minimum additive clarification resolving state precedence and canonical reason aggregation while implementation, component reentry and all downstream authority remain withheld?",
+        "scope": "STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_RECORDING_AND_PROTECTION_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1",
+        "source_authority": "ATIS_OWNER_AUTHORIZATION_AFTER_INDEPENDENT_STATE_REASON_SEMANTIC_CLOSURE_ASSESSMENT",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1"
+        ],
+        "authority_not_granted": [
+          "SYNC_3_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "C05_REENTRY",
+          "C06_REENTRY",
+          "C08_REENTRY",
+          "C09_REENTRY",
+          "C10_REENTRY",
+          "C11_S1_REENTRY",
+          "C11_S2_REENTRY",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PHYSICAL_PERSISTENCE",
+          "PHYSICAL_PUBLICATION",
+          "PHYSICAL_ATOMIC_PUBLICATION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "S3_REQ_036_SATISFACTION",
+          "FORTY_ONE_OF_FORTY_ONE_CLASSIFICATION",
+          "GATE_S03_01_EXECUTION",
+          "STAGE3_FINAL_AUDIT_EXECUTION",
+          "STAGE3_GENERAL_CLOSURE",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },

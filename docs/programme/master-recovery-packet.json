@@ -59,7 +59,7 @@
     },
     {
       "path": "docs/programme/programme-control.json",
-      "git_blob": "6e9ab7df525d184f0c09e60cbebb3b966f2b43aa",
+      "git_blob": "d1bac5b9063fe4e64f89cac96c07a54928ace3d2",
       "classification": "REQUIRED",
       "required_for": [
         "CURRENT_PROGRAMME_STATE",
@@ -95,7 +95,7 @@
     },
     {
       "path": "docs/stage3/stage3-specification.json",
-      "git_blob": "f932968cf8bc85f031201897b856746793a5f630",
+      "git_blob": "9614d6ce5141a70f44202d3a8d6a2b2f5683763f",
       "classification": "REQUIRED",
       "required_for": [
         "STAGE3_PROTECTED_SPECIFICATION",
@@ -105,7 +105,7 @@
     },
     {
       "path": "docs/stage3/stage3-specification.schema.json",
-      "git_blob": "0a9a4f6a9cc9ff92cdacf89815e5e661f010e5bf",
+      "git_blob": "c9b8a7ea0a22ceaa7d738afc6956871ee7a47d96",
       "classification": "REQUIRED",
       "required_for": [
         "STAGE3_VALIDATION"
@@ -138,7 +138,7 @@
     },
     {
       "path": "tests/test_programme_control.py",
-      "git_blob": "780434f6defa65291d128c22a37ac3b486c0ddca",
+      "git_blob": "4b1cf0df92e2ecb8b7ae8f162be648cb835932ac",
       "classification": "REQUIRED",
       "required_for": [
         "PROGRAMME_CONTROL_VALIDATION",
@@ -148,7 +148,7 @@
     },
     {
       "path": "tests/test_stage3_specification.py",
-      "git_blob": "a58a2754eee0df907b0e4ef25003404c1a413ad5",
+      "git_blob": "8c7edcc0c6e686e99ca9517e3cb9681af710577b",
       "classification": "REQUIRED",
       "required_for": [
         "STAGE3_VALIDATION"

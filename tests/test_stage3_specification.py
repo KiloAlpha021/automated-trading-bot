@@ -278,6 +278,8 @@ def test_cross_record_validation_rejects_corruption(_name, mutator):
         validate_cross_records(damaged)
 
 
+STATE_REASON_SEMANTIC_CLARIFICATION_V1 = {'clarification_id': 'ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1', 'target_contract': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'classification': 'MINIMUM_ADDITIVE_STATE_REASON_SEMANTIC_CLOSURE', 'rules': [{'id': 'SR-CLOSURE-01', 'name': 'INTEGRITY_BEFORE_SEMANTICS', 'rule': 'VALIDATE_TYPE_IDENTITY_DIGEST_CANONICALIZATION_ATTRIBUTION_BINDING_AND_APPLICABLE_TEMPORAL_CONSTRAINTS_BEFORE_SEMANTIC_EVALUATION_APPLICABLE_INTEGRITY_FAILURE_FAILS_CLOSED_AND_DOES_NOT_BECOME_AN_ORDINARY_SEMANTIC_REASON_TUPLE'}, {'id': 'SR-CLOSURE-02', 'name': 'COMPLETE_STATE_PRECEDENCE', 'rule': 'FOR_INTEGRITY_VALID_TRUSTWORTHY_EVIDENCE_N_GREATER_THAN_U_GREATER_THAN_P_WHERE_N_IS_ESTABLISHED_NEGATIVE_OR_RESTRICTIVE_U_IS_REQUIRED_CONDITION_NOT_ESTABLISHED_AND_P_IS_REQUIRED_POSITIVE_CONDITION_ESTABLISHED'}, {'id': 'SR-CLOSURE-03', 'name': 'NEGATIVE_DOMINANCE', 'rule': 'ANY_APPLICABLE_N_PRODUCES_NOT_CONSUMABLE_INCLUDING_MIXED_N_U_CASES'}, {'id': 'SR-CLOSURE-04', 'name': 'UNESTABLISHED_ROUTE', 'rule': 'NOT_ESTABLISHED_APPLIES_ONLY_WHEN_NO_N_APPLIES_AND_AT_LEAST_ONE_U_EXISTS'}, {'id': 'SR-CLOSURE-05', 'name': 'POSITIVE_ROUTE', 'rule': 'CONSUMABLE_APPLIES_ONLY_WHEN_EVERY_REQUIRED_CONDITION_IS_P'}, {'id': 'SR-CLOSURE-06', 'name': 'COMPLETE_REASON_MEMBERSHIP', 'rule': 'RETAIN_EVERY_APPLICABLE_ATTRIBUTABLE_PROTECTED_C05_C06_C10_REASON_AND_EVERY_APPLICABLE_PROTECTED_SYNC3_REASON'}, {'id': 'SR-CLOSURE-07', 'name': 'CANONICAL_REASON_UNION', 'rule': 'REASONS_ARE_THE_CANONICAL_SORTED_DISTINCT_UNION_AND_CALLER_OR_EVALUATION_ORDER_HAS_NO_AUTHORITY'}, {'id': 'SR-CLOSURE-08', 'name': 'REASON_EXCLUSIONS', 'rule': 'NON_APPLICABLE_NON_ATTRIBUTABLE_MALFORMED_UNSUPPORTED_OR_FABRICATED_REASONS_ARE_PROHIBITED'}, {'id': 'SR-CLOSURE-09', 'name': 'MIXED_STATE_REASONS', 'rule': 'WHEN_N_AND_U_COEXIST_STATE_IS_NOT_CONSUMABLE_AND_ALL_APPLICABLE_ATTRIBUTABLE_N_AND_U_REASONS_REMAIN'}, {'id': 'SR-CLOSURE-10', 'name': 'REVERSE_IMPLICATIONS', 'rule': 'CONSUMABLE_NOT_CONSUMABLE_AND_NOT_ESTABLISHED_MUST_SATISFY_THEIR_PROTECTED_REVERSE_CONDITIONS'}, {'id': 'SR-CLOSURE-11', 'name': 'IDENTITY_CONSEQUENCE', 'rule': 'STATE_AND_CANONICAL_REASONS_REMAIN_IN_THE_EXISTING_CONTENT_PROJECTION_AND_CHANGING_EITHER_CHANGES_CONTENT_DIGEST_AND_ASSESSMENT_ID_DETERMINISTICALLY'}], 'semantic_classes': {'P': 'REQUIRED_POSITIVE_CONDITION_ESTABLISHED', 'N': 'TRUSTWORTHY_ESTABLISHED_NEGATIVE_OR_RESTRICTIVE_CONDITION', 'U': 'REQUIRED_CONDITION_NOT_ESTABLISHED', 'F': 'INTEGRITY_IDENTITY_CANONICALIZATION_ATTRIBUTION_BINDING_OR_APPLICABLE_TEMPORAL_FAILURE'}, 'evaluation_phases': {'phase_a': 'INTEGRITY_VALIDATION', 'phase_a_failure': 'HARD_FAIL_CLOSED_WITHOUT_ORDINARY_SEMANTIC_ASSESSMENT', 'phase_b': 'TRUSTWORTHY_SEMANTIC_STATE_AND_REASON_EVALUATION'}, 'state_precedence': {'trustworthy_order': ['N', 'U', 'P'], 'all_p': 'CONSUMABLE', 'any_n': 'NOT_CONSUMABLE', 'any_u_without_n': 'NOT_ESTABLISHED', 'mixed_n_u': 'NOT_CONSUMABLE'}, 'reason_aggregation': {'membership': 'ALL_APPLICABLE_ATTRIBUTABLE_PROTECTED_C05_C06_C10_AND_SYNC3_REASONS', 'operation': 'CANONICAL_SORTED_DISTINCT_UNION', 'duplicate_handling': 'COLLAPSE', 'ordering': 'CANONICAL_LEXICOGRAPHIC', 'evaluation_order': 'NO_AUTHORITY', 'first_error_wins': 'PROHIBITED', 'mixed_n_u': 'RETAIN_ALL_APPLICABLE_ATTRIBUTABLE_N_AND_U_REASONS', 'non_applicable_reasons': 'EXCLUDED', 'non_attributable_reasons': 'REJECTED', 'malformed_unsupported_or_fabricated_reasons': 'REJECTED', 'integrity_failures_as_ordinary_reasons': 'PROHIBITED'}, 'reverse_implications': {'CONSUMABLE': 'EVERY_REQUIRED_CONDITION_IS_P', 'NOT_CONSUMABLE': 'AT_LEAST_ONE_APPLICABLE_N_EXISTS', 'NOT_ESTABLISHED': 'NO_N_APPLIES_AND_AT_LEAST_ONE_REQUIRED_U_EXISTS'}, 'identity_consequence': {'content_projection_members': ['state', 'reasons'], 'state_or_reason_change': 'CHANGES_CONTENT_DIGEST_AND_ASSESSMENT_ID_DETERMINISTICALLY', 'replay': 'DETERMINISTIC'}, 'preservation': {'three_result_states': 'UNCHANGED', 'eight_assessment_fields': 'UNCHANGED', 'four_sync3_reasons': 'UNCHANGED', 'claim_contract': 'UNCHANGED', 'missing_c10_clarification': 'UNCHANGED', 'content_digest_domain': 'UNCHANGED', 'assessment_id_domain': 'UNCHANGED', 'temporal_pit_model': 'UNCHANGED', 'sync3_invariants_01_through_10': 'UNCHANGED', 'seven_known_gap_closures': 'UNCHANGED', 'authority_firewall': 'UNCHANGED', 'protected_component_semantics': 'C05_C06_C08_C09_C10_C11_UNCHANGED', 'new_state': 'NONE', 'new_assessment_field': 'NONE', 'new_reason_family': 'NONE', 'new_digest_domain': 'NONE', 'component_reentry': 'NONE'}}
+
 RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1 = {'contract_id': 'ATIS_RB1_SLICE1_IMPLEMENTATION_CONTRACT_V1', 'state': 'RATIFIED', 'parent_design': 'ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1', 'scope': 'ATIS-S3-RB1-S1_IMPLEMENTATION_CONTRACT_ONLY', 'canonical_identity': {'reference_version_id': 'DISTINCT_IMMUTABLE_ATIS_CONTROLLED_RFC_UUIDV4_NON_NIL_STRONGLY_TYPED', 'canonical_forms': {'instrument_id': 'atis:instrument:v1:<lowercase-hyphenated-uuidv4>', 'listing_id': 'atis:listing:v1:<lowercase-hyphenated-uuidv4>', 'reference_version_id': 'atis:reference-version:v1:<lowercase-hyphenated-uuidv4>'}, 'parsing': 'EXACT_CASE_SENSITIVE_NO_NORMALIZATION', 'reject': ['BARE_UUID', 'UPPERCASE_OR_NONCANONICAL', 'WHITESPACE', 'ALTERNATIVE_UUID_ENCODING', 'NIL_UUID', 'NON_V4_UUID', 'WRONG_IDENTITY_KIND', 'ARBITRARY_LEGACY_STRING']}, 'content_identity': {'algorithm': 'SHA-256', 'external_form': 'sha256:<64-lowercase-hex-digits>', 'canonicalization': {'encoding': 'UTF-8_WITHOUT_BOM', 'representation': 'CANONICAL_JSON', 'object_keys': 'FIXED_ASCII_LEXICOGRAPHIC_SORT', 'whitespace': 'NONE_INSIGNIFICANT', 'floats': 'PROHIBITED', 'semantic_strings': 'NFC_REQUIRED_NO_SILENT_NORMALIZATION', 'identities': 'EXACT_TYPED_CANONICAL_SERIALIZATION', 'enums': 'EXACT_UPPERCASE_TOKEN', 'timestamps': 'YYYY-MM-DDTHH:MM:SS.ffffffZ', 'absent_model_fields': 'EXPLICIT_NULL', 'unknown_fields': 'REJECTED'}, 'included_fields': 'ALL_SEMANTIC_REFERENCE_VERSION_FIELDS', 'included_field_classes': ['RECORD_KIND', 'SUBJECT_IDENTITIES', 'EFFECTIVE_AND_KNOWLEDGE_TIMES', 'FACTUAL_ATTRIBUTES', 'LISTING_STATE_AND_REASON', 'EVIDENCE_REFS', 'VALIDATION_POLICY_AND_STATE', 'SUPERSEDES_VERSION_ID', 'CORRECTION_REASON', 'DEFINED_CONDITIONAL_MODEL_FIELDS'], 'excluded_fields': ['REFERENCE_VERSION_ID', 'CONTENT_DIGEST', 'RUNTIME_CACHE_STORAGE_METADATA', 'PUBLICATION_OR_GIT_IDENTITIES', 'FIELDS_OUTSIDE_PROTECTED_MODEL'], 'digest_self_exclusion': True}, 'evidence_ordering': {'semantics': 'UNORDERED', 'canonical_order': 'SORT_DISTINCT_EVIDENCE_REFS_BY_CANONICAL_BYTES', 'same_key_same_digest': 'IDEMPOTENT_REPLAY_SINGLE_CANONICAL_MEMBER', 'same_key_different_digest': 'EVIDENCE_IDENTITY_CONFLICT', 'caller_order_has_authority': False}, 'validation_contract': {'states': ['VALID', 'INVALID', 'NOT_VALIDATED', 'INCOMPATIBLE', 'NOT_ESTABLISHED'], 'authoritative_state': 'VALID_ONLY', 'implicit_default': False, 'restrictive_states': ['INVALID', 'NOT_VALIDATED', 'INCOMPATIBLE', 'NOT_ESTABLISHED'], 'policy_or_state_change': 'NEW_IMMUTABLE_REFERENCE_VERSION'}, 'evidence_ref_contract': {'fields': ['SOURCE_ID', 'DATASET_ID', 'EVIDENCE_ID', 'EVIDENCE_CONTENT_DIGEST'], 'validation_policy_id': 'SEPARATE_REQUIRED_REFERENCE_VERSION_FIELD', 'canonical_forms': {'source_id': 'source:<authority>/<local-id>', 'dataset_id': 'dataset:<authority>/<local-id>', 'evidence_id': 'evidence:<authority>/<local-id>', 'validation_policy_id': 'validation-policy:<authority>/<local-id>'}, 'authority_component': 'LOWERCASE_ASCII_1_TO_63_ALPHANUMERIC_DOT_HYPHEN_NO_INVALID_BOUNDARY_OR_ADJACENT_SEPARATOR', 'local_id': 'CASE_SENSITIVE_ASCII_1_TO_191_BOUNDED_PERMITTED_SET_NO_WHITESPACE_CONTROL_UNICODE_OR_NORMALIZATION', 'identifier_maximum_ascii_characters': 255, 'evidence_key': ['SOURCE_ID', 'DATASET_ID', 'EVIDENCE_ID'], 'same_key_same_digest': 'IDEMPOTENT_REPLAY', 'same_key_different_digest': 'EVIDENCE_IDENTITY_CONFLICT', 'different_key_same_digest': 'PERMITTED_ATTRIBUTABLE_CORROBORATION', 'maximum_evidence_refs_per_version': 64}, 'lineage_contract': {'validation_boundary': 'ONE_COMPLETE_FINITE_CANDIDATE_LINEAGE_SET_FOR_ONE_CANONICAL_SUBJECT', 'instrument_subject': ['INSTRUMENT_ID'], 'listing_subject': ['INSTRUMENT_ID', 'LISTING_ID'], 'requirements': ['ALL_REFERENCED_PREDECESSORS_PRESENT', 'NO_SELF_EDGE', 'NO_CYCLE', 'NO_CROSS_SUBJECT_EDGE', 'NO_CROSS_KIND_EDGE', 'UNIQUE_REFERENCE_VERSION_ID', 'INPUT_ORDER_INDEPENDENT'], 'branching_successors': 'BRANCHING_SUCCESSOR_CONFLICT', 'missing_predecessor': 'MISSING_PREDECESSOR', 'cycle': 'LINEAGE_CYCLE', 'resource_bound_failure': 'LINEAGE_RESOURCE_LIMIT_EXCEEDED', 'successor_knowledge_order': 'STRICTLY_GREATER_THAN_PREDECESSOR', 'effective_time_correction_of_earlier_interval': True, 'maximum_lineage_set_versions': 4096, 'maximum_predecessor_depth_edges': 256, 'maximum_evidence_refs_per_version': 64, 'limits_are_versioned_contract_values': True}, 'instrument_id_migration': {'approach': 'IMMEDIATE_STRICT_ATOMIC_MIGRATION', 'existing_import_location_preserved': True, 'authoritative_instrument_id_type_count': 1, 'all_production_calls_tests_and_fixtures_migrate_atomically': True, 'arbitrary_string_compatibility': False, 'automatic_uuid_derivation_from_legacy_string': False, 'dual_format_fallback': False, 'second_instrument_id_implementation': False, 'fixtures': 'DETERMINISTIC_UUIDV4_REPLACE_TEST_OTHER_XAUUSD_STYLE_VALUES', 'future_persisted_legacy_values': 'SEPARATELY_AUTHORIZED_EXPLICIT_MIGRATION_MAPPING'}, 'authority': {'RB1_IMPLEMENTATION_AUTHORIZED': False, 'STAGE3_IMPLEMENTATION_AUTHORIZED': False, 'IMPLEMENTATION_AUTHORIZED': False, 'AI_TRADING_AUTHORITY': 'NONE'}}
 
 # Stage-3 owner-ratified recording candidate checks.
@@ -1061,6 +1063,7 @@ def test_sync3_minimum_integration_contract_v1_is_exact_and_non_authorizing() ->
     document = load(C)
     contract = deepcopy(document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"])
     clarification = contract.pop("missing_c10_identity_clarification_v1")
+    contract.pop("state_reason_semantic_clarification_v1")
     assert contract == {'contract_id': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'classification': 'OWNER_APPROVED_MINIMUM_CROSS_COMPONENT_INTEGRATION_CONTRACT', 'scope': 'C05_C06_C10_EXACT_PROTECTED_INPUT_TECHNICAL_CONSUMABILITY_ASSESSMENT_ONLY', 'implementation_authority': 'NONE', 'protected_sync3_boundary': {'formula': 'C05_QUALITY_PLUS_C06_ELIGIBILITY_PLUS_C10_FRESHNESS_CURRENTNESS_BEFORE_AUTHORITATIVE_DATASET_PROMOTION', 'historical_state': 'OPEN_NOT_CONSUMABLE_NOT_BYPASSED', 'contract_makes_consumable': False}, 'claim_contract': {'contract_id': 'ATIS_SYNC3_DATASET_ELIGIBILITY_CLAIM_V1', 'fields': ['contract_version', 'claim_id', 'dataset_version_id'], 'purpose': 'BIND_THE_EXACT_C06_CLAIM_CONTEXT_TO_THE_APPLICABLE_DATASET_VERSION_ID_THROUGH_THE_EXISTING_PROTECTED_C06_CLAIM_CONTRACT_EXTENSION_POINT', 'c06_modification': 'NONE'}, 'result_model': {'type': 'Sync3ConsumabilityState', 'states': ['CONSUMABLE', 'NOT_CONSUMABLE', 'NOT_ESTABLISHED']}, 'assessment_model': {'type': 'Sync3ConsumabilityAssessment', 'identity': 'Sync3ConsumabilityAssessmentId', 'immutable': True, 'slotted': True, 'fields': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons', 'content_digest', 'assessment_id']}, 'identity_model': {'content_projection': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons'], 'content_digest_domain': 'ATIS:SYNC3:CONSUMABILITY_ASSESSMENT_CONTENT:1', 'assessment_id_body': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons', 'content_digest'], 'assessment_id_domain': 'ATIS:SYNC3:CONSUMABILITY_ASSESSMENT_ID:1', 'non_circular': True}, 'bindings': {'c05': 'EXACT_PROTECTED_PRODUCTION_QUALITY_RESULT_DIGEST_EQUALS_C06_BOUND_DIGEST_AND_VALIDATION_STATE_IS_VALID', 'c06': 'EXACT_PROTECTED_ELIGIBILITY_DECISION_IDENTITY_AND_DISPOSITION_IS_ELIGIBLE', 'dataset': 'ATTRIBUTABLE_SYNC3_CLAIM_CONTRACT_BINDS_C06_CLAIM_ID_TO_EXACT_DATASET_VERSION_ID', 'c10': 'EXACT_PROTECTED_DATASET_CURRENTNESS_ASSESSMENT_IDENTITY_AND_STATE_IS_CURRENT', 'dataset_agreement': 'CLAIM_BOUND_DATASET_VERSION_ID_EQUALS_C10_DATASET_VERSION_ID', 'external_currentness_ref': 'OPTIONAL_BUT_IF_PRESENT_CONTENT_DIGEST_MUST_EQUAL_APPLICABLE_C10_CONTENT_DIGEST'}, 'temporal_model': {'assessment_boundary': 'DATASET_CURRENTNESS_ASSESSMENT_EVALUATED_AT', 'c06_knowledge_rule': 'C06_KNOWLEDGE_FROM_NOT_AFTER_C10_EVALUATED_AT', 'c06_effective_rule': 'C06_EFFECTIVE_FROM_IF_PRESENT_NOT_AFTER_C10_EVALUATED_AT', 'historical_assessments': 'IMMUTABLE', 'later_boundary_reuse': 'PROHIBITED', 'later_boundary_requires_applicable_later_c10_and_new_assessment': True}, 'invariants': {'SYNC3-INV-01': 'EXACT_C05_RESULT_DIGEST_EQUALS_THE_C05_DIGEST_BOUND_BY_C06_AND_C05_IS_VALID', 'SYNC3-INV-02': 'EXACT_C06_DECISION_IDENTITY_IS_VALID_AND_ONLY_ELIGIBLE_CONTRIBUTES_POSITIVELY', 'SYNC3-INV-03': 'ATTRIBUTABLE_SYNC3_CLAIM_CONTRACT_BINDS_C06_CLAIM_ID_TO_EXACT_DATASET_VERSION_ID', 'SYNC3-INV-04': 'EXACT_C10_DATASET_ASSESSMENT_IS_MANDATORY_CURRENT_AND_BOUND_TO_THE_SAME_DATASET_VERSION', 'SYNC3-INV-05': 'C10_DEPENDENCY_INVALIDATION_AFFECTED_SET_AND_PROPAGATION_SEMANTICS_REMAIN_AUTHORITATIVE_AND_FAIL_CLOSED', 'SYNC3-INV-06': 'C06_KNOWLEDGE_AND_APPLICABLE_EFFECTIVE_BOUNDARIES_DO_NOT_FOLLOW_THE_BOUND_C10_EVALUATION_TIME', 'SYNC3-INV-07': 'ASSESSMENT_APPLIES_ONLY_AT_ITS_BOUND_C10_EVALUATION_TIME_AND_CANNOT_ESTABLISH_LATER_CONSUMABILITY', 'SYNC3-INV-08': 'WHEN_C06_EXTERNAL_CURRENTNESS_REF_IS_PRESENT_ITS_CONTENT_DIGEST_EQUALS_THE_APPLICABLE_C10_CONTENT_DIGEST', 'SYNC3-INV-09': 'MISSING_CONFLICTING_NONATTRIBUTABLE_OR_SUBSTITUTED_EVIDENCE_CANNOT_PRODUCE_CONSUMABLE_AND_C08_C09_C11_CANNOT_SUBSTITUTE', 'SYNC3-INV-10': 'SYNC3_CREATES_NO_PROMOTION_PROVIDER_STORAGE_PERSISTENCE_PUBLICATION_STAGE4_TRADING_FINANCIAL_OR_AI_AUTHORITY'}, 'failure_routing': {'protected_c05_c06_c10_vocabulary': 'REUSED', 'new_sync3_reasons': ['SYNC3_DATASET_CONTEXT_NOT_ESTABLISHED', 'SYNC3_DATASET_CONTEXT_MISMATCH', 'SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED', 'SYNC3_EXTERNAL_CURRENTNESS_REF_MISMATCH']}, 'known_gap_coverage': {'08_C10_EVIDENCE_MISSING': 'CLOSED', '09_C10_UNKNOWN': 'CLOSED', '10_C10_STALE': 'CLOSED', '11_LATER_DEPENDENCY_INVALIDATION': 'CLOSED', '12_INCOMPLETE_PROPAGATION': 'CLOSED', '18_PUBLICATION_COMPLETE_THEN_INVALIDATED': 'CLOSED', '19_CROSS_COMPONENT_IDENTITY_CONFLICT': 'CLOSED'}, 'authority_firewall': {'quality_authority': 'NONE', 'eligibility_authority': 'NONE', 'currentness_authority': 'NONE', 'promotion_authority': 'NONE', 'dataset_promotion': 'NONE', 'provider_authority': 'NONE', 'storage_authority': 'NONE', 'physical_persistence': 'NONE', 'physical_publication': 'NONE', 'physical_atomic_publication': 'NONE', 'gate_s03_01_authority': 'NONE', 'stage3_closure_authority': 'NONE', 'stage4_authority': 'NONE', 'research_backtesting_authority': 'NONE', 'trading_authority': 'NONE', 'financial_authority': 'NONE', 'ai_trading_authority': 'NONE'}}
     assert contract["protected_sync3_boundary"]["historical_state"] == "OPEN_NOT_CONSUMABLE_NOT_BYPASSED"
     assert contract["protected_sync3_boundary"]["contract_makes_consumable"] is False
@@ -1100,6 +1103,127 @@ def test_sync3_minimum_integration_contract_v1_is_exact_and_non_authorizing() ->
             "contract_makes_consumable": False,
         },
     }
+
+
+def test_sync3_state_reason_semantic_clarification_is_exact_and_preserving() -> None:
+    contract = load(C)["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]
+    clarification = contract["state_reason_semantic_clarification_v1"]
+    assert clarification == STATE_REASON_SEMANTIC_CLARIFICATION_V1
+    assert [rule["id"] for rule in clarification["rules"]] == [
+        f"SR-CLOSURE-{number:02d}" for number in range(1, 12)
+    ]
+    assert clarification["state_precedence"]["trustworthy_order"] == ["N", "U", "P"]
+    assert clarification["preservation"] == {
+        "three_result_states": "UNCHANGED",
+        "eight_assessment_fields": "UNCHANGED",
+        "four_sync3_reasons": "UNCHANGED",
+        "claim_contract": "UNCHANGED",
+        "missing_c10_clarification": "UNCHANGED",
+        "content_digest_domain": "UNCHANGED",
+        "assessment_id_domain": "UNCHANGED",
+        "temporal_pit_model": "UNCHANGED",
+        "sync3_invariants_01_through_10": "UNCHANGED",
+        "seven_known_gap_closures": "UNCHANGED",
+        "authority_firewall": "UNCHANGED",
+        "protected_component_semantics": "C05_C06_C08_C09_C10_C11_UNCHANGED",
+        "new_state": "NONE",
+        "new_assessment_field": "NONE",
+        "new_reason_family": "NONE",
+        "new_digest_domain": "NONE",
+        "component_reentry": "NONE",
+    }
+    assert contract["result_model"]["states"] == ["CONSUMABLE", "NOT_CONSUMABLE", "NOT_ESTABLISHED"]
+    assert len(contract["assessment_model"]["fields"]) == 8
+    assert len(contract["failure_routing"]["new_sync3_reasons"]) == 4
+
+
+def _clarified_sync3_state(classes: tuple[str, ...]) -> str:
+    if "F" in classes:
+        raise ValueError("hard fail closed before semantic assessment")
+    if "N" in classes:
+        return "NOT_CONSUMABLE"
+    if "U" in classes:
+        return "NOT_ESTABLISHED"
+    if classes and set(classes) == {"P"}:
+        return "CONSUMABLE"
+    raise ValueError("incomplete semantic product")
+
+
+def test_sync3_state_reason_semantic_product_and_reverse_implications() -> None:
+    from itertools import product
+
+    outcomes = {}
+    for classes in product(("P", "N", "U"), repeat=3):
+        state = _clarified_sync3_state(classes)
+        outcomes[classes] = state
+        if state == "CONSUMABLE":
+            assert set(classes) == {"P"}
+        elif state == "NOT_CONSUMABLE":
+            assert "N" in classes
+        else:
+            assert "N" not in classes and "U" in classes
+    assert len(outcomes) == 27
+    assert outcomes[("P", "P", "P")] == "CONSUMABLE"
+    assert outcomes[("N", "U", "P")] == "NOT_CONSUMABLE"
+    assert outcomes[("U", "P", "P")] == "NOT_ESTABLISHED"
+    with pytest.raises(ValueError, match="hard fail closed"):
+        _clarified_sync3_state(("P", "F", "U"))
+
+
+def test_sync3_state_reason_canonical_union_and_identity_consequence() -> None:
+    reasons_by_component = [
+        ["C10_UNKNOWN", "C05_INVALID"],
+        ["SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED", "C10_UNKNOWN"],
+        ["C06_NOT_ESTABLISHED"],
+    ]
+    forward = tuple(sorted({reason for group in reasons_by_component for reason in group}))
+    reverse = tuple(sorted({reason for group in reversed(reasons_by_component) for reason in group}))
+    assert forward == reverse
+    assert forward == (
+        "C05_INVALID",
+        "C06_NOT_ESTABLISHED",
+        "C10_UNKNOWN",
+        "SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED",
+    )
+    assert len(forward) == len(set(forward))
+    base = {"state": "NOT_CONSUMABLE", "reasons": list(forward)}
+    replay = json.dumps(deepcopy(base), ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    changed_state = deepcopy(base)
+    changed_state["state"] = "NOT_ESTABLISHED"
+    changed_reasons = deepcopy(base)
+    changed_reasons["reasons"] = changed_reasons["reasons"][:-1]
+    def encode(value):
+        return json.dumps(
+            value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode()
+    assert sha256(encode(base)).hexdigest() == sha256(replay).hexdigest()
+    assert sha256(encode(base)).hexdigest() != sha256(encode(changed_state)).hexdigest()
+    assert sha256(encode(base)).hexdigest() != sha256(encode(changed_reasons)).hexdigest()
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("clarification_id",), "DRIFT"),
+        (("state_precedence", "trustworthy_order"), ["U", "N", "P"]),
+        (("state_precedence", "mixed_n_u"), "NOT_ESTABLISHED"),
+        (("reason_aggregation", "operation"), "FIRST_ERROR_WINS"),
+        (("reason_aggregation", "non_attributable_reasons"), "RETAINED"),
+        (("evaluation_phases", "phase_a_failure"), "ORDINARY_REASON"),
+        (("preservation", "missing_c10_clarification"), "CHANGED"),
+        (("preservation", "component_reentry"), "AUTHORIZED"),
+    ],
+)
+def test_sync3_state_reason_semantic_clarification_schema_rejects_drift(path, value) -> None:
+    document = load(C)
+    target = document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"][
+        "state_reason_semantic_clarification_v1"
+    ]
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    with pytest.raises(ValidationError):
+        Draft202012Validator(load(S)).validate(document)
 
 
 def test_sync3_missing_c10_clarification_identity_and_state_closure() -> None:
