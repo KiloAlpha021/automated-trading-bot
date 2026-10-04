@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import FrozenInstanceError, fields
+from dataclasses import FrozenInstanceError, fields, replace
+from datetime import datetime, timezone
 import inspect
 
 import pytest
@@ -10,6 +11,7 @@ from automated_trading_bot.datasets.materialization import (
     DatasetVersionId,
     LogicalContentId,
 )
+from automated_trading_bot.datasets.manifest import DatasetManifest
 from automated_trading_bot.datasets.persistence import (
     ConsumerVisibilityState,
     DatasetPersistenceError,
@@ -17,10 +19,14 @@ from automated_trading_bot.datasets.persistence import (
     ExactVersionRetrievalRequest,
     ExactVersionRetrievalResult,
     PersistenceOperation,
+    PersistenceReceipt,
     PersistenceReceiptId,
     PublicationOperation,
+    PublicationReceipt,
     PublicationReceiptId,
     StoredVersionId,
+    create_persistence_receipt,
+    create_publication_receipt,
     derive_persistence_receipt_id,
     derive_publication_receipt_id,
     derive_publication_receipt_ids,
@@ -30,6 +36,7 @@ from automated_trading_bot.datasets.persistence import (
     verify_persistence_receipt_id,
     verify_publication_receipt_id,
 )
+from automated_trading_bot.domain.timestamp import Timestamp
 from automated_trading_bot.datasets.provenance import (
     REQUIRED_RESOURCE_LIMITS,
     DatasetLifecycleResourcePolicy,
@@ -80,6 +87,77 @@ def stored_version(*, content: str = "written") -> StoredVersionId:
         logical_content_id=LogicalContentId("c08-logical-content:test"),
         written_content_digest=digest(content),
     )
+
+
+def manifest_stub(
+    dataset_version_id: DatasetVersionId,
+    manifest_id: ManifestId,
+    logical_content_id: LogicalContentId,
+) -> DatasetManifest:
+    value = object.__new__(DatasetManifest)
+    object.__setattr__(value, "dataset_version_id", dataset_version_id)
+    object.__setattr__(value, "manifest_id", manifest_id)
+    object.__setattr__(value, "logical_content_id", logical_content_id)
+    return value
+
+
+def receipt_inputs() -> dict[str, object]:
+    dataset = DatasetVersionId("c08-dataset-version:test")
+    manifest_id = ManifestId("c09-dataset-manifest:test")
+    logical = LogicalContentId("c08-logical-content:test")
+    written = digest("written")
+    resource_policy = policy()
+    return {
+        "contract_version": SHARED_CONTRACT_VERSION,
+        "dataset_version_id": dataset,
+        "manifest_id": manifest_id,
+        "logical_content_id": logical,
+        "stored_version_id": derive_stored_version_id(
+            contract_version=SHARED_CONTRACT_VERSION,
+            dataset_version_id=dataset,
+            manifest_id=manifest_id,
+            logical_content_id=logical,
+            written_content_digest=written,
+        ),
+        "written_content_digest": written,
+        "storage_adapter_contract_ref": ref("storage-adapter-contract"),
+        "verification_evidence_refs": (ref("b"), ref("a")),
+        "completed_at": Timestamp(datetime(2026, 1, 2, 3, 4, tzinfo=timezone.utc)),
+        "manifest": manifest_stub(dataset, manifest_id, logical),
+        "resource_policy": resource_policy,
+        "resource_policy_id": resource_policy.policy_id,
+    }
+
+
+def persistence_receipt(**overrides: object) -> PersistenceReceipt:
+    values = receipt_inputs()
+    values.update(overrides)
+    values["persistence_operation"] = values.get(
+        "persistence_operation", PersistenceOperation.PERSIST_EXACT_VERSION
+    )
+    return create_persistence_receipt(**values)  # type: ignore[arg-type]
+
+
+def publication_receipt(**overrides: object) -> PublicationReceipt:
+    values = receipt_inputs()
+    values.pop("resource_policy")
+    values.pop("resource_policy_id")
+    values.pop("storage_adapter_contract_ref")
+    values["expected_written_content_digest"] = values.pop("written_content_digest")
+    values.update(overrides)
+    values["publication_operation"] = values.get(
+        "publication_operation", PublicationOperation.PUBLISH_EXACT_VERSION
+    )
+    values["predecessor_publication_ref"] = values.get(
+        "predecessor_publication_ref", None
+    )
+    values["expected_predecessor_publication_ref"] = values.get(
+        "expected_predecessor_publication_ref", values["predecessor_publication_ref"]
+    )
+    values["consumer_visibility_state"] = values.get(
+        "consumer_visibility_state", ConsumerVisibilityState.COMPLETE
+    )
+    return create_publication_receipt(**values)  # type: ignore[arg-type]
 
 
 def publication_body(index: int = 1) -> dict[str, object]:
@@ -339,6 +417,201 @@ def test_records_are_frozen_slotted_and_have_exact_fields() -> None:
         request.stored_version_id = stored_version(content="other")  # type: ignore[misc]
 
 
+def test_typed_receipts_have_exact_protected_fields_and_are_frozen_slotted() -> None:
+    persistence = persistence_receipt()
+    publication = publication_receipt()
+    assert [item.name for item in fields(persistence)] == [
+        "contract_version",
+        "dataset_version_id",
+        "manifest_id",
+        "logical_content_id",
+        "stored_version_id",
+        "persistence_operation",
+        "storage_adapter_contract_ref",
+        "written_content_digest",
+        "verification_evidence_refs",
+        "completed_at",
+        "resource_policy_id",
+        "content_digest",
+    ]
+    assert [item.name for item in fields(publication)] == [
+        "contract_version",
+        "dataset_version_id",
+        "manifest_id",
+        "logical_content_id",
+        "stored_version_id",
+        "publication_operation",
+        "predecessor_publication_ref",
+        "verification_evidence_refs",
+        "consumer_visibility_state",
+        "completed_at",
+        "content_digest",
+    ]
+    assert not hasattr(persistence, "__dict__")
+    assert not hasattr(publication, "__dict__")
+    with pytest.raises(FrozenInstanceError):
+        persistence.content_digest = digest("replacement")  # type: ignore[misc]
+
+
+def test_option_b_persistence_projection_digest_and_identity_are_exact() -> None:
+    receipt = persistence_receipt()
+    assert list(receipt.content_projection()) == [
+        "contract_version",
+        "dataset_version_id",
+        "manifest_id",
+        "logical_content_id",
+        "stored_version_id",
+        "persistence_operation",
+        "storage_adapter_contract_ref",
+        "written_content_digest",
+        "verification_evidence_refs",
+        "completed_at",
+        "resource_policy_id",
+    ]
+    expected = EvidenceContentDigest.from_bytes(
+        b"ATIS:C11:PERSISTENCE_RECEIPT_CONTENT:1\0"
+        + canonical_json(receipt.content_projection())
+    )
+    assert receipt.content_digest == expected
+    assert receipt.receipt_id() == derive_persistence_receipt_id(
+        {**receipt.content_projection(), "content_digest": expected.value}
+    )
+    assert persistence_receipt() == receipt
+    assert persistence_receipt().receipt_id() == receipt.receipt_id()
+
+
+def test_option_b_publication_projection_digest_and_identity_are_exact() -> None:
+    receipt = publication_receipt()
+    assert list(receipt.content_projection()) == [
+        "contract_version",
+        "dataset_version_id",
+        "manifest_id",
+        "logical_content_id",
+        "stored_version_id",
+        "publication_operation",
+        "predecessor_publication_ref",
+        "verification_evidence_refs",
+        "consumer_visibility_state",
+        "completed_at",
+    ]
+    expected = EvidenceContentDigest.from_bytes(
+        b"ATIS:C11:PUBLICATION_RECEIPT_CONTENT:1\0"
+        + canonical_json(receipt.content_projection())
+    )
+    assert receipt.content_digest == expected
+    assert receipt.receipt_id() == derive_publication_receipt_id(
+        {**receipt.content_projection(), "content_digest": expected.value}
+    )
+    assert publication_receipt() == receipt
+    assert publication_receipt().receipt_id() == receipt.receipt_id()
+
+
+def test_receipts_enforce_stored_version_manifest_and_policy_bindings() -> None:
+    values = receipt_inputs()
+    with pytest.raises(DatasetPersistenceError) as stored_error:
+        persistence_receipt(stored_version_id=stored_version(content="other"))
+    assert_reason(stored_error, DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+    wrong_manifest = manifest_stub(
+        DatasetVersionId("c08-dataset-version:other"),
+        values["manifest_id"],  # type: ignore[arg-type]
+        values["logical_content_id"],  # type: ignore[arg-type]
+    )
+    with pytest.raises(DatasetPersistenceError) as manifest_error:
+        persistence_receipt(manifest=wrong_manifest)
+    assert_reason(manifest_error, DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+    with pytest.raises(DatasetPersistenceError) as policy_error:
+        persistence_receipt(
+            resource_policy_id=DatasetLifecycleResourcePolicyId(
+                "resource-policy:test/other"
+            )
+        )
+    assert_reason(policy_error, DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+
+
+def test_receipts_require_canonical_nonempty_conflict_free_evidence() -> None:
+    receipt = persistence_receipt()
+    assert receipt.verification_evidence_refs == canonicalize_evidence_refs(
+        (ref("b"), ref("a"))
+    )
+    with pytest.raises(DatasetPersistenceError) as empty:
+        persistence_receipt(verification_evidence_refs=())
+    assert_reason(empty, DatasetPersistenceReason.VERIFICATION_EVIDENCE_NOT_ESTABLISHED)
+    with pytest.raises(EvidenceIdentityConflict):
+        persistence_receipt(
+            verification_evidence_refs=(
+                ref("same", content="one"),
+                ref("same", content="two"),
+            )
+        )
+
+
+def test_completed_at_is_preserved_and_never_substituted_by_a_clock() -> None:
+    supplied = Timestamp(datetime(2024, 5, 6, 7, 8, tzinfo=timezone.utc))
+    assert persistence_receipt(completed_at=supplied).completed_at is supplied
+    assert publication_receipt(completed_at=supplied).completed_at is supplied
+    with pytest.raises(TypeError, match="completed_at must be Timestamp"):
+        replace(persistence_receipt(), completed_at=datetime.now(timezone.utc))  # type: ignore[arg-type]
+
+
+def test_publication_receipt_fails_closed_on_predecessor_and_visibility() -> None:
+    predecessor = derive_publication_receipt_id({"sequence": 1})
+    assert (
+        publication_receipt(
+            predecessor_publication_ref=predecessor,
+            expected_predecessor_publication_ref=predecessor,
+        ).predecessor_publication_ref
+        == predecessor
+    )
+    with pytest.raises(DatasetPersistenceError) as mismatch:
+        publication_receipt(
+            predecessor_publication_ref=predecessor,
+            expected_predecessor_publication_ref=None,
+        )
+    assert_reason(mismatch, DatasetPersistenceReason.PREDECESSOR_PUBLICATION_MISMATCH)
+    with pytest.raises(DatasetPersistenceError) as visibility:
+        publication_receipt(consumer_visibility_state="PARTIAL")
+    assert_reason(visibility, DatasetPersistenceReason.PARTIAL_PUBLICATION_PROHIBITED)
+
+
+def test_receipt_content_digest_and_claimed_identity_conflicts_fail_closed() -> None:
+    receipt = persistence_receipt()
+    with pytest.raises(DatasetPersistenceError) as digest_error:
+        replace(receipt, content_digest=digest("forged"))
+    assert_reason(digest_error, DatasetPersistenceReason.CONTENT_DIGEST_MISMATCH)
+    with pytest.raises(DatasetPersistenceError) as identity_error:
+        verify_persistence_receipt_id(
+            PersistenceReceiptId("c11-persistence-receipt:forged"),
+            receipt.receipt_id_body(),
+        )
+    assert_reason(identity_error, DatasetPersistenceReason.IDENTITY_CONTENT_CONFLICT)
+
+
+def test_all_ten_s2_invariants_and_failure_vocabulary_remain_bounded() -> None:
+    persistence = persistence_receipt()
+    publication = publication_receipt()
+    assert persistence.stored_version_id == stored_version()
+    assert persistence.manifest_id == persistence_receipt().manifest_id
+    assert persistence.resource_policy_id == policy().policy_id
+    assert persistence.verification_evidence_refs
+    assert type(persistence.completed_at) is Timestamp
+    assert publication.predecessor_publication_ref is None
+    assert publication.consumer_visibility_state is ConsumerVisibilityState.COMPLETE
+    assert persistence.receipt_id() == persistence_receipt().receipt_id()
+    assert publication.receipt_id() == publication_receipt().receipt_id()
+    assert {item.value for item in DatasetPersistenceReason} == {
+        "IDENTITY_CONTENT_CONFLICT",
+        "CONTENT_DIGEST_MISMATCH",
+        "EXACT_VERSION_NOT_ESTABLISHED",
+        "EXACT_VERSION_AMBIGUOUS",
+        "VERIFICATION_EVIDENCE_NOT_ESTABLISHED",
+        "PARTIAL_PUBLICATION_PROHIBITED",
+        "PREDECESSOR_PUBLICATION_MISMATCH",
+        "UNSUPPORTED_OPERATION",
+        "UNSUPPORTED_VISIBILITY_STATE",
+        "RESOURCE_LIMIT_EXCEEDED",
+    }
+
+
 def test_module_has_no_physical_io_or_downstream_authority_surface() -> None:
     import automated_trading_bot.datasets.persistence as module
 
@@ -365,5 +638,6 @@ def test_module_has_no_physical_io_or_downstream_authority_surface() -> None:
         "ai_trading_authority",
     )
     assert all(not hasattr(module, name) for name in forbidden_public)
-    assert not hasattr(module, "PersistenceReceipt")
-    assert not hasattr(module, "PublicationReceipt")
+    assert hasattr(module, "PersistenceReceipt")
+    assert hasattr(module, "PublicationReceipt")
+    assert not hasattr(module, "physical_atomic_publication")
