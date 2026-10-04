@@ -1059,10 +1059,102 @@ def test_c11_s2_minimum_receipt_contract_schema_rejects_drift(path, value):
 
 def test_sync3_minimum_integration_contract_v1_is_exact_and_non_authorizing() -> None:
     document = load(C)
-    contract = document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]
+    contract = deepcopy(document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"])
+    clarification = contract.pop("missing_c10_identity_clarification_v1")
     assert contract == {'contract_id': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'classification': 'OWNER_APPROVED_MINIMUM_CROSS_COMPONENT_INTEGRATION_CONTRACT', 'scope': 'C05_C06_C10_EXACT_PROTECTED_INPUT_TECHNICAL_CONSUMABILITY_ASSESSMENT_ONLY', 'implementation_authority': 'NONE', 'protected_sync3_boundary': {'formula': 'C05_QUALITY_PLUS_C06_ELIGIBILITY_PLUS_C10_FRESHNESS_CURRENTNESS_BEFORE_AUTHORITATIVE_DATASET_PROMOTION', 'historical_state': 'OPEN_NOT_CONSUMABLE_NOT_BYPASSED', 'contract_makes_consumable': False}, 'claim_contract': {'contract_id': 'ATIS_SYNC3_DATASET_ELIGIBILITY_CLAIM_V1', 'fields': ['contract_version', 'claim_id', 'dataset_version_id'], 'purpose': 'BIND_THE_EXACT_C06_CLAIM_CONTEXT_TO_THE_APPLICABLE_DATASET_VERSION_ID_THROUGH_THE_EXISTING_PROTECTED_C06_CLAIM_CONTRACT_EXTENSION_POINT', 'c06_modification': 'NONE'}, 'result_model': {'type': 'Sync3ConsumabilityState', 'states': ['CONSUMABLE', 'NOT_CONSUMABLE', 'NOT_ESTABLISHED']}, 'assessment_model': {'type': 'Sync3ConsumabilityAssessment', 'identity': 'Sync3ConsumabilityAssessmentId', 'immutable': True, 'slotted': True, 'fields': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons', 'content_digest', 'assessment_id']}, 'identity_model': {'content_projection': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons'], 'content_digest_domain': 'ATIS:SYNC3:CONSUMABILITY_ASSESSMENT_CONTENT:1', 'assessment_id_body': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons', 'content_digest'], 'assessment_id_domain': 'ATIS:SYNC3:CONSUMABILITY_ASSESSMENT_ID:1', 'non_circular': True}, 'bindings': {'c05': 'EXACT_PROTECTED_PRODUCTION_QUALITY_RESULT_DIGEST_EQUALS_C06_BOUND_DIGEST_AND_VALIDATION_STATE_IS_VALID', 'c06': 'EXACT_PROTECTED_ELIGIBILITY_DECISION_IDENTITY_AND_DISPOSITION_IS_ELIGIBLE', 'dataset': 'ATTRIBUTABLE_SYNC3_CLAIM_CONTRACT_BINDS_C06_CLAIM_ID_TO_EXACT_DATASET_VERSION_ID', 'c10': 'EXACT_PROTECTED_DATASET_CURRENTNESS_ASSESSMENT_IDENTITY_AND_STATE_IS_CURRENT', 'dataset_agreement': 'CLAIM_BOUND_DATASET_VERSION_ID_EQUALS_C10_DATASET_VERSION_ID', 'external_currentness_ref': 'OPTIONAL_BUT_IF_PRESENT_CONTENT_DIGEST_MUST_EQUAL_APPLICABLE_C10_CONTENT_DIGEST'}, 'temporal_model': {'assessment_boundary': 'DATASET_CURRENTNESS_ASSESSMENT_EVALUATED_AT', 'c06_knowledge_rule': 'C06_KNOWLEDGE_FROM_NOT_AFTER_C10_EVALUATED_AT', 'c06_effective_rule': 'C06_EFFECTIVE_FROM_IF_PRESENT_NOT_AFTER_C10_EVALUATED_AT', 'historical_assessments': 'IMMUTABLE', 'later_boundary_reuse': 'PROHIBITED', 'later_boundary_requires_applicable_later_c10_and_new_assessment': True}, 'invariants': {'SYNC3-INV-01': 'EXACT_C05_RESULT_DIGEST_EQUALS_THE_C05_DIGEST_BOUND_BY_C06_AND_C05_IS_VALID', 'SYNC3-INV-02': 'EXACT_C06_DECISION_IDENTITY_IS_VALID_AND_ONLY_ELIGIBLE_CONTRIBUTES_POSITIVELY', 'SYNC3-INV-03': 'ATTRIBUTABLE_SYNC3_CLAIM_CONTRACT_BINDS_C06_CLAIM_ID_TO_EXACT_DATASET_VERSION_ID', 'SYNC3-INV-04': 'EXACT_C10_DATASET_ASSESSMENT_IS_MANDATORY_CURRENT_AND_BOUND_TO_THE_SAME_DATASET_VERSION', 'SYNC3-INV-05': 'C10_DEPENDENCY_INVALIDATION_AFFECTED_SET_AND_PROPAGATION_SEMANTICS_REMAIN_AUTHORITATIVE_AND_FAIL_CLOSED', 'SYNC3-INV-06': 'C06_KNOWLEDGE_AND_APPLICABLE_EFFECTIVE_BOUNDARIES_DO_NOT_FOLLOW_THE_BOUND_C10_EVALUATION_TIME', 'SYNC3-INV-07': 'ASSESSMENT_APPLIES_ONLY_AT_ITS_BOUND_C10_EVALUATION_TIME_AND_CANNOT_ESTABLISH_LATER_CONSUMABILITY', 'SYNC3-INV-08': 'WHEN_C06_EXTERNAL_CURRENTNESS_REF_IS_PRESENT_ITS_CONTENT_DIGEST_EQUALS_THE_APPLICABLE_C10_CONTENT_DIGEST', 'SYNC3-INV-09': 'MISSING_CONFLICTING_NONATTRIBUTABLE_OR_SUBSTITUTED_EVIDENCE_CANNOT_PRODUCE_CONSUMABLE_AND_C08_C09_C11_CANNOT_SUBSTITUTE', 'SYNC3-INV-10': 'SYNC3_CREATES_NO_PROMOTION_PROVIDER_STORAGE_PERSISTENCE_PUBLICATION_STAGE4_TRADING_FINANCIAL_OR_AI_AUTHORITY'}, 'failure_routing': {'protected_c05_c06_c10_vocabulary': 'REUSED', 'new_sync3_reasons': ['SYNC3_DATASET_CONTEXT_NOT_ESTABLISHED', 'SYNC3_DATASET_CONTEXT_MISMATCH', 'SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED', 'SYNC3_EXTERNAL_CURRENTNESS_REF_MISMATCH']}, 'known_gap_coverage': {'08_C10_EVIDENCE_MISSING': 'CLOSED', '09_C10_UNKNOWN': 'CLOSED', '10_C10_STALE': 'CLOSED', '11_LATER_DEPENDENCY_INVALIDATION': 'CLOSED', '12_INCOMPLETE_PROPAGATION': 'CLOSED', '18_PUBLICATION_COMPLETE_THEN_INVALIDATED': 'CLOSED', '19_CROSS_COMPONENT_IDENTITY_CONFLICT': 'CLOSED'}, 'authority_firewall': {'quality_authority': 'NONE', 'eligibility_authority': 'NONE', 'currentness_authority': 'NONE', 'promotion_authority': 'NONE', 'dataset_promotion': 'NONE', 'provider_authority': 'NONE', 'storage_authority': 'NONE', 'physical_persistence': 'NONE', 'physical_publication': 'NONE', 'physical_atomic_publication': 'NONE', 'gate_s03_01_authority': 'NONE', 'stage3_closure_authority': 'NONE', 'stage4_authority': 'NONE', 'research_backtesting_authority': 'NONE', 'trading_authority': 'NONE', 'financial_authority': 'NONE', 'ai_trading_authority': 'NONE'}}
     assert contract["protected_sync3_boundary"]["historical_state"] == "OPEN_NOT_CONSUMABLE_NOT_BYPASSED"
     assert contract["protected_sync3_boundary"]["contract_makes_consumable"] is False
+    assert clarification == {
+        "clarification_id": "ATIS_STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_V1",
+        "target_contract": "ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1",
+        "target_type": "Sync3ConsumabilityAssessment",
+        "target_field": "dataset_currentness_assessment_id",
+        "clarified_type": "DatasetCurrentnessAssessmentId | None",
+        "canonical_absence_representation": "JSON_NULL",
+        "field_presence": "STRUCTURALLY_REQUIRED",
+        "null_and_absent": "DISTINCT",
+        "sentinel_c10_identities": "PROHIBITED",
+        "rules": [
+            {"id": "CLAR-C10-01", "rule": "NONE_IS_PERMITTED_ONLY_WHEN_THE_APPLICABLE_C10_DATASET_CURRENTNESS_ASSESSMENT_IS_ABSENT"},
+            {"id": "CLAR-C10-02", "rule": "NONE_SERIALIZES_EXACTLY_AS_JSON_NULL_IN_THE_EXISTING_CONTENT_PROJECTION_AND_ASSESSMENT_ID_BODY"},
+            {"id": "CLAR-C10-03", "rule": "A_NULL_C10_ID_CAN_ONLY_PRODUCE_NOT_ESTABLISHED"},
+            {"id": "CLAR-C10-04", "rule": "A_NULL_C10_ID_REQUIRES_SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED"},
+            {"id": "CLAR-C10-05", "rule": "WHEN_A_C10_ASSESSMENT_EXISTS_INCLUDING_UNKNOWN_OR_STALE_ITS_EXACT_PROTECTED_DATASET_CURRENTNESS_ASSESSMENT_ID_IS_REQUIRED_AND_NULL_IS_PROHIBITED"},
+            {"id": "CLAR-C10-06", "rule": "CONSUMABLE_REQUIRES_A_NON_NULL_EXACT_C10_ID_CORRESPONDING_TO_THE_SUPPLIED_CURRENT_C10_ASSESSMENT"},
+            {"id": "CLAR-C10-07", "rule": "NULL_IS_NOT_ABSENCE_OF_FIELD_DATASET_CURRENTNESS_ASSESSMENT_ID_REMAINS_STRUCTURALLY_PRESENT_AND_OMISSION_DIFFERS_FROM_JSON_NULL"},
+            {"id": "CLAR-C10-08", "rule": "NULL_AND_REAL_ID_HAVE_DISTINCT_IDENTITIES_OTHERWISE_EQUIVALENT_PROJECTIONS_PRODUCE_DISTINCT_CONTENT_DIGESTS_AND_ASSESSMENT_IDENTITIES"},
+        ],
+        "prohibited_sentinel_tokens": ["none", "missing", "unknown", "not-established", "null-id", "zero-id"],
+        "state_routing": {
+            "c10_absent": {"dataset_currentness_assessment_id": None, "state": "NOT_ESTABLISHED", "required_reason": "SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED"},
+            "c10_unknown": {"dataset_currentness_assessment_id": "EXACT_REAL_C10_ID", "state": "NOT_ESTABLISHED"},
+            "c10_stale": {"dataset_currentness_assessment_id": "EXACT_REAL_C10_ID", "state": "NOT_CONSUMABLE"},
+            "c10_current": {"dataset_currentness_assessment_id": "EXACT_REAL_C10_ID", "state": "POTENTIALLY_CONSUMABLE_IF_ALL_OTHER_PREDICATES_PASS"},
+        },
+        "preservation": {
+            "three_state_vocabulary": "UNCHANGED", "eight_field_assessment_order": "UNCHANGED",
+            "four_sync3_reasons": "UNCHANGED", "claim_contract_structure": "UNCHANGED",
+            "content_digest_domain": "UNCHANGED", "assessment_id_domain": "UNCHANGED",
+            "temporal_pit_model": "UNCHANGED", "component_semantics": "C05_C06_C08_C09_C10_C11_UNCHANGED",
+            "authority_firewall": "UNCHANGED", "sync3_historical_state": "OPEN_NOT_CONSUMABLE_NOT_BYPASSED",
+            "contract_makes_consumable": False,
+        },
+    }
+
+
+def test_sync3_missing_c10_clarification_identity_and_state_closure() -> None:
+    contract = load(C)["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]
+    clarification = contract["missing_c10_identity_clarification_v1"]
+    assert [rule["id"] for rule in clarification["rules"]] == [f"CLAR-C10-{number:02d}" for number in range(1, 9)]
+    assert clarification["state_routing"]["c10_absent"] == {
+        "dataset_currentness_assessment_id": None,
+        "state": "NOT_ESTABLISHED",
+        "required_reason": "SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED",
+    }
+    assert clarification["state_routing"]["c10_unknown"]["dataset_currentness_assessment_id"] == "EXACT_REAL_C10_ID"
+    assert clarification["state_routing"]["c10_stale"]["dataset_currentness_assessment_id"] == "EXACT_REAL_C10_ID"
+    assert clarification["state_routing"]["c10_current"]["dataset_currentness_assessment_id"] == "EXACT_REAL_C10_ID"
+    assert clarification["field_presence"] == "STRUCTURALLY_REQUIRED"
+    assert clarification["null_and_absent"] == "DISTINCT"
+    assert contract["invariants"]["SYNC3-INV-04"] == "EXACT_C10_DATASET_ASSESSMENT_IS_MANDATORY_CURRENT_AND_BOUND_TO_THE_SAME_DATASET_VERSION"
+
+    base = {
+        "contract_version": "1", "dataset_version_id": "atis:dataset-version:v1:11111111-1111-4111-8111-111111111111",
+        "eligibility_decision_id": "atis:eligibility-decision:v1:22222222-2222-4222-8222-222222222222",
+        "dataset_currentness_assessment_id": None, "state": "NOT_ESTABLISHED",
+        "reasons": ["SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED"],
+    }
+    missing = json.dumps(base, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    replay = json.dumps(deepcopy(base), ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    real = deepcopy(base)
+    real["dataset_currentness_assessment_id"] = "atis:dataset-currentness-assessment:v1:33333333-3333-4333-8333-333333333333"
+    real_bytes = json.dumps(real, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    assert missing == replay
+    assert sha256(missing).hexdigest() == sha256(replay).hexdigest()
+    assert sha256(missing).hexdigest() != sha256(real_bytes).hexdigest()
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("canonical_absence_representation",), "SENTINEL"),
+        (("field_presence",), "OPTIONAL"),
+        (("null_and_absent",), "EQUIVALENT"),
+        (("state_routing", "c10_absent", "state"), "CONSUMABLE"),
+        (("state_routing", "c10_absent", "required_reason"), "OTHER"),
+        (("state_routing", "c10_unknown", "dataset_currentness_assessment_id"), None),
+        (("state_routing", "c10_stale", "dataset_currentness_assessment_id"), None),
+        (("state_routing", "c10_current", "dataset_currentness_assessment_id"), None),
+    ],
+)
+def test_sync3_missing_c10_clarification_schema_rejects_drift(path, value) -> None:
+    document = load(C)
+    target = document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]["missing_c10_identity_clarification_v1"]
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    with pytest.raises(ValidationError):
+        Draft202012Validator(load(S)).validate(document)
 
 
 def test_sync3_minimum_integration_contract_schema_rejects_drift() -> None:
