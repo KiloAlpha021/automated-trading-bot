@@ -19575,7 +19575,7 @@
         },
         "candidate_digest": {
           "type": "string",
-          "const": "ea30f36d58f0c9921486e6f32cad480cdd05aeaa0a441710ae1011f78ce8dbc5"
+          "const": "4a41788c14950a22a9b1dfeef3835054d54200ce96291509d831a2b06384cce4"
         },
         "rb1_design_ratification": {
           "type": "object",
@@ -26986,6 +26986,91 @@
               "trading_authority": "NONE",
               "financial_authority": "NONE",
               "ai_trading_authority": "NONE"
+            },
+            "missing_c10_identity_clarification_v1": {
+              "clarification_id": "ATIS_STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_V1",
+              "target_contract": "ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1",
+              "target_type": "Sync3ConsumabilityAssessment",
+              "target_field": "dataset_currentness_assessment_id",
+              "clarified_type": "DatasetCurrentnessAssessmentId | None",
+              "canonical_absence_representation": "JSON_NULL",
+              "field_presence": "STRUCTURALLY_REQUIRED",
+              "null_and_absent": "DISTINCT",
+              "sentinel_c10_identities": "PROHIBITED",
+              "rules": [
+                {
+                  "id": "CLAR-C10-01",
+                  "rule": "NONE_IS_PERMITTED_ONLY_WHEN_THE_APPLICABLE_C10_DATASET_CURRENTNESS_ASSESSMENT_IS_ABSENT"
+                },
+                {
+                  "id": "CLAR-C10-02",
+                  "rule": "NONE_SERIALIZES_EXACTLY_AS_JSON_NULL_IN_THE_EXISTING_CONTENT_PROJECTION_AND_ASSESSMENT_ID_BODY"
+                },
+                {
+                  "id": "CLAR-C10-03",
+                  "rule": "A_NULL_C10_ID_CAN_ONLY_PRODUCE_NOT_ESTABLISHED"
+                },
+                {
+                  "id": "CLAR-C10-04",
+                  "rule": "A_NULL_C10_ID_REQUIRES_SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED"
+                },
+                {
+                  "id": "CLAR-C10-05",
+                  "rule": "WHEN_A_C10_ASSESSMENT_EXISTS_INCLUDING_UNKNOWN_OR_STALE_ITS_EXACT_PROTECTED_DATASET_CURRENTNESS_ASSESSMENT_ID_IS_REQUIRED_AND_NULL_IS_PROHIBITED"
+                },
+                {
+                  "id": "CLAR-C10-06",
+                  "rule": "CONSUMABLE_REQUIRES_A_NON_NULL_EXACT_C10_ID_CORRESPONDING_TO_THE_SUPPLIED_CURRENT_C10_ASSESSMENT"
+                },
+                {
+                  "id": "CLAR-C10-07",
+                  "rule": "NULL_IS_NOT_ABSENCE_OF_FIELD_DATASET_CURRENTNESS_ASSESSMENT_ID_REMAINS_STRUCTURALLY_PRESENT_AND_OMISSION_DIFFERS_FROM_JSON_NULL"
+                },
+                {
+                  "id": "CLAR-C10-08",
+                  "rule": "NULL_AND_REAL_ID_HAVE_DISTINCT_IDENTITIES_OTHERWISE_EQUIVALENT_PROJECTIONS_PRODUCE_DISTINCT_CONTENT_DIGESTS_AND_ASSESSMENT_IDENTITIES"
+                }
+              ],
+              "prohibited_sentinel_tokens": [
+                "none",
+                "missing",
+                "unknown",
+                "not-established",
+                "null-id",
+                "zero-id"
+              ],
+              "state_routing": {
+                "c10_absent": {
+                  "dataset_currentness_assessment_id": null,
+                  "state": "NOT_ESTABLISHED",
+                  "required_reason": "SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED"
+                },
+                "c10_unknown": {
+                  "dataset_currentness_assessment_id": "EXACT_REAL_C10_ID",
+                  "state": "NOT_ESTABLISHED"
+                },
+                "c10_stale": {
+                  "dataset_currentness_assessment_id": "EXACT_REAL_C10_ID",
+                  "state": "NOT_CONSUMABLE"
+                },
+                "c10_current": {
+                  "dataset_currentness_assessment_id": "EXACT_REAL_C10_ID",
+                  "state": "POTENTIALLY_CONSUMABLE_IF_ALL_OTHER_PREDICATES_PASS"
+                }
+              },
+              "preservation": {
+                "three_state_vocabulary": "UNCHANGED",
+                "eight_field_assessment_order": "UNCHANGED",
+                "four_sync3_reasons": "UNCHANGED",
+                "claim_contract_structure": "UNCHANGED",
+                "content_digest_domain": "UNCHANGED",
+                "assessment_id_domain": "UNCHANGED",
+                "temporal_pit_model": "UNCHANGED",
+                "component_semantics": "C05_C06_C08_C09_C10_C11_UNCHANGED",
+                "authority_firewall": "UNCHANGED",
+                "sync3_historical_state": "OPEN_NOT_CONSUMABLE_NOT_BYPASSED",
+                "contract_makes_consumable": false
+              }
             }
           }
         }

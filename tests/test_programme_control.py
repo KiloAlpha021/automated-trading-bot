@@ -1794,7 +1794,7 @@ def test_pc_dec_023_records_only_c11_s1_semantic_contract_fixation() -> None:
 def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> None:
     decisions = {row["record_id"]: row for row in _control()["decision_register"]["records"]}
     record = decisions["PC-DEC-024"]
-    assert list(decisions)[-2:] == ["PC-DEC-024", "PC-DEC-025"]
+    assert list(decisions)[-3:] == ["PC-DEC-024", "PC-DEC-025", "PC-DEC-026"]
     assert list(decisions).index("PC-DEC-023") < list(decisions).index("PC-DEC-024")
     assert record["state"] == "APPROVED"
     assert record["supersedes"] is None
@@ -1808,10 +1808,34 @@ def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> N
 
 def test_pc_dec_025_records_only_sync3_minimum_contract_protection() -> None:
     records = _control()["decision_register"]["records"]
-    assert records[-2]["record_id"] == "PC-DEC-024"
-    record = records[-1]
+    assert records[-3]["record_id"] == "PC-DEC-024"
+    record = records[-2]
     assert record == {'record_id': 'PC-DEC-025', 'governed_question': 'May the independently accepted ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1 be recorded and protected while SYNC-3 remains OPEN_NOT_CONSUMABLE_NOT_BYPASSED, without granting implementation, consumability, promotion, provider or storage selection, GATE-S03-01, Stage-3 closure, Stage-4, trading, financial or AI authority?', 'scope': 'STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_RECORDING_AND_PROTECTION_ONLY', 'state': 'APPROVED', 'decision': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'source_authority': 'ATIS_OWNER_AUTHORIZATION_AFTER_INDEPENDENT_CONTRACT_ACCEPTANCE', 'decision_owner': 'ATIS_OWNER', 'decided_at': None, 'supersedes': None, 'authority_granted': ['RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1'], 'authority_not_granted': ['SYNC_3_IMPLEMENTATION', 'SYNC_3_CONSUMABILITY', 'C05_REENTRY', 'C06_REENTRY', 'C08_REENTRY', 'C09_REENTRY', 'C10_REENTRY', 'C11_S1_REENTRY', 'C11_S2_REENTRY', 'PROMOTION_AUTHORITY', 'DATASET_PROMOTION', 'PROVIDER_SELECTION', 'STORAGE_SELECTION', 'PHYSICAL_PERSISTENCE', 'PHYSICAL_PUBLICATION', 'PHYSICAL_ATOMIC_PUBLICATION', 'FRESHNESS_HORIZON_SELECTION', 'RESOURCE_POLICY_VALUE_SELECTION', 'GATE_S03_01_EXECUTION', 'STAGE3_GENERAL_CLOSURE', 'STAGE4_IMPLEMENTATION', 'RESEARCH_BACKTESTING_EXECUTION', 'PAPER_TRADING', 'LIVE_TRADING', 'FINANCIAL_EFFECTS', 'AI_TRADING_AUTHORITY']}
     assert record["authority_granted"] == ["RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1"]
     assert "SYNC_3_IMPLEMENTATION" in record["authority_not_granted"]
     assert "SYNC_3_CONSUMABILITY" in record["authority_not_granted"]
     assert "AI_TRADING_AUTHORITY" in record["authority_not_granted"]
+
+
+def test_pc_dec_026_records_only_missing_c10_clarification() -> None:
+    records = _control()["decision_register"]["records"]
+    assert records[-2]["record_id"] == "PC-DEC-025"
+    record = records[-1]
+    assert record["record_id"] == "PC-DEC-026"
+    assert record["decision"] == "ATIS_STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_V1"
+    assert record["scope"] == "STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_RECORDING_AND_PROTECTION_ONLY"
+    assert record["state"] == "APPROVED"
+    assert record["decision_owner"] == "ATIS_OWNER"
+    assert record["supersedes"] is None
+    assert record["authority_granted"] == ["RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_V1"]
+    assert record["authority_not_granted"] == [
+        "SYNC_3_IMPLEMENTATION", "SYNC_3_CONSUMABILITY", "C05_REENTRY", "C06_REENTRY",
+        "C08_REENTRY", "C09_REENTRY", "C10_REENTRY", "C11_S1_REENTRY", "C11_S2_REENTRY",
+        "PROMOTION_AUTHORITY", "DATASET_PROMOTION", "PROVIDER_SELECTION", "STORAGE_SELECTION",
+        "PHYSICAL_PERSISTENCE", "PHYSICAL_PUBLICATION", "PHYSICAL_ATOMIC_PUBLICATION",
+        "FRESHNESS_HORIZON_SELECTION", "RESOURCE_POLICY_VALUE_SELECTION", "GATE_S03_01_EXECUTION",
+        "S3_REQ_036_SATISFACTION", "FORTY_ONE_OF_FORTY_ONE_CLASSIFICATION",
+        "STAGE3_GENERAL_CLOSURE", "STAGE3_FINAL_AUDIT_EXECUTION", "STAGE4_IMPLEMENTATION",
+        "RESEARCH_BACKTESTING_EXECUTION", "PAPER_TRADING", "LIVE_TRADING", "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    ]

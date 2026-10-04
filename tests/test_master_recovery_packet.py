@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKET_PATH = ROOT / "docs/programme/master-recovery-packet.json"
 SCHEMA_PATH = ROOT / "docs/programme/master-recovery-packet.schema.json"
 EXPECTED_PACKET_SHA256 = (
-    "32a0ab75939a2c3ce654f3ca6875acb1702aacc6e31a6a9d15e15ec63216b4af"
+    "47852a5487d802e71815cee4e0ca5f970552a5676da818ef75f665d1c947c15d"
 )
 EXPECTED_BASIS = {
     "commit": "119ab879fd96c64a4f04441da03945b5a22ed03d",
@@ -34,17 +34,17 @@ EXPECTED_REQUIRED = {
     "docs/baseline/sources/Automated_Trading_Bot_Implementation_Specification_v1.0_Baseline_and_Build_Decomposition.docx": "8e116c3f3a75b0a038d947c8f66c1c57f1a4ff2e",
     "docs/baseline/specification-provenance.json": "30ea05b9c395fc1051a7c2d3a25ec7a01fb08179",
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
-    "docs/programme/programme-control.json": "b21c53f89af4879efc7fd4d80ee09c5367418c28",
+    "docs/programme/programme-control.json": "6e9ab7df525d184f0c09e60cbebb3b966f2b43aa",
     "docs/programme/programme-control.schema.json": "573205a85273424dabbab5fe8720de3a94b7a583",
     "docs/stage2/gate-s02-01.json": "850ce45a88d30b9348686493355fb681a464759f",
     "docs/stage2/stage2-freeze-record.json": "5a4425eeb79c87072e8c498981c55565c386c677",
-    "docs/stage3/stage3-specification.json": "dc07ab0e946d5f163e967e875005b2391d49d9e7",
-    "docs/stage3/stage3-specification.schema.json": "08c37dbd2e0fdce0c45ffb7d1b8e717e4e1977be",
+    "docs/stage3/stage3-specification.json": "f932968cf8bc85f031201897b856746793a5f630",
+    "docs/stage3/stage3-specification.schema.json": "0a9a4f6a9cc9ff92cdacf89815e5e661f010e5bf",
     "pyproject.toml": "f7cf0df47ffc4e1309803b48dc26114851dfb0ee",
     "requirements-dev.lock": "cfb3245eef00c6f51e619aa15a5432dfc8893d89",
     "scripts/bootstrap.ps1": "78c82833f387ce94f786f58f93947917076fd61a",
-    "tests/test_programme_control.py": "110f5fb3fc3eab043890f0acbd76b18f1a1d4015",
-    "tests/test_stage3_specification.py": "acdab423dec9cbaac1e631eb232640daf6524a83",
+    "tests/test_programme_control.py": "780434f6defa65291d128c22a37ac3b486c0ddca",
+    "tests/test_stage3_specification.py": "a58a2754eee0df907b0e4ef25003404c1a413ad5",
 }
 EXPECTED_SUPPLEMENTARY = {
     "docs/programme/successor-evidence.json": "af6af201dcac63d420a046fcbc2622348f56776e",
