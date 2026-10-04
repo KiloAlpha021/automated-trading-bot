@@ -1258,6 +1258,48 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-025",
+        "governed_question": "May the independently accepted ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1 be recorded and protected while SYNC-3 remains OPEN_NOT_CONSUMABLE_NOT_BYPASSED, without granting implementation, consumability, promotion, provider or storage selection, GATE-S03-01, Stage-3 closure, Stage-4, trading, financial or AI authority?",
+        "scope": "STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_RECORDING_AND_PROTECTION_ONLY",
+        "state": "APPROVED",
+        "decision": "ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1",
+        "source_authority": "ATIS_OWNER_AUTHORIZATION_AFTER_INDEPENDENT_CONTRACT_ACCEPTANCE",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1"
+        ],
+        "authority_not_granted": [
+          "SYNC_3_IMPLEMENTATION",
+          "SYNC_3_CONSUMABILITY",
+          "C05_REENTRY",
+          "C06_REENTRY",
+          "C08_REENTRY",
+          "C09_REENTRY",
+          "C10_REENTRY",
+          "C11_S1_REENTRY",
+          "C11_S2_REENTRY",
+          "PROMOTION_AUTHORITY",
+          "DATASET_PROMOTION",
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "PHYSICAL_PERSISTENCE",
+          "PHYSICAL_PUBLICATION",
+          "PHYSICAL_ATOMIC_PUBLICATION",
+          "FRESHNESS_HORIZON_SELECTION",
+          "RESOURCE_POLICY_VALUE_SELECTION",
+          "GATE_S03_01_EXECUTION",
+          "STAGE3_GENERAL_CLOSURE",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_BACKTESTING_EXECUTION",
+          "PAPER_TRADING",
+          "LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
