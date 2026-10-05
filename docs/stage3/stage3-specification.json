@@ -9673,7 +9673,7 @@
       "independent_expected_digest": "NOT_ESTABLISHED",
       "independent_recomputed_digest": "NOT_ESTABLISHED"
     },
-    "candidate_digest": "15db1e80c8d728f82509a835ba5cf1127e72b4c84a791ceba4c8a5a6d96afd07",
+    "candidate_digest": "e7363c0fe58d8bef699eb94152c191e04a3d36ca258d94850ce5190bca45b00c",
     "rb1_design_ratification": {
       "contract_id": "ATIS_RB1_IDENTITY_AND_REFERENCE_MODEL_V1",
       "state": "RATIFIED",
@@ -14359,6 +14359,136 @@
           "new_reason_family": "NONE",
           "new_digest_domain": "NONE",
           "component_reentry": "NONE"
+        }
+      },
+      "c05_provenance_replay_clarification_v1": {
+        "clarification_id": "ATIS_STAGE3_SYNC3_C05_PROVENANCE_REPLAY_CLARIFICATION_V1",
+        "target_contract": "ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1",
+        "classification": "MINIMUM_ADDITIVE_C05_PROVENANCE_REPLAY_CLOSURE",
+        "rules": [
+          {
+            "id": "CPR-01",
+            "name": "AUTHORITATIVE_C05_REPLAY",
+            "rule": "C05_PROVENANCE_IS_ESTABLISHED_ONLY_BY_INVOKING_PROTECTED_EVALUATE_PRODUCTION_QUALITY_WITH_THE_EXACT_APPLICABLE_PROTECTED_C05_EVALUATION_INPUTS_SUPPLIED_TO_SYNC3"
+          },
+          {
+            "id": "CPR-02",
+            "name": "EXACT_RESULT_EQUALITY",
+            "rule": "THE_REPLAYED_PRODUCTION_QUALITY_RESULT_MUST_EXACTLY_EQUAL_THE_SUPPLIED_C05_RESULT_ACROSS_ALL_EIGHT_PROTECTED_FIELDS_AFTER_PROTECTED_CANONICALIZATION_ANY_INEQUALITY_HARD_FAILS_BEFORE_ORDINARY_SYNC3_SEMANTICS"
+          },
+          {
+            "id": "CPR-03",
+            "name": "REPLAY_INPUTS_REQUIRED",
+            "rule": "MANDATORY_PROVENANCE_INPUTS_ARE_NONEMPTY_COMPATIBILITY_DESCRIPTOR_TUPLE_PRODUCTION_SEQUENCE_EVIDENCE_PRODUCTION_METRIC_EVIDENCE_APPROVED_PRODUCTION_QUALITY_POLICY_OR_EXACT_PROTECTED_NULL_POLICY_STATE_EXACT_CLOSED_RESOLVED_QUALITY_EVIDENCE_TUPLE_AND_SUPPLIED_PRODUCTION_QUALITY_RESULT_RESOLVED_EVIDENCE_REQUIRES_EXACTLY_ONE_DIGEST_VALID_OBJECT_FOR_EVERY_REPLAY_CONSUMED_REFERENCE_AND_REJECTS_MISSING_DUPLICATE_CONFLICTING_DIGEST_INVALID_OR_UNRELATED_EVIDENCE_CALLER_ORDER_HAS_NO_AUTHORITY_WHERE_PROTECTED_CANONICALIZATION_APPLIES"
+          },
+          {
+            "id": "CPR-04",
+            "name": "REPLAY_FAILURE_DOMINANCE",
+            "rule": "REPLAY_TYPE_INPUT_BINDING_RESOURCE_OR_EVIDENCE_FAILURE_PROTECTED_EVALUATOR_EXCEPTION_OR_REPLAY_RESULT_INEQUALITY_HARD_FAILS_BEFORE_ORDINARY_SYNC3_SEMANTIC_EVALUATION"
+          },
+          {
+            "id": "CPR-05",
+            "name": "C06_BINDING_AFTER_REPLAY",
+            "rule": "AFTER_SUCCESSFUL_REPLAY_RESULT_EQUALITY_COMPUTE_C05_QUALITY_RESULT_DIGEST_OF_THE_REPLAYED_RESULT_AND_REQUIRE_EXACT_EQUALITY_WITH_ELIGIBILITY_DECISION_C05_QUALITY_RESULT_DIGEST_MISMATCH_HARD_FAILS_BEFORE_SEMANTICS"
+          },
+          {
+            "id": "CPR-06",
+            "name": "NO_SHADOW_C05_SEMANTICS",
+            "rule": "SYNC3_MUST_NOT_SUBSTITUTE_AUTHORITATIVE_REPLAY_WITH_REASON_ALLOWLISTS_STATE_TO_REASON_MAPS_SEQUENCE_METRIC_OR_POLICY_REASON_TABLES_INFERRED_REASON_MEMBERSHIP_OR_DUPLICATED_C05_DECISION_LOGIC_MECHANICAL_TYPE_IDENTITY_EQUALITY_AND_EVIDENCE_CLOSURE_CHECKS_REMAIN_ALLOWED"
+          },
+          {
+            "id": "CPR-07",
+            "name": "COMPLETE_REASON_AUTHORITY",
+            "rule": "ONLY_REASONS_FROM_AN_EXACTLY_REPLAY_VERIFIED_PRODUCTION_QUALITY_RESULT_MAY_BE_TREATED_AS_APPLICABLE_ATTRIBUTABLE_PROTECTED_C05_REASONS_THE_COMPLETE_VERIFIED_C05_REASON_TUPLE_ENTERS_THE_EXISTING_CANONICAL_SORTED_DISTINCT_CROSS_COMPONENT_REASON_UNION"
+          },
+          {
+            "id": "CPR-08",
+            "name": "PRESERVATION",
+            "rule": "THE_CLARIFICATION_CHANGES_NO_C05_EVALUATION_SEMANTICS_C05_RESULT_MODEL_C06_OR_C10_SEMANTICS_SYNC3_STATE_OR_ASSESSMENT_FIELD_REASON_VOCABULARY_DIGEST_DOMAIN_STATE_PRECEDENCE_MISSING_C10_TEMPORAL_PIT_AUTHORITY_FIREWALL_OR_COMPONENT_AUTHORITY"
+          }
+        ],
+        "mandatory_replay_inputs": {
+          "descriptors": "NONEMPTY_TUPLE_OF_COMPATIBILITY_DESCRIPTOR",
+          "sequence": "PRODUCTION_SEQUENCE_EVIDENCE",
+          "metric_evidence": "PRODUCTION_METRIC_EVIDENCE",
+          "policy": "APPROVED_PRODUCTION_QUALITY_POLICY_OR_EXACT_PROTECTED_NULL_POLICY_STATE",
+          "resolved_quality_evidence": "EXACT_CLOSED_TUPLE_OF_RESOLVED_QUALITY_EVIDENCE",
+          "supplied_c05_result": "PRODUCTION_QUALITY_RESULT"
+        },
+        "resolved_evidence_closure": {
+          "membership": "EXACTLY_ONE_DIGEST_VALID_OBJECT_FOR_EVERY_REPLAY_CONSUMED_EVIDENCE_REFERENCE",
+          "missing": "REJECTED",
+          "duplicate": "REJECTED",
+          "conflicting": "REJECTED",
+          "digest_invalid": "REJECTED",
+          "unrelated": "REJECTED",
+          "caller_order": "NO_AUTHORITY_WHERE_PROTECTED_CANONICALIZATION_APPLIES"
+        },
+        "exact_result_equality": {
+          "fields": [
+            "descriptor_digests",
+            "sequence_coverage",
+            "sequence_order",
+            "outlier_states",
+            "missing_logical_keys",
+            "reasons",
+            "evidence_refs",
+            "validation_state"
+          ],
+          "field_count": 8,
+          "comparison": "EXACT_AFTER_PROTECTED_CANONICALIZATION",
+          "inequality": "HARD_FAIL_CLOSED_BEFORE_ORDINARY_SYNC3_SEMANTICS"
+        },
+        "evaluation_order": {
+          "first": "AUTHORITATIVE_C05_REPLAY",
+          "second": "EXACT_REPLAYED_AND_SUPPLIED_RESULT_EQUALITY",
+          "third": "REPLAYED_C05_DIGEST_EQUALS_C06_BOUND_C05_DIGEST",
+          "fourth": "ORDINARY_SYNC3_SEMANTIC_EVALUATION"
+        },
+        "no_shadow_c05_semantics": {
+          "prohibited": [
+            "REASON_ALLOWLISTS",
+            "STATE_TO_REASON_MAPS",
+            "SEQUENCE_METRIC_POLICY_REASON_TABLES",
+            "INFERRED_REASON_MEMBERSHIP",
+            "DUPLICATED_C05_DECISION_LOGIC"
+          ],
+          "allowed": [
+            "MECHANICAL_TYPE_CHECKS",
+            "MECHANICAL_IDENTITY_CHECKS",
+            "EXACT_RESULT_EQUALITY",
+            "EXACT_EVIDENCE_CLOSURE"
+          ]
+        },
+        "preservation": {
+          "c05_evaluation_semantics": "UNCHANGED",
+          "c05_result_model": "UNCHANGED",
+          "c06_semantics": "UNCHANGED",
+          "c10_semantics": "UNCHANGED",
+          "three_sync3_states": "UNCHANGED",
+          "eight_assessment_fields": "UNCHANGED",
+          "existing_reason_vocabulary": "UNCHANGED",
+          "content_digest_domain": "UNCHANGED",
+          "assessment_id_domain": "UNCHANGED",
+          "state_precedence": "N_GREATER_THAN_U_GREATER_THAN_P_UNCHANGED",
+          "missing_c10_semantics": "UNCHANGED",
+          "temporal_pit_model": "UNCHANGED",
+          "authority_firewall": "UNCHANGED",
+          "component_authority": "UNCHANGED",
+          "new_state": "NONE",
+          "new_assessment_field": "NONE",
+          "new_reason": "NONE",
+          "new_digest_domain": "NONE",
+          "component_semantic_reentry": "NONE"
+        },
+        "pm_status": {
+          "PM-04": "CONDITIONAL_UNTIL_CPR_PROTECTION",
+          "PM-05": "BLOCKED_PENDING_CPR_PROTECTION",
+          "PM-11": "BLOCKED_PENDING_CPR_PROTECTION",
+          "PM-13": "BLOCKED_PENDING_CPR_PROTECTION",
+          "PM-18": "C05_PROVENANCE_REPLAY_ISSUE_OPEN",
+          "PM-19": "ADDITIVE_CPR_TEST_PLAN_ESTABLISHED",
+          "PM-20": "BLOCKED_PENDING_CPR_PROTECTION_AND_AFFECTED_PM_RECONCILIATION"
         }
       }
     }

@@ -1064,6 +1064,7 @@ def test_sync3_minimum_integration_contract_v1_is_exact_and_non_authorizing() ->
     contract = deepcopy(document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"])
     clarification = contract.pop("missing_c10_identity_clarification_v1")
     contract.pop("state_reason_semantic_clarification_v1")
+    assert contract.pop("c05_provenance_replay_clarification_v1") == C05_PROVENANCE_REPLAY_CLARIFICATION_V1
     assert contract == {'contract_id': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'classification': 'OWNER_APPROVED_MINIMUM_CROSS_COMPONENT_INTEGRATION_CONTRACT', 'scope': 'C05_C06_C10_EXACT_PROTECTED_INPUT_TECHNICAL_CONSUMABILITY_ASSESSMENT_ONLY', 'implementation_authority': 'NONE', 'protected_sync3_boundary': {'formula': 'C05_QUALITY_PLUS_C06_ELIGIBILITY_PLUS_C10_FRESHNESS_CURRENTNESS_BEFORE_AUTHORITATIVE_DATASET_PROMOTION', 'historical_state': 'OPEN_NOT_CONSUMABLE_NOT_BYPASSED', 'contract_makes_consumable': False}, 'claim_contract': {'contract_id': 'ATIS_SYNC3_DATASET_ELIGIBILITY_CLAIM_V1', 'fields': ['contract_version', 'claim_id', 'dataset_version_id'], 'purpose': 'BIND_THE_EXACT_C06_CLAIM_CONTEXT_TO_THE_APPLICABLE_DATASET_VERSION_ID_THROUGH_THE_EXISTING_PROTECTED_C06_CLAIM_CONTRACT_EXTENSION_POINT', 'c06_modification': 'NONE'}, 'result_model': {'type': 'Sync3ConsumabilityState', 'states': ['CONSUMABLE', 'NOT_CONSUMABLE', 'NOT_ESTABLISHED']}, 'assessment_model': {'type': 'Sync3ConsumabilityAssessment', 'identity': 'Sync3ConsumabilityAssessmentId', 'immutable': True, 'slotted': True, 'fields': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons', 'content_digest', 'assessment_id']}, 'identity_model': {'content_projection': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons'], 'content_digest_domain': 'ATIS:SYNC3:CONSUMABILITY_ASSESSMENT_CONTENT:1', 'assessment_id_body': ['contract_version', 'dataset_version_id', 'eligibility_decision_id', 'dataset_currentness_assessment_id', 'state', 'reasons', 'content_digest'], 'assessment_id_domain': 'ATIS:SYNC3:CONSUMABILITY_ASSESSMENT_ID:1', 'non_circular': True}, 'bindings': {'c05': 'EXACT_PROTECTED_PRODUCTION_QUALITY_RESULT_DIGEST_EQUALS_C06_BOUND_DIGEST_AND_VALIDATION_STATE_IS_VALID', 'c06': 'EXACT_PROTECTED_ELIGIBILITY_DECISION_IDENTITY_AND_DISPOSITION_IS_ELIGIBLE', 'dataset': 'ATTRIBUTABLE_SYNC3_CLAIM_CONTRACT_BINDS_C06_CLAIM_ID_TO_EXACT_DATASET_VERSION_ID', 'c10': 'EXACT_PROTECTED_DATASET_CURRENTNESS_ASSESSMENT_IDENTITY_AND_STATE_IS_CURRENT', 'dataset_agreement': 'CLAIM_BOUND_DATASET_VERSION_ID_EQUALS_C10_DATASET_VERSION_ID', 'external_currentness_ref': 'OPTIONAL_BUT_IF_PRESENT_CONTENT_DIGEST_MUST_EQUAL_APPLICABLE_C10_CONTENT_DIGEST'}, 'temporal_model': {'assessment_boundary': 'DATASET_CURRENTNESS_ASSESSMENT_EVALUATED_AT', 'c06_knowledge_rule': 'C06_KNOWLEDGE_FROM_NOT_AFTER_C10_EVALUATED_AT', 'c06_effective_rule': 'C06_EFFECTIVE_FROM_IF_PRESENT_NOT_AFTER_C10_EVALUATED_AT', 'historical_assessments': 'IMMUTABLE', 'later_boundary_reuse': 'PROHIBITED', 'later_boundary_requires_applicable_later_c10_and_new_assessment': True}, 'invariants': {'SYNC3-INV-01': 'EXACT_C05_RESULT_DIGEST_EQUALS_THE_C05_DIGEST_BOUND_BY_C06_AND_C05_IS_VALID', 'SYNC3-INV-02': 'EXACT_C06_DECISION_IDENTITY_IS_VALID_AND_ONLY_ELIGIBLE_CONTRIBUTES_POSITIVELY', 'SYNC3-INV-03': 'ATTRIBUTABLE_SYNC3_CLAIM_CONTRACT_BINDS_C06_CLAIM_ID_TO_EXACT_DATASET_VERSION_ID', 'SYNC3-INV-04': 'EXACT_C10_DATASET_ASSESSMENT_IS_MANDATORY_CURRENT_AND_BOUND_TO_THE_SAME_DATASET_VERSION', 'SYNC3-INV-05': 'C10_DEPENDENCY_INVALIDATION_AFFECTED_SET_AND_PROPAGATION_SEMANTICS_REMAIN_AUTHORITATIVE_AND_FAIL_CLOSED', 'SYNC3-INV-06': 'C06_KNOWLEDGE_AND_APPLICABLE_EFFECTIVE_BOUNDARIES_DO_NOT_FOLLOW_THE_BOUND_C10_EVALUATION_TIME', 'SYNC3-INV-07': 'ASSESSMENT_APPLIES_ONLY_AT_ITS_BOUND_C10_EVALUATION_TIME_AND_CANNOT_ESTABLISH_LATER_CONSUMABILITY', 'SYNC3-INV-08': 'WHEN_C06_EXTERNAL_CURRENTNESS_REF_IS_PRESENT_ITS_CONTENT_DIGEST_EQUALS_THE_APPLICABLE_C10_CONTENT_DIGEST', 'SYNC3-INV-09': 'MISSING_CONFLICTING_NONATTRIBUTABLE_OR_SUBSTITUTED_EVIDENCE_CANNOT_PRODUCE_CONSUMABLE_AND_C08_C09_C11_CANNOT_SUBSTITUTE', 'SYNC3-INV-10': 'SYNC3_CREATES_NO_PROMOTION_PROVIDER_STORAGE_PERSISTENCE_PUBLICATION_STAGE4_TRADING_FINANCIAL_OR_AI_AUTHORITY'}, 'failure_routing': {'protected_c05_c06_c10_vocabulary': 'REUSED', 'new_sync3_reasons': ['SYNC3_DATASET_CONTEXT_NOT_ESTABLISHED', 'SYNC3_DATASET_CONTEXT_MISMATCH', 'SYNC3_C10_ASSESSMENT_NOT_ESTABLISHED', 'SYNC3_EXTERNAL_CURRENTNESS_REF_MISMATCH']}, 'known_gap_coverage': {'08_C10_EVIDENCE_MISSING': 'CLOSED', '09_C10_UNKNOWN': 'CLOSED', '10_C10_STALE': 'CLOSED', '11_LATER_DEPENDENCY_INVALIDATION': 'CLOSED', '12_INCOMPLETE_PROPAGATION': 'CLOSED', '18_PUBLICATION_COMPLETE_THEN_INVALIDATED': 'CLOSED', '19_CROSS_COMPONENT_IDENTITY_CONFLICT': 'CLOSED'}, 'authority_firewall': {'quality_authority': 'NONE', 'eligibility_authority': 'NONE', 'currentness_authority': 'NONE', 'promotion_authority': 'NONE', 'dataset_promotion': 'NONE', 'provider_authority': 'NONE', 'storage_authority': 'NONE', 'physical_persistence': 'NONE', 'physical_publication': 'NONE', 'physical_atomic_publication': 'NONE', 'gate_s03_01_authority': 'NONE', 'stage3_closure_authority': 'NONE', 'stage4_authority': 'NONE', 'research_backtesting_authority': 'NONE', 'trading_authority': 'NONE', 'financial_authority': 'NONE', 'ai_trading_authority': 'NONE'}}
     assert contract["protected_sync3_boundary"]["historical_state"] == "OPEN_NOT_CONSUMABLE_NOT_BYPASSED"
     assert contract["protected_sync3_boundary"]["contract_makes_consumable"] is False
@@ -1288,3 +1289,130 @@ def test_sync3_minimum_integration_contract_schema_rejects_drift() -> None:
     drifted["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]["implementation_authority"] = "GRANTED"
     with pytest.raises(ValidationError):
         Draft202012Validator(schema).validate(drifted)
+
+
+C05_PROVENANCE_REPLAY_CLARIFICATION_V1 = json.loads(r'''{"clarification_id":"ATIS_STAGE3_SYNC3_C05_PROVENANCE_REPLAY_CLARIFICATION_V1","classification":"MINIMUM_ADDITIVE_C05_PROVENANCE_REPLAY_CLOSURE","evaluation_order":{"first":"AUTHORITATIVE_C05_REPLAY","fourth":"ORDINARY_SYNC3_SEMANTIC_EVALUATION","second":"EXACT_REPLAYED_AND_SUPPLIED_RESULT_EQUALITY","third":"REPLAYED_C05_DIGEST_EQUALS_C06_BOUND_C05_DIGEST"},"exact_result_equality":{"comparison":"EXACT_AFTER_PROTECTED_CANONICALIZATION","field_count":8,"fields":["descriptor_digests","sequence_coverage","sequence_order","outlier_states","missing_logical_keys","reasons","evidence_refs","validation_state"],"inequality":"HARD_FAIL_CLOSED_BEFORE_ORDINARY_SYNC3_SEMANTICS"},"mandatory_replay_inputs":{"descriptors":"NONEMPTY_TUPLE_OF_COMPATIBILITY_DESCRIPTOR","metric_evidence":"PRODUCTION_METRIC_EVIDENCE","policy":"APPROVED_PRODUCTION_QUALITY_POLICY_OR_EXACT_PROTECTED_NULL_POLICY_STATE","resolved_quality_evidence":"EXACT_CLOSED_TUPLE_OF_RESOLVED_QUALITY_EVIDENCE","sequence":"PRODUCTION_SEQUENCE_EVIDENCE","supplied_c05_result":"PRODUCTION_QUALITY_RESULT"},"no_shadow_c05_semantics":{"allowed":["MECHANICAL_TYPE_CHECKS","MECHANICAL_IDENTITY_CHECKS","EXACT_RESULT_EQUALITY","EXACT_EVIDENCE_CLOSURE"],"prohibited":["REASON_ALLOWLISTS","STATE_TO_REASON_MAPS","SEQUENCE_METRIC_POLICY_REASON_TABLES","INFERRED_REASON_MEMBERSHIP","DUPLICATED_C05_DECISION_LOGIC"]},"pm_status":{"PM-04":"CONDITIONAL_UNTIL_CPR_PROTECTION","PM-05":"BLOCKED_PENDING_CPR_PROTECTION","PM-11":"BLOCKED_PENDING_CPR_PROTECTION","PM-13":"BLOCKED_PENDING_CPR_PROTECTION","PM-18":"C05_PROVENANCE_REPLAY_ISSUE_OPEN","PM-19":"ADDITIVE_CPR_TEST_PLAN_ESTABLISHED","PM-20":"BLOCKED_PENDING_CPR_PROTECTION_AND_AFFECTED_PM_RECONCILIATION"},"preservation":{"assessment_id_domain":"UNCHANGED","authority_firewall":"UNCHANGED","c05_evaluation_semantics":"UNCHANGED","c05_result_model":"UNCHANGED","c06_semantics":"UNCHANGED","c10_semantics":"UNCHANGED","component_authority":"UNCHANGED","component_semantic_reentry":"NONE","content_digest_domain":"UNCHANGED","eight_assessment_fields":"UNCHANGED","existing_reason_vocabulary":"UNCHANGED","missing_c10_semantics":"UNCHANGED","new_assessment_field":"NONE","new_digest_domain":"NONE","new_reason":"NONE","new_state":"NONE","state_precedence":"N_GREATER_THAN_U_GREATER_THAN_P_UNCHANGED","temporal_pit_model":"UNCHANGED","three_sync3_states":"UNCHANGED"},"resolved_evidence_closure":{"caller_order":"NO_AUTHORITY_WHERE_PROTECTED_CANONICALIZATION_APPLIES","conflicting":"REJECTED","digest_invalid":"REJECTED","duplicate":"REJECTED","membership":"EXACTLY_ONE_DIGEST_VALID_OBJECT_FOR_EVERY_REPLAY_CONSUMED_EVIDENCE_REFERENCE","missing":"REJECTED","unrelated":"REJECTED"},"rules":[{"id":"CPR-01","name":"AUTHORITATIVE_C05_REPLAY","rule":"C05_PROVENANCE_IS_ESTABLISHED_ONLY_BY_INVOKING_PROTECTED_EVALUATE_PRODUCTION_QUALITY_WITH_THE_EXACT_APPLICABLE_PROTECTED_C05_EVALUATION_INPUTS_SUPPLIED_TO_SYNC3"},{"id":"CPR-02","name":"EXACT_RESULT_EQUALITY","rule":"THE_REPLAYED_PRODUCTION_QUALITY_RESULT_MUST_EXACTLY_EQUAL_THE_SUPPLIED_C05_RESULT_ACROSS_ALL_EIGHT_PROTECTED_FIELDS_AFTER_PROTECTED_CANONICALIZATION_ANY_INEQUALITY_HARD_FAILS_BEFORE_ORDINARY_SYNC3_SEMANTICS"},{"id":"CPR-03","name":"REPLAY_INPUTS_REQUIRED","rule":"MANDATORY_PROVENANCE_INPUTS_ARE_NONEMPTY_COMPATIBILITY_DESCRIPTOR_TUPLE_PRODUCTION_SEQUENCE_EVIDENCE_PRODUCTION_METRIC_EVIDENCE_APPROVED_PRODUCTION_QUALITY_POLICY_OR_EXACT_PROTECTED_NULL_POLICY_STATE_EXACT_CLOSED_RESOLVED_QUALITY_EVIDENCE_TUPLE_AND_SUPPLIED_PRODUCTION_QUALITY_RESULT_RESOLVED_EVIDENCE_REQUIRES_EXACTLY_ONE_DIGEST_VALID_OBJECT_FOR_EVERY_REPLAY_CONSUMED_REFERENCE_AND_REJECTS_MISSING_DUPLICATE_CONFLICTING_DIGEST_INVALID_OR_UNRELATED_EVIDENCE_CALLER_ORDER_HAS_NO_AUTHORITY_WHERE_PROTECTED_CANONICALIZATION_APPLIES"},{"id":"CPR-04","name":"REPLAY_FAILURE_DOMINANCE","rule":"REPLAY_TYPE_INPUT_BINDING_RESOURCE_OR_EVIDENCE_FAILURE_PROTECTED_EVALUATOR_EXCEPTION_OR_REPLAY_RESULT_INEQUALITY_HARD_FAILS_BEFORE_ORDINARY_SYNC3_SEMANTIC_EVALUATION"},{"id":"CPR-05","name":"C06_BINDING_AFTER_REPLAY","rule":"AFTER_SUCCESSFUL_REPLAY_RESULT_EQUALITY_COMPUTE_C05_QUALITY_RESULT_DIGEST_OF_THE_REPLAYED_RESULT_AND_REQUIRE_EXACT_EQUALITY_WITH_ELIGIBILITY_DECISION_C05_QUALITY_RESULT_DIGEST_MISMATCH_HARD_FAILS_BEFORE_SEMANTICS"},{"id":"CPR-06","name":"NO_SHADOW_C05_SEMANTICS","rule":"SYNC3_MUST_NOT_SUBSTITUTE_AUTHORITATIVE_REPLAY_WITH_REASON_ALLOWLISTS_STATE_TO_REASON_MAPS_SEQUENCE_METRIC_OR_POLICY_REASON_TABLES_INFERRED_REASON_MEMBERSHIP_OR_DUPLICATED_C05_DECISION_LOGIC_MECHANICAL_TYPE_IDENTITY_EQUALITY_AND_EVIDENCE_CLOSURE_CHECKS_REMAIN_ALLOWED"},{"id":"CPR-07","name":"COMPLETE_REASON_AUTHORITY","rule":"ONLY_REASONS_FROM_AN_EXACTLY_REPLAY_VERIFIED_PRODUCTION_QUALITY_RESULT_MAY_BE_TREATED_AS_APPLICABLE_ATTRIBUTABLE_PROTECTED_C05_REASONS_THE_COMPLETE_VERIFIED_C05_REASON_TUPLE_ENTERS_THE_EXISTING_CANONICAL_SORTED_DISTINCT_CROSS_COMPONENT_REASON_UNION"},{"id":"CPR-08","name":"PRESERVATION","rule":"THE_CLARIFICATION_CHANGES_NO_C05_EVALUATION_SEMANTICS_C05_RESULT_MODEL_C06_OR_C10_SEMANTICS_SYNC3_STATE_OR_ASSESSMENT_FIELD_REASON_VOCABULARY_DIGEST_DOMAIN_STATE_PRECEDENCE_MISSING_C10_TEMPORAL_PIT_AUTHORITY_FIREWALL_OR_COMPONENT_AUTHORITY"}],"target_contract":"ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1"}''')
+
+
+def test_sync3_c05_provenance_replay_clarification_is_exact_and_preserving() -> None:
+    contract = load(C)["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]
+    clarification = contract["c05_provenance_replay_clarification_v1"]
+    assert clarification == C05_PROVENANCE_REPLAY_CLARIFICATION_V1
+    assert clarification["clarification_id"] == "ATIS_STAGE3_SYNC3_C05_PROVENANCE_REPLAY_CLARIFICATION_V1"
+    assert clarification["target_contract"] == "ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1"
+    assert clarification["classification"] == "MINIMUM_ADDITIVE_C05_PROVENANCE_REPLAY_CLOSURE"
+    assert [rule["id"] for rule in clarification["rules"]] == [f"CPR-{number:02d}" for number in range(1, 9)]
+    assert clarification["exact_result_equality"]["fields"] == [
+        "descriptor_digests", "sequence_coverage", "sequence_order", "outlier_states",
+        "missing_logical_keys", "reasons", "evidence_refs", "validation_state",
+    ]
+    assert clarification["exact_result_equality"]["field_count"] == 8
+    assert clarification["evaluation_order"]["first"] == "AUTHORITATIVE_C05_REPLAY"
+    assert clarification["evaluation_order"]["fourth"] == "ORDINARY_SYNC3_SEMANTIC_EVALUATION"
+    assert clarification["no_shadow_c05_semantics"]["prohibited"] == [
+        "REASON_ALLOWLISTS", "STATE_TO_REASON_MAPS",
+        "SEQUENCE_METRIC_POLICY_REASON_TABLES", "INFERRED_REASON_MEMBERSHIP",
+        "DUPLICATED_C05_DECISION_LOGIC",
+    ]
+    assert clarification["preservation"]["component_semantic_reentry"] == "NONE"
+    assert clarification["preservation"]["new_state"] == "NONE"
+    assert clarification["preservation"]["new_assessment_field"] == "NONE"
+    assert clarification["preservation"]["new_reason"] == "NONE"
+    assert clarification["preservation"]["new_digest_domain"] == "NONE"
+
+
+def test_sync3_c05_provenance_replay_inputs_and_evidence_closure_are_exact() -> None:
+    clarification = load(C)["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"][
+        "c05_provenance_replay_clarification_v1"
+    ]
+    assert clarification["mandatory_replay_inputs"] == {
+        "descriptors": "NONEMPTY_TUPLE_OF_COMPATIBILITY_DESCRIPTOR",
+        "sequence": "PRODUCTION_SEQUENCE_EVIDENCE",
+        "metric_evidence": "PRODUCTION_METRIC_EVIDENCE",
+        "policy": "APPROVED_PRODUCTION_QUALITY_POLICY_OR_EXACT_PROTECTED_NULL_POLICY_STATE",
+        "resolved_quality_evidence": "EXACT_CLOSED_TUPLE_OF_RESOLVED_QUALITY_EVIDENCE",
+        "supplied_c05_result": "PRODUCTION_QUALITY_RESULT",
+    }
+    closure = clarification["resolved_evidence_closure"]
+    assert closure["membership"] == "EXACTLY_ONE_DIGEST_VALID_OBJECT_FOR_EVERY_REPLAY_CONSUMED_EVIDENCE_REFERENCE"
+    assert {closure[key] for key in ("missing", "duplicate", "conflicting", "digest_invalid", "unrelated")} == {"REJECTED"}
+    assert closure["caller_order"] == "NO_AUTHORITY_WHERE_PROTECTED_CANONICALIZATION_APPLIES"
+
+
+@pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("clarification_id",), "DRIFT"),
+        (("rules",), C05_PROVENANCE_REPLAY_CLARIFICATION_V1["rules"][:-1]),
+        (("mandatory_replay_inputs", "sequence"), "OPTIONAL"),
+        (("resolved_evidence_closure", "unrelated"), "ALLOWED"),
+        (("exact_result_equality", "field_count"), 7),
+        (("evaluation_order", "first"), "ORDINARY_SYNC3_SEMANTIC_EVALUATION"),
+        (("no_shadow_c05_semantics", "prohibited"), []),
+        (("preservation", "component_semantic_reentry"), "AUTHORIZED"),
+    ],
+)
+def test_sync3_c05_provenance_replay_clarification_schema_rejects_drift(path, value) -> None:
+    document = load(C)
+    target = document["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"][
+        "c05_provenance_replay_clarification_v1"
+    ]
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    with pytest.raises(ValidationError):
+        Draft202012Validator(load(S)).validate(document)
+
+
+def test_sync3_c05_provenance_replay_schema_rejects_missing_extra_and_reordering() -> None:
+    schema = Draft202012Validator(load(S))
+    base = load(C)
+    missing = deepcopy(base)
+    missing_target = missing["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]["c05_provenance_replay_clarification_v1"]
+    missing_target["mandatory_replay_inputs"].pop("metric_evidence")
+    with pytest.raises(ValidationError):
+        schema.validate(missing)
+    extra = deepcopy(base)
+    extra["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]["c05_provenance_replay_clarification_v1"]["unknown"] = "PROHIBITED"
+    with pytest.raises(ValidationError):
+        schema.validate(extra)
+    reordered = deepcopy(base)
+    rules = reordered["stage3_recording_manifest"]["sync3_minimum_integration_contract_v1"]["c05_provenance_replay_clarification_v1"]["rules"]
+    rules[0], rules[1] = rules[1], rules[0]
+    with pytest.raises(ValidationError):
+        schema.validate(reordered)
+
+def test_sync3_c05_provenance_replay_schema_rejects_every_rule_and_input_weakening() -> None:
+    schema = Draft202012Validator(load(S))
+    base = load(C)
+    key = "c05_provenance_replay_clarification_v1"
+    contract_key = "sync3_minimum_integration_contract_v1"
+    mutations = []
+    for index in range(8):
+        mutations.append(("rule", index))
+    for name in C05_PROVENANCE_REPLAY_CLARIFICATION_V1["mandatory_replay_inputs"]:
+        mutations.append(("input", name))
+    for name in C05_PROVENANCE_REPLAY_CLARIFICATION_V1["preservation"]:
+        mutations.append(("preservation", name))
+    mutations += [("additional_rule", None), ("missing_binding", None),
+                  ("missing_clarification", None), ("weakened_cpr03", None)]
+    for kind, member in mutations:
+        document = deepcopy(base)
+        contract = document["stage3_recording_manifest"][contract_key]
+        target = contract[key]
+        if kind == "rule":
+            target["rules"][member]["rule"] = "WEAKENED"
+        elif kind == "input":
+            target["mandatory_replay_inputs"].pop(member)
+        elif kind == "preservation":
+            target["preservation"][member] = "CHANGED"
+        elif kind == "additional_rule":
+            target["rules"].append(deepcopy(target["rules"][-1]))
+        elif kind == "missing_binding":
+            target["evaluation_order"].pop("third")
+        elif kind == "missing_clarification":
+            contract.pop(key)
+        else:
+            target["rules"][2]["rule"] = "ALLOW_UNRELATED_RESOLVED_EVIDENCE"
+        with pytest.raises(ValidationError):
+            schema.validate(document)
