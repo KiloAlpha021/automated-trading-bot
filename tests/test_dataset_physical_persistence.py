@@ -323,3 +323,76 @@ def test_path_and_reparse_safety_rejects_external_root(
     with pytest.raises(PhysicalPersistenceError) as unsafe:
         LocalPhysicalDatasetStore(link, policy())
     reason(unsafe, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+
+
+def test_post_initialization_reparse_substitution_fails_closed_at_every_boundary(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import automated_trading_bot.datasets.physical_persistence as module
+
+    store = LocalPhysicalDatasetStore(tmp_path / "store", policy())
+    persisted = persist(store)
+    original = module._is_reparse
+
+    def attack(path: Path) -> None:
+        monkeypatch.setattr(
+            module,
+            "_is_reparse",
+            lambda candidate: candidate == path or original(candidate),
+        )
+
+    attack(store.root / "versions")
+    with pytest.raises(PhysicalPersistenceError) as redirected_read:
+        store.read_exact_version(persisted.receipt.stored_version_id)
+    reason(redirected_read, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+
+    monkeypatch.setattr(module, "_is_reparse", original)
+    attack(store.root / "staging")
+    with pytest.raises(PhysicalPersistenceError) as redirected_write:
+        persist(store, b"must-not-be-written")
+    reason(redirected_write, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+
+    monkeypatch.setattr(module, "_is_reparse", original)
+    attack(store.root / "publication")
+    with pytest.raises(PhysicalPersistenceError) as redirected_publication:
+        store.publish_exact_version(
+            stored_version_id=persisted.receipt.stored_version_id,
+            manifest=manifest_stub(),
+            expected_predecessor_publication_ref=None,
+            verification_evidence_refs=(ref("publish-reparse"),),
+            completed_at=Timestamp(datetime(2026, 10, 6, tzinfo=timezone.utc)),
+        )
+    reason(redirected_publication, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+
+    monkeypatch.setattr(module, "_is_reparse", original)
+    object_digest = EvidenceContentDigest.from_bytes(b"canonical").value.removeprefix("sha256:")
+    attack(store.root / "objects" / object_digest[:2])
+    with pytest.raises(PhysicalPersistenceError) as redirected_object:
+        store.read_exact_version(persisted.receipt.stored_version_id)
+    reason(redirected_object, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+
+    monkeypatch.setattr(module, "_is_reparse", original)
+    attack(store.root)
+    with pytest.raises(PhysicalPersistenceError) as redirected_recovery:
+        store.recover()
+    reason(redirected_recovery, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+
+
+def test_post_initialization_real_symlink_substitution_fails_closed_when_supported(
+    tmp_path: Path,
+) -> None:
+    store = LocalPhysicalDatasetStore(tmp_path / "store", policy())
+    external = tmp_path / "external"
+    external.mkdir()
+    publication = store.root / "publication"
+    publication.rmdir()
+    try:
+        publication.symlink_to(external, target_is_directory=True)
+    except OSError as error:
+        publication.mkdir()
+        pytest.skip(f"directory symlink/reparse creation unavailable: {error}")
+
+    with pytest.raises(PhysicalPersistenceError) as redirected:
+        store.published_version()
+    reason(redirected, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+    assert list(external.iterdir()) == []

@@ -318,6 +318,28 @@ def _assert_safe_existing_chain(path: Path) -> None:
         raise PhysicalPersistenceError(PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
 
 
+def _assert_trusted_store_path(root: Path, path: Path) -> None:
+    """Reject a trusted path whose existing chain was redirected after setup."""
+    try:
+        if _is_reparse(root) or root.resolve(strict=True) != root:
+            raise PhysicalPersistenceError(PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
+        relative = path.relative_to(root)
+        current = root
+        for part in relative.parts:
+            current = current / part
+            if not current.exists() and not current.is_symlink():
+                continue
+            if _is_reparse(current):
+                raise PhysicalPersistenceError(
+                    PhysicalPersistenceReason.STORE_ROOT_UNSAFE
+                )
+            current.resolve(strict=True).relative_to(root)
+    except (OSError, ValueError) as error:
+        raise PhysicalPersistenceError(
+            PhysicalPersistenceReason.STORE_ROOT_UNSAFE
+        ) from error
+
+
 def _flush_directory(path: Path) -> None:
     if os.name == "nt":
         return
@@ -402,18 +424,24 @@ class LocalPhysicalDatasetStore:
     def root(self) -> Path:
         return self._root
 
+    def _assert_trusted(self, path: Path) -> None:
+        _assert_trusted_store_path(self._root, path)
+
     def _object_path(self, digest: EvidenceContentDigest) -> Path:
         value = _digest_hex(digest)
         parent = self._objects / value[:2]
+        self._assert_trusted(parent)
         parent.mkdir(exist_ok=True)
-        if _is_reparse(parent) or parent.resolve(strict=True).parent != self._objects:
-            raise PhysicalPersistenceError(PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
-        return parent / f"{value[2:]}.bin"
+        target = parent / f"{value[2:]}.bin"
+        self._assert_trusted(target)
+        return target
 
     def _version_path(self, stored_version_id: StoredVersionId) -> Path:
         if type(stored_version_id) is not StoredVersionId:
             raise TypeError("stored_version_id must be StoredVersionId")
-        return self._versions / f"{_identity_hex(stored_version_id.value)}.json"
+        target = self._versions / f"{_identity_hex(stored_version_id.value)}.json"
+        self._assert_trusted(target)
+        return target
 
     def _check_size(self, content: bytes, name: str) -> None:
         limit_name = (
@@ -509,6 +537,9 @@ class LocalPhysicalDatasetStore:
         completed_at: Timestamp,
         failure_point: FailurePoint | None = None,
     ) -> PhysicalPersistenceResult:
+        self._assert_trusted(self._staging)
+        self._assert_trusted(self._objects)
+        self._assert_trusted(self._versions)
         if type(canonical_bytes) is not bytes:
             raise TypeError("canonical_bytes must be bytes")
         if type(manifest) is not DatasetManifest:
@@ -758,6 +789,7 @@ class LocalPhysicalDatasetStore:
 
     def _read_publication_marker(self) -> dict[str, object] | None:
         path = self._publication / "current.json"
+        self._assert_trusted(path)
         if not path.exists():
             return None
         try:
@@ -796,6 +828,8 @@ class LocalPhysicalDatasetStore:
         completed_at: Timestamp,
         failure_point: FailurePoint | None = None,
     ) -> PublicationReceipt:
+        self._assert_trusted(self._staging)
+        self._assert_trusted(self._publication)
         retrieval, _ = self._retrieval(stored_version_id)
         marker = self._read_publication_marker()
         predecessor: PublicationReceiptId | None = None
@@ -860,6 +894,10 @@ class LocalPhysicalDatasetStore:
         return receipt
 
     def recover(self) -> RecoveryReport:
+        self._assert_trusted(self._staging)
+        self._assert_trusted(self._publication)
+        self._assert_trusted(self._versions)
+        self._assert_trusted(self._objects)
         entries: list[RecoveryEntry] = []
         for path in sorted(self._staging.iterdir(), key=lambda value: value.name):
             if path.name == "quarantine":
