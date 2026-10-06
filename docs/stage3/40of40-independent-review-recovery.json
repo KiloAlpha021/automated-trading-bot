@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "record_id": "ATIS-STAGE3-40OF40-INDEPENDENT-REVIEW-RECOVERY",
+  "record_kind": "PRESENT_DAY_PRESERVATION_OF_RECOVERED_HISTORICAL_SOURCE",
+  "canonical_reference": "ATIS-STAGE3-40-OF-40-SUBSTANTIVE-REQUIREMENTS-RECONCILIATION:STAGE3_SUBSTANTIVE_REQUIREMENTS_40_OF_40_VERIFIED",
+  "historical_review": {
+    "review_id": "ATIS-STAGE3-40-OF-40-SUBSTANTIVE-REQUIREMENTS-RECONCILIATION",
+    "decision_id": "STAGE3_SUBSTANTIVE_REQUIREMENTS_40_OF_40_VERIFIED",
+    "repository": "KiloAlpha021/automated-trading-bot",
+    "evaluated_master": "a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325",
+    "evaluated_tree": "e0ada9e8434b2122b547a323b83e1306553e9042",
+    "containing_turn": {
+      "started_at": "2026-10-05T23:30:13Z",
+      "completed_at": "2026-10-05T23:44:02Z",
+      "timestamp_semantics": "SOURCE_TURN_METADATA_NOT_REPOSITORY_CREATION_PUBLICATION_OR_COMMIT_TIME"
+    }
+  },
+  "recovered_sources": {
+    "session_id": "01a08d3f-e474-72b1-ac46-a12c865268fc",
+    "turn_id": "01a10e67-4b9e-7380-8b73-a9abae1c7b74",
+    "original_response": {
+      "message_id": "msg_0d407a9e2a4f3561016ac435f518ac87d29c19aed6e14836c8",
+      "message_type": "agentMessage",
+      "phase": "final_answer",
+      "text": "```text\nFLOW = COMPLETE\nDRIFT = NONE\nLOOP = NONE\nFORWARD_MOVEMENT = Independently reconstructed the canonical catalogue, protected implementation map, direct/adversarial test evidence, governance closure evidence, cross-component allocation, and current protected identities.\n\nACTIVE_UNIT = ATIS-STAGE3-40-OF-40-SUBSTANTIVE-REQUIREMENTS-RECONCILIATION\nAUTHORIZED_SUCCESSOR = S3-REQ-036-COMPLETENESS-AND-GATE-READINESS-ASSESSMENT\n\nATIS_PROTECTED_MASTER = a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325\nATIS_PROTECTED_TREE = e0ada9e8434b2122b547a323b83e1306553e9042\nPROTECTED_TRUST_MAIN = 110c66530176795ce85c5cedf834992f06a68a30\nPROTECTED_TRUST_TREE = 92bccbe5e9c9e896cd72bf42ce388841fe60a80c\nBASELINE_VERIFICATION = PASS. Live origin/master and security-workflows origin/main matched exactly. The inspected ATIS bytes had tree e0ada9e8434b2122b547a323b83e1306553e9042 and a clean worktree.\n\nCANONICAL_REQUIREMENTS = 41\nSUBSTANTIVE_REQUIREMENTS = 40\nRECONCILED_REQUIREMENTS = 40\n\nSATISFIED_COUNT = 40\nPARTIAL_COUNT = 0\nBLOCKED_COUNT = 0\nNOT_APPLICABLE_COUNT = 0\n\nSATISFIED_REQUIREMENTS = S3-REQ-001 through S3-REQ-035; S3-REQ-037 through S3-REQ-041\nPARTIAL_REQUIREMENTS = NONE\nBLOCKED_REQUIREMENTS = NONE\nNOT_APPLICABLE_REQUIREMENTS = NONE\n\nHIGH_RISK_011 = SATISFIED. AcquisitionRecord binds separate provider-neutral SourceId/DatasetId and ProviderNativeId. Tests reject missing, substituted, conflicting and wrong-source identities. No provider-native substitution path was found.\n\nHIGH_RISK_012 = SATISFIED. SourceInterpretationId is explicit; acquisition and normalization reject invalid, unknown and unsupported interpretation identities without fallback.\n\nHIGH_RISK_014 = SATISFIED. Protected normalization canonicalizes supported evidence deterministically. Tests establish field-order and non-authoritative input-order independence, exact interpretation/version binding, temporal-role preservation, and rejection of unsupported interpretations, malformed values and ambiguous authoritative cohorts.\n\nHIGH_RISK_018 = SATISFIED. Malformed schema, field, type, temporal and evidence inputs reach protected constructors/validators and fail before eligibility. Pre-filtering cannot produce positive eligibility evidence.\n\nHIGH_RISK_019 = SATISFIED. ProductionQualityResult exposes explicit validation_state, reasons, evidence references and attributable policy-derived outcomes. Missing policy/evidence remains restrictive; absence cannot become VALID.\n\nHIGH_RISK_021 = SATISFIED. release_quarantine creates an attributable successor bound to prior quarantine state, subject, release authority, basis, policy, evidence and time. Ownerless, self-declared, replayed, branched, in-place and temporally substituted release attempts fail.\n\nHIGH_RISK_038 = SATISFIED. evaluate_production_quality consumes an exact ApprovedProductionQualityPolicy and attributable metric evidence. Missing/incompatible policy cannot manufacture an outlier verdict or threshold. Boundary, conflict and non-finite cases are protected.\n\nHIGH_RISK_039 = SATISFIED. Historical C07 evidence remains correctly PARTIAL_OPEN_DOWNSTREAM_EXECUTION. Current C10 lifecycle closes that downstream allocation through exact affected-set mapping, attributable invalidation events, restrictive incomplete/failed propagation and currentness binding. Tests prove affected datasets cannot remain current and unaffected datasets remain unaffected. SYNC-3 preserves authoritative C10 outcomes.\n\nHISTORICAL_STATE_RECONCILIATION = PASS. Older design-time NOT_ESTABLISHED fields and C07-local partial status were retained as historical evidence. Later protected implementation and closure evidence was used only where it closes the same residual obligation. No historical record was rewritten or treated as current closure authority.\n\nCROSS_COMPONENT_RECONCILIATION = PASS. RB-1, Calendar S2, C03-C06, C07, C08, C09, C10 and SYNC-3 boundaries compose without an unresolved substantive allocation. In particular, S3-REQ-039 is closed by C07 declaration plus C10 affected-set/propagation execution and SYNC-3 restrictive integration.\n\nPROTECTED_IDENTITY_ATTRIBUTION = PASS. All inspected source, tests and governance bytes resolve to protected ATIS tree e0ada9e8434b2122b547a323b83e1306553e9042. Protected trust remains 110c66530176795ce85c5cedf834992f06a68a30 / 92bccbe5e9c9e896cd72bf42ce388841fe60a80c.\n\nDIRECT_TEST_EVIDENCE = PASS. Independently executed 577 protected component/integration tests covering instrument, calendar, acquisition, normalization, compatibility, quality, eligibility, corporate actions, provenance, materialization, manifest, currentness, lifecycle and SYNC-3. Result: 577 passed.\n\nADVERSARIAL_TEST_EVIDENCE = PASS. The same 577-test execution includes protected substitution, malformed-input, conflict, ordering, unsupported-version, missing-evidence, policy, temporal, lineage, affected-set and authority-negative tests. Independently executed 356 specification, Programme Control, successor-evidence and Recovery Packet tests. Result: 356 passed. Total independently executed in this reconciliation: 933 passed.\n\nAUTHORITY_FIREWALL = PASS. Evidence establishes Stage-3 technical data/reference/quality/currentness semantics only. No provider selection, physical persistence/publication, promotion, Stage-4, strategy, broker, OMS, risk, trading, capital, financial-effects or AI authority was inferred.\n\nREQUIREMENT_MATRIX =\nREQ | DISPOSITION | OBLIGATION | EVIDENCE OWNER | IMPLEMENTATION EVIDENCE | DIRECT/ADVERSARIAL EVIDENCE | PROTECTED CLOSURE/PUBLICATION | CROSS-COMPONENT EVIDENCE | RESIDUAL | CONFIDENCE\n001 | SATISFIED | Stable typed instrument identity across mutable presentations | RB-1/C01 | instruments/model.py typed instrument, listing and reference identities | identity namespace, semantic-change, cross-listing and substitution tests | PC-DEC-007; protected master | PIT resolution and C08 dependency binding | NONE | HIGH\n002 | SATISFIED | Effective/knowledge-dated reference versions | RB-1/C01 | InstrumentReferenceVersion and half-open effective/knowledge intervals | boundary, overlap, ambiguity and future-knowledge tests | PC-DEC-007; protected master | C08 cutoff/materialization | NONE | HIGH\n003 | SATISFIED | Historical tradability state; absent/conflicting never defaults tradable | RB-1/C01 | TradabilityState in immutable reference versions | all historical states, absent coverage, conflict and invalid candidate tests | PC-DEC-007; protected master | historical-universe materialization | NONE | HIGH\n004 | SATISFIED | PIT instrument lookup at declared boundary | RB-1/C01 | resolve_instrument_reference and resolve_listing_reference | cutoff, current-version substitution, cross-subject and completeness tests | PC-DEC-007; protected master | C08 PIT selection | NONE | HIGH\n005 | SATISFIED | Attributable calendar identity and version | Calendar S2 | CalendarId, CalendarVersionId, CalendarVersion | missing/wrong identity, child binding and digest-conflict tests | PC-DEC-011; SE-CAND-004/SE-PUB-004 | C08 manifest/calendar identity | NONE | HIGH\n006 | SATISFIED | Deterministic trading-day, holiday and leap-date semantics | Calendar S2 | TradingDayDefinition and TradingDayKind | ordinary/non-trading/holiday, missing/conflicting evidence tests | PC-DEC-011; protected publication evidence | materialization session dependency | NONE | HIGH\n007 | SATISFIED | Deterministic session and early-close boundaries | Calendar S2 | SessionDefinition and resolution service | standard/early-close distinction, missing/conflicting close and boundary tests | PC-DEC-011; SE-PUB-004 | dataset expected-sequence evidence | NONE | HIGH\n008 | SATISFIED | Explicit timezone/DST conversion through UTC | Calendar S2 | TimezoneRuleRef, LocalWallTime and UTC conversion | DST forward/backward, ambiguous/nonexistent time and UTC disagreement tests | PC-DEC-011; protected master | M1 Timestamp boundary and C08 | NONE | HIGH\n009 | SATISFIED | Historical calendar lookup using applicable version/knowledge state | Calendar S2 | resolve_calendar_session with query/manifest boundaries | corrected-calendar, future candidate, current-calendar substitution and historical coverage tests | PC-DEC-011; protected master | C08 PIT cutoff | NONE | HIGH\n010 | SATISFIED | Calendar uncertainty remains restrictive/non-current | Calendar S2 | CalendarCurrentnessAssessment and restrictive resolution dispositions | stale, invalid, conflicting, unverifiable and correction-authority tests | PC-DEC-011; SE-PUB-004 | C08 and dataset currentness | NONE | HIGH\n011 | SATISFIED | Provider-neutral source and source-dataset identity | C03 acquisition | AcquisitionRecord binds SourceId and DatasetId separately from ProviderNativeId | exact separation plus missing/substituted/wrong-source/conflict tests | PC-DEC-012/013; protected master | C04/C05/C06 and C08 bindings | NONE | HIGH\n012 | SATISFIED | Explicit source interpretation version | C03/C04 | SourceInterpretationId and normalization compatibility binding | invalid/unknown/unsupported version rejection without fallback | PC-DEC-012/013; protected master | C04 descriptor and C05 inputs | NONE | HIGH\n013 | SATISFIED | Preserve source-supported temporal roles; never invent knowledge time | C03/C04/C08 | acquisition capabilities, normalized temporal bindings and PIT cutoff | unavailable-time, fabricated-knowledge, acquisition-as-knowledge, naive/non-UTC and after-cutoff tests | PC-DEC-012/013; PC-DEC-022 | C08 materialization and SYNC-3 PIT | NONE | HIGH\n014 | SATISFIED | Deterministic semantic normalization | C04 | normalization.py canonical semantic projection and digest | repeated, field-order, permutation, locale-independent canonicalization and unsupported-interpretation tests | PC-DEC-012/013/014; protected master | C05 compatibility and C08 canonical materialization | NONE | HIGH\n015 | SATISFIED | Missing observations remain explicit | C05 | ProductionSequenceEvidence and missing_logical_keys | missing versus malformed distinction; unavailable sequence never invents completeness | PC-DEC-014/016; protected master | C06 restrictive eligibility and SYNC-3 reason union | NONE | HIGH\n016 | SATISFIED | Exact duplicates handled deterministically | C05/C08 | quality semantic grouping and materialization duplicate collapse | exact duplicate collapse, evidence retention and conflicting-body tests | PC-DEC-014/016/022 | C09 manifest provenance | NONE | HIGH\n017 | SATISFIED | Reordered non-authoritative input is deterministic | C03-C05/C08 | canonical tuple/set ordering and content identities | acquisition evidence, normalization cohort, quality, provenance and materialization permutation tests | protected master | SYNC-3 canonical reason/input ordering | NONE | HIGH\n018 | SATISFIED | Malformed records rejected/quarantined before eligibility | C03-C06 | closed constructors, validators and quarantine decision path | malformed fields/types/schema/evidence/non-finite values and proxy substitutions fail closed | PC-DEC-014/016/017; protected master | C06 blocks eligibility; SYNC-3 integrity failures dominate | NONE | HIGH\n019 | SATISFIED | Explicit quality state, policy identity and reasons | C05 | ProductionQualityResult, ValidationState, policy and evidence references | valid/invalid/unknown/conflict, missing-policy and reason attribution tests | PC-DEC-014/016; protected master | C06 digest binding and CPR replay in SYNC-3 | NONE | HIGH\n020 | SATISFIED | Restrictive evidence quarantined and ineligible | C06 | decide_quarantine and decide_eligibility | restrictive C05/quarantine prevention, missing currentness and binding-substitution tests | PC-DEC-017; protected master | SYNC-3 preserves C06 restrictive disposition | NONE | HIGH\n021 | SATISFIED | Quarantine release is attributable immutable succession | C06 | ReleaseAuthorityAssertion, ReleaseDecision and release_quarantine | valid release plus ownerless, self-declared, replay, branch, temporal and lineage rejection tests | PC-DEC-017; protected master | PIT releases_known_at and SYNC-3 exact C06 input | NONE | HIGH\n022 | SATISFIED | No silent source fallback | C03-C06 | explicit source/version bindings; no fallback evaluator surface | outage/invalidity, wrong source, unsupported interpretation, policy mismatch and no-authority-surface tests | PC-DEC-012–017; protected master | C08 exact dependencies and SYNC-3 attribution | NONE | HIGH\n023 | SATISFIED | Stable corporate-action identity/version | C07 | CanonicalActionId, ActionVersionId and immutable versions | canonical/provider identity separation and deterministic version tests | PC-DEC-015; protected master | C08 dependency graph | NONE | HIGH\n024 | SATISFIED | Separate attributable knowledge and effective action boundaries | C07 | TemporalRoles and family-specific temporal slots | missing/date-only/non-attributable role rejection | PC-DEC-015; protected master | C08 cutoff and C10 invalidation timing | NONE | HIGH\n025 | SATISFIED | Approved corporate-action families only; unknown subtypes unsupported | C07 | closed ActionFamily and exact family role validation | every admitted family, unknown/ambiguous mapping and provider-label firewall tests | PC-DEC-015; protected master | C08 consumes canonical action semantics only | NONE | HIGH\n026 | SATISFIED | Correction/cancellation preserves immutable lineage | C07 | CorporateActionVersion lineage and authority assertions | correction authority, cancellation successor, missing predecessor, branch, cycle and cross-action tests | PC-DEC-015; protected master | C10 consumes attributable triggers | NONE | HIGH\n027 | SATISFIED | Dataset construction excludes post-cutoff inputs | C08 | MaterializationRequest knowledge cutoff and materialize_pit_dataset | cutoff equality/after-cutoff, missing knowledge and acquisition substitution tests | PC-DEC-022; SE-CAND-008/SE-PUB-008 | C09 manifest records cutoff | NONE | HIGH\n028 | SATISFIED | Historical datasets reconstruct without rewrite | C08 | immutable materialization records, exact dependencies and successor versions | later correction creates distinct successor; predecessor objects remain immutable | PC-DEC-022; SE-PUB-008 | C09 lineage and C10 invalidation | NONE | HIGH\n029 | SATISFIED | Prevent survivorship leakage | C08/C09 | HistoricalUniverseEvidence and manifest lineage | current-constituent substitution rejected; restrictive missing/unknown historical universe tests | PC-DEC-022; SE-PUB-008 | RB-1 historical state and S3-REQ-037 mechanism | NONE | HIGH\n030 | SATISFIED | Machine-checkable dataset manifest | C09 | DatasetManifest with exact protected semantic fields | completeness, exact C08 pairing, missing identity, unknown field and self-reference tests | PC-DEC-019/021; SE-CAND-005/007 and SE-PUB-005/007 | C08 materialization and provenance | NONE | HIGH\n031 | SATISFIED | Deterministic dataset content/version identity | C08/C09 | CanonicalDataset, LogicalContentId and DatasetVersionId | type-tag, representation, record identity, policy sensitivity and conflict tests | PC-DEC-021/022; SE-PUB-007/008 | manifest binds exact dataset version | NONE | HIGH\n032 | SATISFIED | Stable transformation identity/version, parameters and lineage | C08/C09 | TransformationExecutionBinding and provenance graph | transformation substitution, mutable reference, input substitution and missing path tests | PC-DEC-019/021/022 | manifest verifies exact derivation path | NONE | HIGH\n033 | SATISFIED | Reproducible materialization from identical declared inputs | C08/C09 | canonical representation, materialization record and manifest digest | repeated/permuted input determinism; dependency/schema/policy substitutions change or reject identity | PC-DEC-021/022; SE-PUB-007/008 | SYNC-3 binds exact DatasetVersionId | NONE | HIGH\n034 | SATISFIED | Versioned freshness at injected UTC evaluation time | C10 | FreshnessPolicy, CurrentnessAssessment and DatasetCurrentnessAssessment | current/stale boundary, missing horizon/evidence UNKNOWN, non-UTC and policy-conflict tests | PC-DEC-018/020; SE-CAND-006/SE-PUB-006 | SYNC-3 exact C10 identity and evaluated_at boundary | NONE | HIGH\n035 | SATISFIED | Dependency changes identify affected evidence and prevent silent currentness | C10 | assess_invalidation, AffectedSet, InvalidationEvent and propagation records | multi-hop, unrelated branch, unresolved trigger, incomplete propagation and currentness restriction tests | PC-DEC-018/020; SE-PUB-006 | C08 provenance graph and SYNC-3 restrictive C10 routing | NONE | HIGH\n037 | SATISFIED | Mechanism reconstructs historically applicable membership | C08/C09 | HistoricalUniverseEvidence plus PIT instrument/reference dependencies | historical membership case, inactive/delisted coverage and current-membership bypass rejection | PC-DEC-022; SE-PUB-008 | closes operational mechanism required by 029 | NONE | HIGH\n038 | SATISFIED | Approved outlier policy produces attributable outcome | C05 | ApprovedProductionQualityPolicy, ApprovedMetricRule and OutlierState | exact policy invocation, within/outside boundaries, missing/incompatible policy, conflicting/non-finite evidence tests | PC-DEC-014/016; protected master | CPR replay and C06 digest binding preserve verdict provenance | NONE | HIGH\n039 | SATISFIED | Material action correction propagates attributable dataset invalidation | C07+C10 | C07 AffectedDependencyDeclaration; C10 exact mappings, affected set, event and propagation | complete/missing/conflicting/unrelated mappings; incomplete/failed/complete propagation; affected/unaffected currentness tests | Historical PC-DEC-015 partial; current PC-DEC-018/020 and protected C10 publication close residual | C08 graph plus SYNC-3 C10 authority preservation | NONE | HIGH\n040 | SATISFIED | Materially differing duplicate identity is a conflict | C05/C08 | quality semantic grouping and materialization logical-key conflict | every group member conflicting, duplicate identity/body conflicts and incompatible logical-key tests | PC-DEC-014/016/022; protected master | C06 quarantine and C09 manifest fail closed | NONE | HIGH\n041 | SATISFIED | Calendar correction creates attributable lineage without rewrite | Calendar S2 | CalendarVersion supersession lineage and correction authority | authorized/unauthorized correction, missing predecessor, cycle, branch, in-place mutation and future-tip tests | PC-DEC-011; SE-PUB-004 | C08 historical calendar lookup | NONE | HIGH\n\nS3_REQ_036_ENTRY_READY = YES\n\nFINDINGS = All 40 substantive requirements have current protected implementation and sufficient direct/adversarial evidence. The sole historically open cross-component allocation, S3-REQ-039 downstream propagation, is closed by the protected C10 lifecycle implementation and preserved by SYNC-3. No material contradictory evidence was found.\n\nBLOCKERS = NONE\n\nSAME_QUESTION_LOOP = NO\nSAME_SCOPE_LOOP = NO\nREENTRY_ATTEMPT = NO\nDEFERRED_PATH_ACTIVATION = NO\nSEMANTIC_DRIFT = NONE\nAUTHORITY_DRIFT = NONE\nCHANGE_CONE_DRIFT = NONE\nFINISH_LINE_EXPANSION = NONE\n\nREPOSITORY_CHANGES = NONE\nNEW_COMMIT = NONE\nPUSH = NONE\nPR = NONE\nMERGE = NONE\n\nDECISION = STAGE3_SUBSTANTIVE_REQUIREMENTS_40_OF_40_VERIFIED\nNEXT_SAFE_STEP = Perform the separately authorized S3-REQ-036 completeness-and-gate-readiness assessment. Do not classify S3-REQ-036 as satisfied or execute GATE-S03-01 without that separate assessment and authority.\n\nSTOP.\n```",
+      "utf8_bytes": 19371,
+      "recovered_content_sha256": "14183309a0d5f5879795d52f4712ebe0ceaea0ac5fe99058cc0cfd95b31c44b2",
+      "digest_semantics": "PRESENT_RECOVERY_MEASUREMENT_OF_RETRIEVED_ORIGINAL_RESPONSE_UTF8_NOT_ORIGINAL_HISTORICAL_ARTIFACT_HASH"
+    },
+    "executions": [
+      {
+        "role": "STAGE3_COMPONENT_INTEGRATION",
+        "source_execution": {
+          "type": "commandExecution",
+          "id": "exec-195ce1b0-93d5-46cd-b85a-cfdfef2fe661",
+          "command": "\"C:\\\\Users\\\\SK\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$env:PYTHONDONTWRITEBYTECODE='\"'1'; \"'$env:PYTEST_ADDOPTS='\"'-p no:cacheprovider'; \"'$env:PYTHONPATH=(Join-Path (Get-Location) '\"'src'); \"'$py='\"'C:\\\\Users\\\\SK\\\\AppData\\\\Local\\\\Temp\\\\atis-sync3-final-bcf64415f6304e09aad046b8a441f86b\\\\Scripts\\\\python.exe'; & \"'$py -m pytest -q --basetemp '\"'C:\\\\Users\\\\SK\\\\AppData\\\\Local\\\\Temp\\\\atis-stage3-40of40' tests/test_instrument_reference_model.py tests/test_pit_reference_resolution.py tests/test_calendar_session_model.py tests/test_calendar_session_resolution.py tests/test_market_data_acquisition.py tests/test_market_data_normalization.py tests/test_market_data_compatibility.py tests/test_market_data_quality.py tests/test_market_data_eligibility.py tests/test_corporate_actions.py tests/test_dataset_provenance.py tests/test_dataset_materialization.py tests/test_dataset_manifest.py tests/test_dataset_currentness.py tests/test_dataset_lifecycle.py tests/test_stage3_sync3.py\"",
+          "cwd": "C:\\Users\\SK\\Documents\\Codex\\2026-09-10\\files-pasted-by-the-user-automated\\stage3-publication-workspace-4706222e",
+          "status": "completed",
+          "exitCode": 0,
+          "durationMs": 14087,
+          "output": {
+            "text": "........................................................................ [ 12%]\r\n........................................................................ [ 24%]\r\n........................................................................ [ 37%]\r\n........................................................................ [ 49%]\r\n........................................................................ [ 62%]\r\n........................................................................ [ 74%]\r\n........................................................................ [ 87%]\r\n........................................................................ [ 99%]\r\n.                                                                        [100%]\r\n577 passed in 11.14s\r\n",
+            "truncated": false
+          }
+        },
+        "passed": 577,
+        "historical_context": {
+          "attribution": "EXECUTION_IN_THE_ORIGINAL_RECONCILIATION_TURN",
+          "invocation": "PRESERVED_SOURCE_COMMAND_NOT_A_CURRENT_VALIDATION_RECIPE",
+          "component_scope": "ORIGINAL_16_FILE_COMPONENT_INTEGRATION_SET",
+          "limitations": [
+            "HISTORICAL_LOCAL_EXECUTION_NOT_HOSTED_ASSURANCE",
+            "ORIGINAL_COMMAND_USED_TEMPORARY_INTERPRETER_AND_PYTHONPATH_SRC",
+            "NOT_LATER_REGRESSION_OR_BOOTSTRAP_VALIDATION",
+            "NO_CLAIM_OF_RECOVERED_REVIEWER_MODEL_OR_VERSION_METADATA"
+          ]
+        }
+      },
+      {
+        "role": "STAGE3_GOVERNANCE_SPEC_RECOVERY",
+        "source_execution": {
+          "type": "commandExecution",
+          "id": "exec-79ce9935-cb9a-43ba-a5e3-7d826a536e92",
+          "command": "\"C:\\\\Users\\\\SK\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\" -Command '$env:PYTHONDONTWRITEBYTECODE='\"'1'; \"'$env:PYTEST_ADDOPTS='\"'-p no:cacheprovider'; \"'$env:PYTHONPATH=(Join-Path (Get-Location) '\"'src'); \"'$py='\"'C:\\\\Users\\\\SK\\\\AppData\\\\Local\\\\Temp\\\\atis-sync3-final-bcf64415f6304e09aad046b8a441f86b\\\\Scripts\\\\python.exe'; & \"'$py -m pytest -q --basetemp '\"'C:\\\\Users\\\\SK\\\\AppData\\\\Local\\\\Temp\\\\atis-stage3-governance-40of40' tests/test_stage3_specification.py tests/test_programme_control.py tests/test_successor_evidence.py tests/test_master_recovery_packet.py\"",
+          "cwd": "C:\\Users\\SK\\Documents\\Codex\\2026-09-10\\files-pasted-by-the-user-automated\\stage3-publication-workspace-4706222e",
+          "status": "completed",
+          "exitCode": 0,
+          "durationMs": 242538,
+          "output": {
+            "text": "........................................................................ [ 20%]\r\n........................................................................ [ 40%]\r\n........................................................................ [ 60%]\r\n........................................................................ [ 80%]\r\n....................................................................     [100%]\r\n356 passed in 239.58s (0:03:59)\r\n",
+            "truncated": false
+          }
+        },
+        "passed": 356,
+        "historical_context": {
+          "attribution": "EXECUTION_IN_THE_ORIGINAL_RECONCILIATION_TURN",
+          "invocation": "PRESERVED_SOURCE_COMMAND_NOT_A_CURRENT_VALIDATION_RECIPE",
+          "component_scope": "ORIGINAL_4_FILE_GOVERNANCE_SPEC_RECOVERY_SET",
+          "limitations": [
+            "HISTORICAL_LOCAL_EXECUTION_NOT_HOSTED_ASSURANCE",
+            "ORIGINAL_COMMAND_USED_TEMPORARY_INTERPRETER_AND_PYTHONPATH_SRC",
+            "NOT_LATER_REGRESSION_OR_BOOTSTRAP_VALIDATION",
+            "NO_CLAIM_OF_RECOVERED_REVIEWER_MODEL_OR_VERSION_METADATA"
+          ]
+        }
+      }
+    ]
+  },
+  "recovered_results": {
+    "requirements": [
+      {
+        "requirement_id": "S3-REQ-001",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-002",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-003",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-004",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-005",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-006",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-007",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-008",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-009",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-010",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-011",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-012",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-013",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-014",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-015",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-016",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-017",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-018",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-019",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-020",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-021",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-022",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-023",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-024",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-025",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-026",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-027",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-028",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-029",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-030",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-031",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-032",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-033",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-034",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-035",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-037",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-038",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-039",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-040",
+        "disposition": "SATISFIED"
+      },
+      {
+        "requirement_id": "S3-REQ-041",
+        "disposition": "SATISFIED"
+      }
+    ],
+    "substantive_count": 40,
+    "satisfied": 40,
+    "partial": 0,
+    "blocked": 0,
+    "excluded_requirement": "S3-REQ-036",
+    "component_integration_passed": 577,
+    "governance_spec_recovery_passed": 356,
+    "combined_passed": 933,
+    "result_semantics": "RECOVERED_HISTORICAL_RESULTS_NOT_A_PRESENT_RECONCILIATION_OR_GATE_RESULT"
+  },
+  "recording_event": {
+    "recorded_at": "2026-10-06T12:20:31Z",
+    "timestamp_semantics": "PRESENT_REPOSITORY_PRESERVATION_TIME_NOT_HISTORICAL_REVIEW_OR_PUBLICATION_TIME",
+    "retrieval_method": "CODEX_READ_THREAD_SOURCE_SESSION_TURN_MESSAGE_AND_COMMAND_EXECUTION_ITEMS",
+    "source_fidelity": "UTF8_BYTES_AND_SHA256_RECOMPUTED_BEFORE_PRESERVATION",
+    "protected_preservation_base": "96f92b58fd72c8d999e558b22d20f5b52476ccaf",
+    "protected_preservation_tree": "5967aee9708f786658efd6643e32380d0de7887d",
+    "publication_identity": "NOT_YET_ESTABLISHED"
+  },
+  "provenance_limitations": {
+    "original_file_identity": null,
+    "original_publication_commit": null,
+    "original_artifact_hash": null,
+    "original_reviewer_identity": null,
+    "original_model_version": null,
+    "unrecovered_semantics": "NULL_MEANS_UNRECOVERED_NOT_ABSENT_OR_INFERRED",
+    "not_original_historical_repository_artifact": true,
+    "no_original_repository_timestamp_claim": true,
+    "separated_events": [
+      "HISTORICAL_REVIEW",
+      "HISTORICAL_DECISION",
+      "HISTORICAL_EVALUATED_BASELINE",
+      "RECOVERED_ORIGINAL_RESPONSE",
+      "RECOVERED_EXECUTION_OUTPUTS",
+      "PRESENT_RECOVERY",
+      "PRESENT_REPOSITORY_PRESERVATION",
+      "FUTURE_PUBLICATION"
+    ]
+  },
+  "consumer_applicability": {
+    "intended_consumers": [
+      "GATE-S03-01",
+      "FINAL-STAGE3-INDEPENDENT-AUDIT"
+    ],
+    "acceptance": "INDEPENDENT_APPLICABILITY_ACCEPTANCE_REQUIRED",
+    "gate_evidence_accepted": false,
+    "self_certification": false,
+    "depends_on_gate_result": false,
+    "resolution": "EXACT_CANONICAL_REFERENCE_TO_THIS_RECORD_AT_AN_INDEPENDENTLY_ACCEPTED_IMMUTABLE_GIT_COMMIT_AND_BLOB",
+    "duplicate_resolution": "REJECT_COMPETING_RECORDS_FOR_THE_SAME_CANONICAL_REFERENCE"
+  },
+  "authority": {
+    "grants": [],
+    "denials": [
+      "GATE_S03_01_PASS",
+      "STAGE3_CLOSURE",
+      "STAGE4_ACTIVATION",
+      "STAGE4_IMPLEMENTATION",
+      "RESEARCH_BACKTEST_EXECUTION",
+      "DATASET_PROMOTION",
+      "SHADOW_TRADING",
+      "PAPER_TRADING",
+      "BROKER_AUTHORITY",
+      "OMS_AUTHORITY",
+      "RISK_APPROVAL",
+      "FINANCIAL_EFFECTS",
+      "LIVE_TRADING",
+      "LIVE_CAPITAL",
+      "AI_TRADING_AUTHORITY"
+    ]
+  }
+}
