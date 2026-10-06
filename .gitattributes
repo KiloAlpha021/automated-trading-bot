@@ -7,3 +7,4 @@ docs/programme/programme-control.schema.json text eol=lf
 tests/test_programme_control.py text eol=lf
 docs/stage3/stage3-specification.json text eol=lf
 docs/stage3/stage3-specification.schema.json text eol=lf
+docs/stage3/gate-s03-01.json text eol=lf
