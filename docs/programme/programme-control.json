@@ -1434,6 +1434,50 @@
           "FINANCIAL_EFFECTS",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-029",
+        "governed_question": "May the owner-authorized provider-neutral Stage-3 F1 physical persistence remedy and conditional exact-evidence retention policy be implemented with finite resource-policy vocabulary while preserving PC-DEC-024 and all provider, promotion, Stage-4, trading and financial authority denials?",
+        "scope": "STAGE3_F1_PROVIDER_NEUTRAL_PHYSICAL_PERSISTENCE_AND_RETENTION_ONLY",
+        "state": "APPROVED",
+        "decision": "CONDITIONAL_EXACT_EVIDENCE_RETENTION_AND_BOUNDED_F1_PHYSICAL_IMPLEMENTATION",
+        "source_authority": "ATIS_OWNER_AUTHORIZATION_IN_STAGE3_F1_PHYSICAL_CONSTRUCTION_CONTROL",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "PROVIDER_NEUTRAL_LOCAL_PHYSICAL_PERSISTENCE",
+          "EXACT_VERSION_RETRIEVAL",
+          "ATOMIC_PUBLICATION_MECHANISM",
+          "INTERRUPTION_AND_COLD_START_RECOVERY",
+          "CONDITIONAL_EXACT_EVIDENCE_RETENTION",
+          "FINITE_PHYSICAL_RESOURCE_POLICY_VOCABULARY",
+          "RB3_BOUNDED_F1_RESOLUTION"
+        ],
+        "authority_not_granted": [
+          "PRODUCTION_PROVIDER_SELECTION",
+          "PRODUCTION_DATABASE_SELECTION",
+          "CLOUD_OR_PRODUCTION_STORAGE_SELECTION",
+          "PAID_DATA",
+          "PROVIDER_OR_NETWORK_INTEGRATION",
+          "LEGAL_OR_LICENCE_APPROVAL",
+          "CREDENTIALS",
+          "DATASET_PROMOTION_AUTHORITY",
+          "ELIGIBILITY_OR_QUARANTINE_RELEASE",
+          "STAGE4_IMPLEMENTATION",
+          "RESEARCH_OR_BACKTESTING_EXECUTION",
+          "STRATEGY_AUTHORITY",
+          "PORTFOLIO_OR_RISK_AUTHORITY",
+          "OMS_OR_BROKER_AUTHORITY",
+          "PAPER_SHADOW_OR_LIVE_TRADING",
+          "FINANCIAL_EFFECTS",
+          "LIVE_CAPITAL",
+          "AI_TRADING_AUTHORITY",
+          "F2_REENTRY",
+          "F3_REENTRY",
+          "GATE_S03_01_REVALIDATION",
+          "STAGE3_CLOSURE"
+        ]
       }
     ]
   },
@@ -2667,8 +2711,8 @@
       },
       {
         "id": "RB3_RAW_BYTE_RETENTION_POLICY",
-        "state": "OPEN_BLOCKING",
-        "trigger": "before durable raw-byte persistence entry"
+        "state": "RESOLVED_FOR_BOUNDED_F1_SCOPE",
+        "trigger": "PC-DEC-029 authorizes CONDITIONAL_EXACT_EVIDENCE_RETENTION for bounded provider-neutral F1 only; production provider, storage, network, licensing, credentials and promotion remain unauthorized"
       },
       {
         "id": "PROVIDER_SELECTION",

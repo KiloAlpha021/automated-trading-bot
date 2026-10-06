@@ -1794,7 +1794,7 @@ def test_pc_dec_023_records_only_c11_s1_semantic_contract_fixation() -> None:
 def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> None:
     decisions = {row["record_id"]: row for row in _control()["decision_register"]["records"]}
     record = decisions["PC-DEC-024"]
-    assert list(decisions)[-5:-2] == ["PC-DEC-024", "PC-DEC-025", "PC-DEC-026"]
+    assert list(decisions)[-6:-3] == ["PC-DEC-024", "PC-DEC-025", "PC-DEC-026"]
     assert list(decisions).index("PC-DEC-023") < list(decisions).index("PC-DEC-024")
     assert record["state"] == "APPROVED"
     assert record["supersedes"] is None
@@ -1808,8 +1808,8 @@ def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> N
 
 def test_pc_dec_025_records_only_sync3_minimum_contract_protection() -> None:
     records = _control()["decision_register"]["records"]
-    assert records[-5]["record_id"] == "PC-DEC-024"
-    record = records[-4]
+    assert records[-6]["record_id"] == "PC-DEC-024"
+    record = records[-5]
     assert record == {'record_id': 'PC-DEC-025', 'governed_question': 'May the independently accepted ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1 be recorded and protected while SYNC-3 remains OPEN_NOT_CONSUMABLE_NOT_BYPASSED, without granting implementation, consumability, promotion, provider or storage selection, GATE-S03-01, Stage-3 closure, Stage-4, trading, financial or AI authority?', 'scope': 'STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_RECORDING_AND_PROTECTION_ONLY', 'state': 'APPROVED', 'decision': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'source_authority': 'ATIS_OWNER_AUTHORIZATION_AFTER_INDEPENDENT_CONTRACT_ACCEPTANCE', 'decision_owner': 'ATIS_OWNER', 'decided_at': None, 'supersedes': None, 'authority_granted': ['RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1'], 'authority_not_granted': ['SYNC_3_IMPLEMENTATION', 'SYNC_3_CONSUMABILITY', 'C05_REENTRY', 'C06_REENTRY', 'C08_REENTRY', 'C09_REENTRY', 'C10_REENTRY', 'C11_S1_REENTRY', 'C11_S2_REENTRY', 'PROMOTION_AUTHORITY', 'DATASET_PROMOTION', 'PROVIDER_SELECTION', 'STORAGE_SELECTION', 'PHYSICAL_PERSISTENCE', 'PHYSICAL_PUBLICATION', 'PHYSICAL_ATOMIC_PUBLICATION', 'FRESHNESS_HORIZON_SELECTION', 'RESOURCE_POLICY_VALUE_SELECTION', 'GATE_S03_01_EXECUTION', 'STAGE3_GENERAL_CLOSURE', 'STAGE4_IMPLEMENTATION', 'RESEARCH_BACKTESTING_EXECUTION', 'PAPER_TRADING', 'LIVE_TRADING', 'FINANCIAL_EFFECTS', 'AI_TRADING_AUTHORITY']}
     assert record["authority_granted"] == ["RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1"]
     assert "SYNC_3_IMPLEMENTATION" in record["authority_not_granted"]
@@ -1819,8 +1819,8 @@ def test_pc_dec_025_records_only_sync3_minimum_contract_protection() -> None:
 
 def test_pc_dec_026_records_only_missing_c10_clarification() -> None:
     records = _control()["decision_register"]["records"]
-    assert records[-4]["record_id"] == "PC-DEC-025"
-    record = records[-3]
+    assert records[-5]["record_id"] == "PC-DEC-025"
+    record = records[-4]
     assert record["record_id"] == "PC-DEC-026"
     assert record["decision"] == "ATIS_STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_V1"
     assert record["scope"] == "STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_RECORDING_AND_PROTECTION_ONLY"
@@ -1843,9 +1843,9 @@ def test_pc_dec_026_records_only_missing_c10_clarification() -> None:
 
 def test_pc_dec_027_records_only_sync3_state_reason_semantic_clarification() -> None:
     records = _control()["decision_register"]["records"]
-    assert len(records) == 28
-    assert records[-3]["record_id"] == "PC-DEC-026"
-    record = records[-2]
+    assert len(records) == 29
+    assert records[-4]["record_id"] == "PC-DEC-026"
+    record = records[-3]
     assert record == {
         "record_id": "PC-DEC-027",
         "governed_question": "May the exact ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1 be recorded and protected as one minimum additive clarification resolving state precedence and canonical reason aggregation while implementation, component reentry and all downstream authority remain withheld?",
@@ -1873,9 +1873,9 @@ def test_pc_dec_027_records_only_sync3_state_reason_semantic_clarification() -> 
 
 def test_pc_dec_028_records_only_c05_provenance_replay_clarification() -> None:
     records = _control()["decision_register"]["records"]
-    assert len(records) == 28
-    assert records[-2]["record_id"] == "PC-DEC-027"
-    record = records[-1]
+    assert len(records) == 29
+    assert records[-3]["record_id"] == "PC-DEC-027"
+    record = records[-2]
     assert record == {
         "record_id": "PC-DEC-028",
         "governed_question": "May the exact ATIS_STAGE3_SYNC3_C05_PROVENANCE_REPLAY_CLARIFICATION_V1 be recorded and protected as one minimum additive clarification establishing authoritative C05 replay provenance while implementation, component reentry and all downstream authority remain withheld?",
@@ -1901,3 +1901,21 @@ def test_pc_dec_028_records_only_c05_provenance_replay_clarification() -> None:
             "FINANCIAL_EFFECTS", "AI_TRADING_AUTHORITY",
         ],
     }
+
+
+def test_pc_dec_029_records_only_bounded_f1_physical_authority() -> None:
+    control = _control()
+    records = control["decision_register"]["records"]
+    record = records[-1]
+    assert record["record_id"] == "PC-DEC-029"
+    assert record["state"] == "APPROVED"
+    assert record["supersedes"] is None
+    assert record["decision"] == "CONDITIONAL_EXACT_EVIDENCE_RETENTION_AND_BOUNDED_F1_PHYSICAL_IMPLEMENTATION"
+    assert "PROVIDER_NEUTRAL_LOCAL_PHYSICAL_PERSISTENCE" in record["authority_granted"]
+    assert "FINITE_PHYSICAL_RESOURCE_POLICY_VOCABULARY" in record["authority_granted"]
+    denied = set(record["authority_not_granted"])
+    assert {"PRODUCTION_PROVIDER_SELECTION", "DATASET_PROMOTION_AUTHORITY", "STAGE4_IMPLEMENTATION", "F2_REENTRY", "F3_REENTRY", "STAGE3_CLOSURE"}.issubset(denied)
+    rb3 = next(item for item in control["stage3_recording_candidate"]["open_obligations"] if item["id"] == "RB3_RAW_BYTE_RETENTION_POLICY")
+    assert rb3["state"] == "RESOLVED_FOR_BOUNDED_F1_SCOPE"
+    assert "PC-DEC-029" in rb3["trigger"]
+    assert "CONDITIONAL_EXACT_EVIDENCE_RETENTION" in rb3["trigger"]

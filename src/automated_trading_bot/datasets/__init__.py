@@ -1,6 +1,20 @@
 """Fail-closed Stage-3 dataset provenance foundations."""
 
+from automated_trading_bot.datasets.physical_persistence import (
+    FailurePoint,
+    ImmutableExternalReference,
+    LocalPhysicalDatasetStore,
+    PhysicalPersistenceError,
+    PhysicalPersistenceReason,
+    PhysicalPersistenceResult,
+    RecoveryEntry,
+    RecoveryReport,
+    RecoveryState,
+    RetainedArtifact,
+    RetainedArtifactKind,
+)
 from automated_trading_bot.datasets.provenance import (
+    REQUIRED_PHYSICAL_RESOURCE_LIMITS,
     REQUIRED_RESOURCE_LIMITS,
     CanonicalDatasetRepresentationId,
     DatasetLifecycleResourcePolicy,
@@ -34,6 +48,18 @@ from automated_trading_bot.datasets.provenance import (
 )
 
 __all__ = [
+    "FailurePoint",
+    "ImmutableExternalReference",
+    "LocalPhysicalDatasetStore",
+    "PhysicalPersistenceError",
+    "PhysicalPersistenceReason",
+    "PhysicalPersistenceResult",
+    "RecoveryEntry",
+    "RecoveryReport",
+    "RecoveryState",
+    "RetainedArtifact",
+    "RetainedArtifactKind",
+    "REQUIRED_PHYSICAL_RESOURCE_LIMITS",
     "REQUIRED_RESOURCE_LIMITS",
     "CanonicalDatasetRepresentationId",
     "DatasetLifecycleResourcePolicy",
