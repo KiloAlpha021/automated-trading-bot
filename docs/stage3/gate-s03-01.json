@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "record_id": "STAGE3-CLOSURE-GATE-S03-01",
+  "milestone_id": "STAGE-3",
+  "gate_id": "GATE-S03-01",
+  "candidate_status": "LOCAL_CANDIDATE_NOT_AUTHORITATIVE",
+  "evaluated_baseline": {
+    "repository": "KiloAlpha021/automated-trading-bot",
+    "protected_master": "a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325",
+    "protected_tree": "e0ada9e8434b2122b547a323b83e1306553e9042",
+    "protected_trust_main": "110c66530176795ce85c5cedf834992f06a68a30",
+    "protected_trust_tree": "92bccbe5e9c9e896cd72bf42ce388841fe60a80c"
+  },
+  "requirement_completeness": {
+    "canonical_count": 41,
+    "substantive_count": 40,
+    "substantive_satisfied_count": 40,
+    "partial_count": 0,
+    "blocked_count": 0,
+    "not_applicable_count": 0,
+    "requirements": [
+      {"requirement_id": "S3-REQ-001", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-002", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-003", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-004", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-005", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-006", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-007", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-008", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-009", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-010", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-011", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-012", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-013", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-014", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-015", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-016", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-017", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-018", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-019", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-020", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-021", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-022", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-023", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-024", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-025", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-026", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-027", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-028", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-029", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-030", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-031", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-032", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-033", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-034", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-035", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-036", "disposition": "GATE_COMPLETENESS_CONTROL"},
+      {"requirement_id": "S3-REQ-037", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-038", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-039", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-040", "disposition": "SATISFIED"},
+      {"requirement_id": "S3-REQ-041", "disposition": "SATISFIED"}
+    ],
+    "material_blockers": []
+  },
+  "evidence_assurance": [
+    {
+      "dimension": "ATTRIBUTABLE_EVIDENCE",
+      "state": "CURRENT",
+      "result": "PASS",
+      "evidence_refs": ["PC-DEC-007", "PC-DEC-011", "PC-DEC-015", "PC-DEC-022", "SE-PUB-008"]
+    },
+    {
+      "dimension": "DIRECT_TESTS",
+      "state": "CURRENT",
+      "result": "PASS",
+      "evidence_refs": ["ATIS:a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325:STAGE3_COMPONENT_INTEGRATION:577_PASS"]
+    },
+    {
+      "dimension": "ADVERSARIAL_TESTS",
+      "state": "CURRENT",
+      "result": "PASS",
+      "evidence_refs": ["ATIS:a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325:STAGE3_GOVERNANCE_SPEC_RECOVERY:356_PASS"]
+    },
+    {
+      "dimension": "INDEPENDENT_REVIEW",
+      "state": "CURRENT",
+      "result": "PASS",
+      "evidence_refs": ["ATIS-STAGE3-40-OF-40-SUBSTANTIVE-REQUIREMENTS-RECONCILIATION:STAGE3_SUBSTANTIVE_REQUIREMENTS_40_OF_40_VERIFIED"]
+    },
+    {
+      "dimension": "PROTECTED_IDENTITY_ATTRIBUTION",
+      "state": "CURRENT",
+      "result": "PASS",
+      "evidence_refs": ["ATIS:a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325:e0ada9e8434b2122b547a323b83e1306553e9042", "TRUST:110c66530176795ce85c5cedf834992f06a68a30:92bccbe5e9c9e896cd72bf42ce388841fe60a80c"]
+    }
+  ],
+  "gate_domains": [
+    {"domain": "INSTRUMENT_PIT", "state": "CURRENT", "result": "PASS", "evidence_refs": ["PC-DEC-007", "SE-PUB-002"]},
+    {"domain": "CALENDAR_PIT", "state": "CURRENT", "result": "PASS", "evidence_refs": ["PC-DEC-011", "SE-PUB-004"]},
+    {"domain": "MARKET_DATA_INTEGRITY", "state": "CURRENT", "result": "PASS", "evidence_refs": ["PC-DEC-012", "PC-DEC-014", "PC-DEC-017"]},
+    {"domain": "CORPORATE_ACTION_PIT", "state": "CURRENT", "result": "PASS", "evidence_refs": ["PC-DEC-015", "ATIS:a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325:tests/test_corporate_actions.py"]},
+    {"domain": "FRESHNESS", "state": "CURRENT", "result": "PASS", "evidence_refs": ["PC-DEC-018", "PC-DEC-020", "SE-PUB-006"]},
+    {"domain": "QUARANTINE", "state": "CURRENT", "result": "PASS", "evidence_refs": ["PC-DEC-017", "ATIS:a1a70752ec2a5fa50dd4c80c5613dabe5ec0d325:tests/test_market_data_eligibility.py"]}
+  ],
+  "evidence_state_policy": {
+    "closed_vocabulary": [
+      "CURRENT",
+      "UNKNOWN",
+      "STALE",
+      "INVALIDATED",
+      "INSUFFICIENT",
+      "UNASSESSED",
+      "FAILED",
+      "CONTRADICTORY"
+    ],
+    "readiness_permitted_state": "CURRENT",
+    "all_other_states_prevent_readiness": true
+  },
+  "authority": {
+    "maximum_positive_consequence": "ELIGIBLE_FOR_SEPARATELY_AUTHORIZED_STAGE4_RESEARCH_STRATEGY_INTEGRATION",
+    "denials": [
+      "NO_AUTOMATIC_STAGE4_IMPLEMENTATION",
+      "NO_AUTOMATIC_RESEARCH_BACKTEST_EXECUTION",
+      "NO_SHADOW_TRADING",
+      "NO_PAPER_TRADING",
+      "NO_BROKER_AUTHORITY",
+      "NO_OMS_AUTHORITY",
+      "NO_RISK_APPROVAL",
+      "NO_DATASET_PROMOTION_AUTHORITY",
+      "NO_FINANCIAL_EFFECTS",
+      "NO_LIVE_TRADING",
+      "NO_LIVE_CAPITAL",
+      "NO_AI_TRADING_AUTHORITY"
+    ]
+  },
+  "completeness_evaluation": "READY_FOR_GATE_EXECUTION",
+  "self_reference": {
+    "candidate_blob": null,
+    "candidate_commit": null,
+    "pr_number": null,
+    "merge_commit": null,
+    "future_protected_master": null,
+    "future_protected_tree": null,
+    "hosted_workflow_evidence": null
+  },
+  "serialization_contract": {
+    "encoding": "UTF-8",
+    "bom": false,
+    "indent_spaces": 2,
+    "trailing_newline_count": 1,
+    "git_identity_format": "LOWERCASE_40_HEX",
+    "repository_path_separator": "/",
+    "random_values": false,
+    "machine_local_paths": false,
+    "timestamps": false
+  },
+  "next_permitted_activity": "INDEPENDENT-S3-REQ-036-CANDIDATE-ACCEPTANCE"
+}
