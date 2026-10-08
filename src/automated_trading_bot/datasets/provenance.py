@@ -42,6 +42,16 @@ REQUIRED_RESOURCE_LIMITS = frozenset(
     }
 )
 
+REQUIRED_PHYSICAL_RESOURCE_LIMITS = frozenset(
+    {
+        "MAX_PERSISTED_OBJECT_BYTES",
+        "MAX_BUNDLE_BYTES",
+        "MAX_OBJECTS_PER_VERSION",
+        "MAX_METADATA_BYTES",
+        "MAX_RECOVERY_STAGING_ENTRIES",
+    }
+)
+
 _ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}", re.ASCII)
 
 
@@ -241,7 +251,9 @@ class DatasetLifecycleResourcePolicy:
             if type(value) is not int or value < 1:
                 raise ResourcePolicyError("RESOURCE_LIMIT_MUST_BE_POSITIVE")
             mapping[name] = value
-        if set(mapping) != REQUIRED_RESOURCE_LIMITS:
+        supplied = set(mapping)
+        permitted = REQUIRED_RESOURCE_LIMITS | REQUIRED_PHYSICAL_RESOURCE_LIMITS
+        if supplied not in (REQUIRED_RESOURCE_LIMITS, permitted):
             raise ResourcePolicyError("RESOURCE_POLICY_NOT_ESTABLISHED")
         object.__setattr__(self, "limits", tuple(sorted(mapping.items())))
 

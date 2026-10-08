@@ -6,6 +6,7 @@ import math
 import pytest
 
 from automated_trading_bot.datasets.provenance import (
+    REQUIRED_PHYSICAL_RESOURCE_LIMITS,
     REQUIRED_RESOURCE_LIMITS,
     CanonicalDatasetRepresentationId,
     DatasetLifecycleResourcePolicy,
@@ -30,6 +31,8 @@ from automated_trading_bot.datasets.provenance import (
     build_manifest_foundation,
     canonical_json,
 )
+
+
 from automated_trading_bot.instruments.model import (
     DatasetId,
     EvidenceContentDigest,
@@ -37,6 +40,15 @@ from automated_trading_bot.instruments.model import (
     EvidenceRef,
     SourceId,
 )
+
+
+PHYSICAL_RESOURCE_LIMITS = {
+    "MAX_PERSISTED_OBJECT_BYTES",
+    "MAX_BUNDLE_BYTES",
+    "MAX_OBJECTS_PER_VERSION",
+    "MAX_METADATA_BYTES",
+    "MAX_RECOVERY_STAGING_ENTRIES",
+}
 
 
 def ref(name: str, content: bytes | None = None) -> EvidenceRef:
@@ -293,3 +305,9 @@ def test_unknown_fields_are_rejected_by_closed_constructors() -> None:
             evidence_refs=(ref("a"),),
             unknown="forbidden",
         )
+def test_physical_resource_limit_vocabulary_is_explicit_and_finite() -> None:
+    assert PHYSICAL_RESOURCE_LIMITS == REQUIRED_PHYSICAL_RESOURCE_LIMITS
+    value = policy(**{name: 8 for name in PHYSICAL_RESOURCE_LIMITS})
+    for name in PHYSICAL_RESOURCE_LIMITS:
+        assert type(value.value(name)) is int
+        assert value.value(name) > 0
