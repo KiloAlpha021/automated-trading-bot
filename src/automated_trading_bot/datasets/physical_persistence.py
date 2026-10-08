@@ -799,7 +799,35 @@ class LocalPhysicalDatasetStore:
             raise PhysicalPersistenceError(
                 PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID
             ) from error
-        if type(value) is not dict or canonical_json(value) != content:
+        required_fields = {
+            "consumer_visibility_state",
+            "publication_receipt_id",
+            "stored_version_id",
+            "written_content_digest",
+        }
+        if (
+            type(value) is not dict
+            or set(value) != required_fields
+            or any(type(item) is not str for item in value.values())
+            or value["consumer_visibility_state"] != ConsumerVisibilityState.COMPLETE.value
+        ):
+            raise PhysicalPersistenceError(
+                PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID
+            )
+        try:
+            if canonical_json(value) != content:
+                raise PhysicalPersistenceError(
+                    PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID
+                )
+            PublicationReceiptId(value["publication_receipt_id"])
+            identity = StoredVersionId(value["stored_version_id"])
+            digest = EvidenceContentDigest(value["written_content_digest"])
+        except (TypeError, ValueError) as error:
+            raise PhysicalPersistenceError(
+                PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID
+            ) from error
+        retrieval, _ = self._retrieval(identity)
+        if digest != retrieval.written_content_digest:
             raise PhysicalPersistenceError(
                 PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID
             )
@@ -815,7 +843,6 @@ class LocalPhysicalDatasetStore:
             raise PhysicalPersistenceError(
                 PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID
             ) from error
-        self._retrieval(identity)
         return identity
 
     def publish_exact_version(
@@ -935,23 +962,28 @@ class LocalPhysicalDatasetStore:
                 state = RecoveryState.CORRUPT
             entries.append(RecoveryEntry(path.name, state))
 
-        marker = self._read_publication_marker()
+        try:
+            marker = self._read_publication_marker()
+        except PhysicalPersistenceError as error:
+            if error.reason is PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID:
+                return RecoveryReport(RecoveryState.CORRUPT, None, tuple(entries))
+            if error.reason in {
+                PhysicalPersistenceReason.VERSION_NOT_ESTABLISHED,
+                PhysicalPersistenceReason.VERSION_IDENTITY_MISMATCH,
+                PhysicalPersistenceReason.VERSION_BUNDLE_INVALID,
+                PhysicalPersistenceReason.OBJECT_MISSING,
+                PhysicalPersistenceReason.OBJECT_CORRUPT,
+            }:
+                return RecoveryReport(
+                    RecoveryState.MARKER_TO_INVALID_VERSION, None, tuple(entries)
+                )
+            raise
         if marker is None:
             publication_state = RecoveryState.MISSING
             published = None
         else:
-            try:
-                published = StoredVersionId(
-                    _required_str(marker["stored_version_id"])
-                )
-                self._retrieval(published)
-                publication_state = RecoveryState.COMMITTED_VALID
-            except PhysicalPersistenceError:
-                published = None
-                publication_state = RecoveryState.MARKER_TO_INVALID_VERSION
-            except (KeyError, TypeError, ValueError):
-                published = None
-                publication_state = RecoveryState.CORRUPT
+            published = StoredVersionId(_required_str(marker["stored_version_id"]))
+            publication_state = RecoveryState.COMMITTED_VALID
         return RecoveryReport(publication_state, published, tuple(entries))
 
 
