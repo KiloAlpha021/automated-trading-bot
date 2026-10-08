@@ -568,3 +568,138 @@ def test_post_initialization_real_symlink_substitution_fails_closed_when_support
         store.published_version()
     reason(redirected, PhysicalPersistenceReason.STORE_ROOT_UNSAFE)
     assert list(external.iterdir()) == []
+
+
+def _da01_published_store(tmp_path: Path):
+    store = LocalPhysicalDatasetStore(tmp_path / "store", policy())
+    persisted = persist(store)
+    store.publish_exact_version(
+        stored_version_id=persisted.receipt.stored_version_id,
+        manifest=manifest_stub(),
+        expected_predecessor_publication_ref=None,
+        verification_evidence_refs=(ref("da01-publication"),),
+        completed_at=Timestamp(datetime(2026, 10, 8, tzinfo=timezone.utc)),
+    )
+    return store, persisted, next((store.root / "versions").iterdir())
+
+
+def _da01_assert_invalid_consumers(store, persisted) -> None:
+    identity = persisted.receipt.stored_version_id
+    with pytest.raises(PhysicalPersistenceError) as reading:
+        store.read_exact_version(identity)
+    assert reading.value.reason in {
+        PhysicalPersistenceReason.VERSION_BUNDLE_INVALID,
+        PhysicalPersistenceReason.OBJECT_CORRUPT,
+    }
+    with pytest.raises(PhysicalPersistenceError):
+        store.published_version()
+    with pytest.raises(PhysicalPersistenceError):
+        store.publish_exact_version(
+            stored_version_id=identity,
+            manifest=manifest_stub(),
+            expected_predecessor_publication_ref=None,
+            verification_evidence_refs=(ref("da01-republish"),),
+            completed_at=Timestamp(datetime(2026, 10, 8, tzinfo=timezone.utc)),
+        )
+    restarted = LocalPhysicalDatasetStore(store.root, policy())
+    report = restarted.recover()
+    assert report.publication_state is RecoveryState.MARKER_TO_INVALID_VERSION
+    assert report.published_stored_version_id is None
+
+
+@pytest.mark.parametrize("kind", tuple(RetainedArtifactKind))
+def test_da01_required_inventory_omission_rejects_all_consumers(
+    tmp_path: Path, kind: RetainedArtifactKind
+) -> None:
+    store, persisted, path = _da01_published_store(tmp_path)
+    metadata = json.loads(path.read_bytes())
+    metadata["objects"] = [
+        item for item in metadata["objects"] if item["kind"] != kind.value
+    ]
+    path.write_bytes(canonical_json(metadata))
+    _da01_assert_invalid_consumers(store, persisted)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    (
+        "missing_digest", "missing_identity", "entry_type", "digest",
+        "padded_digest", "negative_size", "boolean_size", "string_size",
+        "extra_field", "duplicate_retained", "duplicate_base", "whitespace",
+    ),
+)
+def test_da01_malformed_inventory_rejects_all_consumers(
+    tmp_path: Path, mutation: str
+) -> None:
+    store, persisted, path = _da01_published_store(tmp_path)
+    metadata = json.loads(path.read_bytes())
+    records = metadata["objects"]
+    target = next(item for item in records if item["kind"] == "SOURCE_EVIDENCE")
+    if mutation == "missing_digest":
+        del target["content_digest"]
+    elif mutation == "missing_identity":
+        del target["identity"]
+    elif mutation == "entry_type":
+        records[records.index(target)] = 7
+    elif mutation == "digest":
+        target["content_digest"] = "sha256:not-a-digest"
+    elif mutation == "padded_digest":
+        target["content_digest"] = " " + target["content_digest"]
+    elif mutation == "negative_size":
+        target["size"] = -1
+    elif mutation == "boolean_size":
+        target["size"] = True
+    elif mutation == "string_size":
+        target["size"] = str(target["size"])
+    elif mutation == "extra_field":
+        target["extra"] = "unexpected"
+    elif mutation == "duplicate_retained":
+        records.append(dict(target))
+    elif mutation == "duplicate_base":
+        base = dict(next(item for item in records if item["kind"] == "DATASET_MANIFEST"))
+        base["identity"] = "another-manifest"
+        records.append(base)
+    if mutation == "padded_digest":
+        content = json.dumps(metadata, sort_keys=True, separators=(",", ":")).encode()
+    else:
+        content = canonical_json(metadata)
+    if mutation == "whitespace":
+        content = b" " + content
+    path.write_bytes(content)
+    _da01_assert_invalid_consumers(store, persisted)
+
+
+def test_da01_preserves_protected_retained_identity_namespace(tmp_path: Path) -> None:
+    # The protected writer reserves no generated base-object names in the
+    # separately uniqueness-checked caller-supplied retained identity set.
+    artifacts = tuple(
+        RetainedArtifact(
+            item.kind,
+            "manifest" if item.kind is RetainedArtifactKind.SOURCE_EVIDENCE else item.identity,
+            item.content,
+            item.external_reference,
+        )
+        for item in retained()
+    )
+    store = LocalPhysicalDatasetStore(tmp_path / "historical-contract", policy())
+    persisted = persist(store, retained_artifacts=artifacts)
+    assert store.read_exact_version(persisted.receipt.stored_version_id)[1] == b"canonical"
+
+
+def test_da01_retained_inventory_resource_limit(tmp_path: Path) -> None:
+    store, persisted, path = _da01_published_store(tmp_path)
+    metadata = json.loads(path.read_bytes())
+    records = metadata["objects"]
+    source = next(item for item in records if item["kind"] == "SOURCE_EVIDENCE")
+    limit = policy().value("MAX_OBJECTS_PER_VERSION")
+    for index in range(limit - len(records) + 1):
+        record = dict(source)
+        record["identity"] = f"retained-source-{index}"
+        records.append(record)
+    content = canonical_json(metadata)
+    assert len(records) == limit + 1
+    assert len(content) <= policy().value("MAX_METADATA_BYTES")
+    path.write_bytes(content)
+    with pytest.raises(PhysicalPersistenceError) as failure:
+        store.read_exact_version(persisted.receipt.stored_version_id)
+    assert failure.value.reason is PhysicalPersistenceReason.RESOURCE_LIMIT_EXCEEDED
