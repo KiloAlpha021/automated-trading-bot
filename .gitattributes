@@ -9,3 +9,4 @@ docs/stage3/stage3-specification.json text eol=lf
 docs/stage3/stage3-specification.schema.json text eol=lf
 docs/stage3/gate-s03-01.json text eol=lf
 docs/stage3/s3-gd-024-property-disposition.json text eol=lf
+docs/m1-closure/M1-event-storage-design.md text eol=lf

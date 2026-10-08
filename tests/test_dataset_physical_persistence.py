@@ -227,8 +227,180 @@ def test_f1_c_cold_restart_and_invalid_marker_fail_closed(tmp_path: Path) -> Non
     report = restarted.recover()
     assert report.publication_state is RecoveryState.COMMITTED_VALID
     assert report.published_stored_version_id == result.receipt.stored_version_id
-    (root / "publication" / "current.json").write_bytes(canonical_json({"stored_version_id": "c11-stored-version:missing"}))
+    marker_path = root / "publication" / "current.json"
+    marker = json.loads(marker_path.read_text(encoding="utf-8"))
+    marker["stored_version_id"] = "c11-stored-version:missing"
+    marker_path.write_bytes(canonical_json(marker))
     assert restarted.recover().publication_state is RecoveryState.MARKER_TO_INVALID_VERSION
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "missing_visibility", "missing_receipt", "missing_digest", "missing_version",
+        "extra_field", "wrong_visibility",
+        "wrong_visibility_type", "wrong_receipt_type", "wrong_version_type", "wrong_digest_type",
+        "malformed_receipt", "malformed_version", "malformed_digest", "mismatched_digest",
+        "padded_receipt", "padded_version", "padded_digest", "empty_receipt", "non_nfc_receipt",
+        "noncanonical_json", "malformed_json",
+    ),
+)
+def test_publication_marker_contract_rejects_invalid_marker_for_all_consumers(
+    tmp_path: Path, case: str
+) -> None:
+    store = LocalPhysicalDatasetStore(tmp_path / "store", policy())
+    persisted = persist(store)
+    receipt = store.publish_exact_version(
+        stored_version_id=persisted.receipt.stored_version_id,
+        manifest=manifest_stub(),
+        expected_predecessor_publication_ref=None,
+        verification_evidence_refs=(ref("publication"),),
+        completed_at=Timestamp(datetime(2026, 10, 6, tzinfo=timezone.utc)),
+    )
+    marker_path = store.root / "publication" / "current.json"
+    marker = json.loads(marker_path.read_text(encoding="utf-8"))
+    missing = {
+        "missing_visibility": "consumer_visibility_state",
+        "missing_receipt": "publication_receipt_id",
+        "missing_digest": "written_content_digest",
+        "missing_version": "stored_version_id",
+    }
+    if case in missing:
+        del marker[missing[case]]
+    elif case == "extra_field":
+        marker["unexpected"] = "value"
+    elif case == "wrong_visibility":
+        marker["consumer_visibility_state"] = "STAGED"
+    elif case.endswith("_type"):
+        field = {
+            "wrong_visibility_type": "consumer_visibility_state",
+            "wrong_receipt_type": "publication_receipt_id",
+            "wrong_version_type": "stored_version_id",
+            "wrong_digest_type": "written_content_digest",
+        }[case]
+        marker[field] = None
+    elif case == "malformed_receipt":
+        marker["publication_receipt_id"] = "bad receipt"
+    elif case == "malformed_version":
+        marker["stored_version_id"] = "bad version"
+    elif case == "malformed_digest":
+        marker["written_content_digest"] = "sha256:invalid"
+    elif case == "mismatched_digest":
+        marker["written_content_digest"] = digest("different content").value
+    elif case == "padded_receipt":
+        marker["publication_receipt_id"] = " " + marker["publication_receipt_id"]
+    elif case == "padded_version":
+        marker["stored_version_id"] += " "
+    elif case == "padded_digest":
+        marker["written_content_digest"] += " "
+    elif case == "empty_receipt":
+        marker["publication_receipt_id"] = ""
+    elif case == "non_nfc_receipt":
+        marker["publication_receipt_id"] = "c11-publication-receipt:cafe\u0301"
+    elif case == "noncanonical_json":
+        marker_path.write_bytes(json.dumps(marker, indent=2).encode("utf-8"))
+    elif case == "malformed_json":
+        marker_path.write_bytes(b"{")
+    else:
+        raise AssertionError(case)
+    if case not in {"noncanonical_json", "malformed_json"}:
+        marker_path.write_bytes(
+            json.dumps(marker, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        )
+    invalid_bytes = marker_path.read_bytes()
+
+    with pytest.raises(PhysicalPersistenceError) as published:
+        store.published_version()
+    reason(published, PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID)
+    with pytest.raises(PhysicalPersistenceError) as predecessor:
+        store.publish_exact_version(
+            stored_version_id=persisted.receipt.stored_version_id,
+            manifest=manifest_stub(),
+            expected_predecessor_publication_ref=receipt.receipt_id(),
+            verification_evidence_refs=(ref("publication-again"),),
+            completed_at=Timestamp(datetime(2026, 10, 6, 1, tzinfo=timezone.utc)),
+        )
+    reason(predecessor, PhysicalPersistenceReason.PUBLICATION_MARKER_INVALID)
+    report = LocalPhysicalDatasetStore(store.root, policy()).recover()
+    assert report.publication_state is RecoveryState.CORRUPT
+    assert report.published_stored_version_id is None
+    assert marker_path.read_bytes() == invalid_bytes
+    assert store.read_exact_version(persisted.receipt.stored_version_id)[1] == b"canonical"
+
+
+def test_unrelated_marker_consumer_failure_is_not_reclassified(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = LocalPhysicalDatasetStore(tmp_path / "store", policy())
+    persisted = persist(store)
+    store.publish_exact_version(
+        stored_version_id=persisted.receipt.stored_version_id,
+        manifest=manifest_stub(),
+        expected_predecessor_publication_ref=None,
+        verification_evidence_refs=(ref("publication"),),
+        completed_at=Timestamp(datetime(2026, 10, 6, tzinfo=timezone.utc)),
+    )
+
+    def unrelated_failure(_: object) -> bytes:
+        raise RuntimeError("unrelated programming failure")
+
+    monkeypatch.setattr(
+        "automated_trading_bot.datasets.physical_persistence.canonical_json",
+        unrelated_failure,
+    )
+    with pytest.raises(RuntimeError, match="unrelated programming failure"):
+        store.published_version()
+    with pytest.raises(RuntimeError, match="unrelated programming failure"):
+        store.publish_exact_version(
+            stored_version_id=persisted.receipt.stored_version_id,
+            manifest=manifest_stub(),
+            expected_predecessor_publication_ref=None,
+            verification_evidence_refs=(ref("publication-again"),),
+            completed_at=Timestamp(datetime(2026, 10, 6, 1, tzinfo=timezone.utc)),
+        )
+    with pytest.raises(RuntimeError, match="unrelated programming failure"):
+        store.recover()
+
+
+def test_complete_publication_marker_survives_restart_and_preserves_predecessor(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "store"
+    store = LocalPhysicalDatasetStore(root, policy())
+    first = persist(store)
+    first_receipt = store.publish_exact_version(
+        stored_version_id=first.receipt.stored_version_id,
+        manifest=manifest_stub(),
+        expected_predecessor_publication_ref=None,
+        verification_evidence_refs=(ref("publish-first"),),
+        completed_at=Timestamp(datetime(2026, 10, 6, 1, tzinfo=timezone.utc)),
+    )
+    assert store.publish_exact_version(
+        stored_version_id=first.receipt.stored_version_id,
+        manifest=manifest_stub(),
+        expected_predecessor_publication_ref=None,
+        verification_evidence_refs=(ref("publish-first"),),
+        completed_at=Timestamp(datetime(2026, 10, 6, 1, tzinfo=timezone.utc)),
+    ) == first_receipt
+    second = persist(store, b"second")
+    second_receipt = store.publish_exact_version(
+        stored_version_id=second.receipt.stored_version_id,
+        manifest=manifest_stub(),
+        expected_predecessor_publication_ref=first_receipt.receipt_id(),
+        verification_evidence_refs=(ref("publish-second"),),
+        completed_at=Timestamp(datetime(2026, 10, 6, 2, tzinfo=timezone.utc)),
+    )
+    marker = json.loads((root / "publication" / "current.json").read_text(encoding="utf-8"))
+    assert marker == {
+        "consumer_visibility_state": "COMPLETE",
+        "publication_receipt_id": second_receipt.receipt_id().value,
+        "stored_version_id": second.receipt.stored_version_id.value,
+        "written_content_digest": second.receipt.written_content_digest.value,
+    }
+    restarted = LocalPhysicalDatasetStore(root, policy())
+    assert restarted.published_version() == second.receipt.stored_version_id
+    assert restarted.recover().publication_state is RecoveryState.COMMITTED_VALID
+    assert restarted.read_exact_version(first.receipt.stored_version_id)[1] == b"canonical"
 
 
 def test_f1_c_staged_only_and_corrupt_staging_remain_non_authoritative(tmp_path: Path) -> None:
