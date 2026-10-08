@@ -693,6 +693,79 @@ class LocalPhysicalDatasetStore:
         except OSError as error:
             raise PhysicalPersistenceError(PhysicalPersistenceReason.WRITE_FAILED) from error
 
+    def _validate_retained_inventory(self, metadata: dict[str, object]) -> list[dict[str, object]]:
+        """Re-establish write-time retention requirements before accepting a version."""
+        invalid = PhysicalPersistenceReason.VERSION_BUNDLE_INVALID
+        records = _required_list(metadata.get("objects"))
+        external = _required_list(metadata.get("external_references"))
+        if len(records) + len(external) > self._policy.value("MAX_OBJECTS_PER_VERSION"):
+            raise PhysicalPersistenceError(
+                PhysicalPersistenceReason.RESOURCE_LIMIT_EXCEEDED
+            )
+        required = {
+            RetainedArtifactKind.SOURCE_EVIDENCE,
+            RetainedArtifactKind.CURRENTNESS_EVIDENCE,
+            RetainedArtifactKind.QUARANTINE_ELIGIBILITY_EVIDENCE,
+            RetainedArtifactKind.CORRECTION_CANCELLATION_EVIDENCE,
+            RetainedArtifactKind.INVALIDATION_AFFECTED_SET_EVIDENCE,
+            RetainedArtifactKind.RESOURCE_POLICY,
+            RetainedArtifactKind.RECOVERY_METADATA,
+            RetainedArtifactKind.SUPERSESSION_LINEAGE,
+        }
+        base = {
+            RetainedArtifactKind.CANONICAL_ANALYTICAL_BYTES,
+            RetainedArtifactKind.DATASET_MANIFEST,
+            RetainedArtifactKind.PROVENANCE_GRAPH,
+            RetainedArtifactKind.TRANSFORMATION_LINEAGE,
+        }
+        kinds: set[RetainedArtifactKind] = set()
+        identities: set[str] = set()
+        typed_records: list[dict[str, object]] = []
+        for item in records:
+            if type(item) is not dict or set(item) != {"kind", "identity", "content_digest", "size"}:
+                raise PhysicalPersistenceError(invalid)
+            try:
+                kind = RetainedArtifactKind(_required_str(item["kind"]))
+                identity = _required_str(item["identity"])
+                digest = EvidenceContentDigest(_required_str(item["content_digest"]))
+            except (TypeError, ValueError) as error:
+                raise PhysicalPersistenceError(invalid) from error
+            if (
+                _SAFE_ID.fullmatch(identity) is None
+                or (kind not in base and identity in identities)
+                or type(item["size"]) is not int
+                or item["size"] < 0
+            ):
+                raise PhysicalPersistenceError(invalid)
+            _digest_hex(digest)
+            # Generated base-object names are not reserved retained identities.
+            # Match the writer's caller-supplied local/external identity scope.
+            if kind not in base:
+                identities.add(identity)
+            kinds.add(kind)
+            typed_records.append(item)
+        for item in external:
+            if type(item) is not dict or set(item) != {"kind", "identity", "reference"}:
+                raise PhysicalPersistenceError(invalid)
+            try:
+                kind = RetainedArtifactKind(_required_str(item["kind"]))
+                identity = _required_str(item["identity"])
+            except (TypeError, ValueError) as error:
+                raise PhysicalPersistenceError(invalid) from error
+            if kind is not RetainedArtifactKind.SOURCE_EVIDENCE or identity in identities:
+                raise PhysicalPersistenceError(invalid)
+            if _SAFE_ID.fullmatch(identity) is None:
+                raise PhysicalPersistenceError(invalid)
+            _external_reference_from_body(item["reference"])
+            identities.add(identity)
+            kinds.add(kind)
+        if not required.issubset(kinds) or not base.issubset(kinds):
+            raise PhysicalPersistenceError(invalid)
+        for kind in base:
+            if sum(item["kind"] == kind.value for item in typed_records) != 1:
+                raise PhysicalPersistenceError(invalid)
+        return typed_records
+
     def _load_version(self, stored_version_id: StoredVersionId) -> dict[str, object]:
         path = self._version_path(stored_version_id)
         try:
@@ -708,7 +781,17 @@ class LocalPhysicalDatasetStore:
             raise PhysicalPersistenceError(
                 PhysicalPersistenceReason.VERSION_BUNDLE_INVALID
             ) from error
-        if type(value) is not dict or canonical_json(value) != content:
+        if type(value) is not dict:
+            raise PhysicalPersistenceError(
+                PhysicalPersistenceReason.VERSION_BUNDLE_INVALID
+            )
+        try:
+            canonical = canonical_json(value) == content
+        except (TypeError, ValueError) as error:
+            raise PhysicalPersistenceError(
+                PhysicalPersistenceReason.VERSION_BUNDLE_INVALID
+            ) from error
+        if not canonical:
             raise PhysicalPersistenceError(
                 PhysicalPersistenceReason.VERSION_BUNDLE_INVALID
             )
@@ -744,13 +827,9 @@ class LocalPhysicalDatasetStore:
 
     def _retrieval(self, stored_version_id: StoredVersionId) -> tuple[ExactVersionRetrievalResult, bytes]:
         metadata = self._load_version(stored_version_id)
-        records = metadata.get("objects")
-        if type(records) is not list:
-            raise PhysicalPersistenceError(PhysicalPersistenceReason.VERSION_BUNDLE_INVALID)
+        records = self._validate_retained_inventory(metadata)
         canonical: bytes | None = None
         for record in records:
-            if type(record) is not dict:
-                raise PhysicalPersistenceError(PhysicalPersistenceReason.VERSION_BUNDLE_INVALID)
             digest = EvidenceContentDigest(_required_str(record["content_digest"]))
             content = _read_bytes(self._object_path(digest), digest)
             if len(content) != record.get("size"):
