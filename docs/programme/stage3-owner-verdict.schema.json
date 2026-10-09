@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "subject",
+    "amendment",
+    "assessment_sha256",
+    "state",
+    "owner",
+    "claimed_event_id",
+    "independent_review"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "tree"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "amendment": {
+      "const": "ATIS-S3-GOV-AMD-KF04-001"
+    },
+    "assessment_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "state": {
+      "enum": [
+        "PENDING",
+        "PASS",
+        "FAIL",
+        "INSUFFICIENT"
+      ]
+    },
+    "owner": {
+      "const": "KiloAlpha21"
+    },
+    "claimed_event_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "independent_review": {
+      "const": "DEFERRED_BY_OWNER"
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

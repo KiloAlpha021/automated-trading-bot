@@ -200,8 +200,9 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
     assert required == EXPECTED_REQUIRED
     assert supplementary == EXPECTED_SUPPLEMENTARY
     assert (len(required), len(supplementary), len(packet["historical_sources"])) == (15, 5, 3)
+    successor = _validate_successor(_load(SUCCESSOR_PATH))
     for path, expected in required.items() | supplementary.items():
-        assert _blob(ROOT / path) == expected
+        assert _blob(ROOT / path) == successor.get(path, expected)
 
 
 def test_current_state_and_gap_summary_are_exact() -> None:
@@ -375,3 +376,79 @@ def test_recovery_packet_resolves_current_c08_closure_state() -> None:
     assert by_id["SE-PUB-008"]["post_publication_verification"] == "PASS"
     denied = set(decisions["PC-DEC-022"]["authority_not_granted"])
     assert {"C08_IMPLEMENTATION_RESUMPTION", "C09_REENTRY", "C10_REENTRY", "C11_IMPLEMENTATION", "SYNC_3_CONSUMABILITY", "STAGE4_IMPLEMENTATION", "AI_TRADING_AUTHORITY"} <= denied
+
+
+SUCCESSOR_PATH = ROOT / "docs/programme/master-recovery-successor-kf04.json"
+
+
+def _validate_successor(overlay: dict[str, Any]) -> dict[str, str]:
+    schema = _load(SCHEMA_PATH)
+    Draft202012Validator(schema["$defs"]["kf04Successor"]).validate(overlay)
+    packet = _packet()
+    _validate(packet)
+    assert _blob(PACKET_PATH) == overlay["historical_packet"]["git_blob"]
+    assert sha256(_canonical(packet)).hexdigest() == (
+        overlay["historical_packet"]["canonical_sha256"]
+    )
+    programme = _load(ROOT / "docs/programme/programme-control.json")
+    amendment = programme["stage3_acceptance_amendment"]
+    assert amendment["amendment_id"] == overlay["amendment_id"]
+    assert amendment["protected_identity"] == overlay["protected_baseline"]
+    assert amendment["scope"] == "STAGE3_ONLY"
+    historical = {row["path"]: row["git_blob"] for row in packet["required_sources"]}
+    result: dict[str, str] = {}
+    for row in overlay["transitions"]:
+        assert row["path"] not in result
+        assert historical[row["path"]] == row["historical_blob"]
+        retained = subprocess.run(
+            ["git", "cat-file", "-t", row["historical_blob"]],
+            cwd=ROOT, check=True, capture_output=True, text=True,
+        )
+        assert retained.stdout.strip() == "blob"
+        assert _blob(ROOT / row["path"]) == row["candidate_blob"]
+        result[row["path"]] = row["candidate_blob"]
+    return result
+
+
+def test_kf04_successor_preserves_historical_schema_and_packet() -> None:
+    historical_schema = json.loads(subprocess.run(
+        ["git", "cat-file", "blob", "b534bf02a0dd1736ba2b824c33ec6f2fb1597b4f"],
+        cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8",
+    ).stdout)
+    schema = deepcopy(_load(SCHEMA_PATH))
+    del schema["$defs"]["kf04Successor"]
+    assert schema == historical_schema
+    Draft202012Validator(historical_schema).validate(_packet())
+    _validate(_packet())
+    assert len(_validate_successor(_load(SUCCESSOR_PATH))) == 3
+
+
+@pytest.mark.parametrize("attack", [
+    "predecessor", "successor", "missing", "duplicate", "additional", "path",
+    "amendment", "baseline", "historical_authority", "self_reference",
+    "authority", "arbitrary_blob",
+])
+def test_kf04_successor_rejects_unsupported_transitions(attack: str) -> None:
+    value = deepcopy(_load(SUCCESSOR_PATH))
+    if attack == "predecessor":
+        value["transitions"][0]["historical_blob"] = "0" * 40
+    elif attack in {"successor", "arbitrary_blob"}:
+        value["transitions"][0]["candidate_blob"] = "1" * 40
+    elif attack == "missing":
+        value["transitions"].pop()
+    elif attack in {"duplicate", "additional"}:
+        value["transitions"].append(deepcopy(value["transitions"][0]))
+    elif attack == "path":
+        value["transitions"][0]["path"] = "tests/test_stage3_gate_s03_01.py"
+    elif attack == "amendment":
+        value["amendment_id"] = "WRONG"
+    elif attack == "baseline":
+        value["protected_baseline"]["atis_master"] = "0" * 40
+    elif attack == "historical_authority":
+        value["historical_authority"] = "CURRENT_ACCEPTANCE"
+    elif attack == "self_reference":
+        value["publication_commit"] = "0" * 40
+    elif attack == "authority":
+        value["grants_authority"] = True
+    with pytest.raises((ValidationError, AssertionError)):
+        _validate_successor(value)

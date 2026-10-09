@@ -463,3 +463,173 @@ def test_exact_evidence_binding_rejects_mutations(section: str, name: str) -> No
         mutations.append(list(reversed(refs)))
     for replacement in mutations:
         assert_rejected(mutate((section, index, "evidence_refs"), replacement))
+
+
+# Prospective consumer for the existing GATE-S03-01, not a second gate.
+# Historical validate() and its record remain unchanged.
+def validate_owner_acceptance(
+    control: dict[str, Any],
+    assessment: dict[str, Any],
+    protected_identity: dict[str, str],
+) -> str:
+    from hashlib import sha256
+
+    from test_programme_control import validate_control
+
+    validate_control(control)
+    amendment = control["stage3_acceptance_amendment"]
+    assert amendment["protected_identity"] == protected_identity
+    assert amendment["owner_verdict"] == "PASS"
+    verdict = amendment["owner_verdict_evidence"]
+    assert verdict is not None and verdict["producer"] == "ATIS_OWNER"
+    assert set(assessment) == {
+        "gate_id", "protected_identity", "requirements", "gate_domains",
+        "material_blockers", "authority_denials",
+    }
+    assert assessment["gate_id"] == "GATE-S03-01"
+    assert assessment["protected_identity"] == protected_identity
+    assert assessment["material_blockers"] == []
+    assert assessment["authority_denials"] == AUTHORITY_DENIALS
+    encoded = json.dumps(assessment, sort_keys=True, separators=(",", ":")).encode()
+    assert verdict["assessment_sha256"] == sha256(encoded).hexdigest()
+    rows = assessment["requirements"]
+    assert isinstance(rows, list)
+    assert [row["requirement_id"] for row in rows] == SUBSTANTIVE_IDS
+    for row in rows:
+        assert set(row) == {
+            "requirement_id", "state", "result", "source_blobs", "direct_tests",
+            "adversarial_tests", "evidence",
+        }
+        assert row["state"] == "CURRENT" and row["result"] == "PASS"
+        for key in ("source_blobs", "direct_tests", "adversarial_tests"):
+            assert isinstance(row[key], dict) and row[key]
+            for identity, blob in row[key].items():
+                assert isinstance(identity, str) and identity.strip()
+                assert isinstance(blob, str) and GIT_IDENTITY.fullmatch(blob)
+        evidence = row["evidence"]
+        assert isinstance(evidence, dict)
+        assert set(evidence) == {"producer", "reference", "sha256", "protected_identity"}
+        assert isinstance(evidence["producer"], str) and evidence["producer"].strip()
+        assert isinstance(evidence["reference"], str) and evidence["reference"].strip()
+        assert re.fullmatch(r"[0-9a-f]{64}", evidence["sha256"])
+        assert evidence["protected_identity"] == protected_identity
+    domains = assessment["gate_domains"]
+    assert isinstance(domains, dict) and set(domains) == set(GATE_DOMAINS)
+    for refs in domains.values():
+        assert isinstance(refs, list) and refs
+        assert len(refs) == len(set(refs)) and set(refs) <= set(SUBSTANTIVE_IDS)
+    return "OWNER_ACCEPTANCE_RECORD_VALID_NOT_GATE_PASS"
+
+
+def _kf04_synthetic_case() -> tuple[dict[str, Any], dict[str, Any], dict[str, str]]:
+    from hashlib import sha256
+
+    from test_programme_control import _control
+
+    control = deepcopy(_control())
+    amendment = control["stage3_acceptance_amendment"]
+    identity = deepcopy(amendment["protected_identity"])
+    assessment = {
+        "gate_id": "GATE-S03-01",
+        "protected_identity": identity,
+        "requirements": [
+            {
+                "requirement_id": requirement,
+                "state": "CURRENT", "result": "PASS",
+                "source_blobs": {"synthetic/source": "1" * 40},
+                "direct_tests": {"synthetic::positive": "2" * 40},
+                "adversarial_tests": {"synthetic::negative": "3" * 40},
+                "evidence": {
+                    "producer": "SYNTHETIC_TEST_ONLY",
+                    "reference": "SYNTHETIC_NOT_ACCEPTANCE",
+                    "sha256": "4" * 64, "protected_identity": identity,
+                },
+            } for requirement in SUBSTANTIVE_IDS
+        ],
+        "gate_domains": {domain: [SUBSTANTIVE_IDS[0]] for domain in GATE_DOMAINS},
+        "material_blockers": [], "authority_denials": AUTHORITY_DENIALS,
+    }
+    amendment["owner_verdict"] = "PASS"
+    amendment["owner_verdict_evidence"] = {
+        "producer": "ATIS_OWNER", "record_id": "ATIS-S3-OWNER-VERDICT-SYNTHETIC",
+        "sha256": "5" * 64,
+        "assessment_sha256": sha256(
+            json.dumps(assessment, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+    }
+    return control, assessment, identity
+
+
+def test_kf04_synthetic_positive_is_not_actual_acceptance() -> None:
+    control, assessment, identity = _kf04_synthetic_case()
+    assert validate_owner_acceptance(control, assessment, identity) == (
+        "OWNER_ACCEPTANCE_RECORD_VALID_NOT_GATE_PASS"
+    )
+    from test_programme_control import _control
+    assert _control()["stage3_acceptance_amendment"]["owner_verdict"] == "PENDING"
+    validate(record())
+
+
+@pytest.mark.parametrize("verdict", ["PENDING", "FAIL", "INSUFFICIENT", None])
+def test_kf04_nonpass_owner_verdict_rejects(verdict: object) -> None:
+    control, assessment, identity = _kf04_synthetic_case()
+    if verdict is None:
+        del control["stage3_acceptance_amendment"]["owner_verdict"]
+    else:
+        control["stage3_acceptance_amendment"]["owner_verdict"] = verdict
+    with pytest.raises((AssertionError, ValueError)):
+        validate_owner_acceptance(control, assessment, identity)
+
+
+@pytest.mark.parametrize("mutation", [
+    "missing_authority", "missing_verdict_evidence", "historical_review",
+    "missing_current_evidence", "stale", "invalidated", "contradictory",
+    "missing_requirement", "identity", "missing_identity", "expansion",
+])
+def test_kf04_adversarial_current_acceptance_rejects(mutation: str) -> None:
+    from hashlib import sha256
+
+    control, assessment, identity = _kf04_synthetic_case()
+    amendment = control["stage3_acceptance_amendment"]
+    row = assessment["requirements"][0]
+    if mutation == "missing_authority":
+        del amendment["acceptance_authority"]
+    elif mutation == "missing_verdict_evidence":
+        amendment["owner_verdict_evidence"] = None
+    elif mutation == "historical_review":
+        amendment["owner_verdict_evidence"]["producer"] = "HISTORICAL_40_OF_40"
+    elif mutation == "missing_current_evidence":
+        row["evidence"] = {}
+    elif mutation in ("stale", "invalidated"):
+        row["state"] = mutation.upper()
+    elif mutation == "contradictory":
+        row["result"] = "FAIL"
+    elif mutation == "missing_requirement":
+        assessment["requirements"].pop()
+    elif mutation == "identity":
+        identity = {**identity, "atis_master": "0" * 40}
+    elif mutation == "missing_identity":
+        assessment.pop("protected_identity")
+    elif mutation == "expansion":
+        assessment["authority_denials"] = []
+    if amendment["owner_verdict_evidence"] is not None:
+        amendment["owner_verdict_evidence"]["assessment_sha256"] = sha256(
+            json.dumps(assessment, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+    with pytest.raises((AssertionError, ValueError, KeyError)):
+        validate_owner_acceptance(control, assessment, identity)
+
+
+def test_prospective_consumer_does_not_grant_gate_authority(tmp_path):
+    from automated_trading_bot.governance.stage3_acceptance import AcceptanceError, evaluate_gate
+
+    with pytest.raises(AcceptanceError):
+        evaluate_gate(tmp_path, tmp_path / "absent-assessment.json", tmp_path / "absent-verdict.json", "0" * 64, "0" * 64)
+
+
+def test_prospective_authenticated_consumer_starts_without_owner_approval(tmp_path):
+    from automated_trading_bot.governance.stage3_acceptance import evaluate_authenticated_gate
+
+    result = evaluate_authenticated_gate(tmp_path, tmp_path / "assessment", tmp_path / "verdict", None, None)
+    assert result["owner_acceptance"] == "NO_APPROVED_OWNER_VERDICT"
+    assert result["gate_result"] == "NOT_ESTABLISHED"

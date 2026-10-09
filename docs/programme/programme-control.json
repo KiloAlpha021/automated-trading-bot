@@ -2737,5 +2737,36 @@
     ],
     "protected_recording_authorized": false,
     "non_authorizing_statement": "This local recording candidate grants no protected-recording, implementation, Stage-4, provider, storage, trading, financial or AI authority."
+  },
+  "stage3_acceptance_amendment": {
+    "amendment_id": "ATIS-S3-GOV-AMD-KF04-001",
+    "scope": "STAGE3_ONLY",
+    "acceptance_authority": "ATIS_OWNER",
+    "acceptance_mode": "OWNER_LED_ACCEPTANCE",
+    "independent_review": "DEFERRED_BY_OWNER",
+    "independent_review_pass": false,
+    "precedence": "PROSPECTIVE_ACCEPTANCE_MECHANISM_ONLY",
+    "historical_rule": "docs/stage3/stage3-specification.json#S3-REQ-036",
+    "consumer": "GATE-S03-01",
+    "preserve_substantive_obligations": true,
+    "future_independent_review": "DEFERRED_NOT_CANCELLED",
+    "authority_granted": [
+      "PROSPECTIVE_STAGE3_TECHNICAL_ACCEPTANCE"
+    ],
+    "authority_denied": [
+      "AUTOMATIC_GATE_PASS",
+      "AUTOMATIC_STAGE3_CLOSURE",
+      "STAGE4",
+      "TRADING",
+      "GITHUB_PROTECTION_BYPASS"
+    ],
+    "protected_identity": {
+      "atis_master": "562e0d633b5b14749d5eb5476d9d8886adc703cf",
+      "atis_tree": "d7178f5d84cffc6368b69878f0ff2998fe5a4c5d",
+      "trust_main": "f0265c9ce10bac49ff32bb3620a898f263c4791a",
+      "policy_main": "af7a95105466649a538734a16919a81705b5ad8f"
+    },
+    "owner_verdict": "PENDING",
+    "owner_verdict_evidence": null
   }
 }

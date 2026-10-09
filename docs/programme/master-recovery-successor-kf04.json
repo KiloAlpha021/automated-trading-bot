@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-KF04-001",
+  "record_role": "CURRENT_CANDIDATE_INVENTORY_ONLY",
+  "amendment_id": "ATIS-S3-GOV-AMD-KF04-001",
+  "historical_packet": {
+    "path": "docs/programme/master-recovery-packet.json",
+    "git_blob": "ba40f75156e58a08fdd6d97cde3100bf0eefbae3",
+    "canonical_sha256": "bd39fd6768ab3fb5608418343858137f759875537e4b9c1f5d956a5451d37e43"
+  },
+  "protected_baseline": {
+    "atis_master": "562e0d633b5b14749d5eb5476d9d8886adc703cf",
+    "atis_tree": "d7178f5d84cffc6368b69878f0ff2998fe5a4c5d",
+    "trust_main": "f0265c9ce10bac49ff32bb3620a898f263c4791a",
+    "policy_main": "af7a95105466649a538734a16919a81705b5ad8f"
+  },
+  "transitions": [
+    {
+      "path": "docs/programme/programme-control.json",
+      "historical_blob": "2bb69105bbd2199ce8e114a1aed018216559bf34",
+      "candidate_blob": "76da65e2bd890cb6c02a3e62938db4683a285495"
+    },
+    {
+      "path": "docs/programme/programme-control.schema.json",
+      "historical_blob": "573205a85273424dabbab5fe8720de3a94b7a583",
+      "candidate_blob": "40c03dfbcde899c18f0dd1e1edd3ea408bd7c504"
+    },
+    {
+      "path": "tests/test_programme_control.py",
+      "historical_blob": "4e42082f53252fee6132ddb67251b1409dceeb4e",
+      "candidate_blob": "555e25d8bcf20985f554887f67b848d4d7d33872"
+    }
+  ],
+  "historical_authority": "PRESERVED_NOT_CURRENT_ACCEPTANCE",
+  "owner_acceptance": "PENDING",
+  "grants_authority": false
+}

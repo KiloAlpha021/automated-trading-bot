@@ -1919,3 +1919,29 @@ def test_pc_dec_029_records_only_bounded_f1_physical_authority() -> None:
     assert rb3["state"] == "RESOLVED_FOR_BOUNDED_F1_SCOPE"
     assert "PC-DEC-029" in rb3["trigger"]
     assert "CONDITIONAL_EXACT_EVIDENCE_RETENTION" in rb3["trigger"]
+
+
+def test_kf04_amendment_is_prospective_and_pending() -> None:
+    control = _control()
+    validate_control(control)
+    amendment = control["stage3_acceptance_amendment"]
+    assert amendment["owner_verdict"] == "PENDING"
+    assert amendment["owner_verdict_evidence"] is None
+    assert amendment["independent_review"] == "DEFERRED_BY_OWNER"
+    assert amendment["independent_review_pass"] is False
+
+
+@pytest.mark.parametrize("field,value", [
+    ("amendment_id", "WRONG"),
+    ("scope", "ALL_STAGES"),
+    ("acceptance_authority", "CODEX"),
+    ("independent_review_pass", True),
+    ("precedence", "RETROSPECTIVE"),
+    ("authority_granted", ["TRADING"]),
+    ("protected_identity", {}),
+])
+def test_kf04_schema_rejects_authority_expansion(field: str, value: object) -> None:
+    control = deepcopy(_control())
+    control["stage3_acceptance_amendment"][field] = value
+    with pytest.raises(ControlValidationError):
+        validate_control(control)
