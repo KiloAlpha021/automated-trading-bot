@@ -618,3 +618,18 @@ def test_kf04_adversarial_current_acceptance_rejects(mutation: str) -> None:
         ).hexdigest()
     with pytest.raises((AssertionError, ValueError, KeyError)):
         validate_owner_acceptance(control, assessment, identity)
+
+
+def test_prospective_consumer_does_not_grant_gate_authority(tmp_path):
+    from automated_trading_bot.governance.stage3_acceptance import AcceptanceError, evaluate_gate
+
+    with pytest.raises(AcceptanceError):
+        evaluate_gate(tmp_path, tmp_path / "absent-assessment.json", tmp_path / "absent-verdict.json", "0" * 64, "0" * 64)
+
+
+def test_prospective_authenticated_consumer_starts_without_owner_approval(tmp_path):
+    from automated_trading_bot.governance.stage3_acceptance import evaluate_authenticated_gate
+
+    result = evaluate_authenticated_gate(tmp_path, tmp_path / "assessment", tmp_path / "verdict", None, None)
+    assert result["owner_acceptance"] == "NO_APPROVED_OWNER_VERDICT"
+    assert result["gate_result"] == "NOT_ESTABLISHED"

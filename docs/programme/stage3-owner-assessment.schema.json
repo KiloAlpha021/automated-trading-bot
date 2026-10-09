@@ -1,0 +1,685 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "subject",
+    "requirements",
+    "properties",
+    "historical_review",
+    "material_blockers",
+    "independent_review"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "tree"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 40,
+      "maxItems": 40,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "state",
+          "sources",
+          "direct_tests",
+          "adversarial_tests",
+          "execution_evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "CURRENT",
+              "STALE",
+              "INVALIDATED",
+              "INSUFFICIENT",
+              "UNKNOWN",
+              "CONTRADICTORY"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "blob"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "blob": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                }
+              }
+            }
+          },
+          "direct_tests": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "blob"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "blob": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "nodeid": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "adversarial_tests": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "blob"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "blob": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "nodeid": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "execution_evidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "blob"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "blob": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "properties": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "state",
+          "historical_record",
+          "invalidation_conditions",
+          "reconciled_invalidators",
+          "requirements",
+          "limitations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "CURRENT",
+              "NOT_ESTABLISHED",
+              "INVALIDATED"
+            ]
+          },
+          "historical_record": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "blob"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blob": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              }
+            }
+          },
+          "invalidation_conditions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reconciled_invalidators": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "requirements": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "historical_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record",
+        "state",
+        "limitations",
+        "independent_acceptance"
+      ],
+      "properties": {
+        "record": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "blob"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          }
+        },
+        "state": {
+          "enum": [
+            "CURRENT",
+            "NOT_ESTABLISHED"
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "independent_acceptance": {
+          "const": false
+        },
+        "provenance_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "material_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "independent_review": {
+      "const": "DEFERRED_BY_OWNER"
+    }
+  },
+  "$defs": {
+    "executionReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "producer",
+        "subject",
+        "requirements",
+        "dependencies",
+        "tests",
+        "invalidators",
+        "gate_domains",
+        "result",
+        "limitations",
+        "historical_review_blob",
+        "historical_limitations_sha256"
+      ],
+      "properties": {
+        "producer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "tree"
+          ],
+          "properties": {
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "tree": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "S3-REQ-001",
+              "S3-REQ-002",
+              "S3-REQ-003",
+              "S3-REQ-004",
+              "S3-REQ-005",
+              "S3-REQ-006",
+              "S3-REQ-007",
+              "S3-REQ-008",
+              "S3-REQ-009",
+              "S3-REQ-010",
+              "S3-REQ-011",
+              "S3-REQ-012",
+              "S3-REQ-013",
+              "S3-REQ-014",
+              "S3-REQ-015",
+              "S3-REQ-016",
+              "S3-REQ-017",
+              "S3-REQ-018",
+              "S3-REQ-019",
+              "S3-REQ-020",
+              "S3-REQ-021",
+              "S3-REQ-022",
+              "S3-REQ-023",
+              "S3-REQ-024",
+              "S3-REQ-025",
+              "S3-REQ-026",
+              "S3-REQ-027",
+              "S3-REQ-028",
+              "S3-REQ-029",
+              "S3-REQ-030",
+              "S3-REQ-031",
+              "S3-REQ-032",
+              "S3-REQ-033",
+              "S3-REQ-034",
+              "S3-REQ-035",
+              "S3-REQ-037",
+              "S3-REQ-038",
+              "S3-REQ-039",
+              "S3-REQ-040",
+              "S3-REQ-041"
+            ]
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "blob"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blob": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              }
+            }
+          }
+        },
+        "tests": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "requirement",
+              "nodeid",
+              "kind",
+              "outcome",
+              "path",
+              "blob"
+            ],
+            "properties": {
+              "requirement": {
+                "enum": [
+                  "S3-REQ-001",
+                  "S3-REQ-002",
+                  "S3-REQ-003",
+                  "S3-REQ-004",
+                  "S3-REQ-005",
+                  "S3-REQ-006",
+                  "S3-REQ-007",
+                  "S3-REQ-008",
+                  "S3-REQ-009",
+                  "S3-REQ-010",
+                  "S3-REQ-011",
+                  "S3-REQ-012",
+                  "S3-REQ-013",
+                  "S3-REQ-014",
+                  "S3-REQ-015",
+                  "S3-REQ-016",
+                  "S3-REQ-017",
+                  "S3-REQ-018",
+                  "S3-REQ-019",
+                  "S3-REQ-020",
+                  "S3-REQ-021",
+                  "S3-REQ-022",
+                  "S3-REQ-023",
+                  "S3-REQ-024",
+                  "S3-REQ-025",
+                  "S3-REQ-026",
+                  "S3-REQ-027",
+                  "S3-REQ-028",
+                  "S3-REQ-029",
+                  "S3-REQ-030",
+                  "S3-REQ-031",
+                  "S3-REQ-032",
+                  "S3-REQ-033",
+                  "S3-REQ-034",
+                  "S3-REQ-035",
+                  "S3-REQ-037",
+                  "S3-REQ-038",
+                  "S3-REQ-039",
+                  "S3-REQ-040",
+                  "S3-REQ-041"
+                ]
+              },
+              "nodeid": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "DIRECT",
+                  "ADVERSARIAL"
+                ]
+              },
+              "outcome": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "SKIPPED",
+                  "NOT_RUN"
+                ]
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blob": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              }
+            }
+          }
+        },
+        "invalidators": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "property",
+              "condition",
+              "state",
+              "requirements"
+            ],
+            "properties": {
+              "property": {
+                "enum": [
+                  "P01",
+                  "P02",
+                  "P03",
+                  "P04",
+                  "P05",
+                  "P06",
+                  "P07",
+                  "P08",
+                  "P09",
+                  "P10",
+                  "P11",
+                  "P12",
+                  "P13",
+                  "P14",
+                  "P15",
+                  "P16"
+                ]
+              },
+              "condition": {
+                "type": "string",
+                "minLength": 1
+              },
+              "state": {
+                "enum": [
+                  "CURRENT",
+                  "INVALIDATED",
+                  "STALE",
+                  "NOT_ESTABLISHED"
+                ]
+              },
+              "requirements": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "enum": [
+                    "S3-REQ-001",
+                    "S3-REQ-002",
+                    "S3-REQ-003",
+                    "S3-REQ-004",
+                    "S3-REQ-005",
+                    "S3-REQ-006",
+                    "S3-REQ-007",
+                    "S3-REQ-008",
+                    "S3-REQ-009",
+                    "S3-REQ-010",
+                    "S3-REQ-011",
+                    "S3-REQ-012",
+                    "S3-REQ-013",
+                    "S3-REQ-014",
+                    "S3-REQ-015",
+                    "S3-REQ-016",
+                    "S3-REQ-017",
+                    "S3-REQ-018",
+                    "S3-REQ-019",
+                    "S3-REQ-020",
+                    "S3-REQ-021",
+                    "S3-REQ-022",
+                    "S3-REQ-023",
+                    "S3-REQ-024",
+                    "S3-REQ-025",
+                    "S3-REQ-026",
+                    "S3-REQ-027",
+                    "S3-REQ-028",
+                    "S3-REQ-029",
+                    "S3-REQ-030",
+                    "S3-REQ-031",
+                    "S3-REQ-032",
+                    "S3-REQ-033",
+                    "S3-REQ-034",
+                    "S3-REQ-035",
+                    "S3-REQ-037",
+                    "S3-REQ-038",
+                    "S3-REQ-039",
+                    "S3-REQ-040",
+                    "S3-REQ-041"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "gate_domains": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "INSTRUMENT_PIT": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "NOT_ESTABLISHED"
+              ]
+            },
+            "CALENDAR_PIT": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "NOT_ESTABLISHED"
+              ]
+            },
+            "MARKET_DATA_INTEGRITY": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "NOT_ESTABLISHED"
+              ]
+            },
+            "CORPORATE_ACTION_PIT": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "NOT_ESTABLISHED"
+              ]
+            },
+            "FRESHNESS": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "NOT_ESTABLISHED"
+              ]
+            },
+            "QUARANTINE": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "NOT_ESTABLISHED"
+              ]
+            }
+          }
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INSUFFICIENT"
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "historical_review_blob": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "historical_limitations_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}
