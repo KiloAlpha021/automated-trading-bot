@@ -16,10 +16,57 @@ import subprocess
 from typing import Any
 
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
+from jsonschema.exceptions import SchemaError  # type: ignore[import-untyped]
 
 REQUIREMENTS = tuple(f"S3-REQ-{n:03}" for n in range(1, 42) if n != 36)
 PROPERTIES = tuple(f"P{n:02}" for n in range(1, 17))
-SCHEMAS = Path(__file__).resolve().parents[3] / "docs/programme"
+SCHEMA_PATHS = tuple(
+    "docs/programme/stage3-" + name + ".schema.json"
+    for name in ("owner-assessment", "owner-verdict", "gate-execution")
+)
+
+
+@dataclass(frozen=True)
+class SchemaContext:
+    """Independent bootstrap pins, never populated from a candidate record.
+
+    Schemas are immutable Git objects, not installation-relative files. The
+    bootstrap must establish the repository and identities independently.
+    """
+
+    repository: Path
+    commit: str
+    tree: str
+    blobs: tuple[tuple[str, str], ...]
+
+
+def load_schema(context: SchemaContext | None, kind: str) -> dict[str, Any]:
+    if type(context) is not SchemaContext:
+        raise AcceptanceError("Missing trusted schema context")
+    if kind not in {"assessment", "verdict", "gate-execution"}:
+        raise AcceptanceError("Unknown schema kind")
+    if not context.repository.is_absolute() or not context.repository.is_dir():
+        raise AcceptanceError("Invalid trusted schema repository")
+    if (
+        len(context.blobs) != 3
+        or len(dict(context.blobs)) != 3
+        or set(dict(context.blobs)) != set(SCHEMA_PATHS)
+    ):
+        raise AcceptanceError("Incomplete trusted schema identities")
+    verify_subject(context.repository, {"commit": context.commit, "tree": context.tree})
+    schemas: dict[str, dict[str, Any]] = {}
+    for path, blob in context.blobs:
+        raw = resolve_evidence(
+            context.repository, context.commit, {"path": path, "blob": blob}
+        )
+        schema = parse_record(raw)
+        try:
+            Draft202012Validator.check_schema(schema)
+        except SchemaError as error:
+            raise AcceptanceError("Malformed trusted schema") from error
+        schemas[path] = schema
+    name = "owner-" + kind if kind != "gate-execution" else kind
+    return schemas["docs/programme/stage3-" + name + ".schema.json"]
 HISTORY = "docs/stage3/s3-gd-024-property-disposition.json"
 REVIEW = "docs/stage3/40of40-independent-review-recovery.json"
 
@@ -71,7 +118,10 @@ def canonical_digest(record: dict[str, Any]) -> str:
     return sha256(raw).hexdigest()
 
 
-def load_record(path: Path, kind: str, expected_digest: str) -> dict[str, Any]:
+def load_record(
+    path: Path, kind: str, expected_digest: str,
+    schema_context: SchemaContext | None = None,
+) -> dict[str, Any]:
     if kind not in {"assessment", "verdict", "gate-execution"}:
         raise AcceptanceError("Unknown record kind")
     if not re.fullmatch(r"[0-9a-f]{64}", expected_digest):
@@ -80,8 +130,7 @@ def load_record(path: Path, kind: str, expected_digest: str) -> dict[str, Any]:
         record = parse_record(path.read_bytes())
     except OSError as error:
         raise AcceptanceError("Missing record") from error
-    name = "stage3-" + ("owner-" + kind if kind != "gate-execution" else kind)
-    schema = parse_record((SCHEMAS / (name + ".schema.json")).read_bytes())
+    schema = load_schema(schema_context, kind)
     if not Draft202012Validator(schema).is_valid(record):
         raise AcceptanceError("Closed schema rejection")
     if canonical_digest(record) != expected_digest:
@@ -248,10 +297,11 @@ def evaluate_gate(
     verdict_path: Path,
     assessment_digest: str,
     verdict_digest: str,
+    *, schema_context: SchemaContext | None = None,
 ) -> dict[str, Any]:
     """Fail closed: no caller-supplied authority or gate-PASS capability."""
-    assessment = load_record(assessment_path, "assessment", assessment_digest)
-    verdict = load_record(verdict_path, "verdict", verdict_digest)
+    assessment = load_record(assessment_path, "assessment", assessment_digest, schema_context)
+    verdict = load_record(verdict_path, "verdict", verdict_digest, schema_context)
     if (
         verdict["subject"] != assessment["subject"]
         or verdict["assessment_sha256"] != assessment_digest
@@ -324,6 +374,7 @@ class RuntimeAuthority:
     evidence: tuple[EvidencePin, ...]
     state: str = "ACTIVE"
     gate_event: OwnerEventPin | None = None
+    schema_context: SchemaContext | None = None
 
 
 class GitHubReader:
@@ -545,7 +596,7 @@ def authenticate_owner_event(
     )
 
 
-def _receipt(pin: EvidencePin) -> dict[str, Any]:
+def _receipt(pin: EvidencePin, schema_context: SchemaContext | None) -> dict[str, Any]:
     _require(
         type(pin) is EvidencePin and bool(pin.producer), "Missing evidence producer"
     )
@@ -555,9 +606,7 @@ def _receipt(pin: EvidencePin) -> dict[str, Any]:
         raise AcceptanceError("Unavailable execution artifact") from error
     _require(sha256(raw).hexdigest() == pin.sha256, "Execution artifact substitution")
     value = parse_record(raw)
-    schema = parse_record(
-        (SCHEMAS / "stage3-owner-assessment.schema.json").read_bytes()
-    )
+    schema = load_schema(schema_context, "assessment")
     _require(
         Draft202012Validator(schema["$defs"]["executionReceipt"]).is_valid(value),
         "Malformed execution receipt",
@@ -586,7 +635,8 @@ def _receipt(pin: EvidencePin) -> dict[str, Any]:
 
 
 def verify_semantic_currentness(
-    repo: Path, assessment: dict[str, Any], pins: tuple[EvidencePin, ...]
+    repo: Path, assessment: dict[str, Any], pins: tuple[EvidencePin, ...],
+    *, schema_context: SchemaContext | None = None,
 ) -> None:
     """Evaluate independently attributed execution facts against current Git.
 
@@ -607,7 +657,7 @@ def verify_semantic_currentness(
         "Historical limitations not preserved",
     )
     review_blob = _git(repo, "rev-parse", current + ":" + REVIEW).decode().strip()
-    receipts = [_receipt(pin) for pin in pins]
+    receipts = [_receipt(pin, schema_context) for pin in pins]
     cache: dict[tuple[str, str, str], bytes] = {}
 
     def resolved(commit: str, ref: dict[str, str]) -> bytes:
@@ -775,8 +825,16 @@ def evaluate_authenticated_gate(
             "reasons": ["NO_INDEPENDENTLY_CONFIGURED_AUTHORITY"],
         }
     _verify_protected_authority(repo, authority, github)
-    assessment = load_record(assessment_path, "assessment", authority.assessment_sha256)
-    verdict = load_record(verdict_path, "verdict", authority.verdict_sha256)
+    context = authority.schema_context
+    _require(
+        type(context) is SchemaContext
+        and context.repository == repo.resolve()
+        and context.commit == authority.protected_commit
+        and context.tree == authority.protected_tree,
+        "Schema context differs from independently protected authority",
+    )
+    assessment = load_record(assessment_path, "assessment", authority.assessment_sha256, context)
+    verdict = load_record(verdict_path, "verdict", authority.verdict_sha256, context)
     subject = {"commit": authority.protected_commit, "tree": authority.protected_tree}
     _require(
         assessment["subject"] == verdict["subject"] == subject
@@ -801,7 +859,7 @@ def evaluate_authenticated_gate(
     authenticate_owner_event(github, authority.owner_event, expected)
     _require(verdict["state"] == "PASS", "Owner verdict is not PASS")
     verify_evidence_structure(repo, assessment)
-    verify_semantic_currentness(repo, assessment, authority.evidence)
+    verify_semantic_currentness(repo, assessment, authority.evidence, schema_context=context)
     result = {
         "gate_id": "GATE-S03-01",
         "s3req036": "CURRENT_EVIDENCE_COMPLETE",
@@ -818,5 +876,13 @@ def evaluate_authenticated_gate(
         result["gate_result"] = "READY_FOR_AUTHORIZED_EXECUTION"
         result["reasons"] = ["GATE_NOT_EXECUTED"]
     _verify_protected_authority(repo, authority, github)
+    context = authority.schema_context
+    _require(
+        type(context) is SchemaContext
+        and context.repository == repo.resolve()
+        and context.commit == authority.protected_commit
+        and context.tree == authority.protected_tree,
+        "Schema context differs from independently protected authority",
+    )
     authenticate_owner_event(github, authority.owner_event, expected)
     return result

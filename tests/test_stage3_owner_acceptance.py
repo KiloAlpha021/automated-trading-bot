@@ -18,6 +18,13 @@ def git(*args):
     return subprocess.check_output(["git", "-C", str(ROOT), *args]).decode().strip()
 
 
+def schema_context():
+    return consumer.SchemaContext(
+        ROOT, git("rev-parse", "HEAD"), git("rev-parse", "HEAD^{tree}"),
+        tuple((p, git("rev-parse", "HEAD:" + p)) for p in consumer.SCHEMA_PATHS),
+    )
+
+
 @pytest.fixture(scope="module")
 def records():
     commit = git("rev-parse", "HEAD")
@@ -95,6 +102,7 @@ def evaluate(tmp_path, assessment, verdict):
         v,
         consumer.canonical_digest(assessment),
         consumer.canonical_digest(verdict),
+        schema_context=schema_context(),
     )
 
 
@@ -105,9 +113,7 @@ def test_no_candidate_verdict_can_enable_acceptance(records, tmp_path, state):
     result = evaluate(tmp_path, assessment, verdict)
     assert result["gate_result"] == "NOT_ESTABLISHED"
     assert result["owner_acceptance"] == "NO_APPROVED_OWNER_VERDICT"
-    schema = json.loads(
-        (consumer.SCHEMAS / "stage3-gate-execution.schema.json").read_text()
-    )
+    schema = consumer.load_schema(schema_context(), "gate-execution")
     Draft202012Validator(schema).validate(result)
 
 
@@ -194,10 +200,10 @@ def test_digest_and_absent_records(records, tmp_path):
     _, verdict = records
     path = tmp_path / "record.json"
     with pytest.raises(consumer.AcceptanceError):
-        consumer.load_record(path, "verdict", "0" * 64)
+        consumer.load_record(path, "verdict", "0" * 64, schema_context())
     path.write_text(json.dumps(verdict), encoding="utf-8")
     with pytest.raises(consumer.AcceptanceError):
-        consumer.load_record(path, "verdict", "0" * 64)
+        consumer.load_record(path, "verdict", "0" * 64, schema_context())
 
 
 @pytest.fixture
@@ -283,9 +289,9 @@ def test_synthetic_authentication_rejections(synthetic, case):
 
 
 def test_closed_schemas_are_valid():
-    for kind in ("owner-assessment", "owner-verdict", "gate-execution"):
+    for kind in ("assessment", "verdict", "gate-execution"):
         Draft202012Validator.check_schema(
-            json.loads((consumer.SCHEMAS / f"stage3-{kind}.schema.json").read_text())
+            consumer.load_schema(schema_context(), kind)
         )
 
 
@@ -438,6 +444,7 @@ def production_case(records, tmp_path):
             ),
         ),
         gate_event=pin(events[1]),
+        schema_context=schema_context(),
     )
     return a, v, authority, FakeGitHub(subject["commit"], events), receipt
 
@@ -452,9 +459,7 @@ def test_production_consumer_synthetic_end_to_end_not_actual_gate(production_cas
     assert result["gate_result"] == "READY_FOR_AUTHORIZED_EXECUTION"
     assert result["s3req036"] == "CURRENT_EVIDENCE_COMPLETE"
     assert result["reasons"] == ["GATE_NOT_EXECUTED"]
-    schema = json.loads(
-        (consumer.SCHEMAS / "stage3-gate-execution.schema.json").read_text()
-    )
+    schema = consumer.load_schema(schema_context(), "gate-execution")
     Draft202012Validator(schema).validate(result)
 
 
@@ -643,7 +648,9 @@ def test_semantic_currentness_negative_dominance(production_case, case):
     path.write_text(json.dumps(receipt), encoding="utf-8")
     pin = replace(authority.evidence[0], sha256=sha256(path.read_bytes()).hexdigest())
     with pytest.raises(consumer.AcceptanceError):
-        consumer.verify_semantic_currentness(ROOT, json.loads(a.read_text()), (pin,))
+        consumer.verify_semantic_currentness(
+            ROOT, json.loads(a.read_text()), (pin,), schema_context=schema_context()
+        )
 
 
 def test_transport_rejects_missing_credentials_and_candidate_routes():
@@ -651,3 +658,121 @@ def test_transport_rejects_missing_credentials_and_candidate_routes():
         consumer.GitHubReader("")
     with pytest.raises(consumer.AcceptanceError):
         consumer.GitHubReader("SYNTHETIC").get("https://evil.invalid")
+
+
+@pytest.mark.parametrize("kind", ["assessment", "verdict", "gate-execution"])
+def test_schema_context_exact_git_identity(kind, monkeypatch, tmp_path):
+    context = schema_context()
+    expected = consumer.load_schema(context, kind)
+    monkeypatch.chdir(tmp_path)
+    assert consumer.load_schema(context, kind) == expected
+
+
+@pytest.mark.parametrize("case", [
+    "missing_context", "candidate_dict", "missing_root", "wrong_root",
+    "relative_root", "wrong_commit", "wrong_tree", "missing_blob",
+    "substituted_blob", "missing_pin", "duplicate_pin", "path_substitution",
+])
+def test_schema_context_rejects_invalid_authority(case, tmp_path):
+    context = schema_context()
+    if case == "missing_context":
+        context = None
+    elif case == "candidate_dict":
+        context = {"repository": str(ROOT), "blobs": context.blobs}
+    elif case == "missing_root":
+        context = replace(context, repository=tmp_path / "missing")
+    elif case == "wrong_root":
+        context = replace(context, repository=tmp_path)
+    elif case == "relative_root":
+        context = replace(context, repository=Path("."))
+    elif case == "wrong_commit":
+        context = replace(context, commit="0" * 40)
+    elif case == "wrong_tree":
+        context = replace(context, tree="0" * 40)
+    elif case in {"missing_blob", "substituted_blob"}:
+        blob = "0" * 40 if case == "missing_blob" else context.blobs[1][1]
+        context = replace(context, blobs=((context.blobs[0][0], blob), *context.blobs[1:]))
+    elif case == "missing_pin":
+        context = replace(context, blobs=context.blobs[:-1])
+    elif case == "duplicate_pin":
+        context = replace(context, blobs=(context.blobs[0],) * 3)
+    elif case == "path_substitution":
+        context = replace(context, blobs=(("elsewhere.json", context.blobs[0][1]), *context.blobs[1:]))
+    with pytest.raises(consumer.AcceptanceError):
+        consumer.load_schema(context, "assessment")
+
+
+@pytest.mark.parametrize("raw", [b"not-json", b'{"type":17}', b'{"type":"object","type":"array"}'])
+def test_schema_context_rejects_malformed_pinned_schema(raw, monkeypatch):
+    # Synthetic object-reader fault, never an authority for real evaluation.
+    monkeypatch.setattr(consumer, "resolve_evidence", lambda *args: raw)
+    with pytest.raises(consumer.AcceptanceError):
+        consumer.load_schema(schema_context(), "assessment")
+
+
+@pytest.mark.parametrize("case", ["absent", "wrong_root", "wrong_commit", "wrong_tree"])
+def test_authenticated_schema_context_must_match_authority(production_case, tmp_path, case):
+    a, v, authority, github, receipt = production_case
+    context = authority.schema_context
+    if case == "absent":
+        context = None
+    elif case == "wrong_root":
+        context = replace(context, repository=tmp_path)
+    elif case == "wrong_commit":
+        context = replace(context, commit="0" * 40)
+    else:
+        context = replace(context, tree="0" * 40)
+    with pytest.raises(consumer.AcceptanceError):
+        run_production((a, v, replace(authority, schema_context=context), github, receipt))
+
+
+def test_candidate_cannot_select_schema_context(records, tmp_path):
+    assessment, verdict = deepcopy(records)
+    assessment["schema_context"] = {"repository": str(tmp_path)}
+    with pytest.raises(consumer.AcceptanceError):
+        evaluate(tmp_path, assessment, verdict)
+
+
+def test_installed_wheel_schema_context_without_source_pythonpath(production_case, tmp_path):
+    import os
+    import sys
+
+    a, v, authority, _, _ = production_case
+    context = authority.schema_context
+    payload = {
+        "repository": str(context.repository), "commit": context.commit,
+        "tree": context.tree, "blobs": context.blobs,
+        "assessment": str(a), "verdict": str(v),
+        "assessment_digest": authority.assessment_sha256,
+        "verdict_digest": authority.verdict_sha256,
+        "receipt": str(authority.evidence[0].path),
+        "receipt_digest": authority.evidence[0].sha256,
+        "producer": authority.evidence[0].producer,
+    }
+    payload_path = tmp_path / "synthetic-installed-inputs.json"
+    payload_path.write_text(json.dumps(payload), encoding="utf-8")
+    script = r"""
+import json, sys
+from pathlib import Path
+from automated_trading_bot.governance import stage3_acceptance as c
+assert "site-packages" in Path(c.__file__).parts, c.__file__
+p = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+ctx = c.SchemaContext(Path(p["repository"]), p["commit"], p["tree"], tuple(tuple(x) for x in p["blobs"]))
+for kind in ("assessment", "verdict"):
+    c.load_record(Path(p[kind]), kind, p[kind + "_digest"], ctx)
+result = c.evaluate_gate(Path(p["repository"]), Path(p["assessment"]), Path(p["verdict"]), p["assessment_digest"], p["verdict_digest"], schema_context=ctx)
+assert result["gate_result"] == "NOT_ESTABLISHED"
+output = Path("synthetic-gate-output.json")
+output.write_text(json.dumps(result), encoding="utf-8")
+c.load_record(output, "gate-execution", c.canonical_digest(result), ctx)
+c._receipt(c.EvidencePin(Path(p["receipt"]), p["receipt_digest"], p["producer"]), ctx)
+print(json.dumps({"module": c.__file__, "schemas": 3, "receipt": "PASS", "actual_approval": False}))
+"""
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    completed = subprocess.run(
+        [sys.executable, "-I", "-B", "-c", script, str(payload_path)],
+        cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert json.loads(completed.stdout)["schemas"] == 3
