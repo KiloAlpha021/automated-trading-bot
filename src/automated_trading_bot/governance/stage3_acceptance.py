@@ -886,3 +886,516 @@ def evaluate_authenticated_gate(
     )
     authenticate_owner_event(github, authority.owner_event, expected)
     return result
+
+
+# Phase 6: capture is evidence, never authority. These pins are constructed only
+# by the independently controlled runtime, not deserialized from a submission.
+@dataclass(frozen=True)
+class ExecutionArtifactPin:
+    archive: Path
+    sha256: str
+    capture_sha256: str
+    canonical_sha256: str
+    run_id: int
+    job_id: int
+    attempt: int
+    artifact_id: int
+    subject_commit: str
+    subject_tree: str
+    producer_blob: str
+    workflow_blob: str
+    state: str = "ACTIVE"
+
+
+@dataclass(frozen=True)
+class RequirementMappingPin:
+    path: Path
+    sha256: str
+    canonical_sha256: str
+    state: str = "ACTIVE"
+
+
+@dataclass(frozen=True)
+class AdmittedReceipt:
+    evidence: EvidencePin
+    canonical_sha256: str
+    execution: ExecutionArtifactPin
+    mapping: RequirementMappingPin
+
+
+@dataclass(frozen=True)
+class GateExecutionContext:
+    """Independent execution bootstrap; result directory is operator controlled.
+
+    The immutable result itself consumes a gate-event authorization. Deleting
+    or relocating that result is outside this API and must not be allowed by
+    the operator. No authority state or signing credential is created here.
+    """
+
+    output_directory: Path
+    executor_blob: str
+    receipts: tuple[AdmittedReceipt, ...]
+
+
+PRODUCER_PATH = "scripts/m1_engineering_foundation.py"
+WORKFLOW_PATH = ".github/workflows/m1-engineering-foundation.yml"
+EXECUTOR_PATH = "src/automated_trading_bot/governance/stage3_acceptance.py"
+SPECIFICATION = "docs/stage3/stage3-specification.json"
+TERMINAL_DENIALS = (
+    "NO_AUTOMATIC_STAGE3_CLOSURE", "NO_STAGE4_AUTHORITY", "NO_TRADING_AUTHORITY",
+    "NO_INDEPENDENT_REVIEW_PASS",
+)
+
+
+def _pinned_bytes(path: Path, digest: str) -> bytes:
+    _require(bool(re.fullmatch(r"[0-9a-f]{64}", digest)), "Invalid independent pin")
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        raise AcceptanceError("Missing pinned artifact") from error
+    _require(sha256(raw).hexdigest() == digest, "Altered pinned artifact")
+    return raw
+
+
+def _tree_dependencies(repo: Path, commit: str) -> list[dict[str, str]]:
+    rows = []
+    for entry in _git(repo, "ls-tree", "-r", "-z", commit).split(b"\0"):
+        if not entry:
+            continue
+        metadata, name = entry.split(b"\t", 1)
+        mode, kind, blob = metadata.decode().split()
+        _require(kind == "blob" and mode in {"100644", "100755"},
+                 "Unsupported dependency object")
+        rows.append({"path": name.decode("utf-8"), "blob": blob})
+    return rows
+
+
+def _authenticate_execution(
+    repo: Path, pin: ExecutionArtifactPin, github: GitHubReader,
+) -> dict[str, Any]:
+    import io
+    import zipfile
+
+    _require(type(pin) is ExecutionArtifactPin and pin.state == "ACTIVE",
+             "Missing, stale or revoked execution authority")
+    _require(all(type(n) is int and n > 0 for n in
+                 (pin.run_id, pin.job_id, pin.attempt, pin.artifact_id)),
+             "Invalid execution identity")
+    subject = {"commit": pin.subject_commit, "tree": pin.subject_tree}
+    verify_subject(repo, subject)
+    for path, blob in ((PRODUCER_PATH, pin.producer_blob),
+                       (WORKFLOW_PATH, pin.workflow_blob)):
+        resolve_evidence(repo, pin.subject_commit, {"path": path, "blob": blob})
+    run = github.get(f"actions/runs/{pin.run_id}/attempts/{pin.attempt}")
+    job = github.get(f"actions/jobs/{pin.job_id}")
+    artifact = github.get(f"actions/artifacts/{pin.artifact_id}")
+    _require(all(isinstance(v, dict) for v in (run, job, artifact)),
+             "Execution authority unavailable")
+    _require(
+        run.get("id") == pin.run_id and run.get("run_attempt") == pin.attempt
+        and run.get("repository", {}).get("full_name") == REPOSITORY
+        and run.get("event") == "push" and run.get("head_branch") == "master"
+        and run.get("head_sha") == pin.subject_commit
+        and run.get("path") == WORKFLOW_PATH and run.get("status") == "completed"
+        and run.get("conclusion") == "success",
+        "Unverified protected producer execution",
+    )
+    _require(
+        job.get("id") == pin.job_id and job.get("run_id") == pin.run_id
+        and job.get("run_attempt") == pin.attempt
+        and job.get("name") == "m1-engineering-foundation"
+        and job.get("head_sha") == pin.subject_commit
+        and job.get("status") == "completed" and job.get("conclusion") == "success",
+        "Wrong or failed execution job",
+    )
+    _require(
+        artifact.get("id") == pin.artifact_id and artifact.get("expired") is False
+        and artifact.get("name") == "m1-engineering-foundation-evidence"
+        and artifact.get("workflow_run", {}).get("id") == pin.run_id
+        and artifact.get("workflow_run", {}).get("head_sha") == pin.subject_commit
+        and artifact.get("digest") == "sha256:" + pin.sha256,
+        "Unverified execution artifact origin",
+    )
+    raw = _pinned_bytes(pin.archive, pin.sha256)
+    _require(len(raw) <= 32_000_000, "Oversized execution archive")
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            names = archive.namelist()
+            _require(len(names) == len(set(names)), "Duplicate archive member")
+            info = archive.getinfo("execution-evidence/capture.json")
+            _require(info.file_size <= 8_000_000, "Oversized execution capture")
+            capture = archive.read(info)
+    except (KeyError, OSError, ValueError, zipfile.BadZipFile, RuntimeError) as error:
+        raise AcceptanceError("Missing or malformed execution capture") from error
+    _require(sha256(capture).hexdigest() == pin.capture_sha256,
+             "Substituted execution capture")
+    value = parse_record(capture)
+    _require(canonical_digest(value) == pin.canonical_sha256,
+             "Execution canonical digest mismatch")
+    _exact_object(value, {"format", "subject", "producer", "dependencies", "environment",
+                          "provenance", "collected", "reports", "collection_errors",
+                          "session_finished", "exit_code", "workspace_stable",
+                          "committed_subject"})
+    _require(value["format"] == "ATIS_PYTEST_EXECUTION_V1" and value["subject"] == subject,
+             "Execution subject substitution")
+    _require(value["producer"] == {"path": PRODUCER_PATH, "blob": pin.producer_blob},
+             "Wrong evidence producer")
+    _require(value["dependencies"] == _tree_dependencies(repo, pin.subject_commit),
+             "Incomplete execution dependency closure")
+    _require(value["provenance"] == {
+        "repository": REPOSITORY, "event": "push", "ref": "refs/heads/master",
+        "sha": pin.subject_commit, "run_id": str(pin.run_id),
+        "attempt": str(pin.attempt), "job": "m1-engineering-foundation",
+    }, "Execution provenance mismatch")
+    environment = _exact_object(value["environment"], {
+        "module_origin", "installed_wheel", "module_sources_match", "python", "distributions",
+    })
+    _require(environment["python"] == "3.12.10"
+             and environment["installed_wheel"] is True
+             and environment["module_sources_match"] is True,
+             "Unverified installed source identity")
+    expected = {}
+    for line in _git(repo, "show", pin.subject_commit + ":requirements-dev.lock").decode().splitlines():
+        if line and not line.startswith("#"):
+            name, version = line.split()[0].split("==", 1)
+            expected[name] = version
+    _require(environment["distributions"] == expected, "Execution dependency environment changed")
+    _require(value["session_finished"] is True and value["workspace_stable"] is True
+             and value["committed_subject"] is True and type(value["exit_code"]) is int
+             and value["exit_code"] == 0 and value["collection_errors"] == [],
+             "Incomplete, failed or uncommitted execution")
+    return value
+
+
+def _observed_nodes(capture: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    nodes = capture["collected"]
+    _require(isinstance(nodes, list) and bool(nodes)
+             and all(isinstance(n, str) and n for n in nodes)
+             and len(nodes) == len(set(nodes)), "Missing or duplicate collected nodes")
+    observed: dict[str, dict[str, Any]] = {n: {} for n in nodes}
+    _require(isinstance(capture["reports"], list), "Missing node reports")
+    for raw in capture["reports"]:
+        report = _exact_object(raw, {"nodeid", "when", "outcome", "xfail"})
+        node, phase = report["nodeid"], report["when"]
+        _require(isinstance(node, str) and node in observed
+                 and phase in {"setup", "call", "teardown"}
+                 and report["outcome"] in {"passed", "failed", "skipped"}
+                 and type(report["xfail"]) is bool, "Unattributed test report")
+        _require(phase not in observed[node], "Duplicate or contradictory test outcome")
+        _require(report["outcome"] != "failed", "Failed execution hidden by exit code")
+        observed[node][phase] = report
+    # All collected nodes must have an actual lifecycle. Skips remain visible;
+    # they may not witness a required positive/adversarial outcome.
+    for phases in observed.values():
+        _require("setup" in phases and "teardown" in phases,
+                 "Not-run or interrupted collected test")
+        if phases["setup"]["outcome"] == "passed":
+            _require("call" in phases, "Missing test call outcome")
+    return observed
+
+
+def _passed_node(nodes: dict[str, dict[str, Any]], node: str) -> None:
+    _require(node in nodes and set(nodes[node]) == {"setup", "call", "teardown"}
+             and all(r["outcome"] == "passed" and not r["xfail"]
+                     for r in nodes[node].values()), "Missing, skipped or failed mandatory node")
+
+
+def requirement_definitions(repo: Path, commit: str) -> dict[str, str]:
+    """Bind mapping rationales to exact canonical requirement text, not filenames."""
+    value = parse_record(_git(repo, "show", commit + ":" + SPECIFICATION))
+    definitions: dict[str, str] = {}
+
+    def visit(item: Any) -> None:
+        if isinstance(item, dict):
+            identity = item.get("id")
+            if isinstance(identity, str) and identity in REQUIREMENTS and "exact_final_section" in item:
+                digest = canonical_digest({"id": identity, "text": item["exact_final_section"]})
+                _require(identity not in definitions, "Competing canonical requirements")
+                definitions[identity] = digest
+            else:
+                for child in item.values():
+                    visit(child)
+        elif isinstance(item, list):
+            for child in item:
+                visit(child)
+
+    visit(value)
+    _require(set(definitions) == set(REQUIREMENTS), "Missing canonical requirement definition")
+    return definitions
+
+
+def test_function_digest(repo: Path, commit: str, node: str, blob: str) -> str:
+    import ast
+
+    path, separator, function = node.partition("::")
+    _require(bool(separator) and path.startswith("tests/") and function.startswith("test_")
+             and "::" not in function, "Unsupported exact test node")
+    raw = resolve_evidence(repo, commit, {"path": path, "blob": blob})
+    text = raw.decode("utf-8")
+    name = function.split("[", 1)[0]
+    found = [n for n in ast.parse(text).body
+             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == name]
+    _require(len(found) == 1, "Unknown or competing test definition")
+    segment = ast.get_source_segment(text, found[0])
+    _require(segment is not None, "Missing test code")
+    return sha256(str(segment).encode("utf-8")).hexdigest()
+
+
+def _assemble_receipt(
+    repo: Path, execution: ExecutionArtifactPin, mapping: RequirementMappingPin,
+    github: GitHubReader, context: SchemaContext,
+) -> dict[str, Any]:
+    _require(type(mapping) is RequirementMappingPin and mapping.state == "ACTIVE",
+             "Missing, stale or candidate-selected requirement authority")
+    plan = parse_record(_pinned_bytes(mapping.path, mapping.sha256))
+    _require(canonical_digest(plan) == mapping.canonical_sha256, "Mapping canonical digest mismatch")
+    _exact_object(plan, {"format", "subject", "requirements", "invalidators", "gate_domains",
+                         "limitations", "historical_review_blob", "historical_limitations_sha256"})
+    _require(plan["format"] == "ATIS_STAGE3_REQUIREMENT_MAPPING_V1"
+             and plan["subject"] == {"commit": context.commit, "tree": context.tree},
+             "Wrong mapping subject")
+    load_schema(context, "assessment")
+    capture = _authenticate_execution(repo, execution, github)
+    _require(capture["dependencies"] == _tree_dependencies(repo, context.commit),
+             "Stale execution dependencies")
+    nodes = _observed_nodes(capture)
+    definitions = requirement_definitions(repo, context.commit)
+    dependencies = {r["path"]: r["blob"] for r in capture["dependencies"]}
+    _require(isinstance(plan["requirements"], list)
+             and [r.get("id") for r in plan["requirements"] if isinstance(r, dict)]
+             == list(REQUIREMENTS), "Incomplete or duplicate requirement allocation")
+    tests = []
+    allocated: set[str] = set()
+    code_digests: dict[str, str] = {}
+    for raw in plan["requirements"]:
+        row = _exact_object(raw, {"id", "definition_sha256", "sources", "direct", "adversarial"})
+        _require(row["definition_sha256"] == definitions[row["id"]], "Changed requirement definition")
+        _require(isinstance(row["sources"], list) and bool(row["sources"]), "Missing source mapping")
+        for ref in row["sources"]:
+            _exact_object(ref, {"path", "blob"})
+            _require(dependencies.get(ref["path"]) == ref["blob"], "Changed source identity")
+        seen: set[str] = set()
+        for group, kind in (("direct", "DIRECT"), ("adversarial", "ADVERSARIAL")):
+            _require(isinstance(row[group], list) and bool(row[group]), "Missing " + kind + " mapping")
+            for raw_test in row[group]:
+                item = _exact_object(raw_test, {"nodeid", "code_sha256", "rationale"})
+                node = item["nodeid"]
+                _require(isinstance(node, str) and node not in seen
+                         and isinstance(item["rationale"], str) and bool(item["rationale"].strip()),
+                         "Duplicate or unsupported semantic allocation")
+                _passed_node(nodes, node)
+                path = node.split("::", 1)[0]
+                _require(path in dependencies, "Missing test dependency")
+                if node not in code_digests:
+                    code_digests[node] = test_function_digest(repo, context.commit, node, dependencies[path])
+                _require(code_digests[node] == item["code_sha256"], "Test code substitution")
+                seen.add(node)
+                allocated.add(node)
+                tests.append({"requirement": row["id"], "nodeid": node, "kind": kind,
+                              "outcome": "PASS", "path": path, "blob": dependencies[path]})
+    historical = parse_record(_git(repo, "show", context.commit + ":" + HISTORY))
+    conditions = {(p["id"], condition): p["requirements"] for p in historical["properties"]
+                  for condition in p["invalidation_conditions"]}
+    invalidators = []
+    seen_conditions: set[tuple[str, str]] = set()
+    _require(isinstance(plan["invalidators"], list), "Missing property assessment")
+    for raw in plan["invalidators"]:
+        item = _exact_object(raw, {"property", "condition", "state", "requirements", "nodes", "rationale"})
+        key = (item["property"], item["condition"])
+        _require(key in conditions and key not in seen_conditions
+                 and item["requirements"] == conditions[key] and item["state"] == "CURRENT",
+                 "Stale or unsupported invalidator")
+        _mapped_witness(item, allocated, nodes)
+        seen_conditions.add(key)
+        invalidators.append({k: item[k] for k in ("property", "condition", "state", "requirements")})
+    _require(seen_conditions == set(conditions), "Missing invalidator witness")
+    domains = _exact_object(plan["gate_domains"], set(DOMAINS))
+    for raw in domains.values():
+        item = _exact_object(raw, {"state", "nodes", "rationale"})
+        _require(item["state"] == "PASS", "Gate domain not established")
+        _mapped_witness(item, allocated, nodes)
+    review = parse_record(_git(repo, "show", context.commit + ":" + REVIEW))
+    _require(plan["historical_review_blob"] == dependencies[REVIEW]
+             and plan["historical_limitations_sha256"] == canonical_digest(review["provenance_limitations"]),
+             "Wrong historical review attribution")
+    _require(isinstance(plan["limitations"], list) and bool(plan["limitations"])
+             and all(isinstance(x, str) and x.strip() for x in plan["limitations"]),
+             "Missing evidence limitations")
+    receipt = {
+        "producer": f"{REPOSITORY}/actions/runs/{execution.run_id}/attempts/{execution.attempt}/jobs/{execution.job_id}",
+        "subject": capture["subject"], "requirements": list(REQUIREMENTS),
+        "dependencies": capture["dependencies"], "tests": tests, "invalidators": invalidators,
+        "gate_domains": {domain: "PASS" for domain in DOMAINS}, "result": "PASS",
+        "limitations": plan["limitations"], "historical_review_blob": plan["historical_review_blob"],
+        "historical_limitations_sha256": plan["historical_limitations_sha256"],
+    }
+    schema = load_schema(context, "assessment")["$defs"]["executionReceipt"]
+    _require(Draft202012Validator(schema).is_valid(receipt), "Receipt schema rejection")
+    return receipt
+
+
+def _mapped_witness(
+    item: dict[str, Any], allocated: set[str], nodes: dict[str, dict[str, Any]],
+) -> None:
+    _require(isinstance(item["rationale"], str) and bool(item["rationale"].strip())
+             and isinstance(item["nodes"], list) and bool(item["nodes"])
+             and all(isinstance(n, str) for n in item["nodes"])
+             and len(item["nodes"]) == len(set(item["nodes"])) , "Unattributed semantic witness")
+    for node in item["nodes"]:
+        _require(node in allocated, "Unmapped semantic witness")
+        _passed_node(nodes, node)
+
+
+def admit_execution_receipt(
+    repo: Path, execution: ExecutionArtifactPin, mapping: RequirementMappingPin,
+    github: GitHubReader, context: SchemaContext, output: Path,
+) -> AdmittedReceipt:
+    """Assemble only independently authenticated observations; never owner PASS.
+
+    The mapping's classifications/rationales require independent semantic review.
+    This function binds that review to exact definitions and executed test code;
+    it cannot manufacture semantic review from function names or test counts.
+    """
+    _require(output.is_absolute() and not output.resolve().is_relative_to(repo.resolve()),
+             "Receipt output must be external")
+    try:
+        receipt = _assemble_receipt(repo, execution, mapping, github, context)
+        raw = json.dumps(receipt, sort_keys=True, separators=(",", ":"),
+                         ensure_ascii=False, allow_nan=False).encode("utf-8")
+        with output.open("xb") as stream:
+            stream.write(raw)
+    except (OSError, KeyError, TypeError, AttributeError, UnicodeError, SyntaxError) as error:
+        raise AcceptanceError("Unusable receipt inputs or output") from error
+    return AdmittedReceipt(EvidencePin(output, sha256(raw).hexdigest(), receipt["producer"]),
+                           canonical_digest(receipt), execution, mapping)
+
+
+def revalidate_admitted_receipt(
+    repo: Path, receipt: AdmittedReceipt, github: GitHubReader, context: SchemaContext,
+) -> None:
+    _require(type(receipt) is AdmittedReceipt, "Missing independent receipt admission")
+    try:
+        expected = _assemble_receipt(repo, receipt.execution, receipt.mapping, github, context)
+        actual = _receipt(receipt.evidence, context)
+    except (KeyError, TypeError, AttributeError, UnicodeError, SyntaxError) as error:
+        raise AcceptanceError("Malformed admitted evidence") from error
+    _require(actual == expected and canonical_digest(actual) == receipt.canonical_sha256,
+             "Receipt differs from authenticated execution")
+
+
+def _execution_authority(
+    repo: Path, assessment_path: Path, verdict_path: Path,
+    authority: RuntimeAuthority, github: GitHubReader,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    _verify_protected_authority(repo, authority, github)
+    context = authority.schema_context
+    _require(type(context) is SchemaContext and context.repository == repo.resolve()
+             and context.commit == authority.protected_commit and context.tree == authority.protected_tree,
+             "Wrong execution schema authority")
+    assessment = load_record(assessment_path, "assessment", authority.assessment_sha256, context)
+    verdict = load_record(verdict_path, "verdict", authority.verdict_sha256, context)
+    subject = {"commit": authority.protected_commit, "tree": authority.protected_tree}
+    _require(assessment["subject"] == verdict["subject"] == subject
+             and verdict["assessment_sha256"] == authority.assessment_sha256,
+             "Wrong execution subject or assessment")
+    _require(bool(verdict.get("record_id")) and verdict["state"] == "PASS"
+             and verdict["claimed_event_id"] in (None, authority.owner_event.event_id),
+             "Owner verdict is not attributable PASS")
+    expected = {"kind": "OWNER_VERDICT", "record_id": verdict["record_id"], "subject": subject,
+                "assessment_sha256": authority.assessment_sha256, "verdict_sha256": authority.verdict_sha256,
+                "state": "PASS", "amendment": AMENDMENT, "independent_review": "DEFERRED_BY_OWNER"}
+    authenticate_owner_event(github, authority.owner_event, expected)
+    _require(type(authority.gate_event) is OwnerEventPin, "Missing separate gate authorization")
+    assert authority.gate_event is not None
+    authenticate_owner_event(github, authority.gate_event,
+                             {**expected, "kind": "GATE_EXECUTION", "state": "AUTHORIZED"})
+    return assessment, expected
+
+
+def execute_authorized_gate(
+    repo: Path, assessment_path: Path, verdict_path: Path,
+    authority: RuntimeAuthority | None, github: GitHubReader,
+    execution: GateExecutionContext | None,
+) -> dict[str, Any]:
+    """Execute the existing gate only under separate owner authorization.
+
+    This function is never called by capture, receipt preparation or readiness.
+    Its result grants no closure, Stage4 or trading authority. A single immutable
+    output per authenticated gate event prevents replay in the trusted runtime.
+    """
+    import os
+
+    if authority is None or execution is None:
+        return {"gate_id": "GATE-S03-01", "s3req036": "NOT_ESTABLISHED",
+                "owner_acceptance": "NO_APPROVED_OWNER_VERDICT", "gate_result": "NOT_ESTABLISHED",
+                "reasons": ["NO_INDEPENDENT_EXECUTION_AUTHORITY"]}
+    _require(type(execution) is GateExecutionContext, "Candidate-selected gate context")
+    assessment, _ = _execution_authority(repo, assessment_path, verdict_path, authority, github)
+    context = authority.schema_context
+    assert context is not None and authority.gate_event is not None
+    code = resolve_evidence(repo, authority.protected_commit,
+                            {"path": EXECUTOR_PATH, "blob": execution.executor_blob})
+    try:
+        _require(Path(__file__).read_bytes() == code, "Unpinned executing implementation")
+    except OSError as error:
+        raise AcceptanceError("Unavailable executor identity") from error
+    directory = execution.output_directory
+    _require(directory.is_absolute() and directory.is_dir()
+             and not directory.resolve().is_relative_to(repo.resolve()), "Untrusted gate output context")
+    identity = canonical_digest({"gate": "GATE-S03-01", "event": authority.gate_event.event_id,
+                                 "repository": REPOSITORY})
+    output = directory / ("gate-s03-01-" + identity + ".json")
+    schema = load_schema(context, "gate-execution")
+    # Reserve once before technical evaluation; interruptions remain nonpositive.
+    try:
+        stream = output.open("xb+")
+    except OSError as error:
+        raise AcceptanceError("Replayed or unavailable gate execution") from error
+    result = {
+        "record_kind": "GATE_S03_01_TERMINAL_V1", "gate_id": "GATE-S03-01",
+        "execution_id": identity, "subject": assessment["subject"],
+        "executor_blob": execution.executor_blob, "assessment_sha256": authority.assessment_sha256,
+        "verdict_sha256": authority.verdict_sha256,
+        "receipt_sha256s": [p.sha256 for p in authority.evidence],
+        "owner_event_id": authority.owner_event.event_id, "gate_event_id": authority.gate_event.event_id,
+        "s3req036": "NOT_ESTABLISHED", "owner_acceptance": "AUTHENTICATED_OWNER_PASS",
+        "gate_result": "INSUFFICIENT", "reasons": ["EXECUTION_INTERRUPTED_OR_INCOMPLETE"],
+        "independent_review": "DEFERRED_BY_OWNER", "authority_denials": list(TERMINAL_DENIALS),
+    }
+    with stream:
+        stream.write(json.dumps(result, sort_keys=True).encode("utf-8"))
+        stream.flush()
+        os.fsync(stream.fileno())
+        try:
+            _require(bool(execution.receipts) and tuple(r.evidence for r in execution.receipts)
+                     == authority.evidence, "Receipt admission does not match runtime pins")
+            for receipt in execution.receipts:
+                revalidate_admitted_receipt(repo, receipt, github, context)
+            if assessment["material_blockers"] or any(
+                r["state"] in {"INVALIDATED", "CONTRADICTORY"} for r in assessment["requirements"]
+            ):
+                _execution_authority(repo, assessment_path, verdict_path, authority, github)
+                result["gate_result"] = "FAIL"
+                result["reasons"] = ["MATERIAL_BLOCKER_OR_NEGATIVE_REQUIREMENT"]
+            else:
+                ready = evaluate_authenticated_gate(repo, assessment_path, verdict_path, authority, github)
+                _require(ready["gate_result"] == "READY_FOR_AUTHORIZED_EXECUTION",
+                         "Gate prerequisites not satisfied")
+                # Reauthenticate at completion, including the distinct gate event.
+                _execution_authority(repo, assessment_path, verdict_path, authority, github)
+                for receipt in execution.receipts:
+                    revalidate_admitted_receipt(repo, receipt, github, context)
+                result["s3req036"] = "CURRENT_EVIDENCE_COMPLETE"
+                result["gate_result"] = "PASS"
+                result["reasons"] = ["ALL_EXISTING_GATE_PREDICATES_VERIFIED"]
+        except AcceptanceError as error:
+            result["gate_result"] = "INSUFFICIENT"
+            result["reasons"] = [str(error)]
+        _require(Draft202012Validator(schema).is_valid(result), "Terminal result schema rejection")
+        stream.seek(0)
+        stream.truncate()
+        stream.write(json.dumps(result, sort_keys=True, separators=(",", ":"),
+                                ensure_ascii=False, allow_nan=False).encode("utf-8"))
+        stream.flush()
+        os.fsync(stream.fileno())
+    return result

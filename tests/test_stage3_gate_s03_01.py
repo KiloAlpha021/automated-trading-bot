@@ -633,3 +633,19 @@ def test_prospective_authenticated_consumer_starts_without_owner_approval(tmp_pa
     result = evaluate_authenticated_gate(tmp_path, tmp_path / "assessment", tmp_path / "verdict", None, None)
     assert result["owner_acceptance"] == "NO_APPROVED_OWNER_VERDICT"
     assert result["gate_result"] == "NOT_ESTABLISHED"
+
+
+
+def test_terminal_extension_preserves_historical_readiness_and_gate_identity(tmp_path):
+    from automated_trading_bot.governance import stage3_acceptance as consumer
+    from jsonschema import Draft202012Validator
+
+    schema = json.loads((ROOT / "docs/programme/stage3-gate-execution.schema.json").read_bytes())
+    Draft202012Validator.check_schema(schema)
+    result = consumer.execute_authorized_gate(tmp_path, tmp_path / "absent", tmp_path / "absent", None, None, None)
+    Draft202012Validator(schema).validate(result)
+    assert result["gate_result"] == "NOT_ESTABLISHED"
+    assert not list(tmp_path.iterdir())
+    validate(record())
+    result["gate_result"] = "PASS"
+    assert not Draft202012Validator(schema).is_valid(result)

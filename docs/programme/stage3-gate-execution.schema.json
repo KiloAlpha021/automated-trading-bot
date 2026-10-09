@@ -1,44 +1,189 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "gate_id",
-    "s3req036",
-    "owner_acceptance",
-    "gate_result",
-    "reasons"
-  ],
-  "properties": {
-    "gate_id": {
-      "const": "GATE-S03-01"
-    },
-    "s3req036": {
-      "enum": [
-        "NOT_ESTABLISHED",
-        "EVIDENCE_STRUCTURE_VERIFIED",
-        "CURRENT_EVIDENCE_COMPLETE"
-      ]
-    },
-    "owner_acceptance": {
-      "enum": [
-        "NO_APPROVED_OWNER_VERDICT",
-        "AUTHENTICATED_OWNER_PASS"
-      ]
-    },
-    "gate_result": {
-      "enum": [
-        "NOT_ESTABLISHED",
-        "READY_FOR_AUTHORIZED_EXECUTION"
-      ]
-    },
-    "reasons": {
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "minLength": 1
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate_id",
+        "s3req036",
+        "owner_acceptance",
+        "gate_result",
+        "reasons"
+      ],
+      "properties": {
+        "gate_id": {
+          "const": "GATE-S03-01"
+        },
+        "s3req036": {
+          "enum": [
+            "NOT_ESTABLISHED",
+            "EVIDENCE_STRUCTURE_VERIFIED",
+            "CURRENT_EVIDENCE_COMPLETE"
+          ]
+        },
+        "owner_acceptance": {
+          "enum": [
+            "NO_APPROVED_OWNER_VERDICT",
+            "AUTHENTICATED_OWNER_PASS"
+          ]
+        },
+        "gate_result": {
+          "enum": [
+            "NOT_ESTABLISHED",
+            "READY_FOR_AUTHORIZED_EXECUTION"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
       }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_kind",
+        "gate_id",
+        "execution_id",
+        "subject",
+        "executor_blob",
+        "assessment_sha256",
+        "verdict_sha256",
+        "receipt_sha256s",
+        "owner_event_id",
+        "gate_event_id",
+        "s3req036",
+        "owner_acceptance",
+        "gate_result",
+        "reasons",
+        "independent_review",
+        "authority_denials"
+      ],
+      "properties": {
+        "record_kind": {
+          "const": "GATE_S03_01_TERMINAL_V1"
+        },
+        "gate_id": {
+          "const": "GATE-S03-01"
+        },
+        "execution_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "tree"
+          ],
+          "properties": {
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "tree": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            }
+          }
+        },
+        "executor_blob": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "assessment_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "verdict_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "receipt_sha256s": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "uniqueItems": true
+        },
+        "owner_event_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "gate_event_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "s3req036": {
+          "enum": [
+            "NOT_ESTABLISHED",
+            "CURRENT_EVIDENCE_COMPLETE"
+          ]
+        },
+        "owner_acceptance": {
+          "const": "AUTHENTICATED_OWNER_PASS"
+        },
+        "gate_result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "INSUFFICIENT"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "independent_review": {
+          "const": "DEFERRED_BY_OWNER"
+        },
+        "authority_denials": {
+          "const": [
+            "NO_AUTOMATIC_STAGE3_CLOSURE",
+            "NO_STAGE4_AUTHORITY",
+            "NO_TRADING_AUTHORITY",
+            "NO_INDEPENDENT_REVIEW_PASS"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "gate_result": {
+                "const": "PASS"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "s3req036": {
+                "const": "CURRENT_EVIDENCE_COMPLETE"
+              },
+              "receipt_sha256s": {
+                "minItems": 1
+              },
+              "reasons": {
+                "const": [
+                  "ALL_EXISTING_GATE_PREDICATES_VERIFIED"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
-  }
+  ]
 }

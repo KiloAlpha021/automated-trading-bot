@@ -245,3 +245,86 @@ def test_required_control_failure_propagates(monkeypatch, failure: str) -> None:
     monkeypatch.setattr(foundation.subprocess, "run", fail)
     with pytest.raises(foundation.subprocess.CalledProcessError):
         foundation.run([failure])
+
+
+# Reporting tests exercise actual pytest reports, never synthetic owner approval.
+def test_execution_report_preserves_failed_and_skipped_nodes(tmp_path) -> None:
+    import json
+    import os
+    import sys
+
+    source = tmp_path / "test_capture_fixture.py"
+    source.write_text(
+        "import pytest\ndef test_pass(): assert True\n"
+        "def test_fail(): assert False, 'controlled negative fixture'\n"
+        "@pytest.mark.skip(reason='controlled skip')\ndef test_skip(): pass\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "node-output"
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["ATIS_EXECUTION_OUTPUT"] = str(output)
+    completed = subprocess.run(
+        [sys.executable, "-B", "-m", "pytest", str(source), "-q", "-p",
+         "scripts.m1_engineering_foundation", "-p", "no:cacheprovider"],
+        cwd=ROOT, env=env, capture_output=True, text=True, timeout=120,
+    )
+    assert completed.returncode == 1, completed.stdout + completed.stderr
+    capture = json.loads((output / "capture.json").read_text(encoding="utf-8"))
+    assert capture["exit_code"] == 1 and capture["session_finished"] is True
+    assert len(capture["collected"]) == 3
+    assert {r["outcome"] for r in capture["reports"]} == {"passed", "failed", "skipped"}
+    assert any(r["nodeid"].endswith("::test_fail") and r["outcome"] == "failed"
+               for r in capture["reports"])
+    assert (output / "events.jsonl").is_file()
+    assert capture["producer"]["path"] == "scripts/m1_engineering_foundation.py"
+    # Subprocesses retain native pytest failure; a report never changes exit1 to0.
+
+
+def test_execution_report_retains_collection_failure(tmp_path) -> None:
+    import json
+    import os
+    import sys
+
+    source = tmp_path / "test_broken_fixture.py"
+    source.write_text("raise RuntimeError('controlled collection error')\n", encoding="utf-8")
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    output = tmp_path / "collection-output"
+    env["ATIS_EXECUTION_OUTPUT"] = str(output)
+    completed = subprocess.run(
+        [sys.executable, "-B", "-m", "pytest", str(source), "-q", "-p",
+         "scripts.m1_engineering_foundation", "-p", "no:cacheprovider"],
+        cwd=ROOT, env=env, capture_output=True, text=True, timeout=120,
+    )
+    assert completed.returncode == 2, completed.stdout + completed.stderr
+    capture = json.loads((output / "capture.json").read_text(encoding="utf-8"))
+    assert capture["collection_errors"] and capture["exit_code"] == 2
+    assert capture["session_finished"] is True
+
+
+def test_capture_detects_working_byte_changes_and_refuses_overwrite(tmp_path, monkeypatch) -> None:
+    dependency = {"path": "src/example.py", "blob": "a" * 40}
+    monkeypatch.setattr(foundation, "working_snapshot", lambda: ([dependency], False))
+    monkeypatch.setattr(foundation, "installed_source_identity", lambda _: {})
+    reporter = foundation.NodeCapture(tmp_path / "captured")
+    assert reporter.record["committed_subject"] is False
+    with pytest.raises(FileExistsError):
+        foundation.NodeCapture(tmp_path / "captured")
+    monkeypatch.setattr(foundation, "working_snapshot",
+                        lambda: ([{**dependency, "blob": "b" * 40}], False))
+    reporter.pytest_sessionfinish(None, 0)
+    assert reporter.record["workspace_stable"] is False
+    assert reporter.record["exit_code"] == 0  # Never invent a pytest exit code.
+
+
+def test_workflow_preserves_execution_artifacts_on_failure() -> None:
+    workflow = _configuration()[3]
+    assert "if: always()" in workflow
+    assert "execution-evidence/" in workflow and "coverage.xml" in workflow
+    assert 'GIT_CONFIG_KEY_0: core.autocrlf' in workflow
+    assert workflow.count("        env:") == 1  # Checkout only; fixture subprocesses inherit no override.
+    assert "continue-on-error" not in workflow
+    runner = (ROOT / "scripts/m1_engineering_foundation.py").read_text()
+    assert '"-p", "scripts.m1_engineering_foundation"' in runner
+    assert "pytest.main(" not in runner  # Reporting plugin, same mandatory runner.

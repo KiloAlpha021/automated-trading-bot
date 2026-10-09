@@ -776,3 +776,331 @@ print(json.dumps({"module": c.__file__, "schemas": 3, "receipt": "PASS", "actual
     )
     assert completed.returncode == 0, completed.stdout + completed.stderr
     assert json.loads(completed.stdout)["schemas"] == 3
+
+
+# Everything below uses a temporary synthetic repository and API transport.
+# No fixture is actual execution evidence, owner approval or gate authority.
+@pytest.fixture(scope="module")
+def receipt_repository(tmp_path_factory):
+    import shutil
+
+    target = tmp_path_factory.mktemp("synthetic-git") / "repository"
+    subprocess.run(["git", "-c", "core.autocrlf=false", "clone", "--shared",
+                    "--no-checkout", str(ROOT), str(target)], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(target), "-c", "core.autocrlf=false",
+                    "checkout", "--detach", git("rev-parse", "HEAD")], check=True, capture_output=True)
+    paths = [consumer.PRODUCER_PATH, consumer.WORKFLOW_PATH,
+             "tests/test_engineering_foundation.py", consumer.EXECUTOR_PATH,
+             "docs/programme/stage3-gate-execution.schema.json",
+             "tests/test_stage3_owner_acceptance.py", "tests/test_stage3_gate_s03_01.py"]
+    for path in paths:
+        shutil.copyfile(ROOT / path, target / path)
+    subprocess.run(["git", "-C", str(target), "-c", "core.autocrlf=false", "add", "--", *paths],
+                   check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(target), "-c", "user.name=Synthetic fixture",
+                    "-c", "user.email=synthetic@example.invalid", "-c", "commit.gpgsign=false",
+                    "commit", "-m", "Synthetic test subject; no protected authority"],
+                   check=True, capture_output=True)
+    return target
+
+
+class ArtifactGitHub(FakeGitHub):
+    def __init__(self, original, responses):
+        super().__init__(original.commit, original.events)
+        self.responses = responses
+
+    def get(self, route):
+        if route in self.responses:
+            return deepcopy(self.responses[route])
+        return super().get(route)
+
+
+def pin_capture(tmp_path, capture, pin=None):
+    from hashlib import sha256
+    import zipfile
+
+    archive = tmp_path / "synthetic-execution.zip"
+    raw = json.dumps(capture, sort_keys=True, separators=(",", ":")).encode()
+    with zipfile.ZipFile(archive, "w") as output:
+        output.writestr("execution-evidence/capture.json", raw)
+    kwargs = dict(archive=archive, sha256=sha256(archive.read_bytes()).hexdigest(),
+                  capture_sha256=sha256(raw).hexdigest(), canonical_sha256=consumer.canonical_digest(capture))
+    if pin is not None:
+        return replace(pin, **kwargs)
+    return consumer.ExecutionArtifactPin(
+        **kwargs, run_id=10, job_id=20, attempt=1, artifact_id=30,
+        subject_commit=capture["subject"]["commit"], subject_tree=capture["subject"]["tree"],
+        producer_blob=capture["producer"]["blob"], workflow_blob=git("rev-parse", "HEAD:" + consumer.WORKFLOW_PATH))
+
+
+def pin_mapping(tmp_path, plan):
+    from hashlib import sha256
+
+    path = tmp_path / "synthetic-mapping.json"
+    path.write_text(json.dumps(plan), encoding="utf-8")
+    return consumer.RequirementMappingPin(path, sha256(path.read_bytes()).hexdigest(),
+                                          consumer.canonical_digest(plan))
+
+
+@pytest.fixture
+def admitted_case(receipt_repository, monkeypatch, tmp_path):
+    # Independent fixture bootstrap, never selected by a submitted record.
+    monkeypatch.setattr(__import__(__name__), "ROOT", receipt_repository)
+    base = production_case.__wrapped__(records.__wrapped__(), tmp_path)
+    a, v, authority, original, receipt = base
+    subject = receipt["subject"]
+    nodes = [receipt["tests"][i]["nodeid"] for i in (0, 1)]
+    locked = {}
+    for line in (ROOT / "requirements-dev.lock").read_text(encoding="utf-8").splitlines():
+        if line and not line.startswith("#"):
+            name, version = line.split()[0].split("==", 1)
+            locked[name] = version
+    capture = {
+        "format": "ATIS_PYTEST_EXECUTION_V1", "subject": subject,
+        "producer": {"path": consumer.PRODUCER_PATH, "blob": git("rev-parse", "HEAD:" + consumer.PRODUCER_PATH)},
+        "dependencies": consumer._tree_dependencies(ROOT, subject["commit"]),
+        "environment": {"module_origin": "SYNTHETIC/site-packages/automated_trading_bot",
+                        "installed_wheel": True, "module_sources_match": True,
+                        "python": "3.12.10", "distributions": locked},
+        "provenance": {"repository": consumer.REPOSITORY, "event": "push", "ref": "refs/heads/master",
+                       "sha": subject["commit"], "run_id": "10", "attempt": "1", "job": "m1-engineering-foundation"},
+        "collected": nodes,
+        "reports": [{"nodeid": n, "when": phase, "outcome": "passed", "xfail": False}
+                    for n in nodes for phase in ("setup", "call", "teardown")],
+        "collection_errors": [], "session_finished": True, "exit_code": 0,
+        "workspace_stable": True, "committed_subject": True,
+    }
+    execution = pin_capture(tmp_path, capture)
+    definitions = consumer.requirement_definitions(ROOT, subject["commit"])
+    refs = json.loads(a.read_bytes())["requirements"][0]
+    mapped = [{"nodeid": n, "code_sha256": consumer.test_function_digest(
+                ROOT, subject["commit"], n, receipt["tests"][i]["blob"]),
+               "rationale": "SYNTHETIC classification for contract testing only"}
+              for i, n in enumerate(nodes)]
+    plan = {
+        "format": "ATIS_STAGE3_REQUIREMENT_MAPPING_V1", "subject": subject,
+        "requirements": [{"id": req, "definition_sha256": definitions[req],
+                          "sources": refs["sources"], "direct": [mapped[0]], "adversarial": [mapped[1]]}
+                         for req in consumer.REQUIREMENTS],
+        "invalidators": [{**item, "nodes": nodes, "rationale": "SYNTHETIC reviewed invalidator"}
+                         for item in receipt["invalidators"]],
+        "gate_domains": {d: {"state": "PASS", "nodes": nodes, "rationale": "SYNTHETIC reviewed domain"}
+                         for d in consumer.DOMAINS},
+        "limitations": receipt["limitations"], "historical_review_blob": receipt["historical_review_blob"],
+        "historical_limitations_sha256": receipt["historical_limitations_sha256"],
+    }
+    mapping = pin_mapping(tmp_path, plan)
+    responses = {
+        "actions/runs/10/attempts/1": {"id": 10, "run_attempt": 1, "repository": {"full_name": consumer.REPOSITORY},
+            "event": "push", "head_branch": "master", "head_sha": subject["commit"], "path": consumer.WORKFLOW_PATH,
+            "status": "completed", "conclusion": "success"},
+        "actions/jobs/20": {"id": 20, "run_id": 10, "run_attempt": 1, "name": "m1-engineering-foundation",
+            "head_sha": subject["commit"], "status": "completed", "conclusion": "success"},
+        "actions/artifacts/30": {"id": 30, "expired": False, "name": "m1-engineering-foundation-evidence",
+            "workflow_run": {"id": 10, "head_sha": subject["commit"]}, "digest": "sha256:" + execution.sha256},
+    }
+    return dict(a=a, v=v, authority=authority, github=ArtifactGitHub(original, responses),
+                execution=execution, mapping=mapping, capture=capture, plan=plan, directory=tmp_path)
+
+
+def admit_case(case):
+    return consumer.admit_execution_receipt(
+        ROOT, case["execution"], case["mapping"], case["github"], case["authority"].schema_context,
+        case["directory"] / "admitted.json")
+
+
+def execute_case(case, admitted):
+    authority = replace(case["authority"], evidence=(admitted.evidence,))
+    context = consumer.GateExecutionContext(case["directory"], git("rev-parse", "HEAD:" + consumer.EXECUTOR_PATH),
+                                            (admitted,))
+    return consumer.execute_authorized_gate(ROOT, case["a"], case["v"], authority, case["github"], context)
+
+
+def test_independent_admission_and_explicit_synthetic_terminal_execution(admitted_case):
+    case = admitted_case
+    admitted = admit_case(case)
+    receipt = json.loads(admitted.evidence.path.read_bytes())
+    assert receipt["requirements"] == list(consumer.REQUIREMENTS)
+    assert len(receipt["tests"]) == 80
+    assert receipt["limitations"][0].startswith("Synthetic fixture")
+    authority = replace(case["authority"], evidence=(admitted.evidence,))
+    ready = consumer.evaluate_authenticated_gate(ROOT, case["a"], case["v"], authority, case["github"])
+    assert ready["gate_result"] == "READY_FOR_AUTHORIZED_EXECUTION"
+    result = execute_case(case, admitted)
+    assert result["gate_result"] == "PASS"  # SYNTHETIC ONLY: no real owner/gate action.
+    assert result["authority_denials"] == list(consumer.TERMINAL_DENIALS)
+    assert result["independent_review"] == "DEFERRED_BY_OWNER"
+    with pytest.raises(consumer.AcceptanceError, match="Replayed"):
+        execute_case(case, admitted)
+
+
+@pytest.mark.parametrize("case_name", [
+    "missing_archive", "altered_archive", "wrong_producer", "wrong_subject", "missing_node",
+    "duplicate_node", "contradictory_outcome", "missing_call", "skipped", "xfail", "wrong_node",
+    "missing_dependency", "changed_blob", "changed_environment", "uncommitted", "workspace_changed",
+    "missing_direct", "missing_adversarial", "wrong_code", "missing_requirement", "duplicate_requirement",
+    "stale_invalidator", "missing_invalidator", "wrong_review", "missing_domain", "unsupported_domain",
+    "candidate_authority", "revoked_execution", "revoked_mapping", "wrong_artifact", "wrong_run",
+    "wrong_job", "expired", "canonical_digest", "mapping_digest", "wrong_requirement_definition",
+])
+def test_execution_admission_rejects_unsupported_evidence(admitted_case, case_name):
+    case = admitted_case
+    capture, plan = case["capture"], case["plan"]
+    if case_name == "wrong_producer":
+        capture["producer"]["blob"] = "0" * 40
+    elif case_name == "wrong_subject":
+        capture["subject"] = {"commit": "0" * 40, "tree": "0" * 40}
+    elif case_name == "missing_node":
+        capture["reports"] = capture["reports"][:3]
+    elif case_name == "duplicate_node":
+        capture["collected"].append(capture["collected"][0])
+    elif case_name == "contradictory_outcome":
+        capture["reports"].append({**capture["reports"][0], "outcome": "failed"})
+    elif case_name == "missing_call":
+        capture["reports"].pop(1)
+    elif case_name == "skipped":
+        capture["reports"][1]["outcome"] = "skipped"
+    elif case_name == "xfail":
+        capture["reports"][1]["xfail"] = True
+    elif case_name == "wrong_node":
+        capture["reports"][1]["nodeid"] = "tests/forged.py::test_forged"
+    elif case_name == "missing_dependency":
+        capture["dependencies"].pop()
+    elif case_name == "changed_blob":
+        capture["dependencies"][0]["blob"] = "0" * 40
+    elif case_name == "changed_environment":
+        capture["environment"]["distributions"]["pytest"] = "0"
+    elif case_name == "uncommitted":
+        capture["committed_subject"] = False
+    elif case_name == "workspace_changed":
+        capture["workspace_stable"] = False
+    elif case_name in {"missing_direct", "missing_adversarial"}:
+        plan["requirements"][0][case_name.removeprefix("missing_")] = []
+    elif case_name == "wrong_code":
+        plan["requirements"][0]["direct"][0]["code_sha256"] = "0" * 64
+    elif case_name == "missing_requirement":
+        plan["requirements"].pop()
+    elif case_name == "duplicate_requirement":
+        plan["requirements"].append(plan["requirements"][0])
+    elif case_name == "stale_invalidator":
+        plan["invalidators"][0]["state"] = "STALE"
+    elif case_name == "missing_invalidator":
+        plan["invalidators"].pop()
+    elif case_name == "wrong_review":
+        plan["historical_review_blob"] = "0" * 40
+    elif case_name == "missing_domain":
+        plan["gate_domains"].pop(consumer.DOMAINS[0])
+    elif case_name == "unsupported_domain":
+        plan["gate_domains"][consumer.DOMAINS[0]]["nodes"] = ["unobserved"]
+    elif case_name == "wrong_requirement_definition":
+        plan["requirements"][0]["definition_sha256"] = "0" * 64
+    case["execution"] = pin_capture(case["directory"], capture, case["execution"])
+    case["mapping"] = pin_mapping(case["directory"], plan)
+    github = case["github"]
+    github.responses["actions/artifacts/30"]["digest"] = "sha256:" + case["execution"].sha256
+    if case_name == "missing_archive":
+        case["execution"] = replace(case["execution"], archive=case["directory"] / "absent")
+    elif case_name == "altered_archive":
+        case["execution"] = replace(case["execution"], sha256="0" * 64)
+    elif case_name == "candidate_authority":
+        case["mapping"] = {"path": str(case["mapping"].path)}
+    elif case_name == "revoked_execution":
+        case["execution"] = replace(case["execution"], state="REVOKED")
+    elif case_name == "revoked_mapping":
+        case["mapping"] = replace(case["mapping"], state="REVOKED")
+    elif case_name == "wrong_artifact":
+        github.responses["actions/artifacts/30"]["workflow_run"]["id"] = 999
+    elif case_name == "wrong_run":
+        github.responses["actions/runs/10/attempts/1"]["event"] = "pull_request"
+    elif case_name == "wrong_job":
+        github.responses["actions/jobs/20"]["conclusion"] = "failure"
+    elif case_name == "expired":
+        github.responses["actions/artifacts/30"]["expired"] = True
+    elif case_name == "canonical_digest":
+        case["execution"] = replace(case["execution"], canonical_sha256="0" * 64)
+    elif case_name == "mapping_digest":
+        case["mapping"] = replace(case["mapping"], canonical_sha256="0" * 64)
+    with pytest.raises(consumer.AcceptanceError):
+        admit_case(case)
+    assert not (case["directory"] / "admitted.json").exists()
+
+
+@pytest.mark.parametrize("mutation", ["owner_missing", "owner_revoked", "conflict", "gate_missing", "gate_wrong", "admission_missing"])
+def test_terminal_requires_separate_current_authorities(admitted_case, mutation):
+    case = admitted_case
+    admitted = admit_case(case)
+    authority = replace(case["authority"], evidence=(admitted.evidence,))
+    context = consumer.GateExecutionContext(case["directory"], git("rev-parse", "HEAD:" + consumer.EXECUTOR_PATH),
+                                            (admitted,))
+    if mutation == "owner_missing":
+        case["github"].events.pop(0)
+    elif mutation == "owner_revoked":
+        authority = replace(authority, state="REVOKED")
+    elif mutation == "conflict":
+        case["github"].events.append({**case["github"].events[0], "id": 3})
+    elif mutation == "gate_missing":
+        authority = replace(authority, gate_event=None)
+    elif mutation == "gate_wrong":
+        authority = replace(authority, gate_event=authority.owner_event)
+    elif mutation == "admission_missing":
+        context = replace(context, receipts=())
+    if mutation == "admission_missing":
+        result = consumer.execute_authorized_gate(ROOT, case["a"], case["v"], authority, case["github"], context)
+        assert result["gate_result"] == "INSUFFICIENT"
+    else:
+        with pytest.raises(consumer.AcceptanceError):
+            consumer.execute_authorized_gate(ROOT, case["a"], case["v"], authority, case["github"], context)
+        assert not list(case["directory"].glob("gate-s03-01-*.json"))
+
+
+def test_terminal_reauthenticates_admitted_execution(admitted_case):
+    case = admitted_case
+    admitted = admit_case(case)
+    case["github"].responses["actions/artifacts/30"]["expired"] = True
+    assert execute_case(case, admitted)["gate_result"] == "INSUFFICIENT"
+
+
+
+def test_authenticated_material_blocker_produces_terminal_failure(admitted_case):
+    from hashlib import sha256
+
+    case = admitted_case
+    admitted = admit_case(case)
+    assessment = json.loads(case["a"].read_bytes())
+    assessment["material_blockers"] = ["SYNTHETIC unresolved material blocker"]
+    verdict = json.loads(case["v"].read_bytes())
+    ad = consumer.canonical_digest(assessment)
+    verdict["assessment_sha256"] = ad
+    vd = consumer.canonical_digest(verdict)
+    case["a"].write_text(json.dumps(assessment), encoding="utf-8")
+    case["v"].write_text(json.dumps(verdict), encoding="utf-8")
+    for event in case["github"].events:
+        body = json.loads(event["body"].removeprefix(consumer.DECISION_PREFIX))
+        body.update(assessment_sha256=ad, verdict_sha256=vd)
+        event["body"] = consumer.DECISION_PREFIX + json.dumps(body)
+    digest = consumer.canonical_digest({"events": case["github"].events})
+    owner, gate = case["github"].events
+    authority = case["authority"]
+    case["authority"] = replace(authority, assessment_sha256=ad, verdict_sha256=vd,
+        owner_event=replace(authority.owner_event, body_sha256=sha256(owner["body"].encode()).hexdigest(),
+                            conversation_sha256=digest),
+        gate_event=replace(authority.gate_event, body_sha256=sha256(gate["body"].encode()).hexdigest(),
+                           conversation_sha256=digest))
+    result = execute_case(case, admitted)
+    assert result["gate_result"] == "FAIL"
+    assert result["s3req036"] == "NOT_ESTABLISHED"
+
+
+def test_repinning_receipt_does_not_override_execution_facts(admitted_case):
+    from hashlib import sha256
+
+    case = admitted_case
+    admitted = admit_case(case)
+    value = json.loads(admitted.evidence.path.read_bytes())
+    value["tests"][0]["kind"] = "ADVERSARIAL"
+    admitted.evidence.path.write_text(json.dumps(value), encoding="utf-8")
+    admitted = replace(admitted,
+        evidence=replace(admitted.evidence, sha256=sha256(admitted.evidence.path.read_bytes()).hexdigest()),
+        canonical_sha256=consumer.canonical_digest(value))
+    with pytest.raises(consumer.AcceptanceError, match="differs from authenticated"):
+        consumer.revalidate_admitted_receipt(ROOT, admitted, case["github"], case["authority"].schema_context)
