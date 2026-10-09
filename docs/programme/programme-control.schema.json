@@ -20,7 +20,8 @@
     "provenance_gap_register",
     "reality_assumption_register",
     "serialization_contract",
-    "stage3_recording_candidate"
+    "stage3_recording_candidate",
+    "stage3_acceptance_amendment"
   ],
   "properties": {
     "schema_version": {
@@ -374,6 +375,127 @@
         },
         "non_authorizing_statement": {
           "type": "string"
+        }
+      }
+    },
+    "stage3_acceptance_amendment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amendment_id",
+        "scope",
+        "acceptance_authority",
+        "acceptance_mode",
+        "independent_review",
+        "independent_review_pass",
+        "precedence",
+        "historical_rule",
+        "consumer",
+        "preserve_substantive_obligations",
+        "future_independent_review",
+        "authority_granted",
+        "authority_denied",
+        "protected_identity",
+        "owner_verdict",
+        "owner_verdict_evidence"
+      ],
+      "properties": {
+        "amendment_id": {
+          "const": "ATIS-S3-GOV-AMD-KF04-001"
+        },
+        "scope": {
+          "const": "STAGE3_ONLY"
+        },
+        "acceptance_authority": {
+          "const": "ATIS_OWNER"
+        },
+        "acceptance_mode": {
+          "const": "OWNER_LED_ACCEPTANCE"
+        },
+        "independent_review": {
+          "const": "DEFERRED_BY_OWNER"
+        },
+        "independent_review_pass": {
+          "const": false
+        },
+        "precedence": {
+          "const": "PROSPECTIVE_ACCEPTANCE_MECHANISM_ONLY"
+        },
+        "historical_rule": {
+          "const": "docs/stage3/stage3-specification.json#S3-REQ-036"
+        },
+        "consumer": {
+          "const": "GATE-S03-01"
+        },
+        "preserve_substantive_obligations": {
+          "const": true
+        },
+        "future_independent_review": {
+          "const": "DEFERRED_NOT_CANCELLED"
+        },
+        "authority_granted": {
+          "const": [
+            "PROSPECTIVE_STAGE3_TECHNICAL_ACCEPTANCE"
+          ]
+        },
+        "authority_denied": {
+          "const": [
+            "AUTOMATIC_GATE_PASS",
+            "AUTOMATIC_STAGE3_CLOSURE",
+            "STAGE4",
+            "TRADING",
+            "GITHUB_PROTECTION_BYPASS"
+          ]
+        },
+        "protected_identity": {
+          "const": {
+            "atis_master": "562e0d633b5b14749d5eb5476d9d8886adc703cf",
+            "atis_tree": "d7178f5d84cffc6368b69878f0ff2998fe5a4c5d",
+            "trust_main": "f0265c9ce10bac49ff32bb3620a898f263c4791a",
+            "policy_main": "af7a95105466649a538734a16919a81705b5ad8f"
+          }
+        },
+        "owner_verdict": {
+          "enum": [
+            "PENDING",
+            "PASS",
+            "FAIL",
+            "INSUFFICIENT"
+          ]
+        },
+        "owner_verdict_evidence": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "producer",
+                "record_id",
+                "sha256",
+                "assessment_sha256"
+              ],
+              "properties": {
+                "producer": {
+                  "const": "ATIS_OWNER"
+                },
+                "record_id": {
+                  "type": "string",
+                  "pattern": "^ATIS-S3-OWNER-VERDICT-[A-Za-z0-9-]+$"
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "assessment_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              }
+            }
+          ]
         }
       }
     }
