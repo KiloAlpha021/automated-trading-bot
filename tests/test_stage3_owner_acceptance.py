@@ -799,7 +799,7 @@ def receipt_repository(tmp_path_factory):
                    check=True, capture_output=True)
     subprocess.run(["git", "-C", str(target), "-c", "user.name=Synthetic fixture",
                     "-c", "user.email=synthetic@example.invalid", "-c", "commit.gpgsign=false",
-                    "commit", "-m", "Synthetic test subject; no protected authority"],
+                    "commit", "--allow-empty", "-m", "Synthetic test subject; no protected authority"],
                    check=True, capture_output=True)
     return target
 

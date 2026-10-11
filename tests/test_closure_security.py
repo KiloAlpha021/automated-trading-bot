@@ -54,6 +54,9 @@ def test_project_has_no_credential_artifacts():
     b"xox" + b"b-" + b"1234567890123",
     b"Bearer " + b"a" * 24,
     b"api_key = " + b"'synthetic-value-only'",
+], ids=[
+    "pkcs8-marker", "rsa-marker", "aws-access-id", "github-classic-token",
+    "github-fine-grained-token", "slack-token", "bearer-value", "assignment-value",
 ])
 def test_scanner_rejects_synthetic_secret(content):
     with pytest.raises(AssertionError, match="Recognizable secret literal"):
