@@ -179,6 +179,24 @@ def test_materially_different_semantics_conflict_for_every_group_member() -> Non
     assert {result.validation_state for result in results} == {ValidationState.INVALID}
 
 
+def test_conflicting_identity_pair_is_order_independent() -> None:
+    book = EvidenceBook()
+    representation = book.add("abstract-contract", b"abstract-contract-v1")
+    policy_ref = book.add("policy", b"quality-policy-v1")
+    first = descriptor(book, 1, semantic=b"price=1", representation=representation, policy_ref=policy_ref)
+    second = descriptor(book, 2, semantic=b"price=2", representation=representation, policy_ref=policy_ref)
+    value_policy = policy(book, policy_ref)
+
+    forward = evaluate(book, (first, second), value_policy, representation)
+    reverse = evaluate(book, (second, first), value_policy, representation)
+
+    forward_by_descriptor = {result.descriptor_digest: result for result in forward}
+    reverse_by_descriptor = {result.descriptor_digest: result for result in reverse}
+    assert forward_by_descriptor == reverse_by_descriptor
+    assert {result.identity for result in forward} == {IdentityState.MATERIAL_CONFLICT}
+    assert {result.validation_state for result in forward} == {ValidationState.INVALID}
+
+
 def test_result_is_permutation_independent() -> None:
     book = EvidenceBook()
     representation = book.add("abstract-contract", b"abstract-contract-v1")

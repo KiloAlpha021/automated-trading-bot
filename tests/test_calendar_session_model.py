@@ -263,6 +263,21 @@ def test_direct_day_fact_vocabulary(kind: TradingDayKind) -> None:
     assert value.validation_state is ValidationState.VALID
 
 
+def test_direct_leap_date_day_classification_is_explicit_and_covered() -> None:
+    leap_date = date(2024, 2, 29)
+    value = replace(day_fact(), local_date=leap_date)
+    leap_coverage = replace(
+        coverage(),
+        local_date_from=date(2024, 1, 1),
+        local_date_to=date(2025, 1, 1),
+    )
+
+    assert value.local_date == leap_date
+    assert value.day_kind is TradingDayKind.REGULAR_TRADING_DAY
+    assert leap_coverage.contains(leap_date)
+    assert coverage_disposition(leap_coverage, leap_date, facts=(value,)) is ResolutionDisposition.ESTABLISHED
+
+
 def test_direct_standard_and_early_close_are_explicit_distinct_facts() -> None:
     standard = session()
     early = session(

@@ -386,6 +386,120 @@ def test_current_constituents_cannot_prove_historical_universe() -> None:
         materialize_pit_dataset(request(universe=universe))
 
 
+def test_historical_universe_uses_effective_membership_not_present_membership() -> None:
+    policy_ref = EvidenceRef(
+        SourceId("source:test/owner-approved-policy"),
+        DatasetId("dataset:test/stage3-universe-policy-v1"),
+        EvidenceId("evidence:test/stage3-initial-liquid-us-listed-equities-etfs-v1"),
+        EvidenceContentDigest(
+            "sha256:8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
+        ),
+    )
+    historical_a = MaterializationEvidence(
+        ref("historical-member-a"),
+        (SemanticValue(SemanticKind.IDENTITY, "instrument:test/historical-a"),),
+        semantic_record("historically-eligible", "instrument:test/historical-a"),
+        ts(1),
+        ts(1),
+        None,
+        ts(1),
+    )
+    later_delisted_b = MaterializationEvidence(
+        ref("historical-member-later-delisted-b"),
+        (SemanticValue(SemanticKind.IDENTITY, "instrument:test/later-delisted-b"),),
+        semantic_record("historically-eligible-later-delisted", "instrument:test/later-delisted-b"),
+        ts(1),
+        ts(1),
+        None,
+        ts(1),
+    )
+    present_only_c = MaterializationEvidence(
+        ref("present-only-member-c"),
+        (SemanticValue(SemanticKind.IDENTITY, "instrument:test/new-current-c"),),
+        semantic_record("present-only", "instrument:test/new-current-c"),
+        ts(3),
+        ts(3),
+        None,
+        ts(3),
+    )
+    universe = HistoricalUniverseEvidence(
+        True,
+        policy_ref,
+        (historical_a.evidence_ref, later_delisted_b.evidence_ref),
+        True,
+    )
+
+    result = materialize_pit_dataset(
+        request(evidence=(present_only_c, later_delisted_b, historical_a), universe=universe)
+    )
+
+    identities = {record.fields[0][1].value for record in result.semantic_dataset.records}
+    assert identities == {"instrument:test/historical-a", "instrument:test/later-delisted-b"}
+    assert "instrument:test/new-current-c" not in identities
+    assert result.materialization_record.historical_universe_policy_and_evidence_where_required == universe
+    assert result.materialization_record.pit_sufficiency_state is PitSufficiencyState.ESTABLISHED
+
+
+def test_reconstructs_historically_applicable_inactive_or_delisted_constituent() -> None:
+    policy_ref = EvidenceRef(
+        SourceId("source:test/owner-approved-policy"),
+        DatasetId("dataset:test/stage3-universe-policy-v1"),
+        EvidenceId("evidence:test/stage3-initial-liquid-us-listed-equities-etfs-v1"),
+        EvidenceContentDigest(
+            "sha256:8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
+        ),
+    )
+    active_a = MaterializationEvidence(
+        ref("historical-active-a"),
+        (SemanticValue(SemanticKind.IDENTITY, "instrument:test/historical-a"),),
+        semantic_record("historically-active", "instrument:test/historical-a"),
+        ts(1),
+        ts(1),
+        None,
+        ts(1),
+    )
+    later_delisted_b = MaterializationEvidence(
+        ref("historical-active-later-delisted-b"),
+        (SemanticValue(SemanticKind.IDENTITY, "instrument:test/later-delisted-b"),),
+        semantic_record("historically-active-currently-delisted", "instrument:test/later-delisted-b"),
+        ts(1),
+        ts(1),
+        None,
+        ts(1),
+    )
+    universe = HistoricalUniverseEvidence(
+        True,
+        policy_ref,
+        (active_a.evidence_ref, later_delisted_b.evidence_ref),
+        True,
+    )
+
+    reconstructed = materialize_pit_dataset(request(evidence=(active_a, later_delisted_b), universe=universe))
+    reconstructed_ids = {record.fields[0][1].value for record in reconstructed.semantic_dataset.records}
+    assert "instrument:test/later-delisted-b" in reconstructed_ids
+
+    omitted = materialize_pit_dataset(
+        request(
+            evidence=(active_a,),
+            coverage_refs=(active_a.evidence_ref, later_delisted_b.evidence_ref),
+            universe=universe,
+        )
+    )
+    assert omitted.materialization_record.pit_sufficiency_state is PitSufficiencyState.NOT_ESTABLISHED
+    assert omitted.semantic_dataset.records == ()
+    assert "CANDIDATE_POPULATION_NOT_ESTABLISHED" in omitted.materialization_record.limitations
+
+    missing = HistoricalUniverseEvidence(True, None, (), True)
+    assert materialize_pit_dataset(
+        request(evidence=(active_a,), universe=missing)
+    ).materialization_record.pit_sufficiency_state is PitSufficiencyState.NOT_ESTABLISHED
+
+    first = ref("conflicting-membership", b"included")
+    conflicting = ref("conflicting-membership", b"excluded")
+    with pytest.raises(PitMaterializationError, match="EVIDENCE_IDENTITY_CONFLICT"):
+        HistoricalUniverseEvidence(True, policy_ref, (first, conflicting), True)
+
+
 @pytest.mark.parametrize(
     ("state", "expected"),
     (

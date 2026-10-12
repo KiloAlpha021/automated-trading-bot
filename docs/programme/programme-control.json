@@ -1478,6 +1478,37 @@
           "GATE_S03_01_REVALIDATION",
           "STAGE3_CLOSURE"
         ]
+      },
+      {
+        "record_id": "PC-DEC-030",
+        "governed_question": "May the exact owner-approved ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1 be recorded, protected, and activated solely as the historical-dataset-correctness authority for S3-REQ-029 and S3-REQ-037 while every provider, storage, strategy, portfolio, risk, OMS, broker, trading, capital, financial, gate, closure, Stage-4, and AI authority remains withheld?",
+        "scope": "STAGE3_EXTERNAL_UNIVERSE_POLICY_RECORDING_PROTECTION_AND_HISTORICAL_DATASET_CORRECTNESS_ACTIVATION_ONLY",
+        "state": "APPROVED",
+        "decision": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1@1",
+        "source_authority": "ATIS_OWNER_EXACT_POLICY_APPROVAL_REQUIRING_SEPARATE_PROTECTED_ACTIVATION_AUTHORIZATION",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "RECORD_AND_PROTECT_ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1",
+          "ACTIVATE_EXACT_POLICY_FOR_HISTORICAL_DATASET_CORRECTNESS_ONLY"
+        ],
+        "authority_not_granted": [
+          "PROVIDER_SELECTION",
+          "STORAGE_SELECTION",
+          "STRATEGY_AUTHORITY",
+          "PORTFOLIO_AUTHORITY",
+          "RISK_AUTHORITY",
+          "OMS_AUTHORITY",
+          "BROKER_AUTHORITY",
+          "TRADING_AUTHORITY",
+          "CAPITAL_AUTHORITY",
+          "FINANCIAL_EFFECTS",
+          "GATE_S03_01_EXECUTION",
+          "STAGE3_GENERAL_CLOSURE",
+          "STAGE4_IMPLEMENTATION",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
