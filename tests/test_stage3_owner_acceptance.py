@@ -780,6 +780,33 @@ print(json.dumps({"module": c.__file__, "schemas": 3, "receipt": "PASS", "actual
 
 # Everything below uses a temporary synthetic repository and API transport.
 # No fixture is actual execution evidence, owner approval or gate authority.
+def _canonical_fixture_source(raw):
+    """Canonicalize only portable source newlines for fixture comparison."""
+    text = raw.decode("utf-8", errors="strict")
+    if "\r" in text.replace("\r\n", ""):
+        raise ValueError("Unsupported source newline representation")
+    return text.replace("\r\n", "\n").encode("utf-8")
+
+
+def _fixture_executor_matches(installed, committed):
+    """Bind an installed fixture executor to canonical committed source bytes."""
+    return (
+        _canonical_fixture_source(installed) == committed
+        and _canonical_fixture_source(committed) == committed
+    )
+
+
+def test_fixture_executor_source_newline_portability():
+    canonical = b"first line\nsecond line\n"
+    assert _fixture_executor_matches(canonical, canonical)
+    assert _fixture_executor_matches(canonical.replace(b"\n", b"\r\n"), canonical)
+    assert not _fixture_executor_matches(b"first line\nchanged line\n", canonical)
+    with pytest.raises(UnicodeDecodeError):
+        _canonical_fixture_source(b"invalid utf-8: \xff")
+    with pytest.raises(ValueError, match="Unsupported source newline representation"):
+        _canonical_fixture_source(b"unsupported\rnewline\n")
+
+
 @pytest.fixture(scope="module")
 def receipt_repository(tmp_path_factory):
     import shutil
@@ -800,7 +827,9 @@ def receipt_repository(tmp_path_factory):
         ["git", "cat-file", "blob", executor_blob], cwd=ROOT,
         check=True, capture_output=True,
     ).stdout
-    assert Path(consumer.__file__).read_bytes() == executor, "Unpinned fixture executor"
+    assert _fixture_executor_matches(
+        Path(consumer.__file__).read_bytes(), executor
+    ), "Unpinned fixture executor"
     for path in paths:
         if path == consumer.EXECUTOR_PATH:
             (target / path).write_bytes(executor)
