@@ -38,9 +38,12 @@ M1_HISTORICAL_REVISION = "841d903cb5670777f8ce23fe8433a0c5dd7dac49"
 
 
 def _checkout_independent_text_sha256(path: Path) -> str:
-    raw = path.read_bytes()
+    return _canonical_text_sha256(path.read_bytes())
+
+
+def _canonical_text_sha256(raw: bytes) -> str:
     if b"\x00" in raw:
-        raise ValueError(f"Evidence input is not text: {path}")
+        raise ValueError("Evidence input is not text")
     text = raw.decode("utf-8")
     normalized = text.replace("\r\n", "\n").replace("\r", "\n")
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
@@ -83,7 +86,7 @@ def _historical_git_input_hashes(recorded: dict[str, str]) -> dict[str, str]:
 
 
 # Finite display-ID migration for the unchanged credential rejection test.
-# Exact file bytes bind parameter expressions, values, assertions and scanner.
+# Canonical UTF-8 text binds parameter expressions, values, assertions and scanner.
 _CREDENTIAL_TEST_SHA256 = "fdef0e7e0c2393ad69b04b97706215ead9c8ae3d40ec0f8ee10cbe7c63c4dd88"
 _CURRENT_TO_HISTORICAL_CASE = {
     "9243ed4383dfb1138d5814d95d4c0c78b48e9bb4ddf2d5625559ea0253d90c1c": "439438c522e38137d1500cd7bd57636e04ca1c87415a8e472885872b68ba95e3",
@@ -98,7 +101,7 @@ _CURRENT_TO_HISTORICAL_CASE = {
 
 
 def _historical_case_compatibility(cases, recorded, source):
-    assert hashlib.sha256(source).hexdigest() == _CREDENTIAL_TEST_SHA256, "Credential test semantics changed"
+    assert _canonical_text_sha256(source) == _CREDENTIAL_TEST_SHA256, "Credential test semantics changed"
     mapping = _CURRENT_TO_HISTORICAL_CASE
     assert len(mapping) == len(set(mapping.values())) == 8, "Invalid finite mapping"
     historical = {identity for identity, outcome in recorded}
@@ -141,9 +144,10 @@ def _run_evidence() -> dict:
         assert cases and all(outcome == "passed" for _, outcome in cases)
     recorded = json.loads((ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json").read_text())
     raw_cases = sorted(cases)
+    source = (ROOT / "tests/test_closure_security.py").read_bytes()
     cases = _historical_case_compatibility(
         raw_cases, recorded["current_evidence"]["test_cases"],
-        (ROOT / "tests/test_closure_security.py").read_bytes(),
+        source,
     )
     # Retain raw identities/outcomes and the explicit mapping, without secret labels.
     output = ROOT / "execution-evidence"
@@ -153,7 +157,9 @@ def _run_evidence() -> dict:
                                      delete=False) as attribution:
         json.dump({"raw_current_cases": raw_cases, "historical_cases": cases,
                    "mapping": _CURRENT_TO_HISTORICAL_CASE,
-                   "source_sha256": _CREDENTIAL_TEST_SHA256,
+                   "source_sha256": _canonical_text_sha256(source),
+                   "source_raw_sha256": hashlib.sha256(source).hexdigest(),
+                   "source_hash_model": INPUT_HASH_MODEL,
                    "classification": "LOCAL_OBSERVED_IDENTITY_COMPATIBILITY"},
                   attribution, sort_keys=True)
     source_hashes = _historical_git_input_hashes(
@@ -339,3 +345,44 @@ def test_finite_historical_identity_compatibility(mutation):
             _historical_case_compatibility(raw, recorded, source)
     assert raw == original
     assert checkpoint_path.read_bytes() == before
+
+
+@pytest.mark.parametrize("representation", ["lf", "crlf", "mutation", "encoding", "nul"])
+def test_credential_source_canonical_identity(representation):
+    recorded = json.loads(
+        (ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json").read_text()
+    )["current_evidence"]["test_cases"]
+    inverse = {old: current for current, old in _CURRENT_TO_HISTORICAL_CASE.items()}
+    cases = [[inverse.get(identity, identity), outcome] for identity, outcome in recorded]
+    source = (ROOT / "tests/test_closure_security.py").read_bytes().replace(b"\r\n", b"\n")
+    if representation == "crlf":
+        source = source.replace(b"\n", b"\r\n")
+    elif representation == "mutation":
+        source += b"# changed content\n"
+    elif representation == "encoding":
+        source += b"\xff"
+    elif representation == "nul":
+        source += b"\x00"
+    original = copy.deepcopy(cases)
+    if representation in {"lf", "crlf"}:
+        assert _historical_case_compatibility(cases, recorded, source) == sorted(recorded)
+        assert _canonical_text_sha256(source) == _CREDENTIAL_TEST_SHA256
+        expected_raw = (_CREDENTIAL_TEST_SHA256 if representation == "lf" else
+                        "3dae4846f64fb4d2df4b6c14966cd7401007ccd04527f3fd15935ed4a10434fa")
+        assert hashlib.sha256(source).hexdigest() == expected_raw
+    else:
+        with pytest.raises((AssertionError, ValueError)):
+            _historical_case_compatibility(cases, recorded, source)
+    assert cases == original
+
+
+def test_finite_mapping_mutation_rejected(monkeypatch):
+    recorded = json.loads(
+        (ROOT / "docs/m1-closure/atomic-assessment-checkpoint.json").read_text()
+    )["current_evidence"]["test_cases"]
+    inverse = {old: current for current, old in _CURRENT_TO_HISTORICAL_CASE.items()}
+    cases = [[inverse.get(identity, identity), outcome] for identity, outcome in recorded]
+    source = (ROOT / "tests/test_closure_security.py").read_bytes()
+    monkeypatch.setitem(_CURRENT_TO_HISTORICAL_CASE, next(iter(_CURRENT_TO_HISTORICAL_CASE)), "0" * 64)
+    with pytest.raises(AssertionError):
+        _historical_case_compatibility(cases, recorded, source)

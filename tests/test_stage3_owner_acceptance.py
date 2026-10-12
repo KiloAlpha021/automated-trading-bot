@@ -793,8 +793,19 @@ def receipt_repository(tmp_path_factory):
              "tests/test_engineering_foundation.py", consumer.EXECUTOR_PATH,
              "docs/programme/stage3-gate-execution.schema.json",
              "tests/test_stage3_owner_acceptance.py", "tests/test_stage3_gate_s03_01.py"]
+    # Pin only the synthetic executor to independently verified committed bytes.
+    executor_blob = git("rev-parse", "HEAD:" + consumer.EXECUTOR_PATH)
+    assert executor_blob == "70167cc6b1cc91cc8b3227b4f5f4a2837366303a"
+    executor = subprocess.run(
+        ["git", "cat-file", "blob", executor_blob], cwd=ROOT,
+        check=True, capture_output=True,
+    ).stdout
+    assert Path(consumer.__file__).read_bytes() == executor, "Unpinned fixture executor"
     for path in paths:
-        shutil.copyfile(ROOT / path, target / path)
+        if path == consumer.EXECUTOR_PATH:
+            (target / path).write_bytes(executor)
+        else:
+            shutil.copyfile(ROOT / path, target / path)
     subprocess.run(["git", "-C", str(target), "-c", "core.autocrlf=false", "add", "--", *paths],
                    check=True, capture_output=True)
     subprocess.run(["git", "-C", str(target), "-c", "user.name=Synthetic fixture",
