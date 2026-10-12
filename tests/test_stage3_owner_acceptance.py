@@ -796,13 +796,26 @@ def _fixture_executor_matches(installed, committed):
     )
 
 
+def _authenticated_fixture_executor(installed, committed):
+    """Return exact executing bytes after binding them to committed source."""
+    assert _fixture_executor_matches(installed, committed), "Unpinned fixture executor"
+    return installed
+
+
 def test_fixture_executor_source_newline_portability():
     canonical = b"first line\nsecond line\n"
     assert _fixture_executor_matches(canonical, canonical)
     assert _fixture_executor_matches(canonical.replace(b"\n", b"\r\n"), canonical)
     assert not _fixture_executor_matches(b"first line\nchanged line\n", canonical)
+    assert _authenticated_fixture_executor(canonical, canonical) == canonical
+    portable = canonical.replace(b"\n", b"\r\n")
+    assert _authenticated_fixture_executor(portable, canonical) == portable
+    with pytest.raises(AssertionError, match="Unpinned fixture executor"):
+        _authenticated_fixture_executor(b"first line\nchanged line\n", canonical)
     with pytest.raises(UnicodeDecodeError):
         _canonical_fixture_source(b"invalid utf-8: \xff")
+    with pytest.raises(UnicodeDecodeError):
+        _authenticated_fixture_executor(b"invalid utf-8: \xff", canonical)
     with pytest.raises(ValueError, match="Unsupported source newline representation"):
         _canonical_fixture_source(b"unsupported\rnewline\n")
 
@@ -827,12 +840,12 @@ def receipt_repository(tmp_path_factory):
         ["git", "cat-file", "blob", executor_blob], cwd=ROOT,
         check=True, capture_output=True,
     ).stdout
-    assert _fixture_executor_matches(
+    installed_executor = _authenticated_fixture_executor(
         Path(consumer.__file__).read_bytes(), executor
-    ), "Unpinned fixture executor"
+    )
     for path in paths:
         if path == consumer.EXECUTOR_PATH:
-            (target / path).write_bytes(executor)
+            (target / path).write_bytes(installed_executor)
         else:
             shutil.copyfile(ROOT / path, target / path)
     subprocess.run(["git", "-C", str(target), "-c", "core.autocrlf=false", "add", "--", *paths],
