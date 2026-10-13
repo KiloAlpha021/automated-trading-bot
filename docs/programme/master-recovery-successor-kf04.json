@@ -18,7 +18,7 @@
     {
       "path": "docs/programme/programme-control.json",
       "historical_blob": "2bb69105bbd2199ce8e114a1aed018216559bf34",
-      "candidate_blob": "76da65e2bd890cb6c02a3e62938db4683a285495"
+      "candidate_blob": "4e7dbcc3c05f0d6bddf70e22b51fa810b07df626"
     },
     {
       "path": "docs/programme/programme-control.schema.json",
@@ -28,7 +28,7 @@
     {
       "path": "tests/test_programme_control.py",
       "historical_blob": "4e42082f53252fee6132ddb67251b1409dceeb4e",
-      "candidate_blob": "555e25d8bcf20985f554887f67b848d4d7d33872"
+      "candidate_blob": "4f5f8a4fdbff5b83669ab1a28bfed88f0786234f"
     }
   ],
   "historical_authority": "PRESERVED_NOT_CURRENT_ACCEPTANCE",
