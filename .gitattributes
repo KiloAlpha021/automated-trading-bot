@@ -9,4 +9,6 @@ docs/stage3/stage3-specification.json text eol=lf
 docs/stage3/stage3-specification.schema.json text eol=lf
 docs/stage3/gate-s03-01.json text eol=lf
 docs/stage3/s3-gd-024-property-disposition.json text eol=lf
+docs/stage3/policies/ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1.json binary
+docs/stage3/external-universe-policy-activation.json binary
 docs/m1-closure/M1-event-storage-design.md text eol=lf

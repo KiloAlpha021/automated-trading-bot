@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from dataclasses import FrozenInstanceError, replace
 from datetime import UTC, date, datetime
+from hashlib import sha256
+import json
+from pathlib import Path
 
+from jsonschema import Draft202012Validator
 import pytest
 
 from automated_trading_bot.datasets.materialization import (
@@ -12,6 +16,11 @@ from automated_trading_bot.datasets.materialization import (
     CanonicalRepresentationError,
     DatasetSchemaDescriptor,
     DatasetVersionId,
+    EXTERNAL_UNIVERSE_AUTHORITY_CEILING,
+    EXTERNAL_UNIVERSE_POLICY_CANONICAL_SHA256,
+    EXTERNAL_UNIVERSE_POLICY_ID,
+    EXTERNAL_UNIVERSE_POLICY_VERSION,
+    ExternalUniversePolicyActivation,
     HistoricalUniverseEvidence,
     LogicalContentId,
     MaterializationEvidence,
@@ -55,6 +64,36 @@ def ref(name: str, content: bytes | None = None) -> EvidenceRef:
         DatasetId("dataset:test/c08"),
         EvidenceId(f"evidence:test/{name}"),
         EvidenceContentDigest.from_bytes(name.encode() if content is None else content),
+    )
+
+
+def activated_universe_policy() -> ExternalUniversePolicyActivation:
+    policy_ref = EvidenceRef(
+        SourceId("source:atis/owner-approved-policy"),
+        DatasetId("dataset:atis/stage3-universe-policy-v1"),
+        EvidenceId("evidence:atis/stage3-initial-liquid-us-listed-equities-etfs-v1"),
+        EvidenceContentDigest(
+            "sha256:8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
+        ),
+    )
+    activation_ref = EvidenceRef(
+        SourceId("source:atis/programme-control"),
+        DatasetId("dataset:atis/stage3-policy-activation"),
+        EvidenceId("evidence:atis/pc-dec-030-policy-activation-v1"),
+        EvidenceContentDigest(
+            "sha256:046ea77bb9ab23dbaa3c997a94ac010dd81668daf42f1531d37dd9443cd83581"
+        ),
+    )
+    return ExternalUniversePolicyActivation(
+        EXTERNAL_UNIVERSE_POLICY_ID,
+        EXTERNAL_UNIVERSE_POLICY_VERSION,
+        policy_ref,
+        EXTERNAL_UNIVERSE_POLICY_CANONICAL_SHA256,
+        activation_ref,
+        "PC-DEC-030",
+        "c7221f18bd7b73bdef6cd741359967cf111ebd57",
+        "42390c0d9ca8efee3a1b81dc5cdf7002c9661805",
+        EXTERNAL_UNIVERSE_AUTHORITY_CEILING,
     )
 
 
@@ -387,14 +426,8 @@ def test_current_constituents_cannot_prove_historical_universe() -> None:
 
 
 def test_historical_universe_uses_effective_membership_not_present_membership() -> None:
-    policy_ref = EvidenceRef(
-        SourceId("source:test/owner-approved-policy"),
-        DatasetId("dataset:test/stage3-universe-policy-v1"),
-        EvidenceId("evidence:test/stage3-initial-liquid-us-listed-equities-etfs-v1"),
-        EvidenceContentDigest(
-            "sha256:8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
-        ),
-    )
+    activation = activated_universe_policy()
+    policy_ref = activation.policy_ref
     historical_a = MaterializationEvidence(
         ref("historical-member-a"),
         (SemanticValue(SemanticKind.IDENTITY, "instrument:test/historical-a"),),
@@ -427,6 +460,7 @@ def test_historical_universe_uses_effective_membership_not_present_membership() 
         policy_ref,
         (historical_a.evidence_ref, later_delisted_b.evidence_ref),
         True,
+        activation=activation,
     )
 
     result = materialize_pit_dataset(
@@ -441,14 +475,8 @@ def test_historical_universe_uses_effective_membership_not_present_membership() 
 
 
 def test_reconstructs_historically_applicable_inactive_or_delisted_constituent() -> None:
-    policy_ref = EvidenceRef(
-        SourceId("source:test/owner-approved-policy"),
-        DatasetId("dataset:test/stage3-universe-policy-v1"),
-        EvidenceId("evidence:test/stage3-initial-liquid-us-listed-equities-etfs-v1"),
-        EvidenceContentDigest(
-            "sha256:8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
-        ),
-    )
+    activation = activated_universe_policy()
+    policy_ref = activation.policy_ref
     active_a = MaterializationEvidence(
         ref("historical-active-a"),
         (SemanticValue(SemanticKind.IDENTITY, "instrument:test/historical-a"),),
@@ -472,6 +500,7 @@ def test_reconstructs_historically_applicable_inactive_or_delisted_constituent()
         policy_ref,
         (active_a.evidence_ref, later_delisted_b.evidence_ref),
         True,
+        activation=activation,
     )
 
     reconstructed = materialize_pit_dataset(request(evidence=(active_a, later_delisted_b), universe=universe))
@@ -497,7 +526,81 @@ def test_reconstructs_historically_applicable_inactive_or_delisted_constituent()
     first = ref("conflicting-membership", b"included")
     conflicting = ref("conflicting-membership", b"excluded")
     with pytest.raises(PitMaterializationError, match="EVIDENCE_IDENTITY_CONFLICT"):
-        HistoricalUniverseEvidence(True, policy_ref, (first, conflicting), True)
+        HistoricalUniverseEvidence(True, policy_ref, (first, conflicting), True, activation=activation)
+
+
+def test_external_universe_policy_artifact_and_activation_record_are_exact_and_schema_valid() -> None:
+    repository = Path(__file__).resolve().parents[1]
+    policy_path = repository / "docs/stage3/policies/ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1.json"
+    activation_path = repository / "docs/stage3/external-universe-policy-activation.json"
+    schema_path = repository / "docs/stage3/external-universe-policy-activation.schema.json"
+    policy_bytes = policy_path.read_bytes()
+    policy = json.loads(policy_bytes)
+    canonical = json.dumps(policy, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    assert sha256(policy_bytes).hexdigest() == "8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
+    assert sha256(canonical).hexdigest() == "70897d497b02eeb533616f211eb57934fa0bc658afa8c8722393b9ef1e55e2cc"
+    activation_bytes = activation_path.read_bytes()
+    assert sha256(activation_bytes).hexdigest() == "046ea77bb9ab23dbaa3c997a94ac010dd81668daf42f1531d37dd9443cd83581"
+    activation_record = json.loads(activation_bytes)
+    Draft202012Validator(json.loads(schema_path.read_text(encoding="utf-8"))).validate(activation_record)
+    assert activation_record["state"] == "ACTIVATION_PENDING_PROTECTED_PUBLICATION"
+
+
+def test_required_historical_universe_rejects_missing_activation() -> None:
+    activation = activated_universe_policy()
+    universe = HistoricalUniverseEvidence(
+        True, activation.policy_ref, (ref("universe-evidence"),), True
+    )
+    result = materialize_pit_dataset(request(universe=universe))
+    assert result.materialization_record.pit_sufficiency_state is PitSufficiencyState.NOT_ESTABLISHED
+    assert "HISTORICAL_UNIVERSE_POLICY_NOT_ACTIVATED" in result.materialization_record.limitations
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement", "error"),
+    (
+        ("policy_id", "external-universe-policy:atis/wrong", "POLICY_ID_MISMATCH"),
+        ("version", 2, "POLICY_VERSION_MISMATCH"),
+        ("canonical_sha256", "sha256:" + "0" * 64, "CANONICAL_DIGEST_MISMATCH"),
+        ("authority_record_id", "PC-DEC-029", "AUTHORITY_RECORD_MISMATCH"),
+        ("protected_base_commit", "0" * 40, "BASE_COMMIT_MISMATCH"),
+        ("protected_base_tree", "0" * 40, "BASE_TREE_MISMATCH"),
+        ("authority_ceiling", "TRADING_AUTHORITY", "AUTHORITY_EXPANSION"),
+    ),
+)
+def test_external_universe_policy_activation_rejects_identity_and_authority_substitution(
+    field: str, replacement: object, error: str
+) -> None:
+    with pytest.raises(PitMaterializationError, match=error):
+        replace(activated_universe_policy(), **{field: replacement})
+
+
+def test_external_universe_policy_activation_rejects_reference_substitution() -> None:
+    activation = activated_universe_policy()
+    wrong_policy_ref = EvidenceRef(
+        activation.policy_ref.source_id,
+        activation.policy_ref.dataset_id,
+        activation.policy_ref.evidence_id,
+        EvidenceContentDigest("sha256:" + "0" * 64),
+    )
+    with pytest.raises(PitMaterializationError, match="RAW_DIGEST_MISMATCH"):
+        replace(activation, policy_ref=wrong_policy_ref)
+    wrong_activation_ref = EvidenceRef(
+        activation.activation_ref.source_id,
+        activation.activation_ref.dataset_id,
+        activation.activation_ref.evidence_id,
+        EvidenceContentDigest("sha256:" + "0" * 64),
+    )
+    with pytest.raises(PitMaterializationError, match="ACTIVATION_DIGEST_MISMATCH"):
+        replace(activation, activation_ref=wrong_activation_ref)
+
+
+def test_historical_universe_rejects_policy_activation_mismatch() -> None:
+    activation = activated_universe_policy()
+    with pytest.raises(PitMaterializationError, match="POLICY_ACTIVATION_MISMATCH"):
+        HistoricalUniverseEvidence(
+            True, ref("different-policy"), (ref("universe-evidence"),), True, activation=activation
+        )
 
 
 @pytest.mark.parametrize(

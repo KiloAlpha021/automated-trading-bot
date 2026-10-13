@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/stage3-external-universe-policy-activation.schema.json",
+  "title": "ATIS Stage 3 external-universe policy activation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "state",
+    "authority_record",
+    "policy",
+    "activation_base",
+    "consumer_binding",
+    "authority_ceiling",
+    "authority_not_granted",
+    "effectiveness_rule"
+  ],
+  "properties": {
+    "format": {
+      "const": "ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_ACTIVATION_V1"
+    },
+    "state": {
+      "const": "ACTIVATION_PENDING_PROTECTED_PUBLICATION"
+    },
+    "authority_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "state",
+        "decision",
+        "source_authority",
+        "programme_control_path",
+        "programme_control_sha256"
+      ],
+      "properties": {
+        "record_id": {
+          "const": "PC-DEC-030"
+        },
+        "state": {
+          "const": "APPROVED"
+        },
+        "decision": {
+          "const": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1@1"
+        },
+        "source_authority": {
+          "const": "ATIS_OWNER_EXACT_POLICY_APPROVAL_REQUIRING_SEPARATE_PROTECTED_ACTIVATION_AUTHORIZATION"
+        },
+        "programme_control_path": {
+          "const": "docs/programme/programme-control.json"
+        },
+        "programme_control_sha256": {
+          "const": "743f6e5498a22322590be9430ee1633f7ae5483772e56165edf10abc4b766709"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_path",
+        "format",
+        "policy_id",
+        "version",
+        "raw_sha256",
+        "canonical_sha256"
+      ],
+      "properties": {
+        "artifact_path": {
+          "const": "docs/stage3/policies/ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1.json"
+        },
+        "format": {
+          "const": "ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1"
+        },
+        "policy_id": {
+          "const": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1"
+        },
+        "version": {
+          "const": 1
+        },
+        "raw_sha256": {
+          "const": "8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
+        },
+        "canonical_sha256": {
+          "const": "70897d497b02eeb533616f211eb57934fa0bc658afa8c8722393b9ef1e55e2cc"
+        }
+      }
+    },
+    "activation_base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit",
+        "tree"
+      ],
+      "properties": {
+        "repository": {
+          "const": "KiloAlpha021/automated-trading-bot"
+        },
+        "commit": {
+          "const": "c7221f18bd7b73bdef6cd741359967cf111ebd57"
+        },
+        "tree": {
+          "const": "42390c0d9ca8efee3a1b81dc5cdf7002c9661805"
+        }
+      }
+    },
+    "consumer_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component",
+        "module",
+        "model",
+        "evaluation_function",
+        "requirements",
+        "required_evidence"
+      ],
+      "properties": {
+        "component": {
+          "const": "S3-CMP-008"
+        },
+        "module": {
+          "const": "automated_trading_bot.datasets.materialization"
+        },
+        "model": {
+          "const": "ExternalUniversePolicyActivation"
+        },
+        "evaluation_function": {
+          "const": "materialize_pit_dataset"
+        },
+        "requirements": {
+          "const": [
+            "S3-REQ-029",
+            "S3-REQ-037"
+          ]
+        },
+        "required_evidence": {
+          "const": [
+            "EXACT_POLICY_REFERENCE",
+            "EXACT_ACTIVATION_REFERENCE",
+            "HISTORICAL_MEMBERSHIP_EVIDENCE",
+            "POINT_IN_TIME_COVERAGE"
+          ]
+        }
+      }
+    },
+    "authority_ceiling": {
+      "const": "HISTORICAL_DATASET_CORRECTNESS_ONLY"
+    },
+    "authority_not_granted": {
+      "const": [
+        "PROVIDER_SELECTION",
+        "STORAGE_SELECTION",
+        "STRATEGY_AUTHORITY",
+        "PORTFOLIO_AUTHORITY",
+        "RISK_AUTHORITY",
+        "OMS_AUTHORITY",
+        "BROKER_AUTHORITY",
+        "TRADING_AUTHORITY",
+        "CAPITAL_AUTHORITY",
+        "FINANCIAL_EFFECTS",
+        "GATE_S03_01_EXECUTION",
+        "STAGE3_GENERAL_CLOSURE",
+        "STAGE4_IMPLEMENTATION",
+        "AI_TRADING_AUTHORITY"
+      ]
+    },
+    "effectiveness_rule": {
+      "const": "EFFECTIVE_ONLY_WHEN_THIS_EXACT_RECORD_POLICY_ARTIFACT_AND_CONSUMER_BINDING_ARE_PRESENT_ON_PROTECTED_ATIS_MASTER"
+    }
+  }
+}
