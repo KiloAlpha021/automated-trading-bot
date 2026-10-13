@@ -1794,7 +1794,8 @@ def test_pc_dec_023_records_only_c11_s1_semantic_contract_fixation() -> None:
 def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> None:
     decisions = {row["record_id"]: row for row in _control()["decision_register"]["records"]}
     record = decisions["PC-DEC-024"]
-    assert list(decisions)[-6:-3] == ["PC-DEC-024", "PC-DEC-025", "PC-DEC-026"]
+    assert list(decisions).index("PC-DEC-024") < list(decisions).index("PC-DEC-025")
+    assert list(decisions).index("PC-DEC-025") < list(decisions).index("PC-DEC-026")
     assert list(decisions).index("PC-DEC-023") < list(decisions).index("PC-DEC-024")
     assert record["state"] == "APPROVED"
     assert record["supersedes"] is None
@@ -1808,8 +1809,9 @@ def test_pc_dec_024_records_only_c11_s2_minimum_receipt_contract_fixation() -> N
 
 def test_pc_dec_025_records_only_sync3_minimum_contract_protection() -> None:
     records = _control()["decision_register"]["records"]
-    assert records[-6]["record_id"] == "PC-DEC-024"
-    record = records[-5]
+    decisions = {row["record_id"]: row for row in records}
+    assert list(decisions).index("PC-DEC-024") < list(decisions).index("PC-DEC-025")
+    record = decisions["PC-DEC-025"]
     assert record == {'record_id': 'PC-DEC-025', 'governed_question': 'May the independently accepted ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1 be recorded and protected while SYNC-3 remains OPEN_NOT_CONSUMABLE_NOT_BYPASSED, without granting implementation, consumability, promotion, provider or storage selection, GATE-S03-01, Stage-3 closure, Stage-4, trading, financial or AI authority?', 'scope': 'STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_RECORDING_AND_PROTECTION_ONLY', 'state': 'APPROVED', 'decision': 'ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1', 'source_authority': 'ATIS_OWNER_AUTHORIZATION_AFTER_INDEPENDENT_CONTRACT_ACCEPTANCE', 'decision_owner': 'ATIS_OWNER', 'decided_at': None, 'supersedes': None, 'authority_granted': ['RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1'], 'authority_not_granted': ['SYNC_3_IMPLEMENTATION', 'SYNC_3_CONSUMABILITY', 'C05_REENTRY', 'C06_REENTRY', 'C08_REENTRY', 'C09_REENTRY', 'C10_REENTRY', 'C11_S1_REENTRY', 'C11_S2_REENTRY', 'PROMOTION_AUTHORITY', 'DATASET_PROMOTION', 'PROVIDER_SELECTION', 'STORAGE_SELECTION', 'PHYSICAL_PERSISTENCE', 'PHYSICAL_PUBLICATION', 'PHYSICAL_ATOMIC_PUBLICATION', 'FRESHNESS_HORIZON_SELECTION', 'RESOURCE_POLICY_VALUE_SELECTION', 'GATE_S03_01_EXECUTION', 'STAGE3_GENERAL_CLOSURE', 'STAGE4_IMPLEMENTATION', 'RESEARCH_BACKTESTING_EXECUTION', 'PAPER_TRADING', 'LIVE_TRADING', 'FINANCIAL_EFFECTS', 'AI_TRADING_AUTHORITY']}
     assert record["authority_granted"] == ["RECORD_AND_PROTECT_ATIS_STAGE3_SYNC3_MINIMUM_INTEGRATION_CONTRACT_V1"]
     assert "SYNC_3_IMPLEMENTATION" in record["authority_not_granted"]
@@ -1819,8 +1821,9 @@ def test_pc_dec_025_records_only_sync3_minimum_contract_protection() -> None:
 
 def test_pc_dec_026_records_only_missing_c10_clarification() -> None:
     records = _control()["decision_register"]["records"]
-    assert records[-5]["record_id"] == "PC-DEC-025"
-    record = records[-4]
+    decisions = {row["record_id"]: row for row in records}
+    assert list(decisions).index("PC-DEC-025") < list(decisions).index("PC-DEC-026")
+    record = decisions["PC-DEC-026"]
     assert record["record_id"] == "PC-DEC-026"
     assert record["decision"] == "ATIS_STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_V1"
     assert record["scope"] == "STAGE3_SYNC3_MISSING_C10_IDENTITY_CLARIFICATION_RECORDING_AND_PROTECTION_ONLY"
@@ -1843,9 +1846,9 @@ def test_pc_dec_026_records_only_missing_c10_clarification() -> None:
 
 def test_pc_dec_027_records_only_sync3_state_reason_semantic_clarification() -> None:
     records = _control()["decision_register"]["records"]
-    assert len(records) == 29
-    assert records[-4]["record_id"] == "PC-DEC-026"
-    record = records[-3]
+    decisions = {row["record_id"]: row for row in records}
+    assert list(decisions).index("PC-DEC-026") < list(decisions).index("PC-DEC-027")
+    record = decisions["PC-DEC-027"]
     assert record == {
         "record_id": "PC-DEC-027",
         "governed_question": "May the exact ATIS_STAGE3_SYNC3_STATE_REASON_SEMANTIC_CLARIFICATION_V1 be recorded and protected as one minimum additive clarification resolving state precedence and canonical reason aggregation while implementation, component reentry and all downstream authority remain withheld?",
@@ -1873,9 +1876,9 @@ def test_pc_dec_027_records_only_sync3_state_reason_semantic_clarification() -> 
 
 def test_pc_dec_028_records_only_c05_provenance_replay_clarification() -> None:
     records = _control()["decision_register"]["records"]
-    assert len(records) == 29
-    assert records[-3]["record_id"] == "PC-DEC-027"
-    record = records[-2]
+    decisions = {row["record_id"]: row for row in records}
+    assert list(decisions).index("PC-DEC-027") < list(decisions).index("PC-DEC-028")
+    record = decisions["PC-DEC-028"]
     assert record == {
         "record_id": "PC-DEC-028",
         "governed_question": "May the exact ATIS_STAGE3_SYNC3_C05_PROVENANCE_REPLAY_CLARIFICATION_V1 be recorded and protected as one minimum additive clarification establishing authoritative C05 replay provenance while implementation, component reentry and all downstream authority remain withheld?",
@@ -1906,7 +1909,9 @@ def test_pc_dec_028_records_only_c05_provenance_replay_clarification() -> None:
 def test_pc_dec_029_records_only_bounded_f1_physical_authority() -> None:
     control = _control()
     records = control["decision_register"]["records"]
-    record = records[-1]
+    decisions = {row["record_id"]: row for row in records}
+    assert list(decisions).index("PC-DEC-028") < list(decisions).index("PC-DEC-029")
+    record = decisions["PC-DEC-029"]
     assert record["record_id"] == "PC-DEC-029"
     assert record["state"] == "APPROVED"
     assert record["supersedes"] is None
@@ -1919,6 +1924,44 @@ def test_pc_dec_029_records_only_bounded_f1_physical_authority() -> None:
     assert rb3["state"] == "RESOLVED_FOR_BOUNDED_F1_SCOPE"
     assert "PC-DEC-029" in rb3["trigger"]
     assert "CONDITIONAL_EXACT_EVIDENCE_RETENTION" in rb3["trigger"]
+
+
+def test_pc_dec_030_records_only_approved_historical_universe_policy_authority() -> None:
+    records = _control()["decision_register"]["records"]
+    decision_ids = [record["record_id"] for record in records]
+    assert decision_ids == [f"PC-DEC-{index:03d}" for index in range(1, 31)]
+    record = records[decision_ids.index("PC-DEC-030")]
+    assert record == {
+        "record_id": "PC-DEC-030",
+        "governed_question": "May the exact owner-approved ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1 be recorded, protected, and activated solely as the historical-dataset-correctness authority for S3-REQ-029 and S3-REQ-037 while every provider, storage, strategy, portfolio, risk, OMS, broker, trading, capital, financial, gate, closure, Stage-4, and AI authority remains withheld?",
+        "scope": "STAGE3_EXTERNAL_UNIVERSE_POLICY_RECORDING_PROTECTION_AND_HISTORICAL_DATASET_CORRECTNESS_ACTIVATION_ONLY",
+        "state": "APPROVED",
+        "decision": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1@1",
+        "source_authority": "ATIS_OWNER_EXACT_POLICY_APPROVAL_REQUIRING_SEPARATE_PROTECTED_ACTIVATION_AUTHORIZATION",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": None,
+        "supersedes": None,
+        "authority_granted": [
+            "RECORD_AND_PROTECT_ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1",
+            "ACTIVATE_EXACT_POLICY_FOR_HISTORICAL_DATASET_CORRECTNESS_ONLY",
+        ],
+        "authority_not_granted": [
+            "PROVIDER_SELECTION",
+            "STORAGE_SELECTION",
+            "STRATEGY_AUTHORITY",
+            "PORTFOLIO_AUTHORITY",
+            "RISK_AUTHORITY",
+            "OMS_AUTHORITY",
+            "BROKER_AUTHORITY",
+            "TRADING_AUTHORITY",
+            "CAPITAL_AUTHORITY",
+            "FINANCIAL_EFFECTS",
+            "GATE_S03_01_EXECUTION",
+            "STAGE3_GENERAL_CLOSURE",
+            "STAGE4_IMPLEMENTATION",
+            "AI_TRADING_AUTHORITY",
+        ],
+    }
 
 
 def test_kf04_amendment_is_prospective_and_pending() -> None:
