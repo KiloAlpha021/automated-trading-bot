@@ -409,6 +409,50 @@
           "material programme-control defect is established"
         ],
         "successor": "PRE_STAGE3_CONTROL_BASELINE_INDEPENDENT_REVIEW"
+      },
+      {
+        "gate_id": "GATE-S03-01",
+        "stage_milestone": "STAGE-3",
+        "state": "ACCEPTED",
+        "entry_conditions": [
+          "authenticated owner PASS is current for the exact protected subject",
+          "terminal GATE-S03-01 result is PASS for the exact protected subject",
+          "owner explicitly declares the Stage-3 programme lifecycle CLOSED"
+        ],
+        "controlling_requirements": [
+          "S3-REQ-036"
+        ],
+        "required_evidence": [
+          "PC-EVID-030",
+          "PC-EVID-031"
+        ],
+        "blockers": [],
+        "exit_conditions": [
+          "owner lifecycle decision PC-DEC-031 remains current",
+          "accepted subject and authenticated evidence identities remain unchanged"
+        ],
+        "decision": "PASS",
+        "authority_granted": [
+          "STAGE3_CLOSED"
+        ],
+        "authority_not_granted": [
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "BROKER_AUTHORITY",
+          "TRADING_AUTHORITY",
+          "CAPITAL_AUTHORITY",
+          "FINANCIAL_AUTHORITY",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ],
+        "protected_baseline": "9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17",
+        "decision_owner": "ATIS_OWNER",
+        "invalidation_reopen_conditions": [
+          "accepted Stage-3 subject identity changes",
+          "authenticated owner verdict or terminal gate evidence is invalidated",
+          "a material Stage-3 defect or conflicting closure declaration is established"
+        ],
+        "successor": "SEPARATE_OWNER_STAGE4_AUTHORIZATION"
       }
     ]
   },
@@ -1509,6 +1553,30 @@
           "STAGE4_IMPLEMENTATION",
           "AI_TRADING_AUTHORITY"
         ]
+      },
+      {
+        "record_id": "PC-DEC-031",
+        "governed_question": "May the owner record Stage 3 as CLOSED for the exact accepted protected subject after authenticated owner PASS and immutable terminal GATE-S03-01 PASS, while preserving all Stage-4, provider, broker, trading, capital, financial and AI authority exclusions?",
+        "scope": "STAGE3_FINAL_PROGRAMME_LIFECYCLE_CLOSURE_ONLY",
+        "state": "APPROVED",
+        "decision": "STAGE3_CLOSED",
+        "source_authority": "Explicit ATIS owner declaration by KiloAlpha21 actor 327435165 binding accepted subject 9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17 tree 1d70043fcbe4c6eacdc31a06e5187c5319c475b3, authenticated owner PASS bae7e0e2a908cad7bad9920df680663daab4f9a8d452d701d69191632d7dcab4, and terminal GATE-S03-01 PASS d960223697bdff2adfbcf3374ee41c2ebc94b4b0e6d5b76620415a4ce172006f",
+        "decision_owner": "ATIS_OWNER",
+        "decided_at": null,
+        "supersedes": null,
+        "authority_granted": [
+          "STAGE3_CLOSED"
+        ],
+        "authority_not_granted": [
+          "STAGE4_IMPLEMENTATION",
+          "PROVIDER_SELECTION",
+          "BROKER_AUTHORITY",
+          "TRADING_AUTHORITY",
+          "CAPITAL_AUTHORITY",
+          "FINANCIAL_AUTHORITY",
+          "FINANCIAL_EFFECTS",
+          "AI_TRADING_AUTHORITY"
+        ]
       }
     ]
   },
@@ -2594,6 +2662,58 @@
         "gate_consumers": [],
         "independent_evaluator": "m1-engineering-foundation",
         "notes": "The artifact ID and SHA-256 were reported by GitHub's upload process and are attributable to the exact producing run/job. The artifact ZIP bytes were not independently downloaded and rehashed."
+      },
+      {
+        "record_id": "PC-EVID-030",
+        "claim_property": "Authenticated owner PASS for the final protected Stage-3 subject",
+        "evidence_class": "PROTECTED_REPOSITORY_EVIDENCE",
+        "source": "GitHub owner-authority event 6155942436 by KiloAlpha21 actor 327435165; verdict record STAGE3-OWNER-VERDICT-9bc0c4dea810-PASS; accepted subject 9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17 tree 1d70043fcbe4c6eacdc31a06e5187c5319c475b3; assessment 4e4e4c46ab5e1c5024d450adfc793e7d4e711638a7e78f6b796a2f4a1bfb742c; receipt d307c20b14d4b304ffb36cd7cb5e95c0c95890f54d646b2696976d0ea40af15a",
+        "identity_kind": "SHA256",
+        "exact_identity": "bae7e0e2a908cad7bad9920df680663daab4f9a8d452d701d69191632d7dcab4",
+        "environment": "GitHub protected owner-authority conversation",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "owner actor attribution is disproved",
+          "owner verdict, assessment, receipt, subject commit, or subject tree identity differs",
+          "a conflicting authenticated owner verdict is established"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "GATE-S03-01"
+        ],
+        "independent_evaluator": "protected Stage-3 owner-verdict authenticator",
+        "notes": "This evidence establishes owner-led Stage-3 technical acceptance only; it grants no Stage-4, provider, broker, trading, capital, financial, or AI authority."
+      },
+      {
+        "record_id": "PC-EVID-031",
+        "claim_property": "Immutable terminal GATE-S03-01 PASS for the final protected Stage-3 subject",
+        "evidence_class": "LOCAL_CANDIDATE_EVIDENCE",
+        "source": "Protected execute_authorized_gate execution 0a5ef95674573466d735fd6ee385857b0096b7af5352f6e247cb758f76bfacb9; authority event 6156069884; gate result PASS; accepted subject 9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17 tree 1d70043fcbe4c6eacdc31a06e5187c5319c475b3",
+        "identity_kind": "SHA256",
+        "exact_identity": "d960223697bdff2adfbcf3374ee41c2ebc94b4b0e6d5b76620415a4ce172006f",
+        "environment": "Exclusive external protected gate output",
+        "validity_model": "IMMUTABLE_IDENTITY_BOUND",
+        "valid_from": null,
+        "review_by": null,
+        "dependencies": [
+          "PC-EVID-030"
+        ],
+        "evidence_state": "CURRENT",
+        "invalidation_triggers": [
+          "terminal record digest, schema, gate ID, execution ID, or protected subject differs",
+          "owner-verdict or gate-authority authentication is disproved",
+          "a conflicting terminal result for the authenticated authority event is established"
+        ],
+        "supersedes": null,
+        "gate_consumers": [
+          "GATE-S03-01"
+        ],
+        "independent_evaluator": "protected Stage-3 terminal-record verifier",
+        "notes": "The terminal PASS preserves NO_AUTOMATIC_STAGE3_CLOSURE. The separate owner lifecycle decision PC-DEC-031 supplies the final programme-status determination."
       }
     ]
   },

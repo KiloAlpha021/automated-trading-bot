@@ -83,7 +83,7 @@ EXPECTED_PROVENANCE_GAP_SHA256 = {'GAP-REVIEW-5': '423ca344c46c299b7a11a687a3362
 
 RECOVERED_IDS = {f"PC-EVID-{number:03d}" for number in range(14, 27)}
 PR23_HOSTED_IDS = {"PC-EVID-027", "PC-EVID-028", "PC-EVID-029"}
-EXPECTED_EVIDENCE_IDS = {f"PC-EVID-{number:03d}" for number in range(1, 30)}
+EXPECTED_EVIDENCE_IDS = {f"PC-EVID-{number:03d}" for number in range(1, 32)}
 EXPECTED_GAP_EVIDENCE = {
     "GAP-REVIEW-5": ["PC-EVID-014", "PC-EVID-015"],
     "GAP-FROZEN-VERBATIM": ["PC-EVID-016", "PC-EVID-017", "PC-EVID-018"],
@@ -686,7 +686,11 @@ def test_housekeeping_preserves_failure_and_protected_successor_chain() -> None:
 
 def test_housekeeping_gate_uses_only_current_attributable_evidence() -> None:
     control = _control()
-    gate = control["milestone_gate_register"]["records"][-1]
+    gate = next(
+        record
+        for record in control["milestone_gate_register"]["records"]
+        if record["gate_id"] == "PRE_STAGE3_CONTROL_BASELINE_IMPLEMENTATION_REVIEW"
+    )
     evidence = {
         record["record_id"]: record
         for record in control["evidence_invalidation_register"]["records"]
@@ -951,6 +955,47 @@ def test_no_later_stage_or_trading_authority_is_granted() -> None:
     assert "STAGE4_IMPLEMENTATION" in control["milestone_gate_register"]["records"][-1][
         "authority_not_granted"
     ]
+
+
+def test_stage3_owner_lifecycle_closure_is_exact_and_bounded() -> None:
+    control = _control()
+    decisions = {
+        record["record_id"]: record for record in control["decision_register"]["records"]
+    }
+    evidence = {
+        record["record_id"]: record
+        for record in control["evidence_invalidation_register"]["records"]
+    }
+    gates = {
+        record["gate_id"]: record
+        for record in control["milestone_gate_register"]["records"]
+    }
+
+    decision = decisions["PC-DEC-031"]
+    gate = gates["GATE-S03-01"]
+    assert decision["decision"] == "STAGE3_CLOSED"
+    assert decision["authority_granted"] == ["STAGE3_CLOSED"]
+    assert gate["state"] == "ACCEPTED"
+    assert gate["decision"] == "PASS"
+    assert gate["protected_baseline"] == "9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17"
+    assert gate["required_evidence"] == ["PC-EVID-030", "PC-EVID-031"]
+    assert evidence["PC-EVID-030"]["exact_identity"] == (
+        "bae7e0e2a908cad7bad9920df680663daab4f9a8d452d701d69191632d7dcab4"
+    )
+    assert evidence["PC-EVID-031"]["exact_identity"] == (
+        "d960223697bdff2adfbcf3374ee41c2ebc94b4b0e6d5b76620415a4ce172006f"
+    )
+    denied = set(decision["authority_not_granted"]) & set(gate["authority_not_granted"])
+    assert {
+        "STAGE4_IMPLEMENTATION",
+        "PROVIDER_SELECTION",
+        "BROKER_AUTHORITY",
+        "TRADING_AUTHORITY",
+        "CAPITAL_AUTHORITY",
+        "FINANCIAL_AUTHORITY",
+        "FINANCIAL_EFFECTS",
+        "AI_TRADING_AUTHORITY",
+    } <= denied
 
 
 def test_mutating_protected_stage2_identity_rejects_expected_contract() -> None:
@@ -1929,7 +1974,7 @@ def test_pc_dec_029_records_only_bounded_f1_physical_authority() -> None:
 def test_pc_dec_030_records_only_approved_historical_universe_policy_authority() -> None:
     records = _control()["decision_register"]["records"]
     decision_ids = [record["record_id"] for record in records]
-    assert decision_ids == [f"PC-DEC-{index:03d}" for index in range(1, 31)]
+    assert decision_ids == [f"PC-DEC-{index:03d}" for index in range(1, 32)]
     record = records[decision_ids.index("PC-DEC-030")]
     assert record == {
         "record_id": "PC-DEC-030",
