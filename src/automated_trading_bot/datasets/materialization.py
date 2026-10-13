@@ -39,6 +39,23 @@ from automated_trading_bot.instruments.model import (
 SHARED_CONTRACT_VERSION = "ATIS_STAGE3_SHARED_DATASET_LIFECYCLE_CONTRACT_V1"
 REPRESENTATION_VERSION = "ATIS_C08_CANONICAL_DATASET_REPRESENTATION_V1"
 
+EXTERNAL_UNIVERSE_POLICY_ID = (
+    "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1"
+)
+EXTERNAL_UNIVERSE_POLICY_VERSION = 1
+EXTERNAL_UNIVERSE_POLICY_RAW_SHA256 = (
+    "sha256:8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53"
+)
+EXTERNAL_UNIVERSE_POLICY_CANONICAL_SHA256 = (
+    "sha256:70897d497b02eeb533616f211eb57934fa0bc658afa8c8722393b9ef1e55e2cc"
+)
+EXTERNAL_UNIVERSE_ACTIVATION_SHA256 = (
+    "sha256:046ea77bb9ab23dbaa3c997a94ac010dd81668daf42f1531d37dd9443cd83581"
+)
+EXTERNAL_UNIVERSE_ACTIVATION_BASE_COMMIT = "c7221f18bd7b73bdef6cd741359967cf111ebd57"
+EXTERNAL_UNIVERSE_ACTIVATION_BASE_TREE = "42390c0d9ca8efee3a1b81dc5cdf7002c9661805"
+EXTERNAL_UNIVERSE_AUTHORITY_CEILING = "HISTORICAL_DATASET_CORRECTNESS_ONLY"
+
 _ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}", re.ASCII)
 
 
@@ -589,18 +606,70 @@ def _coverage_body(
 
 
 @dataclass(frozen=True, slots=True)
+class ExternalUniversePolicyActivation:
+    policy_id: str
+    version: int
+    policy_ref: EvidenceRef
+    canonical_sha256: str
+    activation_ref: EvidenceRef
+    authority_record_id: str
+    protected_base_commit: str
+    protected_base_tree: str
+    authority_ceiling: str
+
+    def __post_init__(self) -> None:
+        if self.policy_id != EXTERNAL_UNIVERSE_POLICY_ID:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_ID_MISMATCH")
+        if self.version != EXTERNAL_UNIVERSE_POLICY_VERSION:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_VERSION_MISMATCH")
+        if type(self.policy_ref) is not EvidenceRef or type(self.activation_ref) is not EvidenceRef:
+            raise TypeError("policy and activation references must be EvidenceRef values")
+        if self.policy_ref.source_id.value != "source:atis/owner-approved-policy":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_SOURCE_MISMATCH")
+        if self.policy_ref.dataset_id.value != "dataset:atis/stage3-universe-policy-v1":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_DATASET_MISMATCH")
+        if self.policy_ref.evidence_id.value != "evidence:atis/stage3-initial-liquid-us-listed-equities-etfs-v1":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_EVIDENCE_MISMATCH")
+        if self.policy_ref.content_digest.value != EXTERNAL_UNIVERSE_POLICY_RAW_SHA256:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_RAW_DIGEST_MISMATCH")
+        if self.canonical_sha256 != EXTERNAL_UNIVERSE_POLICY_CANONICAL_SHA256:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_POLICY_CANONICAL_DIGEST_MISMATCH")
+        if self.activation_ref.source_id.value != "source:atis/programme-control":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_ACTIVATION_SOURCE_MISMATCH")
+        if self.activation_ref.dataset_id.value != "dataset:atis/stage3-policy-activation":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_ACTIVATION_DATASET_MISMATCH")
+        if self.activation_ref.evidence_id.value != "evidence:atis/pc-dec-030-policy-activation-v1":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_ACTIVATION_EVIDENCE_MISMATCH")
+        if self.activation_ref.content_digest.value != EXTERNAL_UNIVERSE_ACTIVATION_SHA256:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_ACTIVATION_DIGEST_MISMATCH")
+        if self.authority_record_id != "PC-DEC-030":
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_AUTHORITY_RECORD_MISMATCH")
+        if self.protected_base_commit != EXTERNAL_UNIVERSE_ACTIVATION_BASE_COMMIT:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_ACTIVATION_BASE_COMMIT_MISMATCH")
+        if self.protected_base_tree != EXTERNAL_UNIVERSE_ACTIVATION_BASE_TREE:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_ACTIVATION_BASE_TREE_MISMATCH")
+        if self.authority_ceiling != EXTERNAL_UNIVERSE_AUTHORITY_CEILING:
+            raise PitMaterializationError("EXTERNAL_UNIVERSE_AUTHORITY_EXPANSION")
+
+
+@dataclass(frozen=True, slots=True)
 class HistoricalUniverseEvidence:
     required: bool
     policy_ref: EvidenceRef | None
     evidence_refs: tuple[EvidenceRef, ...]
     supported: bool
     uses_current_constituents: bool = False
+    activation: ExternalUniversePolicyActivation | None = None
 
     def __post_init__(self) -> None:
         if type(self.required) is not bool or type(self.supported) is not bool or type(self.uses_current_constituents) is not bool:
             raise TypeError("historical-universe flags must be bool")
         if self.policy_ref is not None and type(self.policy_ref) is not EvidenceRef:
             raise TypeError("policy_ref must be EvidenceRef or None")
+        if self.activation is not None and type(self.activation) is not ExternalUniversePolicyActivation:
+            raise TypeError("activation must be ExternalUniversePolicyActivation or None")
+        if self.activation is not None and self.policy_ref != self.activation.policy_ref:
+            raise PitMaterializationError("HISTORICAL_UNIVERSE_POLICY_ACTIVATION_MISMATCH")
         object.__setattr__(self, "evidence_refs", _refs(self.evidence_refs, "historical universe evidence", allow_empty=True))
 
 
@@ -835,6 +904,8 @@ def _historical_universe_state(
         reasons.add("HISTORICAL_UNIVERSE_NOT_ESTABLISHED")
     elif not value.supported:
         incompatible.add("HISTORICAL_UNIVERSE_POLICY_INCOMPATIBLE")
+    elif value.activation is None:
+        reasons.add("HISTORICAL_UNIVERSE_POLICY_NOT_ACTIVATED")
 
 
 def _entitlement_state(

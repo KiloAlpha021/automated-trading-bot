@@ -1,0 +1,59 @@
+{
+  "format": "ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_ACTIVATION_V1",
+  "state": "ACTIVATION_PENDING_PROTECTED_PUBLICATION",
+  "authority_record": {
+    "record_id": "PC-DEC-030",
+    "state": "APPROVED",
+    "decision": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1@1",
+    "source_authority": "ATIS_OWNER_EXACT_POLICY_APPROVAL_REQUIRING_SEPARATE_PROTECTED_ACTIVATION_AUTHORIZATION",
+    "programme_control_path": "docs/programme/programme-control.json",
+    "programme_control_sha256": "743f6e5498a22322590be9430ee1633f7ae5483772e56165edf10abc4b766709"
+  },
+  "policy": {
+    "artifact_path": "docs/stage3/policies/ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1.json",
+    "format": "ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1",
+    "policy_id": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1",
+    "version": 1,
+    "raw_sha256": "8fca7430b5a75d59d32654fcb681d64ef80799316b5ad3c663c355554f7b3a53",
+    "canonical_sha256": "70897d497b02eeb533616f211eb57934fa0bc658afa8c8722393b9ef1e55e2cc"
+  },
+  "activation_base": {
+    "repository": "KiloAlpha021/automated-trading-bot",
+    "commit": "c7221f18bd7b73bdef6cd741359967cf111ebd57",
+    "tree": "42390c0d9ca8efee3a1b81dc5cdf7002c9661805"
+  },
+  "consumer_binding": {
+    "component": "S3-CMP-008",
+    "module": "automated_trading_bot.datasets.materialization",
+    "model": "ExternalUniversePolicyActivation",
+    "evaluation_function": "materialize_pit_dataset",
+    "requirements": [
+      "S3-REQ-029",
+      "S3-REQ-037"
+    ],
+    "required_evidence": [
+      "EXACT_POLICY_REFERENCE",
+      "EXACT_ACTIVATION_REFERENCE",
+      "HISTORICAL_MEMBERSHIP_EVIDENCE",
+      "POINT_IN_TIME_COVERAGE"
+    ]
+  },
+  "authority_ceiling": "HISTORICAL_DATASET_CORRECTNESS_ONLY",
+  "authority_not_granted": [
+    "PROVIDER_SELECTION",
+    "STORAGE_SELECTION",
+    "STRATEGY_AUTHORITY",
+    "PORTFOLIO_AUTHORITY",
+    "RISK_AUTHORITY",
+    "OMS_AUTHORITY",
+    "BROKER_AUTHORITY",
+    "TRADING_AUTHORITY",
+    "CAPITAL_AUTHORITY",
+    "FINANCIAL_EFFECTS",
+    "GATE_S03_01_EXECUTION",
+    "STAGE3_GENERAL_CLOSURE",
+    "STAGE4_IMPLEMENTATION",
+    "AI_TRADING_AUTHORITY"
+  ],
+  "effectiveness_rule": "EFFECTIVE_ONLY_WHEN_THIS_EXACT_RECORD_POLICY_ARTIFACT_AND_CONSUMER_BINDING_ARE_PRESENT_ON_PROTECTED_ATIS_MASTER"
+}

@@ -1,0 +1,72 @@
+{
+  "format": "ATIS_STAGE3_EXTERNAL_UNIVERSE_POLICY_V1",
+  "state": "PROPOSED_FOR_EXACT_OWNER_REVIEW_NOT_ACTIVE",
+  "policy_id": "external-universe-policy:atis/stage3-initial-liquid-us-listed-equities-etfs-v1",
+  "version": 1,
+  "protected_subject": {
+    "repository": "KiloAlpha021/automated-trading-bot",
+    "commit": "297da61f9ce3ddc81ff64707cc478c483cbf02a9",
+    "tree": "16df889f788581f578c1e1b5ccfebac8f49dcbff"
+  },
+  "purpose": "Historical dataset correctness for S3-REQ-029 and S3-REQ-037 only.",
+  "scope": {
+    "initial_instrument_scope": [
+      "LIQUID_US_LISTED_EQUITIES",
+      "UNLEVERAGED_US_LISTED_BROAD_MARKET_ETFS",
+      "UNLEVERAGED_US_LISTED_SECTOR_ETFS"
+    ],
+    "excluded_authority": [
+      "PROVIDER_SELECTION",
+      "STORAGE_SELECTION",
+      "STRATEGY",
+      "PORTFOLIO",
+      "RISK",
+      "OMS",
+      "BROKER",
+      "TRADING",
+      "CAPITAL",
+      "FINANCIAL_EFFECTS",
+      "AI_TRADING_AUTHORITY"
+    ]
+  },
+  "membership_contract": {
+    "selection_boundary": [
+      "REQUESTED_HISTORICAL_EFFECTIVE_DATE",
+      "KNOWLEDGE_CUTOFF"
+    ],
+    "required_evidence_fields": [
+      "SOURCE_IDENTITY",
+      "POLICY_IDENTITY",
+      "INSTRUMENT_IDENTITY",
+      "MEMBERSHIP_EFFECTIVE_INTERVAL",
+      "KNOWLEDGE_TIME",
+      "COVERAGE",
+      "PROVENANCE",
+      "CONTENT_DIGEST"
+    ],
+    "historical_membership_rule": "Include an instrument only when attributable membership evidence establishes applicability at the requested historical effective date and knowledge cutoff.",
+    "inactive_and_delisted_rule": "Do not exclude an otherwise historically eligible instrument solely because it is inactive or delisted at evaluation time.",
+    "current_constituent_rule": "Present-day membership is never evidence of historical membership.",
+    "synthetic_fixture_rule": "Synthetic fixtures may validate policy mechanics but are not external historical facts or policy authority."
+  },
+  "restrictive_outcomes": {
+    "missing_required_authority": "NOT_ESTABLISHED",
+    "missing_membership_evidence": "NOT_ESTABLISHED",
+    "incomplete_coverage": "NOT_ESTABLISHED",
+    "conflicting_membership_evidence": "NOT_ESTABLISHED",
+    "unsupported_policy_or_source": "INCOMPATIBLE",
+    "current_constituent_substitution": "REJECT"
+  },
+  "invalidation_triggers": [
+    "POLICY_CHANGE",
+    "MEMBERSHIP_CORRECTION",
+    "REFERENCE_HISTORY_CHANGE",
+    "SOURCE_CORRECTION",
+    "LOOKUP_SEMANTIC_CHANGE"
+  ],
+  "authority": {
+    "owner_approval_required_for_activation": true,
+    "active": false,
+    "authority_ceiling": "HISTORICAL_DATASET_CORRECTNESS_ONLY"
+  }
+}
