@@ -8,6 +8,12 @@ Run a task with a canonical descriptor:
 python -m engineering_execution_guard run --descriptor C:\external\task.json -- python path\to\bounded_implementation.py
 ```
 
+The first `--` is the CLI boundary separator. The guard removes exactly that
+separator before launching the executable. Any later `--` values belong to the
+launched command and are preserved. A separator without an executable is
+rejected before task state or evidence is created. Omitting the separator keeps
+the existing validation-only mode when no implementation command is supplied.
+
 The guard validates the exact Git commit/tree, dependency-lock digest, owner authorization reference, allowed path cone, repository-wide exclusion lock, persistent defect identity, two-failure circuit breaker, and mandatory validation commands. State, journals, locks, and evidence are outside the repository. Commands are argv arrays and never pass through a shell.
 
 Attempt identities are allocated monotonically from every `ATTEMPT_STARTED` record. An interrupted attempt remains open until `recover-lock` positively establishes process death and receives a separate recovery authorization reference; recovery then appends an `INTERRUPTED` terminal event and counts it toward the circuit breaker. Existing attempt evidence is never reused or overwritten.
