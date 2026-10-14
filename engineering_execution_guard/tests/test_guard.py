@@ -90,6 +90,22 @@ class GuardFixture(unittest.TestCase):
     def invoke(self, *arguments: str) -> int:
         return main(["--state-root", str(self.state), *arguments])
 
+    def invoke_module(self, *arguments: str) -> subprocess.CompletedProcess[str]:
+        environment = os.environ.copy()
+        environment["ATIS_GUARD_TEST_MODE"] = "1"
+        module_root = str(Path(__file__).resolve().parents[2])
+        environment["PYTHONPATH"] = os.pathsep.join(
+            item for item in (module_root, environment.get("PYTHONPATH", "")) if item
+        )
+        return subprocess.run(
+            [sys.executable, "-m", "engineering_execution_guard", "--state-root", str(self.state), *arguments],
+            cwd=self.repo,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
     def task_journal(self, descriptor: Descriptor | None = None) -> Journal:
         item = descriptor or validate_descriptor(self.descriptor_path)
         directory = self.state / "repositories" / repo_key(item) / "tasks" / item.task_id
@@ -748,6 +764,10 @@ class GuardFixture(unittest.TestCase):
         while not marker.exists() and time.time() < deadline:
             time.sleep(0.05)
         self.assertTrue(marker.exists())
+        # The marker proves that the detached child outlived its parent. Give
+        # Windows time to finish that child and release its inherited cwd
+        # before TemporaryDirectory cleanup runs.
+        time.sleep(0.5)
 
     def test_49_existing_evidence_directory_is_preserved_and_failed(self) -> None:
         evidence = self.evidence / "ATIS-TEST-001" / "ATIS-TEST-001-A1"
@@ -822,6 +842,47 @@ class GuardFixture(unittest.TestCase):
         )
         self.assertEqual(self.invoke(*arguments), 2)
         self.assertTrue(lock_path.exists())
+
+    def test_52_documented_module_cli_executes_and_preserves_literal_separator(self) -> None:
+        marker = self.repo / "work" / "operator-path.json"
+        command = [
+            sys.executable,
+            "-c",
+            (
+                "import json,sys; from pathlib import Path; "
+                f"Path({str(marker)!r}).write_text(json.dumps(sys.argv[1:]), encoding='utf-8')"
+            ),
+            "--",
+            "literal-value",
+        ]
+        completed = self.invoke_module(
+            "run", "--descriptor", str(self.descriptor_path), "--", *command
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(json.loads(marker.read_text(encoding="utf-8")), ["--", "literal-value"])
+        self.assertIn("execution-summary.json", completed.stdout)
+
+    def test_53_documented_module_cli_rejects_separator_without_executable(self) -> None:
+        completed = self.invoke_module(
+            "run", "--descriptor", str(self.descriptor_path), "--"
+        )
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("implementation command missing after -- separator", completed.stderr)
+        self.assertFalse(self.task_journal().path.exists())
+
+    def test_54_documented_module_cli_propagates_nonzero_command_failure(self) -> None:
+        completed = self.invoke_module(
+            "run", "--descriptor", str(self.descriptor_path), "--",
+            sys.executable, "-c", "raise SystemExit(23)",
+        )
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("implementation command failed with exit code 23", completed.stderr)
+        terminal = [
+            record
+            for record in self.task_journal().verify()[2]
+            if record.get("event") == "ATTEMPT_FINISHED"
+        ]
+        self.assertEqual(terminal[-1]["disposition"], "FAILED")
 
 
 if __name__ == "__main__":

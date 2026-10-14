@@ -648,8 +648,18 @@ def fail(message: str) -> NoReturn:
     raise GuardError(message)
 
 
+def implementation_command(arguments: Sequence[str]) -> tuple[str, ...]:
+    command = tuple(arguments)
+    if command and command[0] == "--":
+        command = command[1:]
+        if not command:
+            raise GuardError("implementation command missing after -- separator")
+    return command
+
+
 def command_run(args: argparse.Namespace) -> int:
     descriptor = validate_descriptor(Path(args.descriptor))
+    implementation = implementation_command(args.command)
     root = state_root_for(descriptor, Path(args.state_root) if args.state_root else None)
     repository_dir, lock_path, tasks_dir = registry_paths(root, descriptor)
     task_dir = tasks_dir / descriptor.task_id
@@ -715,8 +725,8 @@ def command_run(args: argparse.Namespace) -> int:
             evidence.mkdir(parents=True, exist_ok=False)
             evidence_created = True
             commands = []
-            if args.command:
-                commands.append(("implementation", tuple(args.command)))
+            if implementation:
+                commands.append(("implementation", implementation))
             commands.extend((f"validation-{index}", command) for index, command in enumerate(descriptor.validation_commands, 1))
             for index, (kind, argv) in enumerate(commands, 1):
                 verify_baseline_and_scope(descriptor)
