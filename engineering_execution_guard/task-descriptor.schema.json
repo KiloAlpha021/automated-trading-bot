@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/engineering-execution-guard/task-descriptor-v1.schema.json",
+  "title": "ATIS bounded engineering task descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "task_id", "defect_id", "owner_authorization_ref",
+    "repository", "protected_baseline", "authorized_stage", "allowed_paths",
+    "dependency_lock", "validation_profile", "maximum_failed_attempts",
+    "evidence_output_directory"
+  ],
+  "properties": {
+    "schema_version": {"const": "ATIS-ENGINEERING-EXECUTION-GUARD-V1"},
+    "task_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$"},
+    "defect_id": {"type": "string", "minLength": 1},
+    "owner_authorization_ref": {"type": "string", "minLength": 1},
+    "repository": {
+      "type": "object", "additionalProperties": false,
+      "required": ["identity", "path"],
+      "properties": {
+        "identity": {"const": "KiloAlpha021/automated-trading-bot"},
+        "path": {"type": "string", "minLength": 1}
+      }
+    },
+    "protected_baseline": {
+      "type": "object", "additionalProperties": false,
+      "required": ["commit", "tree"],
+      "properties": {
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "tree": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "authorized_stage": {"type": "string", "minLength": 1},
+    "allowed_paths": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "dependency_lock": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "validation_profile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "commands"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "commands": {
+          "type": "array", "minItems": 1,
+          "items": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "maximum_failed_attempts": {"const": 2},
+    "evidence_output_directory": {"type": "string", "minLength": 1}
+  }
+}
