@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -119,6 +120,38 @@ def _historical_case_compatibility(cases, recorded, source):
     return translated
 
 
+def _identity_compatibility_output() -> Path:
+    configured = os.environ.get("ATIS_EXECUTION_OUTPUT")
+    assert configured, "Controlled external evidence output is required"
+    output = Path(configured)
+    assert output.is_absolute(), "Evidence output must be absolute"
+    resolved = output.resolve()
+    repository = ROOT.resolve()
+    assert resolved != repository and repository not in resolved.parents, (
+        "Evidence output must be outside the repository"
+    )
+    output.mkdir(parents=True, exist_ok=True)
+    return output
+
+
+def _write_identity_compatibility_record(record: dict) -> tuple[Path, str]:
+    output = _identity_compatibility_output()
+    raw = json.dumps(
+        record, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+    ).encode("utf-8")
+    with tempfile.NamedTemporaryFile(
+        mode="wb", suffix=".json", prefix="m1-identity-compatibility-",
+        dir=output, delete=False,
+    ) as attribution:
+        attribution.write(raw)
+        path = Path(attribution.name)
+    digest = hashlib.sha256(raw).hexdigest()
+    path.with_suffix(path.suffix + ".sha256").write_text(
+        digest + "\n", encoding="ascii", newline="\n",
+    )
+    return path, digest
+
+
 def _run_evidence() -> dict:
     with tempfile.TemporaryDirectory(prefix="m1-evidence-") as directory:
         report = Path(directory) / "execution.xml"
@@ -150,18 +183,15 @@ def _run_evidence() -> dict:
         source,
     )
     # Retain raw identities/outcomes and the explicit mapping, without secret labels.
-    output = ROOT / "execution-evidence"
-    output.mkdir(exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", suffix=".json",
-                                     prefix="m1-identity-compatibility-", dir=output,
-                                     delete=False) as attribution:
-        json.dump({"raw_current_cases": raw_cases, "historical_cases": cases,
-                   "mapping": _CURRENT_TO_HISTORICAL_CASE,
-                   "source_sha256": _canonical_text_sha256(source),
-                   "source_raw_sha256": hashlib.sha256(source).hexdigest(),
-                   "source_hash_model": INPUT_HASH_MODEL,
-                   "classification": "LOCAL_OBSERVED_IDENTITY_COMPATIBILITY"},
-                  attribution, sort_keys=True)
+    _write_identity_compatibility_record({
+        "raw_current_cases": raw_cases,
+        "historical_cases": cases,
+        "mapping": _CURRENT_TO_HISTORICAL_CASE,
+        "source_sha256": _canonical_text_sha256(source),
+        "source_raw_sha256": hashlib.sha256(source).hexdigest(),
+        "source_hash_model": INPUT_HASH_MODEL,
+        "classification": "LOCAL_OBSERVED_IDENTITY_COMPATIBILITY",
+    })
     source_hashes = _historical_git_input_hashes(
         recorded["current_evidence"]["input_sha256"]
     )
@@ -225,6 +255,22 @@ def _inputs():
 
 def test_blocked_checkpoint_matches_current_evidence(evidence):
     _verify(*_inputs(), evidence)
+
+
+def test_identity_compatibility_evidence_is_external_and_digest_bound(evidence):
+    output = _identity_compatibility_output()
+    records = sorted(output.glob("m1-identity-compatibility-*.json"))
+    assert len(records) == 1
+    record = records[0]
+    raw = record.read_bytes()
+    digest = hashlib.sha256(raw).hexdigest()
+    assert record.with_suffix(record.suffix + ".sha256").read_text(
+        encoding="ascii"
+    ) == digest + "\n"
+    decoded = json.loads(raw)
+    assert decoded["classification"] == "LOCAL_OBSERVED_IDENTITY_COMPATIBILITY"
+    assert decoded["historical_cases"] == evidence["test_cases"]
+    assert not (ROOT / "execution-evidence").exists()
 
 
 def test_evidence_input_hash_is_checkout_independent_and_content_sensitive(tmp_path):
