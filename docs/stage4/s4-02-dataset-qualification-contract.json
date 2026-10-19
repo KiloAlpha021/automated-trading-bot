@@ -1,0 +1,14 @@
+{
+  "assessment_dimensions": ["Q01_IDENTITY", "Q02_PROVENANCE", "Q03_COVERAGE", "Q04_QUALITY_QUARANTINE", "Q05_CURRENTNESS", "Q06_INSTRUMENT_CALENDAR", "Q07_PIT_KNOWLEDGE_TIME", "Q08_SURVIVORSHIP_HISTORICAL_UNIVERSE", "Q09_CORPORATE_ACTIONS", "Q10_DELISTING_TERMINAL_TREATMENT"],
+  "assessment_states": ["PASS", "RESTRICTED", "FAIL", "UNKNOWN", "NOT_APPLICABLE"],
+  "authority_ceiling": "DATA_QUALIFICATION_ONLY_NO_EDGE_TRADING_OR_CAPITAL_AUTHORITY",
+  "claim_ceilings": {"DATA_G0": "CONTRACT_ONLY", "DATA_G1": "ENGINEERING_ONLY", "DATA_G2": "EXPLORATORY_RESEARCH", "DATA_G3": "ECONOMIC_VALIDATION"},
+  "contract_id": "ATIS-S4-02-DATASET-QUALIFICATION-CONTRACT",
+  "contract_version": "1.0.0",
+  "invalidation_sources": ["dataset invalidation", "provider correction", "content or hash change", "provenance conflict", "currentness failure", "quarantine", "PIT defect", "survivorship defect", "corporate-action defect", "delisting-treatment defect", "applicable policy change"],
+  "no_silent_repair": "DETECT_CLASSIFY_THEN_QUARANTINE_REJECT_OR_EXPLICIT_TRANSFORMATION_WITH_NEW_IDENTITY_AND_PROVENANCE",
+  "promotion_order": ["DATA_G0", "DATA_G1", "DATA_G2", "DATA_G3"],
+  "s4_01_boundary": "REFERENCE_DATASET_AND_QUALIFICATION_IDENTITIES_ONLY",
+  "s4_03_boundary": "PIT_DECISION_ELIGIBILITY_AND_FEATURE_AVAILABILITY_NOT_IMPLEMENTED",
+  "stage3_baseline": {"commit": "9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17", "tree": "1d70043fcbe4c6eacdc31a06e5187c5319c475b3"}
+}
