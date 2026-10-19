@@ -1,0 +1,15 @@
+{
+  "acceptance_mapping": ["G1_IDENTITY", "G2_LINEAGE_IMMUTABILITY", "G3_REPRODUCIBILITY", "G4_PRNG_REPLAY_CONTRACT", "G5_RESEARCH_EVIDENCE", "G6_FAIL_CLOSED_DISPOSITIONS", "G7_NO_TRADING_AUTHORITY", "G8_PROTECTED_STAGE3_NON_MUTATION", "G9_FOCUSED_TESTS", "G10_AFFECTED_REGRESSION"],
+  "authority_ceiling": "RESEARCH_ONLY_NO_TRADING_AUTHORITY",
+  "contract_id": "ATIS-S4-01-RESEARCH-IDENTITY-CONTRACT",
+  "contract_version": "1.0.0",
+  "evidence_requirements": ["identity hierarchy", "source commit/tree/state", "runtime/platform", "dependency lock", "canonical configuration", "explicit PRNG policy", "dataset/result identity references", "disposition and reasons", "content-addressed manifest"],
+  "identity_hierarchy": ["ResearchProject", "Hypothesis", "Experiment", "ResearchRun"],
+  "parent_relationships": ["Hypothesis->ResearchProject", "Experiment->Hypothesis", "ResearchRun->Experiment"],
+  "prng_requirements": {"allowed": ["NONE", "DETERMINISTIC"], "deterministic_requires": ["algorithm", "seed", "state_or_policy"], "hidden_or_ambient": "REJECT"},
+  "prohibitions": ["broker connectivity", "order submission", "OMS execution", "capital allocation", "risk override", "paper trading", "shadow trading", "live trading", "production promotion"],
+  "replay_requirements": ["explicit predecessor run", "experiment identity", "source/environment/dependency/configuration/PRNG identity", "future dataset identities"],
+  "required_components": ["research.identity", "research.reproducibility", "research.evidence"],
+  "stage3_baseline": {"commit": "9bc0c4dea8103c9c4e2ed54fe571d0ea5917dd17", "tree": "1d70043fcbe4c6eacdc31a06e5187c5319c475b3"},
+  "working_tree_policy": {"CLEAN": "AUTHORITATIVE_ELIGIBLE", "DIRTY": "EXPLORATORY_ONLY", "UNKNOWN": "FAIL_CLOSED"}
+}
