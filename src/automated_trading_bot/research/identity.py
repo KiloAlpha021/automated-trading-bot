@@ -9,7 +9,9 @@ from automated_trading_bot.datasets.provenance import canonical_json
 from automated_trading_bot.instruments.model import EvidenceContentDigest
 
 
-_ID = re.compile(r"atis:research:(project|hypothesis|experiment|run):v1:sha256:[0-9a-f]{64}")
+_ID = re.compile(
+    r"atis:research:(project|hypothesis|experiment|run):v1:sha256:[0-9a-f]{64}"
+)
 
 
 class ResearchIdentityError(ValueError):
@@ -27,10 +29,20 @@ class _ResearchId:
             raise ResearchIdentityError("identity is not canonical")
 
 
-class ResearchProjectId(_ResearchId): pass
-class HypothesisId(_ResearchId): pass
-class ExperimentId(_ResearchId): pass
-class ResearchRunId(_ResearchId): pass
+class ResearchProjectId(_ResearchId):
+    pass
+
+
+class HypothesisId(_ResearchId):
+    pass
+
+
+class ExperimentId(_ResearchId):
+    pass
+
+
+class ResearchRunId(_ResearchId):
+    pass
 
 
 def _text(value: object, name: str) -> str:
@@ -83,15 +95,32 @@ class Experiment:
     purpose: str
 
     @classmethod
-    def create(cls, hypothesis_id: HypothesisId, configuration_digest: str, version: str, purpose: str) -> "Experiment":
+    def create(
+        cls,
+        hypothesis_id: HypothesisId,
+        configuration_digest: str,
+        version: str,
+        purpose: str,
+    ) -> "Experiment":
         if type(hypothesis_id) is not HypothesisId:
             raise TypeError("hypothesis_id must be a HypothesisId")
         configuration_digest = _text(configuration_digest, "configuration_digest")
         if re.fullmatch(r"sha256:[0-9a-f]{64}", configuration_digest) is None:
             raise ResearchIdentityError("configuration_digest must be SHA-256")
         version, purpose = _text(version, "version"), _text(purpose, "purpose")
-        body = {"configuration_digest": configuration_digest, "hypothesis_id": hypothesis_id.value, "purpose": purpose, "version": version}
-        return cls(ExperimentId(_derive("experiment", body)), hypothesis_id, configuration_digest, version, purpose)
+        body = {
+            "configuration_digest": configuration_digest,
+            "hypothesis_id": hypothesis_id.value,
+            "purpose": purpose,
+            "version": version,
+        }
+        return cls(
+            ExperimentId(_derive("experiment", body)),
+            hypothesis_id,
+            configuration_digest,
+            version,
+            purpose,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -102,14 +131,23 @@ class ResearchRun:
     replay_of: ResearchRunId | None = None
 
     @classmethod
-    def create(cls, experiment_id: ExperimentId, reproducibility_digest: str, replay_of: ResearchRunId | None = None) -> "ResearchRun":
+    def create(
+        cls,
+        experiment_id: ExperimentId,
+        reproducibility_digest: str,
+        replay_of: ResearchRunId | None = None,
+    ) -> "ResearchRun":
         if type(experiment_id) is not ExperimentId:
             raise TypeError("experiment_id must be an ExperimentId")
         if re.fullmatch(r"sha256:[0-9a-f]{64}", reproducibility_digest) is None:
             raise ResearchIdentityError("reproducibility_digest must be SHA-256")
         if replay_of is not None and type(replay_of) is not ResearchRunId:
             raise TypeError("replay_of must be a ResearchRunId")
-        body = {"experiment_id": experiment_id.value, "replay_of": replay_of.value if replay_of else None, "reproducibility_digest": reproducibility_digest}
+        body = {
+            "experiment_id": experiment_id.value,
+            "replay_of": replay_of.value if replay_of else None,
+            "reproducibility_digest": reproducibility_digest,
+        }
         identity = ResearchRunId(_derive("run", body))
         if replay_of == identity:
             raise ResearchIdentityError("a run cannot replay itself")
