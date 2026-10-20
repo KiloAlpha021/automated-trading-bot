@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError, replace
+from dataclasses import FrozenInstanceError, fields, replace
 from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
@@ -18,6 +18,7 @@ from automated_trading_bot.research.pit_features import (
 )
 from automated_trading_bot.research.simulated_execution import (
     CostComponent,
+    CostBreakdown,
     CostProvenance,
     CostRate,
     CostScenario,
@@ -27,6 +28,7 @@ from automated_trading_bot.research.simulated_execution import (
     OrderStatus,
     SIMULATED_EXECUTION_AUTHORITY,
     SimulatedExecutionError,
+    SimulatedFill,
     SimulatedOms,
     create_order,
     post_fill_to_ledger,
@@ -132,6 +134,26 @@ def filled(quantity: str = "10", **snapshot_values: object):
     return result, candidate
 
 
+def direct_fill() -> tuple[SimulatedOms, SimulatedFill]:
+    source, _ = filled("1")
+    target, _ = accepted()
+    return target, source.fills[0]
+
+
+def unsafe_costs(costs: CostBreakdown, **changes: object) -> CostBreakdown:
+    value = object.__new__(CostBreakdown)
+    for field in fields(CostBreakdown):
+        object.__setattr__(value, field.name, changes.get(field.name, getattr(costs, field.name)))
+    return value
+
+
+def unsafe_fill(fill: SimulatedFill, **changes: object) -> SimulatedFill:
+    value = object.__new__(SimulatedFill)
+    for field in fields(SimulatedFill):
+        object.__setattr__(value, field.name, changes.get(field.name, getattr(fill, field.name)))
+    return value
+
+
 def ledger() -> SimulationLedger:
     opening = FinancialEvent(
         LedgerEventId("atis:simulation-ledger-event:v1:opening"),
@@ -220,6 +242,115 @@ def test_fill_identity_conflict_fails_closed() -> None:
     conflicting = replace(oms.fills[0], quantity=Decimal("1"))
     with pytest.raises(SimulatedExecutionError, match="conflicts"):
         oms.apply_fill(conflicting)
+
+
+def test_valid_direct_fill_is_accepted() -> None:
+    oms, fill = direct_fill()
+    accepted_fill = oms.apply_fill(fill)
+    assert accepted_fill.fills == (fill,)
+    assert accepted_fill.orders[0].status is OrderStatus.PARTIALLY_FILLED
+
+
+@pytest.mark.parametrize("execution_at", [time(11), time(10)])
+def test_direct_fill_rejects_execution_not_after_release(
+    execution_at: Timestamp,
+) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="after order release"):
+        oms.apply_fill(replace(fill, execution_at=execution_at))
+
+
+def test_direct_fill_rejects_mismatched_research_run() -> None:
+    oms, fill = direct_fill()
+    other_run = ResearchRunId("atis:research:run:v1:sha256:" + "9" * 64)
+    with pytest.raises(SimulatedExecutionError, match="research attribution"):
+        oms.apply_fill(replace(fill, research_run_id=other_run))
+
+
+@pytest.mark.parametrize(
+    "component",
+    (
+        "commission_fees",
+        "bid_ask_spread",
+        "slippage",
+        "market_impact",
+        "additional_friction",
+    ),
+)
+def test_cost_breakdown_and_direct_fill_reject_negative_component(
+    component: str,
+) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="cannot be negative"):
+        replace(fill.costs, **{component: Decimal("-0.01")})
+    malformed = unsafe_costs(fill.costs, **{component: Decimal("-0.01")})
+    with pytest.raises(SimulatedExecutionError, match="cannot be negative"):
+        oms.apply_fill(unsafe_fill(fill, costs=malformed))
+
+
+@pytest.mark.parametrize("value", [Decimal("NaN"), Decimal("Infinity")])
+def test_cost_breakdown_and_direct_fill_reject_nonfinite_component(
+    value: Decimal,
+) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="finite"):
+        replace(fill.costs, commission_fees=value)
+    malformed = unsafe_costs(fill.costs, commission_fees=value)
+    with pytest.raises(SimulatedExecutionError, match="finite"):
+        oms.apply_fill(unsafe_fill(fill, costs=malformed))
+
+
+def test_direct_fill_rejects_non_decimal_cost_component() -> None:
+    oms, fill = direct_fill()
+    malformed = unsafe_costs(fill.costs, commission_fees=1)
+    with pytest.raises(TypeError, match="Decimal"):
+        oms.apply_fill(unsafe_fill(fill, costs=malformed))
+
+
+def test_direct_fill_rejects_noncanonical_cost_model_identity() -> None:
+    oms, fill = direct_fill()
+    malformed = unsafe_fill(fill, cost_model_id="not-canonical")
+    with pytest.raises(SimulatedExecutionError, match="not canonical"):
+        oms.apply_fill(malformed)
+
+
+def test_direct_fill_rejects_wrong_cost_scenario_type() -> None:
+    oms, fill = direct_fill()
+    malformed = unsafe_fill(fill, cost_scenario="EC1")
+    with pytest.raises(TypeError, match="CostScenario"):
+        oms.apply_fill(malformed)
+
+
+def test_direct_fill_rejects_mismatched_instrument() -> None:
+    oms, fill = direct_fill()
+    other = InstrumentId(UUID("22345678-1234-4234-8234-123456789abc"))
+    with pytest.raises(SimulatedExecutionError, match="does not match"):
+        oms.apply_fill(replace(fill, instrument_id=other))
+
+
+def test_direct_fill_rejects_mismatched_side() -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="does not match"):
+        oms.apply_fill(replace(fill, side=OrderSide.SELL))
+
+
+def test_direct_fill_rejects_mismatched_currency() -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="currency"):
+        oms.apply_fill(replace(fill, currency=GBP))
+
+
+def test_direct_fill_rejects_overfill() -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="overfill"):
+        oms.apply_fill(replace(fill, quantity=Decimal("11")))
+
+
+def test_direct_fill_after_terminal_state_is_rejected() -> None:
+    completed, candidate = filled()
+    fill = completed.fills[0]
+    with pytest.raises(SimulatedExecutionError, match="terminal"):
+        completed.apply_fill(replace(fill, fill_id=TradeId(UUID(int=77))))
 
 
 @pytest.mark.parametrize(

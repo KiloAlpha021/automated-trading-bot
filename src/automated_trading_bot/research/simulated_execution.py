@@ -10,6 +10,7 @@ from dataclasses import dataclass, replace
 from decimal import Decimal
 from enum import StrEnum
 from hashlib import sha256
+import re
 from uuid import UUID
 
 from automated_trading_bot.datasets.provenance import canonical_json
@@ -34,6 +35,7 @@ from automated_trading_bot.research.simulation_ledger import (
 SIMULATED_EXECUTION_AUTHORITY = "RESEARCH_SIMULATION_ONLY_NO_LIVE_TRADING_AUTHORITY"
 _ZERO = Decimal(0)
 _BPS = Decimal(10_000)
+_COST_MODEL_ID = re.compile(r"atis:simulation-cost-model:v1:[A-Za-z0-9._:-]{1,160}")
 
 
 class SimulatedExecutionError(ValueError):
@@ -123,6 +125,9 @@ class CostBreakdown:
     market_impact: Decimal
     additional_friction: Decimal
 
+    def __post_init__(self) -> None:
+        _validate_cost_breakdown(self)
+
     @property
     def total(self) -> Decimal:
         return (
@@ -134,6 +139,29 @@ class CostBreakdown:
         )
 
 
+def _validate_cost_breakdown(costs: CostBreakdown) -> None:
+    if type(costs) is not CostBreakdown:
+        raise TypeError("costs must be a CostBreakdown")
+    for name in (
+        "commission_fees",
+        "bid_ask_spread",
+        "slippage",
+        "market_impact",
+        "additional_friction",
+    ):
+        value = getattr(costs, name)
+        _finite(value, name)
+        if value < 0:
+            raise SimulatedExecutionError(f"{name} cannot be negative")
+
+
+def _validate_cost_binding(model_id: object, scenario: object) -> None:
+    if type(model_id) is not str or _COST_MODEL_ID.fullmatch(model_id) is None:
+        raise SimulatedExecutionError("cost_model_id is not canonical")
+    if type(scenario) is not CostScenario:
+        raise TypeError("cost_scenario must be a CostScenario")
+
+
 @dataclass(frozen=True, slots=True)
 class ExecutionCostModel:
     model_id: str
@@ -142,12 +170,7 @@ class ExecutionCostModel:
     diagnostic_only: bool
 
     def __post_init__(self) -> None:
-        if type(self.model_id) is not str or not self.model_id.startswith(
-            "atis:simulation-cost-model:v1:"
-        ):
-            raise SimulatedExecutionError("model_id is not canonical")
-        if type(self.scenario) is not CostScenario:
-            raise TypeError("scenario must be a CostScenario")
+        _validate_cost_binding(self.model_id, self.scenario)
         if type(self.rates) is not tuple or any(type(rate) is not CostRate for rate in self.rates):
             raise TypeError("rates must be a tuple of CostRate values")
         if {rate.component for rate in self.rates} != set(CostComponent):
@@ -336,10 +359,8 @@ class SimulatedFill:
             raise TypeError("invalid execution time or currency")
         if type(self.execution_evidence) is not EvidenceContentDigest:
             raise TypeError("execution_evidence must be an EvidenceContentDigest")
-        if type(self.cost_model_id) is not str or not self.cost_model_id:
-            raise SimulatedExecutionError("cost_model_id is required")
-        if type(self.cost_scenario) is not CostScenario or type(self.costs) is not CostBreakdown:
-            raise TypeError("invalid fill cost binding")
+        _validate_cost_binding(self.cost_model_id, self.cost_scenario)
+        _validate_cost_breakdown(self.costs)
         if type(self.research_run_id) is not ResearchRunId:
             raise TypeError("research_run_id must be a ResearchRunId")
 
@@ -471,6 +492,14 @@ class SimulatedOms:
             raise SimulatedExecutionError("fill does not match its order")
         if fill.currency != record.order.currency:
             raise SimulatedExecutionError("fill currency does not match order currency")
+        if fill.research_run_id != record.order.research_run_id:
+            raise SimulatedExecutionError("fill research attribution does not match order")
+        if fill.execution_at.value <= record.order.release_at.value:
+            raise SimulatedExecutionError("fill execution must be after order release")
+        if type(fill.execution_evidence) is not EvidenceContentDigest:
+            raise TypeError("fill execution evidence has invalid type")
+        _validate_cost_binding(fill.cost_model_id, fill.cost_scenario)
+        _validate_cost_breakdown(fill.costs)
         _finite(fill.quantity, "fill quantity", positive=True)
         cumulative = record.filled_quantity + fill.quantity
         if cumulative > record.order.quantity:
