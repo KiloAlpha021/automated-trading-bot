@@ -162,6 +162,24 @@ def _validate_cost_binding(model_id: object, scenario: object) -> None:
         raise TypeError("cost_scenario must be a CostScenario")
 
 
+def _validate_fill_payload(fill: SimulatedFill) -> None:
+    """Validate an externally supplied fill without trusting construction."""
+    if type(fill.fill_id) is not TradeId or type(fill.order_id) is not OrderId:
+        raise TypeError("invalid fill or order identity")
+    if type(fill.instrument_id) is not InstrumentId or type(fill.side) is not OrderSide:
+        raise TypeError("invalid fill instrument or side")
+    _finite(fill.quantity, "fill quantity", positive=True)
+    _finite(fill.execution_price, "execution_price", positive=True)
+    if type(fill.execution_at) is not Timestamp or type(fill.currency) is not Currency:
+        raise TypeError("invalid execution time or currency")
+    if type(fill.execution_evidence) is not EvidenceContentDigest:
+        raise TypeError("fill execution evidence has invalid type")
+    if type(fill.research_run_id) is not ResearchRunId:
+        raise TypeError("fill research_run_id has invalid type")
+    _validate_cost_binding(fill.cost_model_id, fill.cost_scenario)
+    _validate_cost_breakdown(fill.costs)
+
+
 @dataclass(frozen=True, slots=True)
 class ExecutionCostModel:
     model_id: str
@@ -482,6 +500,7 @@ class SimulatedOms:
     ) -> "SimulatedOms":
         if type(fill) is not SimulatedFill:
             raise TypeError("fill must be a SimulatedFill")
+        _validate_fill_payload(fill)
         existing = next((value for value in self.fills if value.fill_id == fill.fill_id), None)
         if existing is not None:
             if existing == fill:
@@ -496,11 +515,6 @@ class SimulatedOms:
             raise SimulatedExecutionError("fill research attribution does not match order")
         if fill.execution_at.value <= record.order.release_at.value:
             raise SimulatedExecutionError("fill execution must be after order release")
-        if type(fill.execution_evidence) is not EvidenceContentDigest:
-            raise TypeError("fill execution evidence has invalid type")
-        _validate_cost_binding(fill.cost_model_id, fill.cost_scenario)
-        _validate_cost_breakdown(fill.costs)
-        _finite(fill.quantity, "fill quantity", positive=True)
         cumulative = record.filled_quantity + fill.quantity
         if cumulative > record.order.quantity:
             raise SimulatedExecutionError("fill would overfill order")
@@ -511,6 +525,11 @@ class SimulatedOms:
         )
         updated = replace(record, status=status, filled_quantity=cumulative, reasons=())
         requested = fill.quantity if requested_quantity is None else requested_quantity
+        _finite(requested, "requested_quantity", positive=True)
+        if requested < fill.quantity:
+            raise SimulatedExecutionError("requested quantity cannot be below fill quantity")
+        if requested > record.remaining_quantity:
+            raise SimulatedExecutionError("requested quantity exceeds remaining quantity")
         attempt = ExecutionAttempt(fill.order_id, requested, status, (), fill.fill_id)
         next_oms = self._replace_order(record, updated)
         return replace(

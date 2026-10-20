@@ -251,6 +251,80 @@ def test_valid_direct_fill_is_accepted() -> None:
     assert accepted_fill.orders[0].status is OrderStatus.PARTIALLY_FILLED
 
 
+def test_direct_fill_none_requested_quantity_records_fill_quantity() -> None:
+    oms, fill = direct_fill()
+    result = oms.apply_fill(fill)
+    assert result.attempts[-1].requested_quantity == fill.quantity
+
+
+def test_direct_fill_valid_requested_quantity_is_recorded() -> None:
+    oms, fill = direct_fill()
+    result = oms.apply_fill(fill, requested_quantity=Decimal("2"))
+    assert result.attempts[-1].requested_quantity == Decimal("2")
+
+
+@pytest.mark.parametrize(
+    "requested",
+    [Decimal("-1"), Decimal("0"), Decimal("NaN"), Decimal("Infinity"), 1],
+)
+def test_direct_fill_rejects_invalid_requested_quantity(requested: object) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises((TypeError, SimulatedExecutionError)):
+        oms.apply_fill(fill, requested_quantity=requested)  # type: ignore[arg-type]
+
+
+def test_direct_fill_rejects_requested_quantity_below_fill() -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="below fill"):
+        oms.apply_fill(fill, requested_quantity=Decimal("0.5"))
+
+
+def test_direct_fill_rejects_requested_quantity_above_prefill_remaining() -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(SimulatedExecutionError, match="remaining"):
+        oms.apply_fill(fill, requested_quantity=Decimal("11"))
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"fill_id": "bad"},
+        {"order_id": "bad"},
+        {"instrument_id": "bad"},
+        {"side": "BUY"},
+        {"execution_at": "bad"},
+        {"currency": "USD"},
+        {"execution_evidence": "bad"},
+        {"research_run_id": "bad"},
+        {"costs": "bad"},
+    ],
+)
+def test_direct_fill_rejects_malformed_primitive_types(changes: dict[str, object]) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises(TypeError):
+        oms.apply_fill(unsafe_fill(fill, **changes))
+
+
+@pytest.mark.parametrize(
+    "quantity",
+    [Decimal("-1"), Decimal("0"), Decimal("NaN"), Decimal("Infinity"), 1],
+)
+def test_direct_fill_rejects_malformed_quantity(quantity: object) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises((TypeError, SimulatedExecutionError)):
+        oms.apply_fill(unsafe_fill(fill, quantity=quantity))
+
+
+@pytest.mark.parametrize(
+    "price",
+    [Decimal("-1"), Decimal("0"), Decimal("NaN"), Decimal("Infinity"), 1],
+)
+def test_direct_fill_rejects_malformed_execution_price(price: object) -> None:
+    oms, fill = direct_fill()
+    with pytest.raises((TypeError, SimulatedExecutionError)):
+        oms.apply_fill(unsafe_fill(fill, execution_price=price))
+
+
 @pytest.mark.parametrize("execution_at", [time(11), time(10)])
 def test_direct_fill_rejects_execution_not_after_release(
     execution_at: Timestamp,
