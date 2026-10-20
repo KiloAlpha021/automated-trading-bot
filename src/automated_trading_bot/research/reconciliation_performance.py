@@ -4,18 +4,28 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
+import re
+from uuid import UUID
 
-from automated_trading_bot.domain.identifiers import OrderId, TradeId
+from automated_trading_bot.domain.currency import Currency
+from automated_trading_bot.domain.identifiers import InstrumentId, OrderId, TradeId
 from automated_trading_bot.domain.order_side import OrderSide
+from automated_trading_bot.domain.timestamp import Timestamp
+from automated_trading_bot.instruments.model import EvidenceContentDigest
+from automated_trading_bot.research.identity import ResearchRunId
+from automated_trading_bot.research.pit_features import EligibilityState
 from automated_trading_bot.research.simulated_execution import (
     CostBreakdown,
+    CostScenario,
     ExecutionAttempt,
     OrderRecord,
     OrderStatus,
     SimulatedFill,
     SimulatedOms,
+    SimulatedOrder,
 )
 from automated_trading_bot.research.simulation_ledger import (
     FinancialEvent,
@@ -27,6 +37,7 @@ from automated_trading_bot.research.simulation_ledger import (
 RECONCILIATION_AUTHORITY = "RESEARCH_SIMULATION_TRUTH_NO_TRADING_AUTHORITY"
 _ZERO = Decimal(0)
 _FILL_EVENT_PREFIX = "atis:simulation-ledger-event:v1:fill-"
+_COST_MODEL_ID = re.compile(r"atis:simulation-cost-model:v1:[A-Za-z0-9._:-]{1,160}")
 
 
 class ReconciliationState(StrEnum):
@@ -173,6 +184,163 @@ def _valid_attempt(attempt: ExecutionAttempt) -> bool:
     )
 
 
+def _valid_uuid_identity(identity: OrderId | TradeId) -> bool:
+    try:
+        return type(identity.value) is UUID
+    except AttributeError:
+        return False
+
+
+def _valid_instrument_id(instrument_id: InstrumentId) -> bool:
+    try:
+        value = instrument_id.value
+        return type(value) is UUID and value.int != 0 and value.version == 4
+    except AttributeError:
+        return False
+
+
+def _valid_timestamp(timestamp: Timestamp) -> bool:
+    try:
+        value = timestamp.value
+        return (
+            type(value) is datetime
+            and value.tzinfo is not None
+            and value.utcoffset() == timedelta(0)
+        )
+    except (AttributeError, OverflowError, ValueError):
+        return False
+
+
+def _valid_currency(currency: Currency) -> bool:
+    try:
+        code = currency.code
+        return (
+            type(code) is str
+            and len(code) == 3
+            and all("A" <= char <= "Z" for char in code)
+        )
+    except AttributeError:
+        return False
+
+
+def _valid_research_run_id(research_run_id: ResearchRunId) -> bool:
+    try:
+        ResearchRunId(research_run_id.value)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    return True
+
+
+def _valid_evidence_digest(digest: EvidenceContentDigest) -> bool:
+    try:
+        EvidenceContentDigest(digest.value)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    return True
+
+
+def _valid_order(order: SimulatedOrder) -> bool:
+    try:
+        return (
+            type(order.order_id) is OrderId
+            and _valid_uuid_identity(order.order_id)
+            and type(order.instrument_id) is InstrumentId
+            and _valid_instrument_id(order.instrument_id)
+            and type(order.side) is OrderSide
+            and type(order.quantity) is Decimal
+            and order.quantity.is_finite()
+            and order.quantity > 0
+            and type(order.currency) is Currency
+            and _valid_currency(order.currency)
+            and type(order.release_at) is Timestamp
+            and _valid_timestamp(order.release_at)
+            and type(order.research_run_id) is ResearchRunId
+            and _valid_research_run_id(order.research_run_id)
+            and type(order.evidence_digest) is EvidenceContentDigest
+            and _valid_evidence_digest(order.evidence_digest)
+            and type(order.eligibility_state) is EligibilityState
+            and type(order.eligibility_reasons) is tuple
+            and all(type(reason) is str for reason in order.eligibility_reasons)
+            and type(order.eligibility_observation_id) is str
+            and bool(order.eligibility_observation_id)
+            and type(order.decision_time) is Timestamp
+            and _valid_timestamp(order.decision_time)
+        )
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
+def _valid_order_record(record: OrderRecord) -> bool:
+    try:
+        order = record.order
+        status = record.status
+        filled_quantity = record.filled_quantity
+        reasons = record.reasons
+    except AttributeError:
+        return False
+    if type(order) is not SimulatedOrder or not _valid_order(order):
+        return False
+    return (
+        type(status) is OrderStatus
+        and type(filled_quantity) is Decimal
+        and filled_quantity.is_finite()
+        and _ZERO <= filled_quantity <= order.quantity
+        and type(reasons) is tuple
+        and all(type(reason) is str for reason in reasons)
+    )
+
+
+def _valid_cost_breakdown(costs: CostBreakdown) -> bool:
+    for name in (
+        "commission_fees",
+        "bid_ask_spread",
+        "slippage",
+        "market_impact",
+        "additional_friction",
+    ):
+        try:
+            value = getattr(costs, name)
+        except AttributeError:
+            return False
+        if type(value) is not Decimal or not value.is_finite() or value < 0:
+            return False
+    return True
+
+
+def _valid_fill(fill: SimulatedFill) -> bool:
+    try:
+        return (
+            type(fill.fill_id) is TradeId
+            and _valid_uuid_identity(fill.fill_id)
+            and type(fill.order_id) is OrderId
+            and _valid_uuid_identity(fill.order_id)
+            and type(fill.instrument_id) is InstrumentId
+            and _valid_instrument_id(fill.instrument_id)
+            and type(fill.side) is OrderSide
+            and type(fill.quantity) is Decimal
+            and fill.quantity.is_finite()
+            and fill.quantity > 0
+            and type(fill.execution_price) is Decimal
+            and fill.execution_price.is_finite()
+            and fill.execution_price > 0
+            and type(fill.execution_at) is Timestamp
+            and _valid_timestamp(fill.execution_at)
+            and type(fill.currency) is Currency
+            and _valid_currency(fill.currency)
+            and type(fill.execution_evidence) is EvidenceContentDigest
+            and _valid_evidence_digest(fill.execution_evidence)
+            and type(fill.cost_model_id) is str
+            and _COST_MODEL_ID.fullmatch(fill.cost_model_id) is not None
+            and type(fill.cost_scenario) is CostScenario
+            and type(fill.costs) is CostBreakdown
+            and _valid_cost_breakdown(fill.costs)
+            and type(fill.research_run_id) is ResearchRunId
+            and _valid_research_run_id(fill.research_run_id)
+        )
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
 def reconcile(oms: object, ledger: object) -> ReconciliationResult:
     """Reconcile immutable S4-05 history to authoritative S4-04 truth."""
     if type(oms) is not SimulatedOms or type(ledger) is not SimulationLedger:
@@ -198,16 +366,40 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
         _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "ledger")
         invalid = True
 
-    if any(type(item) is not OrderRecord for item in oms.orders):
+    containers_available = True
+    try:
+        orders_evidence = oms.orders
+        attempts_evidence = oms.attempts
+        fills_evidence = oms.fills
+    except AttributeError:
+        containers_available = False
+        orders_evidence = ()
+        attempts_evidence = ()
+        fills_evidence = ()
+    if not containers_available or type(orders_evidence) is not tuple or any(
+        type(item) is not OrderRecord or not _valid_order_record(item)
+        for item in orders_evidence or ()
+    ):
         _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "orders")
         invalid = True
-    if any(type(item) is not ExecutionAttempt for item in oms.attempts):
+    if not containers_available or type(attempts_evidence) is not tuple or any(
+        type(item) is not ExecutionAttempt for item in attempts_evidence or ()
+    ):
         _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "attempts")
         invalid = True
-    if any(type(item) is not SimulatedFill for item in oms.fills):
+    if not containers_available or type(fills_evidence) is not tuple or any(
+        type(item) is not SimulatedFill or not _valid_fill(item)
+        for item in fills_evidence or ()
+    ):
         _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "fills")
         invalid = True
     if invalid:
+        return ReconciliationResult(
+            ReconciliationState.INVALID_OR_UNKNOWN, tuple(discrepancies), None
+        )
+
+    if any(not _valid_attempt(attempt) for attempt in oms.attempts):
+        _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "attempts")
         return ReconciliationResult(
             ReconciliationState.INVALID_OR_UNKNOWN, tuple(discrepancies), None
         )
@@ -232,12 +424,6 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
     orders = {item.order.order_id: item for item in oms.orders}
     fills = {item.fill_id: item for item in oms.fills}
     events = {item.event_id.value: item for item in _fill_events(ledger)}
-
-    if any(not _valid_attempt(attempt) for attempt in oms.attempts):
-        _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "attempts")
-        return ReconciliationResult(
-            ReconciliationState.INVALID_OR_UNKNOWN, tuple(discrepancies), None
-        )
 
     fill_attempts: Counter[TradeId] = Counter()
     cumulative_by_order: dict[OrderId, Decimal] = {}

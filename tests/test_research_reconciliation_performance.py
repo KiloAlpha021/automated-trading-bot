@@ -23,6 +23,7 @@ from automated_trading_bot.research.reconciliation_performance import (
     require_performance,
 )
 from automated_trading_bot.research.simulated_execution import (
+    CostBreakdown,
     CostComponent,
     CostProvenance,
     CostRate,
@@ -133,6 +134,146 @@ def unsafe(instance: object, **changes: object):
 
 def codes(result) -> set[DiscrepancyCode]:
     return {item.code for item in result.discrepancies}
+
+
+def corrupt(instance: object, path: str, value: object):
+    if "." not in path:
+        return unsafe(instance, **{path: value})
+    field, nested = path.split(".", 1)
+    wrapper = getattr(instance, field)
+    return unsafe(instance, **{field: unsafe(wrapper, **{nested: value})})
+
+
+def assert_invalid_evidence(oms: SimulatedOms, ledger: SimulationLedger) -> None:
+    result = reconcile(oms, ledger)
+    assert result.state is ReconciliationState.INVALID_OR_UNKNOWN
+    assert result.performance is None
+    assert DiscrepancyCode.INVALID_INPUT in codes(result)
+
+
+@pytest.mark.parametrize("field", ["orders", "attempts", "fills"])
+def test_malformed_oms_container_fails_closed(field: str) -> None:
+    oms, ledger = chain()
+    assert_invalid_evidence(unsafe(oms, **{field: []}), ledger)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("order", object()),
+        ("status", "ACCEPTED"),
+        ("filled_quantity", "2"),
+        ("filled_quantity", Decimal("-1")),
+        ("filled_quantity", Decimal("NaN")),
+        ("filled_quantity", Decimal("Infinity")),
+        ("filled_quantity", Decimal("11")),
+        ("reasons", []),
+        ("reasons", (1,)),
+    ],
+)
+def test_malformed_order_record_fails_closed(field: str, value: object) -> None:
+    oms, ledger = chain()
+    malformed = unsafe(oms.orders[0], **{field: value})
+    assert_invalid_evidence(replace(oms, orders=(malformed,)), ledger)
+
+
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        ("order_id", "bad"),
+        ("order_id.value", "bad"),
+        ("instrument_id", "bad"),
+        ("instrument_id.value", UUID(int=0)),
+        ("side", "BUY"),
+        ("quantity", "10"),
+        ("quantity", Decimal("0")),
+        ("quantity", Decimal("-1")),
+        ("quantity", Decimal("NaN")),
+        ("quantity", Decimal("Infinity")),
+        ("currency", "USD"),
+        ("currency.code", "usd"),
+        ("release_at", "bad"),
+        ("release_at.value", datetime(2026, 1, 1)),
+        ("research_run_id", "bad"),
+        ("research_run_id.value", "bad"),
+        ("evidence_digest", "bad"),
+        ("evidence_digest.value", "bad"),
+        ("eligibility_state", "ELIGIBLE"),
+        ("eligibility_reasons", []),
+        ("eligibility_reasons", (1,)),
+        ("eligibility_observation_id", ""),
+        ("decision_time", "bad"),
+        ("decision_time.value", datetime(2026, 1, 1)),
+    ],
+)
+def test_malformed_simulated_order_fails_closed(path: str, value: object) -> None:
+    oms, ledger = chain()
+    malformed_order = corrupt(oms.orders[0].order, path, value)
+    malformed_record = unsafe(oms.orders[0], order=malformed_order)
+    assert_invalid_evidence(replace(oms, orders=(malformed_record,)), ledger)
+
+
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        ("fill_id", "bad"),
+        ("fill_id.value", "bad"),
+        ("order_id", "bad"),
+        ("order_id.value", "bad"),
+        ("instrument_id", "bad"),
+        ("instrument_id.value", UUID(int=0)),
+        ("side", "BUY"),
+        ("quantity", "2"),
+        ("quantity", Decimal("0")),
+        ("quantity", Decimal("-1")),
+        ("quantity", Decimal("NaN")),
+        ("quantity", Decimal("Infinity")),
+        ("execution_price", "20"),
+        ("execution_price", Decimal("0")),
+        ("execution_price", Decimal("-1")),
+        ("execution_price", Decimal("NaN")),
+        ("execution_price", Decimal("Infinity")),
+        ("execution_at", "bad"),
+        ("execution_at.value", datetime(2026, 1, 1)),
+        ("currency", "USD"),
+        ("currency.code", "usd"),
+        ("execution_evidence", "bad"),
+        ("execution_evidence.value", "bad"),
+        ("cost_model_id", "bad"),
+        ("cost_scenario", "EC1"),
+        ("costs", "bad"),
+        ("research_run_id", "bad"),
+        ("research_run_id.value", "bad"),
+    ],
+)
+def test_malformed_simulated_fill_fails_closed(path: str, value: object) -> None:
+    oms, ledger = chain()
+    malformed = corrupt(oms.fills[0], path, value)
+    assert_invalid_evidence(replace(oms, fills=(malformed,)), ledger)
+
+
+@pytest.mark.parametrize(
+    "component",
+    [
+        "commission_fees",
+        "bid_ask_spread",
+        "slippage",
+        "market_impact",
+        "additional_friction",
+    ],
+)
+@pytest.mark.parametrize(
+    "value",
+    ["1", Decimal("-1"), Decimal("NaN"), Decimal("Infinity")],
+)
+def test_malformed_cost_component_fails_closed(
+    component: str, value: object
+) -> None:
+    oms, ledger = chain()
+    malformed_costs = unsafe(oms.fills[0].costs, **{component: value})
+    assert type(malformed_costs) is CostBreakdown
+    malformed_fill = unsafe(oms.fills[0], costs=malformed_costs)
+    assert_invalid_evidence(replace(oms, fills=(malformed_fill,)), ledger)
 
 
 def test_valid_chain_reconciles_and_produces_performance_truth() -> None:
