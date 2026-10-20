@@ -62,6 +62,7 @@ class FinancialEvent:
     kind: FinancialEventKind
     research_run_id: ResearchRunId
     evidence_digest: EvidenceContentDigest
+    currency: Currency | None = None
     instrument_id: InstrumentId | None = None
     quantity: Decimal | None = None
     unit_amount: Decimal | None = None
@@ -88,6 +89,19 @@ class FinancialEvent:
         self._validate_shape()
 
     def _validate_shape(self) -> None:
+        monetary_kinds = {
+            FinancialEventKind.OPENING_CASH,
+            FinancialEventKind.CASH_ADJUSTMENT,
+            FinancialEventKind.TRADE,
+            FinancialEventKind.MARK,
+            FinancialEventKind.CASH_DIVIDEND,
+        }
+        if self.kind in monetary_kinds:
+            if type(self.currency) is not Currency:
+                raise LedgerContractError(f"{self.kind.value} requires explicit currency")
+        elif self.currency is not None:
+            raise LedgerContractError(f"{self.kind.value} forbids currency")
+
         instrument_required = {
             FinancialEventKind.TRADE,
             FinancialEventKind.MARK,
@@ -195,6 +209,8 @@ class SimulationLedger:
     def apply(self, event: FinancialEvent) -> "SimulationLedger":
         if type(event) is not FinancialEvent:
             raise TypeError("event must be a FinancialEvent")
+        if event.currency is not None and event.currency != self.currency:
+            raise LedgerContractError("event currency does not match ledger currency")
         existing = next((item for item in self.events if item.event_id == event.event_id), None)
         if existing is not None:
             if existing == event:

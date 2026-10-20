@@ -26,9 +26,15 @@ RUN = ResearchRunId("atis:research:run:v1:sha256:" + "2" * 64)
 INSTRUMENT = InstrumentId(UUID("12345678-1234-4234-8234-123456789abc"))
 ACTION = ActionVersionId("atis:corporate-action-version:v1:" + "3" * 64)
 USD = Currency("USD")
+GBP = Currency("GBP")
 
 
 def event(sequence: int, kind: FinancialEventKind, **values: object) -> FinancialEvent:
+    currency = values.pop(
+        "currency", None if kind is FinancialEventKind.SPLIT else USD
+    )
+    if currency is not None and type(currency) is not Currency:
+        raise TypeError("test event currency must be Currency or None")
     return FinancialEvent(
         event_id=LedgerEventId(f"atis:simulation-ledger-event:v1:event-{sequence}"),
         sequence=sequence,
@@ -36,6 +42,7 @@ def event(sequence: int, kind: FinancialEventKind, **values: object) -> Financia
         kind=kind,
         research_run_id=RUN,
         evidence_digest=DIGEST,
+        currency=currency,
         **values,
     )
 
@@ -136,6 +143,147 @@ def test_deterministic_replay_reconstructs_identical_state() -> None:
         )
     )
     assert SimulationLedger.replay(USD, ledger.events) == ledger
+
+
+@pytest.mark.parametrize(
+    "kind,values",
+    [
+        (FinancialEventKind.OPENING_CASH, {"cash_delta": Decimal("1000")}),
+        (FinancialEventKind.CASH_ADJUSTMENT, {"cash_delta": Decimal("1")}),
+        (
+            FinancialEventKind.TRADE,
+            {
+                "instrument_id": INSTRUMENT,
+                "quantity": Decimal("1"),
+                "unit_amount": Decimal("10"),
+            },
+        ),
+        (
+            FinancialEventKind.MARK,
+            {"instrument_id": INSTRUMENT, "unit_amount": Decimal("10")},
+        ),
+        (
+            FinancialEventKind.CASH_DIVIDEND,
+            {
+                "instrument_id": INSTRUMENT,
+                "unit_amount": Decimal("1"),
+                "corporate_action_version_id": ACTION,
+            },
+        ),
+    ],
+)
+def test_monetary_events_require_explicit_currency(
+    kind: FinancialEventKind, values: dict[str, object]
+) -> None:
+    with pytest.raises(LedgerContractError, match="requires explicit currency"):
+        event(1, kind, currency=None, **values)
+
+
+def test_matching_currency_is_accepted_for_every_monetary_event_kind() -> None:
+    ledger = funded()
+    ledger = ledger.apply(
+        event(2, FinancialEventKind.CASH_ADJUSTMENT, cash_delta=Decimal("1"))
+    )
+    ledger = ledger.apply(
+        event(
+            3,
+            FinancialEventKind.TRADE,
+            instrument_id=INSTRUMENT,
+            quantity=Decimal("1"),
+            unit_amount=Decimal("10"),
+        )
+    )
+    ledger = ledger.apply(
+        event(
+            4,
+            FinancialEventKind.MARK,
+            instrument_id=INSTRUMENT,
+            unit_amount=Decimal("11"),
+        )
+    )
+    ledger = ledger.apply(
+        event(
+            5,
+            FinancialEventKind.CASH_DIVIDEND,
+            instrument_id=INSTRUMENT,
+            unit_amount=Decimal("1"),
+            corporate_action_version_id=ACTION,
+        )
+    )
+    assert ledger.state.cash == Decimal("992")
+
+
+@pytest.mark.parametrize(
+    "monetary_event",
+    [
+        event(
+            1,
+            FinancialEventKind.OPENING_CASH,
+            currency=GBP,
+            cash_delta=Decimal("1000"),
+        ),
+        event(
+            2,
+            FinancialEventKind.CASH_ADJUSTMENT,
+            currency=GBP,
+            cash_delta=Decimal("1"),
+        ),
+        event(
+            2,
+            FinancialEventKind.TRADE,
+            currency=GBP,
+            instrument_id=INSTRUMENT,
+            quantity=Decimal("1"),
+            unit_amount=Decimal("10"),
+        ),
+        event(
+            2,
+            FinancialEventKind.MARK,
+            currency=GBP,
+            instrument_id=INSTRUMENT,
+            unit_amount=Decimal("10"),
+        ),
+        event(
+            2,
+            FinancialEventKind.CASH_DIVIDEND,
+            currency=GBP,
+            instrument_id=INSTRUMENT,
+            unit_amount=Decimal("1"),
+            corporate_action_version_id=ACTION,
+        ),
+    ],
+)
+def test_mismatched_monetary_event_currency_is_rejected(
+    monetary_event: FinancialEvent,
+) -> None:
+    ledger = SimulationLedger.empty(USD) if monetary_event.sequence == 1 else funded()
+    with pytest.raises(LedgerContractError, match="does not match"):
+        ledger.apply(monetary_event)
+
+
+def test_split_remains_nonmonetary_and_forbids_fabricated_currency() -> None:
+    split = event(
+        3,
+        FinancialEventKind.SPLIT,
+        instrument_id=INSTRUMENT,
+        quantity=Decimal("2"),
+        corporate_action_version_id=ACTION,
+    )
+    assert split.currency is None
+    assert bought().apply(split).state.position(INSTRUMENT) is not None
+    with pytest.raises(LedgerContractError, match="forbids currency"):
+        replace(split, currency=USD)
+
+
+def test_replay_rejects_mismatched_currency_history() -> None:
+    mismatched = event(
+        1,
+        FinancialEventKind.OPENING_CASH,
+        currency=GBP,
+        cash_delta=Decimal("1000"),
+    )
+    with pytest.raises(LedgerContractError, match="does not match"):
+        SimulationLedger.replay(USD, (mismatched,))
 
 
 def test_exact_duplicate_is_idempotent_but_conflict_fails_closed() -> None:
