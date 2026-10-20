@@ -1,0 +1,26 @@
+{
+  "authority": "RESEARCH_SIMULATION_TRUTH_NO_TRADING_AUTHORITY",
+  "contract": "ATIS-S4-06-RECONCILIATION-PERFORMANCE-TRUTH-V1",
+  "dependencies": {
+    "s4_04": "Sole financial ledger and portfolio-value authority",
+    "s4_05": "Immutable order, attempt, fill, execution-cost and posting evidence"
+  },
+  "reconciliation_states": ["RECONCILED", "DISCREPANCY", "INVALID_OR_UNKNOWN"],
+  "reconciliation_state_semantics": {
+    "RECONCILED": "All required interpretable evidence agrees with no material discrepancy",
+    "DISCREPANCY": "Interpretable evidence establishes a concrete reconciliation disagreement, including duplicate ledger posting",
+    "INVALID_OR_UNKNOWN": "Evidence is malformed, materially unknown, unusable or otherwise uninterpretable"
+  },
+  "invariants": ["FILL_ORDER_LINKAGE", "FILL_LEDGER_LINKAGE", "NO_ORPHANS", "NO_DUPLICATE_POSTING", "IDENTITY_MATCH", "INSTRUMENT_MATCH", "QUANTITY_AND_SIDE_MATCH", "CURRENCY_MATCH", "TIMING_MATCH", "ATTRIBUTION_MATCH", "COST_MATCH", "LEDGER_REPLAY_MATCH"],
+  "performance": {
+    "authority_gate": "RECONCILED_ONLY",
+    "net_pnl": "PORTFOLIO_VALUE_MINUS_EXTERNAL_CASH_FUNDING",
+    "gross_pnl": "NET_PNL_PLUS_EXECUTION_COST_DRAG",
+    "turnover": "SUM_ABSOLUTE_FILL_QUANTITY_TIMES_UNADJUSTED_EXECUTION_PRICE",
+    "participation": "NOT_ESTABLISHED_WITHOUT_MARKET_VOLUME",
+    "capacity": "NOT_ESTABLISHED_WITHOUT_CAPACITY_EVIDENCE"
+  },
+  "mutates_oms_or_ledger": false,
+  "runtime_authority": false,
+  "trading_authority": false
+}
