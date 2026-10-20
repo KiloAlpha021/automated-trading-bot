@@ -1,0 +1,23 @@
+{
+  "authority": "RESEARCH_SIMULATION_ONLY_NO_LIVE_TRADING_AUTHORITY",
+  "contract": "ATIS-S4-05-SIMULATED-OMS-EXECUTION-COSTS-V1",
+  "cost_components": ["COMMISSION_FEES", "BID_ASK_SPREAD", "SLIPPAGE", "MARKET_IMPACT", "ADDITIONAL_FRICTION"],
+  "cost_provenance": ["OBSERVED", "MODELLED", "PROXY"],
+  "cost_scenarios": {
+    "EC0": "FRICTIONLESS_DIAGNOSTIC_ONLY",
+    "EC1": "DEFENSIBLE_BASELINE",
+    "EC2": "ELEVATED_COST",
+    "EC3": "SEVERE_PLAUSIBLE_STRESS"
+  },
+  "dependencies": {
+    "s4_01": "Research run and evidence attribution",
+    "s4_02": "Transitive dataset qualification through S4-03 eligibility",
+    "s4_03": "Decision-input eligibility and point-in-time decision clock",
+    "s4_04": "Sole cash, position, P&L and portfolio-value authority"
+  },
+  "fill_safety": ["NO_FILL_WITHOUT_ORDER", "NO_OVERFILL", "NO_FILL_AFTER_TERMINAL", "NO_OPTIMISTIC_FALLBACK", "NO_SAME_CLOSE_LOOKAHEAD", "CURRENCY_MATCH_REQUIRED", "EXECUTION_EVIDENCE_REQUIRED"],
+  "public_fill_acceptance_boundary": ["EXACT_PRIMITIVE_TYPES", "ORDER_LINKAGE_MATCH", "INSTRUMENT_MATCH", "SIDE_MATCH", "CURRENCY_MATCH", "RESEARCH_RUN_MATCH", "EXECUTION_AFTER_RELEASE", "POSITIVE_FINITE_QUANTITY_AND_PRICE", "POSITIVE_FINITE_REQUESTED_QUANTITY", "REQUEST_NOT_BELOW_FILL", "REQUEST_NOT_ABOVE_PREFILL_REMAINDER", "POSITIVE_NON_OVERFILL_QUANTITY", "CANONICAL_COST_MODEL_ID", "VALID_COST_SCENARIO", "FINITE_NONNEGATIVE_COST_COMPONENTS"],
+  "order_outcomes": ["REJECTED", "CANCELLED", "UNFILLED", "PARTIALLY_FILLED", "FULLY_FILLED"],
+  "runtime_authority": false,
+  "trading_authority": false
+}
