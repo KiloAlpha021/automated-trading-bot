@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from enum import StrEnum
 
+from automated_trading_bot.domain.identifiers import OrderId, TradeId
 from automated_trading_bot.domain.order_side import OrderSide
 from automated_trading_bot.research.simulated_execution import (
     CostBreakdown,
@@ -159,6 +160,19 @@ def _fill_events(ledger: SimulationLedger) -> tuple[FinancialEvent, ...]:
     )
 
 
+def _valid_attempt(attempt: ExecutionAttempt) -> bool:
+    return (
+        type(attempt.order_id) is OrderId
+        and type(attempt.requested_quantity) is Decimal
+        and attempt.requested_quantity.is_finite()
+        and attempt.requested_quantity > 0
+        and type(attempt.outcome) is OrderStatus
+        and type(attempt.reasons) is tuple
+        and all(type(reason) is str for reason in attempt.reasons)
+        and (attempt.fill_id is None or type(attempt.fill_id) is TradeId)
+    )
+
+
 def reconcile(oms: object, ledger: object) -> ReconciliationResult:
     """Reconcile immutable S4-05 history to authoritative S4-04 truth."""
     if type(oms) is not SimulatedOms or type(ledger) is not SimulationLedger:
@@ -219,15 +233,74 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
     fills = {item.fill_id: item for item in oms.fills}
     events = {item.event_id.value: item for item in _fill_events(ledger)}
 
-    for attempt in oms.attempts:
-        if attempt.order_id not in orders:
-            _add(discrepancies, DiscrepancyCode.MISSING_ORDER, attempt.order_id)
-        if attempt.fill_id is not None and attempt.fill_id not in fills:
-            _add(discrepancies, DiscrepancyCode.MISSING_FILL, attempt.fill_id)
+    if any(not _valid_attempt(attempt) for attempt in oms.attempts):
+        _add(discrepancies, DiscrepancyCode.INVALID_INPUT, "attempts")
+        return ReconciliationResult(
+            ReconciliationState.INVALID_OR_UNKNOWN, tuple(discrepancies), None
+        )
 
-    fill_attempts = Counter(
-        attempt.fill_id for attempt in oms.attempts if attempt.fill_id is not None
-    )
+    fill_attempts: Counter[TradeId] = Counter()
+    cumulative_by_order: dict[OrderId, Decimal] = {}
+    fill_outcomes = {OrderStatus.PARTIALLY_FILLED, OrderStatus.FULLY_FILLED}
+    for attempt in oms.attempts:
+        order_record = orders.get(attempt.order_id)
+        if order_record is None:
+            _add(discrepancies, DiscrepancyCode.MISSING_ORDER, attempt.order_id)
+        fill = fills.get(attempt.fill_id) if attempt.fill_id is not None else None
+        if attempt.fill_id is None:
+            if attempt.outcome in fill_outcomes:
+                _add(
+                    discrepancies,
+                    DiscrepancyCode.IDENTITY_MISMATCH,
+                    f"attempt:{attempt.order_id}",
+                )
+            continue
+        fill_attempts[attempt.fill_id] += 1
+        if attempt.outcome not in fill_outcomes:
+            _add(
+                discrepancies,
+                DiscrepancyCode.IDENTITY_MISMATCH,
+                f"attempt:{attempt.fill_id}",
+            )
+        if fill is None:
+            _add(discrepancies, DiscrepancyCode.MISSING_FILL, attempt.fill_id)
+            continue
+        if fill.order_id != attempt.order_id:
+            _add(
+                discrepancies,
+                DiscrepancyCode.IDENTITY_MISMATCH,
+                f"attempt:{attempt.fill_id}",
+            )
+        try:
+            fill_quantity = _finite(fill.quantity, "fill quantity")
+            if fill_quantity <= 0:
+                raise PerformanceTruthError("fill quantity must be positive")
+        except (TypeError, ValueError):
+            _add(discrepancies, DiscrepancyCode.INVALID_INPUT, attempt.fill_id)
+            invalid = True
+            continue
+        if attempt.requested_quantity < fill_quantity:
+            _add(
+                discrepancies,
+                DiscrepancyCode.QUANTITY_MISMATCH,
+                f"attempt:{attempt.fill_id}",
+            )
+        if order_record is None or fill.order_id != attempt.order_id:
+            continue
+        cumulative = cumulative_by_order.get(attempt.order_id, _ZERO) + fill_quantity
+        cumulative_by_order[attempt.order_id] = cumulative
+        expected_outcome = (
+            OrderStatus.FULLY_FILLED
+            if cumulative == order_record.order.quantity
+            else OrderStatus.PARTIALLY_FILLED
+        )
+        if cumulative > order_record.order.quantity or attempt.outcome is not expected_outcome:
+            _add(
+                discrepancies,
+                DiscrepancyCode.QUANTITY_MISMATCH,
+                f"attempt:{attempt.fill_id}",
+            )
+
     for fill in oms.fills:
         subject = fill.fill_id.value.hex
         order_record = orders.get(fill.order_id)

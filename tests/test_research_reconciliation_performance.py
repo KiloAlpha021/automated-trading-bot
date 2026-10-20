@@ -6,7 +6,7 @@ from uuid import UUID
 import pytest
 
 from automated_trading_bot.domain.currency import Currency
-from automated_trading_bot.domain.identifiers import InstrumentId
+from automated_trading_bot.domain.identifiers import InstrumentId, OrderId, TradeId
 from automated_trading_bot.domain.order_side import OrderSide
 from automated_trading_bot.domain.timestamp import Timestamp
 from automated_trading_bot.instruments.model import EvidenceContentDigest
@@ -27,9 +27,11 @@ from automated_trading_bot.research.simulated_execution import (
     CostProvenance,
     CostRate,
     CostScenario,
+    ExecutionAttempt,
     ExecutionCostModel,
     ExecutionInputState,
     ExecutionSnapshot,
+    OrderStatus,
     SimulatedOms,
     create_order,
     post_fill_to_ledger,
@@ -155,6 +157,137 @@ def test_multiple_partial_fills_reconcile_deterministically() -> None:
     for fill in oms.fills:
         ledger = post_fill_to_ledger(ledger, fill)
     assert reconcile(oms, ledger) == reconcile(oms, ledger)
+    assert reconcile(oms, ledger).state is ReconciliationState.RECONCILED
+
+
+def test_valid_unfilled_attempt_reconciles_without_a_fill() -> None:
+    candidate = order()
+    oms = SimulatedOms().submit(candidate).mark_unfilled(candidate.order_id, "NO_LIQUIDITY")
+    assert type(oms.attempts[0]) is ExecutionAttempt
+    result = reconcile(oms, SimulationLedger.empty(USD).apply(opening()))
+    assert result.state is ReconciliationState.RECONCILED
+
+
+def test_partial_fill_then_unfilled_attempt_preserves_partial_state() -> None:
+    candidate = order(quantity="4")
+    oms = SimulatedOms().submit(candidate).execute(
+        candidate.order_id, Decimal("2"), snapshot(quantity="2"), cost_model()
+    )
+    unavailable = replace(snapshot(14), price=None, price_available_at=None)
+    oms = oms.execute(candidate.order_id, Decimal("2"), unavailable, cost_model())
+    ledger = post_fill_to_ledger(SimulationLedger.empty(USD).apply(opening()), oms.fills[0])
+    assert oms.orders[0].status is OrderStatus.PARTIALLY_FILLED
+    assert [attempt.outcome for attempt in oms.attempts] == [
+        OrderStatus.PARTIALLY_FILLED,
+        OrderStatus.UNFILLED,
+    ]
+    assert reconcile(oms, ledger).state is ReconciliationState.RECONCILED
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("order_id", "bad-order-id"),
+        ("requested_quantity", "2"),
+        ("requested_quantity", Decimal("0")),
+        ("requested_quantity", Decimal("-1")),
+        ("requested_quantity", Decimal("NaN")),
+        ("requested_quantity", Decimal("Infinity")),
+        ("outcome", "PARTIALLY_FILLED"),
+        ("reasons", []),
+        ("reasons", (1,)),
+        ("fill_id", "bad-fill-id"),
+    ],
+)
+def test_malformed_attempt_payload_is_invalid(field: str, value: object) -> None:
+    oms, ledger = chain()
+    malformed = unsafe(oms.attempts[0], **{field: value})
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.INVALID_OR_UNKNOWN
+    assert result.performance is None
+    assert DiscrepancyCode.INVALID_INPUT in codes(result)
+
+
+def test_attempt_missing_order_is_discrepancy() -> None:
+    oms, ledger = chain()
+    unknown = OrderId(UUID("32345678-1234-4234-8234-123456789abc"))
+    malformed = replace(oms.attempts[0], order_id=unknown)
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.MISSING_ORDER in codes(result)
+
+
+def test_attempt_missing_fill_is_discrepancy() -> None:
+    oms, ledger = chain()
+    unknown = TradeId(UUID("42345678-1234-4234-8234-123456789abc"))
+    malformed = replace(oms.attempts[0], fill_id=unknown)
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.MISSING_FILL in codes(result)
+
+
+def test_attempt_fill_must_belong_to_same_order() -> None:
+    oms, ledger = chain()
+    other_order_id = OrderId(UUID("52345678-1234-4234-8234-123456789abc"))
+    other = unsafe(order(), order_id=other_order_id)
+    oms = oms.submit(other)
+    malformed = replace(oms.attempts[0], order_id=other_order_id)
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert DiscrepancyCode.IDENTITY_MISMATCH in codes(result)
+
+
+@pytest.mark.parametrize(
+    "outcome,fill_present",
+    [
+        (OrderStatus.UNFILLED, True),
+        (OrderStatus.PARTIALLY_FILLED, False),
+        (OrderStatus.FULLY_FILLED, False),
+    ],
+)
+def test_attempt_fill_presence_must_match_outcome(
+    outcome: OrderStatus, fill_present: bool
+) -> None:
+    oms, ledger = chain()
+    malformed = replace(
+        oms.attempts[0], outcome=outcome, fill_id=oms.fills[0].fill_id if fill_present else None
+    )
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.IDENTITY_MISMATCH in codes(result)
+
+
+def test_attempt_requested_quantity_must_cover_fill() -> None:
+    oms, ledger = chain()
+    malformed = replace(oms.attempts[0], requested_quantity=Decimal("1"))
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert DiscrepancyCode.QUANTITY_MISMATCH in codes(result)
+
+
+def test_fill_cannot_be_attributed_to_multiple_attempts() -> None:
+    oms, ledger = chain()
+    result = reconcile(replace(oms, attempts=oms.attempts + oms.attempts), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.IDENTITY_MISMATCH in codes(result)
+
+
+@pytest.mark.parametrize("outcome", [OrderStatus.FULLY_FILLED, OrderStatus.UNFILLED])
+def test_attempt_outcome_must_match_fill_sequence(outcome: OrderStatus) -> None:
+    oms, ledger = chain()
+    malformed = replace(oms.attempts[0], outcome=outcome)
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+
+
+def test_full_fill_attempt_is_reconciled() -> None:
+    oms, ledger = chain(fill_quantity="10")
+    assert oms.attempts[0].outcome is OrderStatus.FULLY_FILLED
     assert reconcile(oms, ledger).state is ReconciliationState.RECONCILED
 
 
