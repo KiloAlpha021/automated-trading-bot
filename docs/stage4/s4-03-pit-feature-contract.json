@@ -1,0 +1,12 @@
+{
+  "authority": "RESEARCH_INPUT_ONLY_NO_TRADING_AUTHORITY",
+  "contract": "ATIS-S4-03-PIT-FEATURE-CONTRACT-V1",
+  "decision_eligibility": {
+    "ordering": ["T_KNOWLEDGE <= T_FEATURE", "T_FEATURE <= T_DECISION"],
+    "fail_closed": ["UNKNOWN_KNOWLEDGE_TIME", "FUTURE_KNOWLEDGE", "FEATURE_AFTER_DECISION", "OUTSIDE_QUALIFICATION_COVERAGE", "QUALIFICATION_NOT_CURRENT", "INSUFFICIENT_HISTORY", "INPUT_STALE", "INPUT_CONFLICTING", "INPUT_INVALID"]
+  },
+  "feature_definition_binds": ["algorithm", "configuration", "required_inputs", "lookback", "minimum_history", "missing_data_policy", "availability_policy", "output_semantics", "version"],
+  "feature_observation_binds": ["feature_definition", "instrument", "listing", "dataset", "qualification", "input_lineage", "input_window", "availability", "value", "evidence"],
+  "qualification_ceiling": "Feature authority never exceeds the current S4-02 dataset qualification ceiling.",
+  "runtime_authority": false
+}
