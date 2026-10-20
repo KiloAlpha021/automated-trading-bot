@@ -168,6 +168,75 @@ def test_valid_unfilled_attempt_reconciles_without_a_fill() -> None:
     assert result.state is ReconciliationState.RECONCILED
 
 
+@pytest.mark.parametrize("reasons", [(), ("",), ("   ",)])
+def test_unfilled_attempt_requires_explicit_nonblank_reason(
+    reasons: tuple[str, ...],
+) -> None:
+    candidate = order()
+    oms = SimulatedOms().submit(candidate).mark_unfilled(candidate.order_id, "NO_LIQUIDITY")
+    malformed = replace(oms.attempts[0], reasons=reasons)
+    result = reconcile(
+        replace(oms, attempts=(malformed,)),
+        SimulationLedger.empty(USD).apply(opening()),
+    )
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.ATTRIBUTION_MISMATCH in codes(result)
+
+
+def test_fill_attempt_requires_empty_reasons() -> None:
+    oms, ledger = chain()
+    malformed = replace(oms.attempts[0], reasons=("UNEXPECTED_REASON",))
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.ATTRIBUTION_MISMATCH in codes(result)
+
+
+@pytest.mark.parametrize("outcome", [OrderStatus.REJECTED, OrderStatus.CANCELLED])
+def test_order_lifecycle_status_is_not_an_execution_attempt_outcome(
+    outcome: OrderStatus,
+) -> None:
+    candidate = order()
+    oms = SimulatedOms().submit(candidate).mark_unfilled(candidate.order_id, "NO_LIQUIDITY")
+    malformed = replace(oms.attempts[0], outcome=outcome)
+    result = reconcile(
+        replace(oms, attempts=(malformed,)),
+        SimulationLedger.empty(USD).apply(opening()),
+    )
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.IDENTITY_MISMATCH in codes(result)
+
+
+def test_fill_request_cannot_exceed_pre_attempt_remaining_quantity() -> None:
+    oms, ledger = chain()
+    malformed = replace(oms.attempts[0], requested_quantity=Decimal("11"))
+    result = reconcile(replace(oms, attempts=(malformed,)), ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.QUANTITY_MISMATCH in codes(result)
+
+
+def test_unfilled_request_cannot_exceed_pre_attempt_remaining_quantity() -> None:
+    candidate = order()
+    oms = SimulatedOms().submit(candidate).mark_unfilled(candidate.order_id, "NO_LIQUIDITY")
+    malformed = replace(oms.attempts[0], requested_quantity=Decimal("11"))
+    result = reconcile(
+        replace(oms, attempts=(malformed,)),
+        SimulationLedger.empty(USD).apply(opening()),
+    )
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert result.performance is None
+    assert DiscrepancyCode.QUANTITY_MISMATCH in codes(result)
+
+
+def test_requested_quantity_equal_to_pre_attempt_remaining_is_valid() -> None:
+    oms, ledger = chain(fill_quantity="10")
+    assert oms.attempts[0].requested_quantity == Decimal("10")
+    assert reconcile(oms, ledger).state is ReconciliationState.RECONCILED
+
+
 def test_partial_fill_then_unfilled_attempt_preserves_partial_state() -> None:
     candidate = order(quantity="4")
     oms = SimulatedOms().submit(candidate).execute(

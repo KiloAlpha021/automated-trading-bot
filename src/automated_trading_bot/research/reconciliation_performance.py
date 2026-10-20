@@ -246,22 +246,51 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
         order_record = orders.get(attempt.order_id)
         if order_record is None:
             _add(discrepancies, DiscrepancyCode.MISSING_ORDER, attempt.order_id)
+        else:
+            pre_attempt_remaining = (
+                order_record.order.quantity
+                - cumulative_by_order.get(attempt.order_id, _ZERO)
+            )
+            if attempt.requested_quantity > pre_attempt_remaining:
+                _add(
+                    discrepancies,
+                    DiscrepancyCode.QUANTITY_MISMATCH,
+                    f"attempt:{attempt.order_id}",
+                )
         fill = fills.get(attempt.fill_id) if attempt.fill_id is not None else None
         if attempt.fill_id is None:
-            if attempt.outcome in fill_outcomes:
+            if attempt.outcome is not OrderStatus.UNFILLED:
                 _add(
                     discrepancies,
                     DiscrepancyCode.IDENTITY_MISMATCH,
                     f"attempt:{attempt.order_id}",
                 )
+            elif not attempt.reasons or any(
+                not reason.strip() for reason in attempt.reasons
+            ):
+                _add(
+                    discrepancies,
+                    DiscrepancyCode.ATTRIBUTION_MISMATCH,
+                    f"attempt:{attempt.order_id}",
+                )
             continue
         fill_attempts[attempt.fill_id] += 1
+        unique_fill_reference = fill_attempts[attempt.fill_id] == 1
+        attempt_consistent = unique_fill_reference
         if attempt.outcome not in fill_outcomes:
             _add(
                 discrepancies,
                 DiscrepancyCode.IDENTITY_MISMATCH,
                 f"attempt:{attempt.fill_id}",
             )
+            attempt_consistent = False
+        if attempt.reasons:
+            _add(
+                discrepancies,
+                DiscrepancyCode.ATTRIBUTION_MISMATCH,
+                f"attempt:{attempt.fill_id}",
+            )
+            attempt_consistent = False
         if fill is None:
             _add(discrepancies, DiscrepancyCode.MISSING_FILL, attempt.fill_id)
             continue
@@ -271,6 +300,7 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
                 DiscrepancyCode.IDENTITY_MISMATCH,
                 f"attempt:{attempt.fill_id}",
             )
+            attempt_consistent = False
         try:
             fill_quantity = _finite(fill.quantity, "fill quantity")
             if fill_quantity <= 0:
@@ -285,10 +315,14 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
                 DiscrepancyCode.QUANTITY_MISMATCH,
                 f"attempt:{attempt.fill_id}",
             )
+            attempt_consistent = False
         if order_record is None or fill.order_id != attempt.order_id:
             continue
-        cumulative = cumulative_by_order.get(attempt.order_id, _ZERO) + fill_quantity
-        cumulative_by_order[attempt.order_id] = cumulative
+        pre_attempt_filled = cumulative_by_order.get(attempt.order_id, _ZERO)
+        pre_attempt_remaining = order_record.order.quantity - pre_attempt_filled
+        if attempt.requested_quantity > pre_attempt_remaining:
+            attempt_consistent = False
+        cumulative = pre_attempt_filled + fill_quantity
         expected_outcome = (
             OrderStatus.FULLY_FILLED
             if cumulative == order_record.order.quantity
@@ -300,6 +334,9 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
                 DiscrepancyCode.QUANTITY_MISMATCH,
                 f"attempt:{attempt.fill_id}",
             )
+            attempt_consistent = False
+        if attempt_consistent:
+            cumulative_by_order[attempt.order_id] = cumulative
 
     for fill in oms.fills:
         subject = fill.fill_id.value.hex
