@@ -1,0 +1,15 @@
+{
+  "authority": "RESEARCH_SIMULATION_ONLY_NO_TRADING_AUTHORITY",
+  "contract": "ATIS-S4-04-FINANCIAL-SIMULATION-LEDGER-V1",
+  "dependencies": {
+    "s4_01": "ResearchRunId and evidence-digest attribution",
+    "s4_02": "Dataset qualification remains an upstream admission boundary",
+    "s4_03": "Point-in-time feature eligibility remains an upstream decision-input boundary"
+  },
+  "event_order": "Positive contiguous sequence, beginning with attributable opening cash",
+  "financial_events": ["OPENING_CASH", "CASH_ADJUSTMENT", "TRADE", "MARK", "CASH_DIVIDEND", "SPLIT"],
+  "invariants": ["EVERY_MUTATION_ATTRIBUTABLE", "NO_SILENT_CASH_CREATION", "IMMUTABLE_HISTORY", "DETERMINISTIC_REPLAY", "ACCOUNTING_CONSISTENCY", "FINANCIAL_UNKNOWN_FAIL_CLOSED", "CORPORATE_ACTION_ATTRIBUTION"],
+  "position_policy": "Long-only average-cost simulation accounting",
+  "runtime_authority": false,
+  "trading_authority": false
+}
