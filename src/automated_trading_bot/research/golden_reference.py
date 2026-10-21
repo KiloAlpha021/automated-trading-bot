@@ -135,6 +135,115 @@ _MONEY_KEYS = frozenset(
         "b_basis",
     }
 )
+_EXPECTED_KEYS: Final = MappingProxyType(
+    {
+        "GR-01A": frozenset(
+            {
+                "attempt_count",
+                "basis",
+                "cash",
+                "event_count",
+                "fill_count",
+                "gross_pnl",
+                "net_pnl",
+                "order_count",
+                "portfolio_value",
+                "quantity",
+                "realised_pnl",
+                "turnover",
+                "unrealised_pnl",
+            }
+        ),
+        "GR-01B": frozenset(
+            {
+                "attempt_count",
+                "basis",
+                "cash",
+                "event_count",
+                "fill_count",
+                "order_count",
+                "quantity",
+                "realised_pnl",
+            }
+        ),
+        "GR-02": frozenset(
+            {"basis", "cash", "event_count", "portfolio_value", "quantity", "realised_pnl"}
+        ),
+        "GR-03": frozenset(
+            {"basis", "cash", "event_count", "portfolio_value", "quantity"}
+        ),
+        "GR-04": frozenset(
+            {
+                "attempt_count",
+                "b_basis",
+                "b_quantity",
+                "basis",
+                "cash",
+                "event_count",
+                "fill_count",
+                "gross_pnl",
+                "net_pnl",
+                "order_count",
+                "portfolio_value",
+                "quantity",
+                "realised_pnl",
+                "turnover",
+                "unrealised_pnl",
+            }
+        ),
+        **{
+            f"GR-05-EC{index}": frozenset(
+                {
+                    "additional_friction",
+                    "basis",
+                    "bid_ask_spread",
+                    "cash",
+                    "commission_fees",
+                    "gross_pnl",
+                    "market_impact",
+                    "net_pnl",
+                    "portfolio_value",
+                    "slippage",
+                    "total_cost",
+                    "turnover",
+                }
+            )
+            for index in range(4)
+        },
+        "GR-06": frozenset({"attempt_count", "fill_count", "status"}),
+        **{
+            case_id: frozenset({"attempt_count", "fill_count", "reasons", "status"})
+            for case_id in (
+                "GR-07-PRICE",
+                "GR-07-SECURITY",
+                "GR-07-LIQUIDITY",
+                "GR-07-EVIDENCE",
+            )
+        },
+        "GR-08": frozenset({"capability", "classification"}),
+        "GR-09-REPLAY": frozenset({"deterministic"}),
+        "GR-09-SEQUENCE": frozenset({"rejected"}),
+        "GR-09-IDENTITY": frozenset(
+            {"conflict_rejected", "exact_duplicate_idempotent"}
+        ),
+        **{
+            case_id: frozenset({"reasons", "state"})
+            for case_id in (
+                "GR-10-FUTURE",
+                "GR-10-UNAVAILABLE",
+                "GR-10-SAME-INSTANT",
+            )
+        },
+    }
+)
+_COST_VECTORS: Final = MappingProxyType(
+    {
+        "EC0": ("0", "0", "0", "0", "0"),
+        "EC1": ("1", "2", "3", "4", "5"),
+        "EC2": ("2", "4", "6", "8", "10"),
+        "EC3": ("5", "10", "15", "20", "25"),
+    }
+)
 
 
 class GoldenReferenceError(ValueError):
@@ -240,6 +349,39 @@ def _deep_freeze(value: object) -> object:
     return value
 
 
+def _require_deeply_immutable(value: object, name: str) -> None:
+    if type(value) is MappingProxyType:
+        for key, child in value.items():
+            if type(key) is not str:
+                raise GoldenReferenceError(f"{name} keys must be strings")
+            _require_deeply_immutable(child, f"{name}.{key}")
+        return
+    if type(value) is tuple:
+        for index, child in enumerate(value):
+            _require_deeply_immutable(child, f"{name}[{index}]")
+        return
+    if type(value) not in {str, int, bool, type(None)}:
+        raise GoldenReferenceError(f"{name} is not deeply immutable")
+
+
+def _owned_freeze(value: object) -> object:
+    if type(value) is MappingProxyType:
+        return MappingProxyType(
+            {key: _owned_freeze(child) for key, child in value.items()}
+        )
+    if type(value) is tuple:
+        return tuple(_owned_freeze(child) for child in value)
+    return value
+
+
+def _thaw(value: object) -> object:
+    if type(value) is MappingProxyType:
+        return {key: _thaw(child) for key, child in value.items()}
+    if type(value) is tuple:
+        return [_thaw(child) for child in value]
+    return value
+
+
 def _reject_float(value: str) -> object:
     raise GoldenReferenceError(f"JSON float is prohibited: {value}")
 
@@ -268,7 +410,7 @@ def _decimal(value: object, name: str) -> Decimal:
     if type(value) is not str or _DECIMAL.fullmatch(value) is None:
         raise GoldenReferenceError(f"{name} must be a canonical Decimal string")
     parsed = Decimal(value)
-    if not parsed.is_finite():
+    if not parsed.is_finite() or (parsed.is_zero() and value.startswith("-")):
         raise GoldenReferenceError(f"{name} must be finite")
     return parsed
 
@@ -285,7 +427,9 @@ def _validate_decimal_values(value: object, path: str = "reference") -> None:
             _validate_decimal_values(child, f"{path}[{index}]")
 
 
-def _exact_keys(value: Mapping[str, object], required: set[str], name: str) -> None:
+def _exact_keys(
+    value: Mapping[str, object], required: set[str] | frozenset[str], name: str
+) -> None:
     if set(value) != required:
         raise GoldenReferenceError(f"{name} keys mismatch")
 
@@ -299,6 +443,14 @@ def _validate_timestamp_text(value: object, name: str) -> None:
         raise GoldenReferenceError(f"{name} must be canonical UTC") from error
     if parsed.strftime("%Y-%m-%dT%H:%M:%S.%fZ") != value:
         raise GoldenReferenceError(f"{name} must be canonical UTC")
+
+
+def _timestamp_datetime(value: object, name: str) -> datetime:
+    _validate_timestamp_text(value, name)
+    assert isinstance(value, str)
+    return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+        tzinfo=timezone.utc
+    )
 
 
 def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None:
@@ -342,11 +494,35 @@ def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None
                     "transaction quantity and price must be positive"
                 )
             minute = transaction["release_minute"]
-            if type(minute) is not int or minute <= previous_minute:
+            if (
+                type(minute) is not int
+                or not 1 <= minute <= 59
+                or minute <= previous_minute
+            ):
                 raise GoldenReferenceError(
-                    "release minutes must be strictly increasing"
+                    "release minutes must be in 1..59 and strictly increasing"
                 )
             previous_minute = minute
+        instruments = tuple(
+            _input_string(_input_mapping(item, "transaction")["instrument"], "instrument")
+            for item in transactions
+        )
+        sides = tuple(
+            _input_string(_input_mapping(item, "transaction")["side"], "side")
+            for item in transactions
+        )
+        if case_id == "GR-01A" and (
+            len(transactions) != 2
+            or len(set(instruments)) != 1
+            or sides != ("BUY", "SELL")
+        ):
+            raise GoldenReferenceError("GR-01A transaction pattern mismatch")
+        if case_id == "GR-01B" and (
+            len(transactions) != 3
+            or len(set(instruments)) != 1
+            or sides != ("BUY", "BUY", "SELL")
+        ):
+            raise GoldenReferenceError("GR-01B transaction pattern mismatch")
         if "mark" in inputs:
             mark = _input_mapping(inputs["mark"], "mark")
             _exact_keys(mark, {"instrument", "price"}, "mark")
@@ -361,13 +537,15 @@ def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None
                 )
             if inputs["cost_scenario"] != case_id.removeprefix("GR-05-"):
                 raise GoldenReferenceError("cost scenario mismatch")
+            if tuple(rates) != _COST_VECTORS[inputs["cost_scenario"]]:
+                raise GoldenReferenceError("cost vector mismatch")
         if "corporate_action" in inputs:
             action = _input_mapping(inputs["corporate_action"], "corporate_action")
             if case_id == "GR-02":
                 _exact_keys(action, {"kind", "unit_amount"}, "corporate_action")
                 if (
                     action["kind"] != "CASH_DIVIDEND"
-                    or _decimal(action["unit_amount"], "unit_amount") < 0
+                    or _decimal(action["unit_amount"], "unit_amount") <= 0
                 ):
                     raise GoldenReferenceError("dividend fixture mismatch")
             else:
@@ -377,6 +555,32 @@ def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None
                     or _decimal(action["quantity"], "quantity") <= 0
                 ):
                     raise GoldenReferenceError("split fixture mismatch")
+        if case_id in {"GR-02", "GR-03"}:
+            mark = _input_mapping(inputs["mark"], "mark")
+            if (
+                len(transactions) != 1
+                or sides != ("BUY",)
+                or mark["instrument"] != instruments[0]
+            ):
+                raise GoldenReferenceError("corporate-action transaction mismatch")
+        if case_id == "GR-04":
+            mark = _input_mapping(inputs["mark"], "mark")
+            if (
+                len(transactions) != 3
+                or sides != ("BUY", "BUY", "SELL")
+                or instruments[0] != instruments[2]
+                or instruments[0] == instruments[1]
+                or mark["instrument"] != instruments[0]
+            ):
+                raise GoldenReferenceError("GR-04 transaction pattern mismatch")
+        if case_id.startswith("GR-05"):
+            mark = _input_mapping(inputs["mark"], "mark")
+            if (
+                len(transactions) != 1
+                or sides != ("BUY",)
+                or mark["instrument"] != instruments[0]
+            ):
+                raise GoldenReferenceError("GR-05 transaction pattern mismatch")
         return
     if case_id == "GR-06":
         _exact_keys(
@@ -393,9 +597,10 @@ def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None
             raise GoldenReferenceError("GR-06 must be ineligible")
         reasons = _input_list(inputs["eligibility_reasons"], "eligibility_reasons")
         if not reasons or any(
-            not _input_string(reason, "eligibility_reason").strip()
+            re.fullmatch(r"[A-Z][A-Z0-9_]*", _input_string(reason, "eligibility_reason"))
+            is None
             for reason in reasons
-        ):
+        ) or len(set(reasons)) != len(reasons):
             raise GoldenReferenceError("eligibility reasons must be nonblank")
     elif case_id.startswith("GR-07"):
         _exact_keys(inputs, common | {"quantity", "price", "failure"}, case_id)
@@ -422,9 +627,22 @@ def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None
         )
         if inputs["mode"] != CASE_CATALOGUE[case_id][1]:
             raise GoldenReferenceError("fixture mode mismatch")
-        for key in ("decision_time", "event_time", "knowledge_time"):
-            _validate_timestamp_text(inputs[key], key)
-        InputState(_input_string(inputs["input_state"], "input_state"))
+        decision = _timestamp_datetime(inputs["decision_time"], "decision_time")
+        event = _timestamp_datetime(inputs["event_time"], "event_time")
+        knowledge = _timestamp_datetime(inputs["knowledge_time"], "knowledge_time")
+        state = InputState(_input_string(inputs["input_state"], "input_state"))
+        if case_id == "GR-10-FUTURE" and not (
+            state is InputState.VALID and event <= decision < knowledge
+        ):
+            raise GoldenReferenceError("future-knowledge chronology mismatch")
+        if case_id == "GR-10-UNAVAILABLE" and not (
+            state is InputState.MISSING and event <= knowledge <= decision
+        ):
+            raise GoldenReferenceError("unavailable-input chronology mismatch")
+        if case_id == "GR-10-SAME-INSTANT" and not (
+            state is InputState.VALID and event == knowledge == decision
+        ):
+            raise GoldenReferenceError("same-instant chronology mismatch")
     if inputs.get("currency") != "USD":
         raise GoldenReferenceError("fixture currency must be USD")
     ResearchRunId(_input_string(inputs.get("research_run_id"), "research_run_id"))
@@ -435,6 +653,171 @@ def _validate_fixture_inputs(case_id: str, inputs: Mapping[str, object]) -> None
         raise GoldenReferenceError("quantity must be positive")
     if "price" in inputs and _decimal(inputs["price"], "price") <= 0:
         raise GoldenReferenceError("price must be positive")
+
+
+def _validate_expected(case_id: str, expected: Mapping[str, object]) -> None:
+    _exact_keys(expected, _EXPECTED_KEYS[case_id], f"{case_id}.expected")
+    boolean_keys = {
+        "conflict_rejected",
+        "deterministic",
+        "exact_duplicate_idempotent",
+        "rejected",
+    }
+    count_keys = {"attempt_count", "event_count", "fill_count", "order_count"}
+    string_keys = {"capability", "classification", "state", "status"}
+    for key, value in expected.items():
+        if key in _MONEY_KEYS:
+            _decimal(value, f"{case_id}.expected.{key}")
+        elif key in boolean_keys:
+            if type(value) is not bool:
+                raise GoldenReferenceError(f"{case_id}.expected.{key} must be boolean")
+        elif key in count_keys:
+            if type(value) is not int or value < 0:
+                raise GoldenReferenceError(
+                    f"{case_id}.expected.{key} must be a non-negative integer"
+                )
+        elif key == "reasons":
+            reasons = _input_list(value, f"{case_id}.expected.reasons")
+            if not reasons or any(
+                re.fullmatch(r"[A-Z][A-Z0-9_]*", _input_string(item, "reason"))
+                is None
+                for item in reasons
+            ):
+                raise GoldenReferenceError(
+                    f"{case_id}.expected.reasons must be canonical"
+                )
+        elif key in string_keys:
+            _input_string(value, f"{case_id}.expected.{key}")
+        else:
+            raise GoldenReferenceError(f"unsupported expected field: {key}")
+
+
+def _validate_reference_structure(reference: GoldenReference) -> None:
+    if type(reference) is not GoldenReference:
+        raise GoldenReferenceError("reference must be a GoldenReference")
+    if reference.contract_version != 1:
+        raise GoldenReferenceError("contract version mismatch")
+    if not reference.approval_reference:
+        raise GoldenReferenceError("approval reference is required")
+    if re.fullmatch(r"[0-9a-f]{64}", reference.approval_command_sha256) is None:
+        raise GoldenReferenceError("approval command digest is invalid")
+    if re.fullmatch(r"sha256:[0-9a-f]{64}", reference.reference_digest) is None:
+        raise GoldenReferenceError("reference digest is invalid")
+    if re.fullmatch(r"[0-9a-f]{64}", reference.file_sha256) is None:
+        raise GoldenReferenceError("reference file digest is invalid")
+    if type(reference.fixtures) is not tuple:
+        raise GoldenReferenceError("fixtures must be an immutable tuple")
+    seen: set[str] = set()
+    for fixture in reference.fixtures:
+        if type(fixture) is not GoldenFixture:
+            raise GoldenReferenceError("fixture type is invalid")
+        if fixture.case_id not in CASE_CATALOGUE or fixture.case_id in seen:
+            raise GoldenReferenceError("fixture identity is invalid or duplicated")
+        if (fixture.family, fixture.operation) != CASE_CATALOGUE[fixture.case_id]:
+            raise GoldenReferenceError("fixture metadata does not match case identity")
+        if type(fixture.inputs) is not MappingProxyType or type(
+            fixture.expected
+        ) is not MappingProxyType:
+            raise GoldenReferenceError("fixture mappings must be immutable")
+        _require_deeply_immutable(fixture.inputs, f"{fixture.case_id}.inputs")
+        _require_deeply_immutable(fixture.expected, f"{fixture.case_id}.expected")
+        _validate_fixture_inputs(fixture.case_id, fixture.inputs)
+        _validate_expected(fixture.case_id, fixture.expected)
+        seen.add(fixture.case_id)
+    if seen != set(MANDATORY_CASES):
+        raise GoldenReferenceError("mandatory fixture set mismatch")
+
+
+def _reference_document(reference: GoldenReference) -> dict[str, object]:
+    return {
+        "approval_verification": {
+            "fixture_metadata_authenticates_approval": False,
+            "required_external_binding": [
+                "approval_reference",
+                "command_sha256",
+                "reference_digest",
+            ],
+            "unverified_semantics": "NOT_ESTABLISHED",
+        },
+        "authority": ASSURANCE_AUTHORITY,
+        "canonicalization": {
+            "decimal_strings": (
+                "plain notation; zero is 0; redundant trailing fractional zeros "
+                "prohibited"
+            ),
+            "digest_excludes": ["reference_digest"],
+            "encoding": "UTF-8",
+            "json": "sorted keys and compact separators",
+            "timestamps": "YYYY-MM-DDTHH:MM:SS.ffffffZ",
+        },
+        "contract_id": CONTRACT_ID,
+        "contract_version": reference.contract_version,
+        "decimal_context": {
+            "capitals": 1,
+            "clamp": 0,
+            "emax": 999999,
+            "emin": -999999,
+            "precision": 28,
+            "rounding": "ROUND_HALF_EVEN",
+            "traps": ["DivisionByZero", "InvalidOperation", "Overflow"],
+        },
+        "fixtures": [
+            {
+                "case_id": fixture.case_id,
+                "expected": _thaw(fixture.expected),
+                "family": fixture.family,
+                "inputs": _thaw(fixture.inputs),
+                "operation": fixture.operation,
+            }
+            for fixture in reference.fixtures
+        ],
+        "independent_approval": {
+            "approved_by": "ATIS_OWNER",
+            "command_sha256": reference.approval_command_sha256,
+            "reference": reference.approval_reference,
+            "status": "APPROVED",
+            "version": 1,
+        },
+    }
+
+
+def _validate_reference(reference: GoldenReference) -> GoldenReference:
+    _validate_reference_structure(reference)
+    fixtures: list[GoldenFixture] = []
+    for fixture in reference.fixtures:
+        owned_inputs = _owned_freeze(fixture.inputs)
+        owned_expected = _owned_freeze(fixture.expected)
+        if not isinstance(owned_inputs, Mapping) or not isinstance(
+            owned_expected, Mapping
+        ):
+            raise GoldenReferenceError("fixture snapshot failed")
+        fixtures.append(
+            GoldenFixture(
+                fixture.case_id,
+                fixture.family,
+                fixture.operation,
+                owned_inputs,
+                owned_expected,
+            )
+        )
+    snapshot = GoldenReference(
+        reference.contract_version,
+        reference.approval_reference,
+        reference.approval_command_sha256,
+        reference.reference_digest,
+        reference.file_sha256,
+        tuple(fixtures),
+    )
+    _validate_reference_structure(snapshot)
+    document = _reference_document(snapshot)
+    digest = "sha256:" + sha256(_canonical(document)).hexdigest()
+    document["reference_digest"] = digest
+    file_sha256 = sha256(_canonical(document) + b"\n").hexdigest()
+    if digest != snapshot.reference_digest:
+        raise GoldenReferenceError("reconstructed reference digest mismatch")
+    if file_sha256 != snapshot.file_sha256:
+        raise GoldenReferenceError("reconstructed reference file digest mismatch")
+    return snapshot
 
 
 def _expected_context() -> Context:
@@ -575,7 +958,7 @@ def load_reference_bytes(raw: bytes) -> GoldenReference:
             f"mandatory fixture mismatch: missing={missing}, extra={extra}"
         )
     _validate_decimal_values(document)
-    return GoldenReference(
+    reference = GoldenReference(
         version,
         approval["reference"],
         command_sha256,
@@ -583,6 +966,7 @@ def load_reference_bytes(raw: bytes) -> GoldenReference:
         sha256(raw).hexdigest(),
         tuple(fixtures),
     )
+    return _validate_reference(reference)
 
 
 def load_reference(path: Path) -> GoldenReference:
@@ -1138,12 +1522,34 @@ def _approval_verified(
     )
 
 
+def _invalid_reference_report(error: Exception) -> AssuranceReport:
+    return AssuranceReport(
+        CONTRACT_ID,
+        "UNVERIFIED",
+        (
+            CaseResult(
+                "REFERENCE",
+                Verdict.INVALID_REFERENCE,
+                (type(error).__name__,),
+                (str(error)[:240],),
+            ),
+        ),
+        AggregateState.NOT_ESTABLISHED,
+        AggregateState.NOT_ESTABLISHED,
+        AggregateState.FAIL,
+        0,
+        0,
+    )
+
+
 def evaluate(
     reference: GoldenReference,
     approval: OracleApprovalEvidence | None = None,
 ) -> AssuranceReport:
-    if type(reference) is not GoldenReference:
-        raise TypeError("reference must be a GoldenReference")
+    try:
+        reference = _validate_reference(reference)
+    except Exception as error:
+        return _invalid_reference_report(error)
     if not _approval_verified(reference, approval):
         cases = tuple(
             CaseResult(
@@ -1195,13 +1601,13 @@ def evaluate(
                         fixture.case_id, verdict, (fixture.operation,), differences
                     )
                 )
-            except (ArithmeticError, AttributeError, TypeError, ValueError) as error:
+            except Exception as error:
                 results.append(
                     CaseResult(
                         fixture.case_id,
                         Verdict.FAIL,
                         (type(error).__name__,),
-                        (str(error),),
+                        (str(error)[:240],),
                     )
                 )
     cases = tuple(results)
@@ -1236,24 +1642,8 @@ def assure_bytes(
 ) -> AssuranceReport:
     try:
         reference = load_reference_bytes(raw)
-    except (GoldenReferenceError, UnicodeError, ValueError) as error:
-        return AssuranceReport(
-            CONTRACT_ID,
-            "UNVERIFIED",
-            (
-                CaseResult(
-                    "REFERENCE",
-                    Verdict.INVALID_REFERENCE,
-                    (type(error).__name__,),
-                    (str(error),),
-                ),
-            ),
-            AggregateState.NOT_ESTABLISHED,
-            AggregateState.NOT_ESTABLISHED,
-            AggregateState.FAIL,
-            0,
-            0,
-        )
+    except Exception as error:
+        return _invalid_reference_report(error)
     return evaluate(reference, approval)
 
 
@@ -1261,6 +1651,10 @@ def assure_path(
     path: Path,
     approval: OracleApprovalEvidence | None = None,
 ) -> AssuranceReport:
-    if not isinstance(path, Path):
-        raise TypeError("path must be a Path")
-    return assure_bytes(path.read_bytes(), approval)
+    try:
+        if not isinstance(path, Path):
+            raise TypeError("path must be a Path")
+        raw = path.read_bytes()
+    except Exception as error:
+        return _invalid_reference_report(error)
+    return assure_bytes(raw, approval)

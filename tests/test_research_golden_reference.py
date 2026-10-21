@@ -6,6 +6,7 @@ from decimal import Decimal, DivisionByZero, localcontext
 from hashlib import sha256
 import json
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -15,6 +16,7 @@ from automated_trading_bot.research.golden_reference import (
     AggregateState,
     MANDATORY_CASES,
     AssuranceReport,
+    GoldenFixture,
     GoldenReference,
     OracleApprovalEvidence,
     TRUSTED_OWNER_APPROVAL,
@@ -80,6 +82,23 @@ def _evidence(reference: GoldenReference) -> OracleApprovalEvidence:
     assert reference.reference_digest == TRUSTED_OWNER_APPROVAL.reference_digest
     assert reference.file_sha256 == TRUSTED_OWNER_APPROVAL.file_sha256
     return TRUSTED_OWNER_APPROVAL
+
+
+def _constructed_reference(
+    reference: GoldenReference, fixture: GoldenFixture
+) -> GoldenReference:
+    fixtures = tuple(
+        fixture if item.case_id == fixture.case_id else item
+        for item in reference.fixtures
+    )
+    return GoldenReference(
+        reference.contract_version,
+        reference.approval_reference,
+        reference.approval_command_sha256,
+        reference.reference_digest,
+        reference.file_sha256,
+        fixtures,
+    )
 
 
 def _assure_contract() -> AssuranceReport:
@@ -157,7 +176,9 @@ def test_noncanonical_json_layout_is_invalid() -> None:
     assert assure_bytes(raw).cases[0].verdict is Verdict.INVALID_REFERENCE
 
 
-@pytest.mark.parametrize("value", ["1.0", "1e2", "NaN", "Infinity"])
+@pytest.mark.parametrize(
+    "value", ["-0", "-0.0", "0.0", "1.0", "1.00", "1e2", "NaN", "Infinity"]
+)
 def test_noncanonical_or_nonfinite_decimal_is_invalid(value: str) -> None:
     document = _document()
     _expected(document, "GR-01A")["cash"] = value
@@ -458,3 +479,363 @@ def test_operation_specific_invalid_inputs_fail_before_execution(
     report = assure_bytes(_encode(document), TRUSTED_OWNER_APPROVAL)
     assert report.reference_integrity is AggregateState.FAIL
     assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_direct_constructor_missing_fixture_is_invalid_before_execution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference = load_reference(CONTRACT)
+    malformed = GoldenReference(
+        reference.contract_version,
+        reference.approval_reference,
+        reference.approval_command_sha256,
+        reference.reference_digest,
+        reference.file_sha256,
+        reference.fixtures[:-1],
+    )
+    called = False
+
+    def should_not_execute(fixture: GoldenFixture) -> dict[str, object]:
+        nonlocal called
+        called = True
+        return {}
+
+    monkeypatch.setattr(golden_reference, "_actual", should_not_execute)
+    report = evaluate(malformed, TRUSTED_OWNER_APPROVAL)
+    assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+    assert called is False
+
+
+def test_direct_constructor_mutable_fixture_is_invalid() -> None:
+    reference = load_reference(CONTRACT)
+    original = reference.fixtures[0]
+    mutable = GoldenFixture(
+        original.case_id,
+        original.family,
+        original.operation,
+        dict(original.inputs),
+        dict(original.expected),
+    )
+    malformed = GoldenReference(
+        reference.contract_version,
+        reference.approval_reference,
+        reference.approval_command_sha256,
+        reference.reference_digest,
+        reference.file_sha256,
+        (mutable, *reference.fixtures[1:]),
+    )
+    assert evaluate(malformed, TRUSTED_OWNER_APPROVAL).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_direct_constructor_substituted_fixture_identity_is_invalid_before_execution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference = load_reference(CONTRACT)
+    original = reference.fixtures[0]
+    changed = dict(original.inputs["transactions"][0])
+    changed["price"] = "21"
+    transactions = (
+        MappingProxyType(changed),
+        *original.inputs["transactions"][1:],
+    )
+    inputs = dict(original.inputs)
+    inputs["transactions"] = transactions
+    substituted = GoldenFixture(
+        original.case_id,
+        original.family,
+        original.operation,
+        MappingProxyType(inputs),
+        original.expected,
+    )
+    called = False
+
+    def should_not_execute(fixture: GoldenFixture) -> dict[str, object]:
+        nonlocal called
+        called = True
+        return {}
+
+    monkeypatch.setattr(golden_reference, "_actual", should_not_execute)
+    report = evaluate(
+        _constructed_reference(reference, substituted), TRUSTED_OWNER_APPROVAL
+    )
+    assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+    assert called is False
+
+
+def test_direct_constructor_substituted_expected_value_is_invalid() -> None:
+    reference = load_reference(CONTRACT)
+    original = reference.fixtures[0]
+    expected = dict(original.expected)
+    expected["cash"] = "999"
+    substituted = GoldenFixture(
+        original.case_id,
+        original.family,
+        original.operation,
+        original.inputs,
+        MappingProxyType(expected),
+    )
+    report = evaluate(
+        _constructed_reference(reference, substituted), TRUSTED_OWNER_APPROVAL
+    )
+    assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_caller_retained_mapping_backing_mutation_is_invalid() -> None:
+    reference = load_reference(CONTRACT)
+    original = reference.fixtures[0]
+    backing = dict(original.inputs)
+    fixture = GoldenFixture(
+        original.case_id,
+        original.family,
+        original.operation,
+        MappingProxyType(backing),
+        original.expected,
+    )
+    constructed = _constructed_reference(reference, fixture)
+    backing["opening_cash"] = "999"
+    assert evaluate(constructed, TRUSTED_OWNER_APPROVAL).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_owned_snapshot_is_not_affected_by_later_backing_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference = load_reference(CONTRACT)
+    original = reference.fixtures[0]
+    backing = dict(original.inputs)
+    fixture = GoldenFixture(
+        original.case_id,
+        original.family,
+        original.operation,
+        MappingProxyType(backing),
+        original.expected,
+    )
+    constructed = _constructed_reference(reference, fixture)
+    approval_verified = getattr(golden_reference, "_approval_verified")
+
+    def mutate_after_snapshot(
+        snapshot: GoldenReference, approval: OracleApprovalEvidence | None
+    ) -> bool:
+        backing["opening_cash"] = "999"
+        return approval_verified(snapshot, approval)
+
+    monkeypatch.setattr(golden_reference, "_approval_verified", mutate_after_snapshot)
+    report = evaluate(constructed, TRUSTED_OWNER_APPROVAL)
+    assert report.cases[0].verdict is Verdict.PASS
+
+
+def test_nested_mutable_constructor_value_is_invalid() -> None:
+    reference = load_reference(CONTRACT)
+    original = reference.fixtures[0]
+    inputs = dict(original.inputs)
+    inputs["transactions"] = [dict(item) for item in original.inputs["transactions"]]
+    fixture = GoldenFixture(
+        original.case_id,
+        original.family,
+        original.operation,
+        MappingProxyType(inputs),
+        original.expected,
+    )
+    assert (
+        evaluate(_constructed_reference(reference, fixture), TRUSTED_OWNER_APPROVAL)
+        .cases[0]
+        .verdict
+        is Verdict.INVALID_REFERENCE
+    )
+
+
+def test_legitimate_immutable_constructor_is_accepted() -> None:
+    reference = load_reference(CONTRACT)
+    fixture = reference.fixtures[0]
+    assert type(fixture.inputs) is MappingProxyType
+    assert type(fixture.expected) is MappingProxyType
+    assert evaluate(reference, TRUSTED_OWNER_APPROVAL).cases[0].verdict is Verdict.PASS
+
+
+def test_assure_path_missing_file_is_invalid(tmp_path: Path) -> None:
+    report = assure_path(tmp_path / "missing.json", TRUSTED_OWNER_APPROVAL)
+    assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_assure_path_directory_is_invalid(tmp_path: Path) -> None:
+    report = assure_path(tmp_path, TRUSTED_OWNER_APPROVAL)
+    assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_assure_path_wrong_type_is_invalid() -> None:
+    assurer = getattr(golden_reference, "assure_path")
+    report = assurer("not-a-path", TRUSTED_OWNER_APPROVAL)
+    assert report.cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_unexpected_execution_exception_is_fail(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_execution(fixture: GoldenFixture) -> dict[str, object]:
+        raise RuntimeError(f"unexpected execution failure: {fixture.case_id}")
+
+    monkeypatch.setattr(golden_reference, "_actual", fail_execution)
+    report = _assure_contract()
+    assert all(item.verdict is Verdict.FAIL for item in report.cases)
+    assert all(item.evidence == ("RuntimeError",) for item in report.cases)
+
+
+def test_malformed_actual_output_is_fail(monkeypatch: pytest.MonkeyPatch) -> None:
+    def malformed_actual(fixture: GoldenFixture) -> object:
+        return None
+
+    monkeypatch.setattr(golden_reference, "_actual", malformed_actual)
+    report = _assure_contract()
+    assert all(item.verdict is Verdict.FAIL for item in report.cases)
+
+
+@pytest.mark.parametrize("error", [KeyboardInterrupt, SystemExit])
+def test_process_control_exceptions_are_not_swallowed(
+    monkeypatch: pytest.MonkeyPatch, error: type[BaseException]
+) -> None:
+    def interrupt(fixture: GoldenFixture) -> dict[str, object]:
+        raise error(fixture.case_id)
+
+    monkeypatch.setattr(golden_reference, "_actual", interrupt)
+    with pytest.raises(error):
+        _assure_contract()
+
+
+@pytest.mark.parametrize("minute", [True, 0, 60, -1])
+def test_release_minute_must_fit_scenario_clock(minute: object) -> None:
+    document = _document()
+    inputs = _fixture(document, "GR-01A")["inputs"]
+    assert type(inputs) is dict
+    transactions = inputs["transactions"]
+    assert type(transactions) is list
+    transactions[0]["release_minute"] = minute
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_duplicate_release_minutes_are_invalid() -> None:
+    document = _document()
+    transactions = _fixture(document, "GR-01A")["inputs"]["transactions"]
+    assert type(transactions) is list
+    transactions[1]["release_minute"] = transactions[0]["release_minute"]
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+@pytest.mark.parametrize(
+    "case_id,mutation",
+    [
+        ("GR-01A", "instrument"),
+        ("GR-02", "mark"),
+        ("GR-03", "corporate_action"),
+        ("GR-04", "rebalance"),
+        ("GR-05-EC1", "cost_vector"),
+        ("GR-05-EC1", "cost_metadata"),
+    ],
+)
+def test_financial_case_structure_is_validated(
+    case_id: str, mutation: str
+) -> None:
+    document = _document()
+    inputs = _fixture(document, case_id)["inputs"]
+    assert type(inputs) is dict
+    transactions = inputs["transactions"]
+    assert type(transactions) is list
+    if mutation == "instrument":
+        transactions[-1]["instrument"] = "B"
+    elif mutation == "mark":
+        inputs["mark"]["instrument"] = "B"
+    elif mutation == "corporate_action":
+        inputs["corporate_action"]["kind"] = "CASH_DIVIDEND"
+    elif mutation == "rebalance":
+        transactions[1]["instrument"] = "A"
+    elif mutation == "cost_vector":
+        inputs["cost_bps"] = ["1", "2"]
+    else:
+        inputs["cost_scenario"] = "EC2"
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+@pytest.mark.parametrize("unit_amount", ["0", "-0.5"])
+def test_dividend_must_be_strictly_positive(unit_amount: str) -> None:
+    document = _document()
+    inputs = _fixture(document, "GR-02")["inputs"]
+    assert type(inputs) is dict
+    inputs["corporate_action"]["unit_amount"] = unit_amount
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+@pytest.mark.parametrize(
+    "case_id,rates",
+    [
+        ("GR-05-EC1", ["1", "2", "3", "5", "4"]),
+        ("GR-05-EC1", ["2", "4", "6", "8", "10"]),
+        ("GR-05-EC2", ["1", "2", "3", "4", "5"]),
+        ("GR-05-EC3", ["5", "10", "15", "25", "20"]),
+    ],
+)
+def test_cost_scenario_requires_exact_authoritative_vector(
+    case_id: str, rates: list[str]
+) -> None:
+    document = _document()
+    inputs = _fixture(document, case_id)["inputs"]
+    assert type(inputs) is dict
+    inputs["cost_bps"] = rates
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+@pytest.mark.parametrize(
+    "case_id,field,value",
+    [
+        ("GR-06", "quantity", "0"),
+        ("GR-07-PRICE", "failure", "SECURITY"),
+        ("GR-07-PRICE", "quantity", "0"),
+        ("GR-07-PRICE", "price", "0"),
+        ("GR-07-PRICE", "currency", "EUR"),
+        ("GR-09-REPLAY", "mode", "CORRUPTED_SEQUENCE"),
+        ("GR-09-REPLAY", "opening_cash", "invalid"),
+    ],
+)
+def test_nonfinancial_case_semantics_are_validated(
+    case_id: str, field: str, value: object
+) -> None:
+    document = _document()
+    inputs = _fixture(document, case_id)["inputs"]
+    assert type(inputs) is dict
+    inputs[field] = value
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+@pytest.mark.parametrize(
+    "case_id,field,value",
+    [
+        ("GR-10-FUTURE", "input_state", "MISSING"),
+        ("GR-10-FUTURE", "knowledge_time", "2026-01-05T09:30:00.000000Z"),
+        ("GR-10-UNAVAILABLE", "input_state", "VALID"),
+        ("GR-10-UNAVAILABLE", "knowledge_time", "2026-01-05T10:30:00.000000Z"),
+        ("GR-10-SAME-INSTANT", "input_state", "MISSING"),
+        ("GR-10-SAME-INSTANT", "knowledge_time", "2026-01-05T10:00:01.000000Z"),
+    ],
+)
+def test_gr10_semantic_chronology_is_validated_before_execution(
+    case_id: str, field: str, value: str
+) -> None:
+    document = _document()
+    inputs = _fixture(document, case_id)["inputs"]
+    assert type(inputs) is dict
+    inputs[field] = value
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+@pytest.mark.parametrize("mutation", ["missing", "unknown"])
+def test_expected_schema_must_be_complete_and_exact(mutation: str) -> None:
+    document = _document()
+    expected = _expected(document, "GR-01A")
+    if mutation == "missing":
+        expected.pop("cash")
+    else:
+        expected["unknown"] = "0"
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
+
+
+def test_expected_value_types_are_validated() -> None:
+    document = _document()
+    _expected(document, "GR-01A")["attempt_count"] = True
+    assert assure_bytes(_encode(document)).cases[0].verdict is Verdict.INVALID_REFERENCE
