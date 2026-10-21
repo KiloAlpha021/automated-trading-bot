@@ -18,7 +18,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "attrs": "26.1.0",
     "boolean-py": "5.0",
     "cachecontrol": "0.14.4",
-    "certifi": "2026.7.22",
+    "certifi": "2026.10.19",
     "charset-normalizer": "3.5.1",
     "colorama": "0.4.6",
     "coverage": "7.16.0",
