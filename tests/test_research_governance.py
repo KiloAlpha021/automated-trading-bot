@@ -1,15 +1,21 @@
 from dataclasses import FrozenInstanceError, replace
-from datetime import date
+from datetime import date, datetime, timezone
+from decimal import Decimal
 import hashlib
 import json
 from pathlib import Path
+from uuid import UUID
 
 import pytest
 
-from automated_trading_bot.research import research_governance as governance
 from automated_trading_bot.datasets.provenance import canonical_json
+from automated_trading_bot.domain.identifiers import InstrumentId
+from automated_trading_bot.domain.timestamp import Timestamp
+from automated_trading_bot.instruments.model import ListingId
+from automated_trading_bot.research import research_governance as governance
 from automated_trading_bot.research.dataset_qualification import (
     AssessmentState,
+    ClaimCeiling,
     DIMENSIONS,
     DimensionAssessment,
     EligibleCoverage,
@@ -27,7 +33,19 @@ from automated_trading_bot.research.identity import (
     ResearchProject,
     ResearchRun,
 )
+from automated_trading_bot.research.pit_features import (
+    AvailabilityPolicy,
+    FeatureDefinition,
+    InputState,
+    MissingDataPolicy,
+    PitInput,
+    assess_decision_input,
+    create_feature_observation,
+)
 from automated_trading_bot.research.reconciliation_performance import (
+    CostDrag,
+    MetricAvailability,
+    PerformanceTruth,
     ReconciliationResult,
     ReconciliationState,
 )
@@ -40,23 +58,28 @@ from automated_trading_bot.research.reproducibility import (
     WorkingTreeState,
 )
 from automated_trading_bot.research.research_governance import (
+    ApprovalEvidence,
     CONTRACT_ID,
     EconomicEdgeState,
     EligibilityState,
     EventKind,
     FrozenResearchPlan,
+    HistoryTrustState,
     HoldoutDecision,
     JournalError,
     PartitionRole,
+    PitEligibilityEvidence,
     RESEARCH_ONLY_AUTHORITY,
     ResearchGovernanceError,
     ResearchGovernor,
     ResearchJournal,
     TrialState,
+    TrustedEstablishment,
+    reconciliation_evidence_identity,
 )
 
-
 SHA = "sha256:" + hashlib.sha256(b"x").hexdigest()
+TASK = "ATIS-S4-08-RESEARCH-GOVERNANCE-001"
 POLICY = QualificationPolicy("policy:s4-02", "1.0.0", "evidence:policy")
 
 
@@ -81,11 +104,11 @@ def research_fixture():
     return project, hypothesis, experiment, run, reproducibility
 
 
-def plan(*, maximum: int = 2, partition: PartitionRole = PartitionRole.PROTECTED_HOLDOUT):
+def plan(*, maximum=2, partition=PartitionRole.PROTECTED_HOLDOUT):
     _, hypothesis, experiment, _, reproducibility = research_fixture()
     return FrozenResearchPlan.create(
-        hypothesis_id=hypothesis.hypothesis_id,
-        experiment_id=experiment.experiment_id,
+        hypothesis=hypothesis,
+        experiment=experiment,
         configuration_digest=reproducibility.configuration_digest,
         parameter_domain=("window=20", "threshold=0.5"),
         objective="falsify signal before confirmation",
@@ -98,469 +121,660 @@ def plan(*, maximum: int = 2, partition: PartitionRole = PartitionRole.PROTECTED
     )
 
 
-def run_for(value: FrozenResearchPlan, salt: bytes = b"run", replay_of=None):
+def approval(value, *, operation="S4_08_PLAN_APPROVAL"):
+    return ApprovalEvidence.create(
+        plan=value,
+        actor="owner:KiloAlpha21",
+        authoritative_source="github:issue-100",
+        task_id=TASK,
+        operation=operation,
+        approval_reference=value.owner_approval_reference,
+    )
+
+
+def holdout_approval(value):
+    return approval(value, operation="S4_08_HOLDOUT_ACCESS")
+
+
+def trust_for(*approvals, checkpoints=()):
+    return TrustedEstablishment.non_production_test_fixture(
+        identity="test-trust:s4-08",
+        approvals=tuple(approvals),
+        checkpoints=tuple(checkpoints),
+    )
+
+
+def governed(root: Path, value=None, *, approvals=()):
+    value = value or plan()
+    evidence = approval(value)
+    all_approvals = approvals or (evidence,)
+    trust = trust_for(*all_approvals)
+    journal = ResearchJournal(root)
+    governor = ResearchGovernor(journal, trust)
+    governor.accept_plan(value, evidence)
+    return governor, value, evidence, trust
+
+
+def run_for(value, salt=b"run", replay_of=None):
     return ResearchRun.create(
-        value.experiment_id,
-        "sha256:" + hashlib.sha256(salt).hexdigest(),
-        replay_of,
+        value.experiment_id, "sha256:" + hashlib.sha256(salt).hexdigest(), replay_of
     )
 
 
-def assessments():
-    return tuple(
-        DimensionAssessment(item, AssessmentState.PASS, (f"evidence:{item.lower()}",))
-        for item in DIMENSIONS
+def completed(root: Path, value=None):
+    governor, value, evidence, trust = governed(root, value)
+    run = research_fixture()[3]
+    governor.admit(value, run)
+    governor.transition(value, run.run_id, TrialState.RUNNING)
+    governor.transition(value, run.run_id, TrialState.COMPLETED)
+    return governor, value, run, evidence, trust
+
+
+def qualification_chain(level=QualificationLevel.G3):
+    assessments = tuple(
+        DimensionAssessment(d, AssessmentState.PASS, (f"evidence:{d.lower()}",))
+        for d in DIMENSIONS
     )
-
-
-def qualification(level: QualificationLevel = QualificationLevel.G3):
-    g1 = qualify_dataset(
+    common = dict(
         dataset_id="dataset:daily-us",
         dataset_version="dataset-version:v1",
         manifest_digest=SHA,
         provenance_digest=SHA,
         policy=POLICY,
-        requested_level=QualificationLevel.G1,
-        assessments=assessments(),
+        assessments=assessments,
         coverage=EligibleCoverage(date(2020, 1, 1), date(2026, 1, 1)),
     )
+    g1 = qualify_dataset(**common, requested_level=QualificationLevel.G1)
     if level is QualificationLevel.G1:
-        return g1
+        return (), g1
     g2 = qualify_dataset(
-        dataset_id=g1.dataset_id,
-        dataset_version=g1.dataset_version,
-        manifest_digest=SHA,
-        provenance_digest=SHA,
-        policy=POLICY,
-        requested_level=QualificationLevel.G2,
-        assessments=assessments(),
-        coverage=g1.coverage,
-        predecessor=g1,
+        **common, requested_level=QualificationLevel.G2, predecessor=g1
     )
     if level is QualificationLevel.G2:
-        return g2
-    return qualify_dataset(
-        dataset_id=g2.dataset_id,
-        dataset_version=g2.dataset_version,
-        manifest_digest=SHA,
-        provenance_digest=SHA,
-        policy=POLICY,
-        requested_level=QualificationLevel.G3,
-        assessments=assessments(),
-        coverage=g2.coverage,
-        predecessor=g2,
+        return (g1,), g2
+    g3 = qualify_dataset(
+        **common, requested_level=QualificationLevel.G3, predecessor=g2
+    )
+    return (g1, g2), g3
+
+
+def pit_evidence(q, value, run):
+    def stamp(day, hour=12):
+        return Timestamp(datetime(2020, 1, day, hour, tzinfo=timezone.utc))
+
+    definition = FeatureDefinition.create(
+        version="v1",
+        algorithm_id="algorithm:atis/mean",
+        configuration_digest=value.configuration_digest,
+        required_inputs=("close",),
+        lookback=3,
+        minimum_history=2,
+        missing_data_policy=MissingDataPolicy.REJECT,
+        availability_policy=AvailabilityPolicy.AT_KNOWLEDGE,
+        output_semantics="decimal:return",
+    )
+    inputs = tuple(
+        PitInput(
+            f"input:atis/{i}",
+            "close",
+            q.dataset_id,
+            "source:atis/vendor",
+            SHA,
+            stamp(i),
+            stamp(i, 13),
+            InputState.VALID,
+        )
+        for i in (1, 2)
+    )
+    observation = create_feature_observation(
+        definition=definition,
+        instrument_id=InstrumentId(UUID("12345678-1234-4234-8234-123456789abc")),
+        listing_id=ListingId(UUID("22345678-1234-4234-8234-123456789abc")),
+        qualification=q,
+        inputs=inputs,
+        available_at=stamp(2, 14),
+        value_digest=SHA,
+    )
+    eligibility = assess_decision_input(
+        definition=definition,
+        observation=observation,
+        qualification=q,
+        inputs=inputs,
+        decision_time=stamp(3),
+        requested_claim=ClaimCeiling.ECONOMIC_VALIDATION,
+    )
+    return PitEligibilityEvidence(
+        run.run_id,
+        definition,
+        observation,
+        inputs,
+        stamp(3),
+        ClaimCeiling.ECONOMIC_VALIDATION,
+        eligibility,
     )
 
 
-def manifest_for(value: FrozenResearchPlan, run, reproducibility):
-    project, hypothesis, experiment, _, _ = research_fixture()
-    assert hypothesis.hypothesis_id == value.hypothesis_id
-    assert experiment.experiment_id == value.experiment_id
+def reconciliation():
+    zero = Decimal("0")
+    performance = PerformanceTruth(
+        zero,
+        CostDrag(zero, zero, zero, zero, zero),
+        zero,
+        zero,
+        zero,
+        zero,
+        zero,
+        MetricAvailability.NOT_ESTABLISHED,
+        MetricAvailability.NOT_ESTABLISHED,
+    )
+    return ReconciliationResult(ReconciliationState.RECONCILED, (), performance)
+
+
+def manifest_for(value, run, reconciled, pit):
+    project, hypothesis, experiment, _, reproducibility = research_fixture()
+    assert hypothesis == value.hypothesis and experiment == value.experiment
+    identity = reconciliation_evidence_identity(run.run_id, reconciled)
     return ResearchEvidenceManifest.create(
         project_id=project.project_id,
         hypothesis_id=value.hypothesis_id,
         experiment_id=value.experiment_id,
         run_id=run.run_id,
         reproducibility=reproducibility,
-        input_identities=("dataset:daily-us:v1",),
-        output_identities=("result:v1",),
+        input_identities=(
+            "dataset:daily-us:v1",
+            pit.observation.observation_id,
+            *(item.input_id for item in pit.inputs),
+        ),
+        output_identities=(identity,),
         replay_of=run.replay_of,
         disposition=EvidenceDisposition.VALID,
     )
 
 
-def completed(tmp_path: Path, value: FrozenResearchPlan | None = None):
-    selected = value or plan()
-    run = run_for(selected)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    governor.admit(selected, run)
-    governor.transition(selected, run.run_id, TrialState.RUNNING)
-    governor.transition(selected, run.run_id, TrialState.COMPLETED)
-    return governor, selected, run
+def checkpointed(governor, evidence):
+    checkpoint = governor._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    trust = trust_for(evidence, checkpoints=(checkpoint,))
+    journal = ResearchJournal(
+        governor._journal.root, checkpoint=checkpoint, trust=trust
+    )
+    return ResearchGovernor(journal, trust), checkpoint, trust
 
 
-def test_contract_is_canonical_and_bounded() -> None:
+def test_contract_is_canonical_and_declares_trust_boundaries():
     path = Path("docs/stage4/s4-08-research-governance-search-holdout-contract.json")
     raw = path.read_bytes()
     value = json.loads(raw)
     assert canonical_json(value) == raw
     assert value["contract_id"] == CONTRACT_ID
+    assert (
+        value["trust_boundaries"]["production_missing_trust"]
+        == "NOT_ESTABLISHED_FAIL_CLOSED"
+    )
     assert "TRADING_AUTHORITY" in value["prohibited_capabilities"]
 
 
-def test_frozen_plan_is_deterministic_immutable_and_requires_positive_budget() -> None:
+def test_frozen_plan_reconstructs_identity_and_is_immutable():
     assert plan() == plan()
     with pytest.raises(FrozenInstanceError):
         plan().objective = "changed"  # type: ignore[misc]
     with pytest.raises(ResearchGovernanceError, match="positive integer"):
         plan(maximum=0)
-    with pytest.raises(ResearchGovernanceError, match="approval"):
-        replace(plan(), owner_approval_reference="")
+    bad = replace(plan().hypothesis, proposition="forged")
+    with pytest.raises(ResearchGovernanceError, match="hypothesis identity"):
+        replace(plan(), hypothesis=bad)
 
 
-def test_valid_admission_is_durable_before_execution(tmp_path: Path) -> None:
+def test_production_missing_trust_and_caller_forgery_fail_closed(tmp_path):
     value = plan()
+    evidence = approval(value)
+    journal = ResearchJournal(tmp_path / "j")
+    with pytest.raises(ResearchGovernanceError, match="NOT_ESTABLISHED"):
+        ResearchGovernor(journal).accept_plan(value, evidence)
+    forged = replace(trust_for(evidence), _capability=object())
+    with pytest.raises(ResearchGovernanceError, match="NOT_ESTABLISHED"):
+        ResearchGovernor(journal, forged).accept_plan(value, evidence)
+
+
+def test_wrong_operation_and_replayed_approval_are_rejected(tmp_path):
+    value = plan()
+    wrong = approval(value, operation="S4_08_HOLDOUT_ACCESS")
+    governor = ResearchGovernor(ResearchJournal(tmp_path / "j"), trust_for(wrong))
+    with pytest.raises(ResearchGovernanceError, match="operation"):
+        governor.accept_plan(value, wrong)
+    other = plan(maximum=3)
+    governor = ResearchGovernor(ResearchJournal(tmp_path / "j2"), trust_for(wrong))
+    with pytest.raises(ResearchGovernanceError, match="binding"):
+        governor.accept_plan(other, wrong)
+
+
+def test_admission_is_durable_and_direct_append_is_prohibited(tmp_path):
+    governor, value, _, _ = governed(tmp_path / "j")
     run = run_for(value)
-    journal = ResearchJournal(tmp_path / "journal")
-    event = ResearchGovernor(journal).admit(value, run)
+    event = governor.admit(value, run)
     assert event.kind is EventKind.TRIAL_ADMITTED
-    assert ResearchJournal(journal.root).recover() == (event,)
+    with pytest.raises(JournalError, match="direct journal append"):
+        governor._journal.append(event_id="forged")
 
 
-def test_plan_or_experiment_substitution_is_rejected(tmp_path: Path) -> None:
-    value = plan()
-    other = FrozenResearchPlan.create(
-        hypothesis_id=value.hypothesis_id,
-        experiment_id=value.experiment_id,
-        configuration_digest="sha256:" + "9" * 64,
-        parameter_domain=value.parameter_domain,
-        objective=value.objective,
-        dataset_id=value.dataset_id,
-        dataset_version=value.dataset_version,
-        partition=value.partition,
-        maximum_admitted_trials=value.maximum_admitted_trials,
-        owner_approval_reference=value.owner_approval_reference,
-        policy_identity=value.policy_identity,
-    )
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
+def test_exact_duplicate_admission_is_idempotent(tmp_path):
+    governor, value, _, _ = governed(tmp_path / "j")
+    run = run_for(value)
+    assert governor.admit(value, run) == governor.admit(value, run)
+
+
+@pytest.mark.parametrize(
+    "target", [TrialState.COMPLETED, TrialState.FAILED, TrialState.INTERRUPTED]
+)
+def test_invalid_terminal_transition_is_rejected(tmp_path, target):
+    governor, value, _, _ = governed(tmp_path / "j")
     run = run_for(value)
     governor.admit(value, run)
-    with pytest.raises(ResearchGovernanceError, match="another plan"):
-        governor.admit(other, run)
+    with pytest.raises(ResearchGovernanceError, match="transition"):
+        governor.transition(value, run.run_id, target, reasons=("invalid",))
 
 
-def test_budget_exhaustion_fails_before_second_execution(tmp_path: Path) -> None:
+def test_semantically_invalid_hash_linked_completion_is_rejected(tmp_path):
+    governor, value, _, _ = governed(tmp_path / "j")
+    run = run_for(value)
+    with pytest.raises(JournalError, match="transition"):
+        governor._journal._append(
+            event_id=f"trial:{run.run_id.value}:completed",
+            kind=EventKind.TRIAL_COMPLETED,
+            experiment_id=value.experiment_id,
+            run_id=run.run_id,
+            plan=value,
+            disposition=TrialState.COMPLETED.value,
+        )
+
+
+def test_transition_cannot_use_another_plan(tmp_path):
+    governor, value, _, _ = governed(tmp_path / "j")
+    run = run_for(value)
+    governor.admit(value, run)
+    expanded = FrozenResearchPlan.expand(
+        value,
+        maximum_admitted_trials=3,
+        owner_approval_reference="owner:issue-100:comment-2",
+        policy_identity="policy:s4-08:v2",
+    )
+    ev = approval(expanded, operation="S4_08_BUDGET_EXPANSION")
+    trust = trust_for(approval(value), ev)
+    other = ResearchGovernor(governor._journal, trust)
+    other.accept_plan(expanded, ev)
+    with pytest.raises(ResearchGovernanceError, match="plan substitution"):
+        other.transition(expanded, run.run_id, TrialState.RUNNING)
+
+
+def test_budget_and_replay_are_lineage_wide(tmp_path):
     value = plan(maximum=1)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    governor.admit(value, run_for(value, b"one"))
+    governor, value, base, _ = governed(tmp_path / "j", value)
+    first = run_for(value, b"one")
+    governor.admit(value, first)
     with pytest.raises(ResearchGovernanceError, match="exhausted"):
         governor.admit(value, run_for(value, b"two"))
-
-
-def test_budget_cannot_be_reset_by_substituting_a_new_plan(tmp_path: Path) -> None:
-    value = plan(maximum=1)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    governor.admit(value, run_for(value, b"one"))
-    substituted = FrozenResearchPlan.create(
-        hypothesis_id=value.hypothesis_id,
-        experiment_id=value.experiment_id,
-        configuration_digest=value.configuration_digest,
-        parameter_domain=("window=99",),
-        objective=value.objective,
-        dataset_id=value.dataset_id,
-        dataset_version=value.dataset_version,
-        partition=value.partition,
-        maximum_admitted_trials=2,
-        owner_approval_reference="owner:substituted",
-        policy_identity="policy:substituted",
-    )
-    with pytest.raises(ResearchGovernanceError, match="unauthorized budget expansion"):
-        governor.admit(substituted, run_for(value, b"two"))
-
-
-def test_owner_approved_expansion_preserves_and_counts_history(tmp_path: Path) -> None:
-    value = plan(maximum=1)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    governor.admit(value, run_for(value, b"one"))
     expanded = FrozenResearchPlan.expand(
         value,
         maximum_admitted_trials=2,
         owner_approval_reference="owner:issue-100:comment-2",
         policy_identity="policy:s4-08:v2",
     )
-    governor.admit(expanded, run_for(value, b"two"))
+    successor = approval(expanded, operation="S4_08_BUDGET_EXPANSION")
+    gov = ResearchGovernor(governor._journal, trust_for(base, successor))
+    gov.accept_plan(expanded, successor)
+    replay = run_for(expanded, b"replay", first.run_id)
+    gov.admit(expanded, replay)
     with pytest.raises(ResearchGovernanceError, match="exhausted"):
-        governor.admit(expanded, run_for(value, b"three"))
-    with pytest.raises(ResearchGovernanceError, match="strictly increase"):
-        FrozenResearchPlan.expand(
-            value,
-            maximum_admitted_trials=1,
-            owner_approval_reference="owner:issue-100:comment-3",
-            policy_identity="policy:s4-08:v3",
-        )
-
-
-@pytest.mark.parametrize("terminal", [TrialState.FAILED, TrialState.INTERRUPTED])
-def test_failed_and_interrupted_trials_consume_budget_after_restart(
-    tmp_path: Path, terminal: TrialState
-) -> None:
-    value = plan(maximum=1)
-    root = tmp_path / "journal"
-    governor = ResearchGovernor(ResearchJournal(root))
-    run = run_for(value)
-    governor.admit(value, run)
-    governor.transition(value, run.run_id, TrialState.RUNNING)
-    governor.transition(value, run.run_id, terminal, reasons=("bounded failure",))
-    restarted = ResearchGovernor(ResearchJournal(root))
-    assert restarted.trial_state(run.run_id) is terminal
-    with pytest.raises(ResearchGovernanceError, match="exhausted"):
-        restarted.admit(value, run_for(value, b"replacement"))
-
-
-def test_exact_duplicate_is_idempotent_and_conflict_fails_closed(tmp_path: Path) -> None:
-    value = plan()
-    run = run_for(value)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    assert governor.admit(value, run) == governor.admit(value, run)
-    with pytest.raises(JournalError, match="conflicting duplicate"):
-        governor._journal.append(  # noqa: SLF001
-            event_id=f"trial:{run.run_id.value}:admitted",
-            kind=EventKind.TRIAL_ADMITTED,
-            experiment_id=value.experiment_id,
-            run_id=run.run_id,
-            plan=value,
-            disposition=TrialState.ADMITTED.value,
-            details=("different",),
-        )
-
-
-def test_replay_requires_new_identity_and_consumes_allocation(tmp_path: Path) -> None:
-    value = plan(maximum=2)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    original = run_for(value, b"original")
-    replay = run_for(value, b"replay", original.run_id)
-    governor.admit(value, original)
-    governor.admit(value, replay)
-    assert replay.run_id != original.run_id
-    assert sum(e.kind is EventKind.TRIAL_ADMITTED for e in governor._journal.recover()) == 2  # noqa: SLF001
-
-
-@pytest.mark.parametrize("target", [TrialState.COMPLETED, TrialState.FAILED, TrialState.INTERRUPTED])
-def test_invalid_lifecycle_transitions_are_rejected(tmp_path: Path, target: TrialState) -> None:
-    value = plan()
-    run = run_for(value)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    governor.admit(value, run)
-    with pytest.raises(ResearchGovernanceError, match="transition"):
-        governor.transition(value, run.run_id, target, reasons=("reason",))
-
-
-def test_terminal_outcome_is_immutable_and_negative_reason_preserved(tmp_path: Path) -> None:
-    value = plan()
-    run = run_for(value)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "journal"))
-    governor.admit(value, run)
-    governor.transition(value, run.run_id, TrialState.RUNNING)
-    failed = governor.transition(value, run.run_id, TrialState.FAILED, reasons=("no edge",))
-    assert failed.reasons == ("no edge",)
-    with pytest.raises(ResearchGovernanceError, match="transition"):
-        governor.transition(value, run.run_id, TrialState.RUNNING)
-
-
-@pytest.mark.parametrize("mutation", ["missing", "altered", "reordered", "incomplete"])
-def test_missing_reordered_tampered_or_incomplete_journal_fails_closed(
-    tmp_path: Path, mutation: str
-) -> None:
-    governor, value, run = completed(tmp_path)
-    root = governor._journal.root  # noqa: SLF001
-    paths = sorted(root.glob("*.json"))
-    if mutation == "missing":
-        paths[1].unlink()
-    elif mutation == "altered":
-        paths[0].write_bytes(paths[0].read_bytes().replace(b"ADMITTED", b"RUNNING"))
-    elif mutation == "reordered":
-        paths[0].rename(root / "00000009.json")
-    else:
-        (root / ".00000004.dead.tmp").write_bytes(b"partial")
-    with pytest.raises(JournalError):
-        ResearchJournal(root)
-    assert value and run
-
-
-def test_authorized_holdout_exposure_is_recorded_before_disclosure(tmp_path: Path) -> None:
-    governor, value, _ = completed(tmp_path)
-    result = governor.request_holdout(
-        plan=value,
-        qualification=qualification(),
-        request_id="request:one",
-        owner_approval_reference=value.owner_approval_reference,
-        purpose="independent confirmation",
+        gov.admit(expanded, run_for(expanded, b"three"))
+    unrelated = ResearchRun.create(
+        expanded.experiment_id,
+        SHA,
+        ResearchRun.create(
+            expanded.experiment_id, SHA + b"0" if False else "sha256:" + "9" * 64
+        ).run_id,
     )
-    assert result.decision is HoldoutDecision.AUTHORIZED_ACCESS and result.disclose
-    assert result.event.kind is EventKind.HOLDOUT_AUTHORIZED
+    with pytest.raises(ResearchGovernanceError, match="replay target"):
+        gov.admit(expanded, unrelated)
 
 
-@pytest.mark.parametrize("bad_approval", ["owner:wrong", "owner:forged"])
-def test_missing_or_forged_approval_rejects_without_disclosure(
-    tmp_path: Path, bad_approval: str
-) -> None:
-    governor, value, _ = completed(tmp_path)
-    result = governor.request_holdout(
+def test_successor_cannot_change_frozen_scope(tmp_path):
+    base = plan()
+    gov, base, base_ev, _ = governed(tmp_path / "j", base)
+    with pytest.raises(ResearchGovernanceError, match="digest"):
+        replace(
+            FrozenResearchPlan.expand(
+                base,
+                maximum_admitted_trials=3,
+                owner_approval_reference="owner:new",
+                policy_identity="policy:new",
+            ),
+            objective="changed",
+        )
+    assert base_ev
+
+
+def test_holdout_reuse_and_contamination_survive_successor(tmp_path):
+    gov, base, _, base_ev, _ = completed(tmp_path / "j")
+    predecessors, q = qualification_chain()
+    app = holdout_approval(base)
+    gov = ResearchGovernor(gov._journal, trust_for(base_ev, app))
+    first = gov.request_holdout(
+        plan=base,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        request_id="request:first",
+        approval=app,
+        purpose="confirmation",
+    )
+    assert first.disclose
+    gov.record_contamination(
+        plan=base, contamination_id="retune:one", reasons=("retuned",)
+    )
+    successor = FrozenResearchPlan.expand(
+        base,
+        maximum_admitted_trials=3,
+        owner_approval_reference="owner:new",
+        policy_identity="policy:new",
+    )
+    successor_ev = approval(successor, operation="S4_08_BUDGET_EXPANSION")
+    successor_holdout = holdout_approval(successor)
+    next_gov = ResearchGovernor(
+        gov._journal, trust_for(base_ev, app, successor_ev, successor_holdout)
+    )
+    next_gov.accept_plan(successor, successor_ev)
+    repeated = next_gov.request_holdout(
+        plan=successor,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        request_id="request:second",
+        approval=successor_holdout,
+        purpose="confirmation",
+    )
+    assert (
+        repeated.decision is HoldoutDecision.REPEATED_ACCESS and not repeated.disclose
+    )
+    assert any(
+        e.kind is EventKind.CONTAMINATION_RECORDED
+        for e in next_gov._plan_events(successor)
+    )
+
+
+def test_nonprotected_holdout_is_recorded_without_disclosure(tmp_path):
+    value = plan(partition=PartitionRole.VALIDATION)
+    gov, value, _, base, _ = completed(tmp_path / "j", value)
+    predecessors, q = qualification_chain()
+    access = holdout_approval(value)
+    gov = ResearchGovernor(gov._journal, trust_for(base, access))
+    result = gov.request_holdout(
         plan=value,
-        qualification=qualification(),
-        request_id=f"request:{bad_approval.split(':')[1]}",
-        owner_approval_reference=bad_approval,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        request_id="request:denied",
+        approval=access,
         purpose="confirmation",
     )
     assert result.decision is HoldoutDecision.UNAUTHORIZED_ACCESS
     assert not result.disclose
 
 
-def test_repeated_holdout_exposure_is_recorded_and_denied(tmp_path: Path) -> None:
-    governor, value, _ = completed(tmp_path)
-    first = governor.request_holdout(
-        plan=value,
-        qualification=qualification(),
-        request_id="request:first",
-        owner_approval_reference=value.owner_approval_reference,
-        purpose="confirmation",
+def test_checkpoint_distinguishes_missing_tail_and_complete_history(tmp_path):
+    gov, value, run, evidence, _ = completed(tmp_path / "j")
+    assert gov._journal.history_trust_state() is HistoryTrustState.UNCHECKPOINTED_TAIL
+    with pytest.raises(JournalError, match="checkpointed"):
+        gov._journal.require_checkpointed()
+    reopened, checkpoint, _ = checkpointed(gov, evidence)
+    assert (
+        reopened._journal.history_trust_state()
+        is HistoryTrustState.CHECKPOINTED_HISTORY
     )
-    second = governor.request_holdout(
-        plan=value,
-        qualification=qualification(),
-        request_id="request:second",
-        owner_approval_reference=value.owner_approval_reference,
-        purpose="repeat",
+    reopened.record_contamination(
+        plan=value, contamination_id="later", reasons=("later",)
     )
-    assert first.disclose and not second.disclose
-    assert second.decision is HoldoutDecision.REPEATED_ACCESS
-
-
-def test_nonprotected_or_insufficiently_qualified_holdout_is_denied(tmp_path: Path) -> None:
-    value = plan(partition=PartitionRole.VALIDATION)
-    governor, _, _ = completed(tmp_path, value)
-    result = governor.request_holdout(
-        plan=value,
-        qualification=qualification(QualificationLevel.G2),
-        request_id="request:invalid",
-        owner_approval_reference=value.owner_approval_reference,
-        purpose="confirmation",
+    assert (
+        reopened._journal.history_trust_state() is HistoryTrustState.UNCHECKPOINTED_TAIL
     )
-    assert not result.disclose
+    assert checkpoint.accepted_sequence > 0 and run
 
 
-def evidence_inputs(tmp_path: Path):
-    governor, value, run = completed(tmp_path)
-    _, _, _, _, reproducibility = research_fixture()
-    manifest = manifest_for(value, run, reproducibility)
-    reconciled = ReconciliationResult(ReconciliationState.RECONCILED, (), None)
-    return governor, value, manifest, reconciled
+def test_uncheckpointed_tail_cannot_support_evidence_authority(tmp_path):
+    gov, value, run, _, _ = completed(tmp_path / "j")
+    predecessors, q = qualification_chain()
+    rec = reconciliation()
+    pit = pit_evidence(q, value, run)
+    with pytest.raises(JournalError, match="checkpointed"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=manifest_for(value, run, rec, pit),
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=pit,
+        )
 
 
-def test_technically_valid_evidence_is_distinct_from_confirmatory(tmp_path: Path) -> None:
-    governor, value, manifest, reconciled = evidence_inputs(tmp_path)
-    result = governor.assess_evidence(
+def test_checkpointed_technical_evidence_without_holdout_is_not_confirmatory(tmp_path):
+    gov, value, run, evidence, _ = completed(tmp_path / "j")
+    gov, _, _ = checkpointed(gov, evidence)
+    predecessors, q = qualification_chain()
+    rec = reconciliation()
+    pit = pit_evidence(q, value, run)
+    result = gov.assess_evidence(
         plan=value,
-        manifest=manifest,
-        qualification=qualification(),
-        reconciliation=reconciled,
+        manifest=manifest_for(value, run, rec, pit),
+        qualification=q,
+        qualification_predecessors=predecessors,
+        reconciliation=rec,
+        pit_evidence=pit,
     )
     assert result.state is EligibilityState.TECHNICALLY_VALID_EVIDENCE
     assert result.economic_edge is EconomicEdgeState.NOT_ESTABLISHED
 
 
-def test_authorized_clean_holdout_evidence_is_confirmatory_eligible(tmp_path: Path) -> None:
-    governor, value, manifest, reconciled = evidence_inputs(tmp_path)
-    governor.request_holdout(
+def test_truncation_and_whole_replacement_fail_checkpoint(tmp_path):
+    gov, _, _, evidence, _ = completed(tmp_path / "j")
+    _, checkpoint, trust = checkpointed(gov, evidence)
+    paths = sorted(gov._journal.root.glob("*.json"))
+    paths[-1].unlink()
+    journal = ResearchJournal(gov._journal.root, checkpoint=checkpoint, trust=trust)
+    assert journal.history_trust_state() is HistoryTrustState.INVALID_HISTORY
+    with pytest.raises(JournalError):
+        journal.require_checkpointed()
+
+
+def test_forged_checkpoint_and_wrong_epoch_fail(tmp_path):
+    gov, _, _, evidence, _ = completed(tmp_path / "j")
+    checkpoint = gov._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    forged = replace(checkpoint, epoch="epoch:wrong")
+    trust = trust_for(evidence, checkpoints=(checkpoint,))
+    journal = ResearchJournal(gov._journal.root, checkpoint=forged, trust=trust)
+    assert journal.history_trust_state() is HistoryTrustState.INVALID_HISTORY
+
+
+def test_whole_self_consistent_journal_replacement_is_rejected(tmp_path):
+    gov, _, _, evidence, _ = completed(tmp_path / "accepted")
+    _, checkpoint, trust = checkpointed(gov, evidence)
+    replacement, _, _, _, _ = completed(tmp_path / "replacement", plan(maximum=3))
+    for path in gov._journal.root.glob("*.json"):
+        path.unlink()
+    for path in replacement._journal.root.glob("*.json"):
+        (gov._journal.root / path.name).write_bytes(path.read_bytes())
+    journal = ResearchJournal(gov._journal.root, checkpoint=checkpoint, trust=trust)
+    assert journal.history_trust_state() is HistoryTrustState.INVALID_HISTORY
+
+
+@pytest.mark.parametrize("mutation", ["missing", "altered", "reordered", "incomplete"])
+def test_corrupt_journal_variants_fail_closed(tmp_path, mutation):
+    gov, _, _, _, _ = completed(tmp_path / "j")
+    root = gov._journal.root
+    paths = sorted(root.glob("*.json"))
+    if mutation == "missing":
+        paths[1].unlink()
+    elif mutation == "altered":
+        paths[0].write_bytes(paths[0].read_bytes().replace(b"ACCEPTED", b"REJECTED"))
+    elif mutation == "reordered":
+        paths[0].rename(root / "00000009.json")
+    else:
+        (root / ".dead.tmp").write_bytes(b"partial")
+    with pytest.raises(JournalError):
+        ResearchJournal(root)
+
+
+def test_manifest_and_qualification_are_reconstructed(tmp_path):
+    gov, value, run, evidence, _ = completed(tmp_path / "j")
+    gov, _, _ = checkpointed(gov, evidence)
+    predecessors, q = qualification_chain()
+    rec = reconciliation()
+    pit = pit_evidence(q, value, run)
+    manifest = manifest_for(value, run, rec, pit)
+    with pytest.raises(ResearchGovernanceError, match="manifest identity"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=replace(manifest, manifest_digest=SHA),
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=pit,
+        )
+    forged_q = replace(q, qualification_id="atis:forged")
+    with pytest.raises(ResearchGovernanceError, match="qualification identity"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=manifest,
+            qualification=forged_q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=pit,
+        )
+
+
+def test_pit_and_reconciliation_fail_closed(tmp_path):
+    gov, value, run, evidence, _ = completed(tmp_path / "j")
+    gov, _, _ = checkpointed(gov, evidence)
+    predecessors, q = qualification_chain()
+    rec = reconciliation()
+    pit = pit_evidence(q, value, run)
+    manifest = manifest_for(value, run, rec, pit)
+    with pytest.raises(ResearchGovernanceError, match="PIT"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=manifest,
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=replace(
+                pit, eligibility=replace(pit.eligibility, reasons=("forged",))
+            ),
+        )
+    unrelated_run = run_for(value, b"unrelated")
+    with pytest.raises(ResearchGovernanceError, match="run substitution"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=manifest,
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=replace(pit, research_run_id=unrelated_run.run_id),
+        )
+    unbound = ResearchEvidenceManifest.create(
+        project_id=manifest.project_id,
+        hypothesis_id=manifest.hypothesis_id,
+        experiment_id=manifest.experiment_id,
+        run_id=manifest.run_id,
+        reproducibility=manifest.reproducibility,
+        input_identities=("dataset:daily-us:v1",),
+        output_identities=manifest.output_identities,
+        replay_of=manifest.replay_of,
+        disposition=manifest.disposition,
+    )
+    with pytest.raises(ResearchGovernanceError, match="bound to manifest"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=unbound,
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=pit,
+        )
+    malformed = ReconciliationResult(ReconciliationState.RECONCILED, (), None)
+    with pytest.raises(ResearchGovernanceError, match="performance truth"):
+        gov.assess_evidence(
+            plan=value,
+            manifest=manifest,
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=malformed,
+            pit_evidence=pit,
+        )
+
+
+def test_clean_checkpointed_evidence_is_confirmatory_but_never_trading_authority(
+    tmp_path,
+):
+    gov, value, run, evidence, _ = completed(tmp_path / "j")
+    predecessors, q = qualification_chain()
+    holdout = holdout_approval(value)
+    gov = ResearchGovernor(gov._journal, trust_for(evidence, holdout))
+    gov.request_holdout(
         plan=value,
-        qualification=qualification(),
-        request_id="request:confirmation",
-        owner_approval_reference=value.owner_approval_reference,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        request_id="request:one",
+        approval=holdout,
         purpose="confirmation",
     )
-    result = governor.assess_evidence(
+    gov, _, _ = checkpointed(gov, evidence)
+    rec = reconciliation()
+    pit = pit_evidence(q, value, run)
+    manifest = manifest_for(value, run, rec, pit)
+    result = gov.assess_evidence(
         plan=value,
         manifest=manifest,
-        qualification=qualification(),
-        reconciliation=reconciled,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        reconciliation=rec,
+        pit_evidence=pit,
     )
     assert result.state is EligibilityState.ELIGIBLE_CONFIRMATORY_EVIDENCE
     assert result.economic_edge is EconomicEdgeState.NOT_ESTABLISHED
-
-
-def test_post_holdout_retuning_contaminates_confirmation_lineage(tmp_path: Path) -> None:
-    governor, value, manifest, reconciled = evidence_inputs(tmp_path)
-    governor.request_holdout(
-        plan=value,
-        qualification=qualification(),
-        request_id="request:confirmation",
-        owner_approval_reference=value.owner_approval_reference,
-        purpose="confirmation",
+    assert result.authority == RESEARCH_ONLY_AUTHORITY and not hasattr(
+        result, "trading_authority"
     )
-    governor.record_contamination(
-        plan=value,
-        contamination_id="retuning:one",
-        reasons=("threshold changed after holdout result",),
-    )
-    result = governor.assess_evidence(
-        plan=value,
-        manifest=manifest,
-        qualification=qualification(),
-        reconciliation=reconciled,
-    )
-    assert result.state is EligibilityState.TECHNICALLY_VALID_EVIDENCE
-    assert "contaminated" in result.reasons[-1]
 
 
-@pytest.mark.parametrize(
-    "state",
-    [ReconciliationState.DISCREPANCY, ReconciliationState.INVALID_OR_UNKNOWN],
-)
-def test_unreconciled_financial_evidence_is_ineligible(
-    tmp_path: Path, state: ReconciliationState
-) -> None:
-    governor, value, manifest, _ = evidence_inputs(tmp_path)
-    result = governor.assess_evidence(
-        plan=value,
-        manifest=manifest,
-        qualification=qualification(),
-        reconciliation=ReconciliationResult(state, (), None),
-    )
-    assert result.state is EligibilityState.INELIGIBLE_EVIDENCE
+@pytest.mark.parametrize("terminal", [TrialState.FAILED, TrialState.INTERRUPTED])
+def test_failed_trials_consume_budget_after_restart(tmp_path, terminal):
+    value = plan(maximum=1)
+    gov, value, evidence, trust = governed(tmp_path / "j", value)
+    run = run_for(value)
+    gov.admit(value, run)
+    gov.transition(value, run.run_id, TrialState.RUNNING)
+    gov.transition(value, run.run_id, terminal, reasons=("bounded failure",))
+    restarted = ResearchGovernor(ResearchJournal(gov._journal.root), trust)
+    assert restarted.trial_state(run.run_id) is terminal
+    with pytest.raises(ResearchGovernanceError, match="exhausted"):
+        restarted.admit(value, run_for(value, b"replacement"))
+    assert evidence
 
 
-def test_g2_can_be_technical_but_never_confirmatory(tmp_path: Path) -> None:
-    governor, value, manifest, reconciled = evidence_inputs(tmp_path)
-    result = governor.assess_evidence(
-        plan=value,
-        manifest=manifest,
-        qualification=qualification(QualificationLevel.G2),
-        reconciliation=reconciled,
-    )
-    assert result.state is EligibilityState.TECHNICALLY_VALID_EVIDENCE
-    assert "G3" in result.reasons[0]
-
-
-def test_profitable_financial_truth_cannot_establish_edge(tmp_path: Path) -> None:
-    governor, value, manifest, reconciled = evidence_inputs(tmp_path)
-    result = governor.assess_evidence(
-        plan=value,
-        manifest=manifest,
-        qualification=qualification(),
-        reconciliation=reconciled,
-    )
-    assert result.economic_edge is EconomicEdgeState.NOT_ESTABLISHED
-    assert result.authority == RESEARCH_ONLY_AUTHORITY
-    assert not hasattr(result, "trading_authority")
-
-
-def test_journal_rejects_unexpected_files_and_does_not_reset_history(tmp_path: Path) -> None:
-    root = tmp_path / "journal"
-    root.mkdir()
-    (root / "partial.tmp").write_bytes(b"partial")
+def test_corrupt_interrupted_and_unsafe_journal_fail_closed(tmp_path, monkeypatch):
+    gov, _, _, _, _ = completed(tmp_path / "j")
+    root = gov._journal.root
+    (root / ".dead.tmp").write_bytes(b"partial")
     with pytest.raises(JournalError, match="incomplete"):
         ResearchJournal(root)
-    assert (root / "partial.tmp").exists()
-
-
-def test_symlink_or_reparse_root_is_rejected(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    target = tmp_path / "target"
-    target.mkdir()
+    (root / ".dead.tmp").unlink()
     original = governance._is_reparse
-    monkeypatch.setattr(
-        governance,
-        "_is_reparse",
-        lambda path: path == target or original(path),
-    )
+    monkeypatch.setattr(governance, "_is_reparse", lambda p: p == root or original(p))
     with pytest.raises(JournalError, match="link or reparse"):
-        ResearchJournal(target)
+        ResearchJournal(root)
 
 
-def test_journal_records_are_canonical_and_content_addressed(tmp_path: Path) -> None:
-    governor, _, _ = completed(tmp_path)
-    for path in governor._journal.root.glob("*.json"):  # noqa: SLF001
+def test_journal_records_are_canonical_and_content_addressed(tmp_path):
+    gov, _, _, _, _ = completed(tmp_path / "j")
+    for path in gov._journal.root.glob("*.json"):
         raw = path.read_bytes()
         assert canonical_json(json.loads(raw)) == raw
         assert b"content_digest" in raw
