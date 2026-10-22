@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 import stat
 from collections.abc import Mapping
-from typing import Final
+from typing import Final, Protocol
 from uuid import uuid4
 
 from automated_trading_bot.datasets.provenance import canonical_json
@@ -118,6 +118,13 @@ class HistoryTrustState(StrEnum):
     CHECKPOINTED_HISTORY = "CHECKPOINTED_HISTORY"
     UNCHECKPOINTED_TAIL = "UNCHECKPOINTED_TAIL"
     INVALID_HISTORY = "INVALID_HISTORY"
+
+
+class AssuranceMode(StrEnum):
+    """The provenance ceiling attached to governance decisions."""
+
+    ENGINEERING_SIMULATION = "ENGINEERING_SIMULATION_NON_PRODUCTION"
+    PRODUCTION_AUTHORITY_NOT_ESTABLISHED = "PRODUCTION_AUTHORITY_NOT_ESTABLISHED"
 
 
 def _text(value: object, name: str) -> str:
@@ -394,61 +401,41 @@ class JournalCheckpoint:
         )
 
 
-_TEST_TRUST_CAPABILITY: Final = object()
+class TrustContext(Protocol):
+    """Externally supplied verifier; S4-08 cannot establish its own trust root."""
+
+    @property
+    def identity(self) -> str: ...
+
+    @property
+    def assurance_mode(self) -> AssuranceMode: ...
+
+    def require_approval(
+        self, evidence: ApprovalEvidence, plan: "FrozenResearchPlan"
+    ) -> None: ...
+
+    def require_checkpoint(self, checkpoint: JournalCheckpoint) -> None: ...
 
 
 @dataclass(frozen=True, slots=True)
-class TrustedEstablishment:
-    """An injected trust boundary; production roots are established outside S4-08."""
+class _ProductionTrustNotEstablished:
+    """Fail-closed default until a separately authorised verifier exists."""
 
-    identity: str
-    approval_digests: frozenset[str]
-    checkpoint_digests: frozenset[str]
-    non_production: bool
-    _capability: object
-
-    @classmethod
-    def non_production_test_fixture(
-        cls,
-        *,
-        identity: str,
-        approvals: tuple[ApprovalEvidence, ...] = (),
-        checkpoints: tuple[JournalCheckpoint, ...] = (),
-    ) -> "TrustedEstablishment":
-        if not identity.startswith("test-trust:"):
-            raise ResearchGovernanceError(
-                "test trust identity must be explicitly non-production"
-            )
-        return cls(
-            _safe_id(identity, "identity"),
-            frozenset(item.evidence_digest for item in approvals),
-            frozenset(item.checkpoint_digest for item in checkpoints),
-            True,
-            _TEST_TRUST_CAPABILITY,
-        )
-
-    @classmethod
-    def production_not_established(cls) -> "TrustedEstablishment":
-        return cls(
-            "production:not-established", frozenset(), frozenset(), False, object()
-        )
-
-    def _valid(self) -> bool:
-        return self.non_production and self._capability is _TEST_TRUST_CAPABILITY
+    identity: str = "production:not-established"
+    assurance_mode: AssuranceMode = AssuranceMode.PRODUCTION_AUTHORITY_NOT_ESTABLISHED
 
     def require_approval(
         self, evidence: ApprovalEvidence, plan: "FrozenResearchPlan"
     ) -> None:
         evidence.validate_for(plan)
-        if not self._valid() or evidence.evidence_digest not in self.approval_digests:
-            raise ResearchGovernanceError("owner approval is NOT_ESTABLISHED")
+        raise ResearchGovernanceError("owner approval is NOT_ESTABLISHED")
 
     def require_checkpoint(self, checkpoint: JournalCheckpoint) -> None:
-        if (
-            not self._valid()
-            or checkpoint.checkpoint_digest not in self.checkpoint_digests
-        ):
-            raise JournalError("trusted journal checkpoint is NOT_ESTABLISHED")
+        raise JournalError("trusted journal checkpoint is NOT_ESTABLISHED")
+
+
+def _production_trust_not_established() -> TrustContext:
+    return _ProductionTrustNotEstablished()
 
 
 @dataclass(frozen=True, slots=True)
@@ -889,7 +876,7 @@ class ResearchJournal:
         journal_identity: str = "journal:s4-08:local",
         epoch: str = "epoch:1",
         checkpoint: JournalCheckpoint | None = None,
-        trust: TrustedEstablishment | None = None,
+        trust: TrustContext | None = None,
     ) -> None:
         if not isinstance(root, Path):
             raise TypeError("root must be pathlib.Path")
@@ -903,7 +890,7 @@ class ResearchJournal:
         self._journal_identity = _safe_id(journal_identity, "journal_identity")
         self._epoch = _safe_id(epoch, "epoch")
         self._checkpoint = checkpoint
-        self._trust = trust or TrustedEstablishment.production_not_established()
+        self._trust = trust or _production_trust_not_established()
         if _is_reparse(self._root):
             raise JournalError("journal root is unsafe")
         self.recover()
@@ -919,6 +906,10 @@ class ResearchJournal:
     @property
     def epoch(self) -> str:
         return self._epoch
+
+    @property
+    def trust_context(self) -> TrustContext:
+        return self._trust
 
     def _paths(self) -> list[Path]:
         paths = list(self._root.glob("*.json"))
@@ -1028,8 +1019,17 @@ class ResearchJournal:
                     or event.reasons
                 ):
                     raise JournalError("plan acceptance event semantics are invalid")
-                if set(details) != {"approval", "plan"}:
+                if set(details) != {
+                    "approval",
+                    "assurance_mode",
+                    "plan",
+                    "trust_context",
+                }:
                     raise JournalError("plan acceptance details are incomplete")
+                try:
+                    AssuranceMode(details["assurance_mode"])
+                except ValueError as error:
+                    raise JournalError("plan assurance mode is invalid") from error
                 try:
                     plan = FrozenResearchPlan.from_canonical_body(
                         json.loads(details["plan"])
@@ -1214,7 +1214,10 @@ class ResearchJournal:
             else:
                 raise JournalError("unknown journal event kind")
 
-    def recover(self, *, authoritative: bool = False) -> tuple[JournalEvent, ...]:
+    def recover(
+        self, *, continuity_verified: bool = False
+    ) -> tuple[JournalEvent, ...]:
+        """Recover valid history; optional verification proves continuity only."""
         events: list[JournalEvent] = []
         previous: str | None = None
         identifiers: set[str] = set()
@@ -1233,7 +1236,7 @@ class ResearchJournal:
             events.append(event)
         result = tuple(events)
         self._validate_semantics(result)
-        if authoritative:
+        if continuity_verified:
             self.require_checkpointed(result)
         return result
 
@@ -1413,14 +1416,20 @@ class HoldoutAccessRecord:
     decision: HoldoutDecision
     disclose: bool
     event: JournalEvent
+    assurance_mode: AssuranceMode
 
 
 @dataclass(frozen=True, slots=True)
 class EvidenceEligibility:
     state: EligibilityState
     reasons: tuple[str, ...]
+    assurance_mode: AssuranceMode
     economic_edge: EconomicEdgeState = EconomicEdgeState.NOT_ESTABLISHED
     authority: str = RESEARCH_ONLY_AUTHORITY
+
+    @property
+    def production_authoritative(self) -> bool:
+        return False
 
 
 _TRANSITIONS: Final = {
@@ -1443,18 +1452,25 @@ _STATE_KIND: Final = {
 
 class ResearchGovernor:
     def __init__(
-        self, journal: ResearchJournal, trust: TrustedEstablishment | None = None
+        self, journal: ResearchJournal, trust: TrustContext | None = None
     ) -> None:
         if type(journal) is not ResearchJournal:
             raise TypeError("journal must be ResearchJournal")
+        selected = trust or journal.trust_context
+        if selected is not journal.trust_context:
+            raise ResearchGovernanceError("journal and governor trust contexts differ")
         self._journal = journal
-        self._trust = trust or TrustedEstablishment.production_not_established()
+        self._trust = selected
 
     def _accepted_plans(self) -> dict[str, FrozenResearchPlan]:
         plans: dict[str, FrozenResearchPlan] = {}
         for event in self._journal.recover():
             if event.kind is EventKind.PLAN_ACCEPTED:
                 details = self._journal._detail_map(event)
+                if details["assurance_mode"] != self._trust.assurance_mode.value:
+                    raise ResearchGovernanceError("plan trust context is inconsistent")
+                if details["trust_context"] != self._trust.identity:
+                    raise ResearchGovernanceError("plan trust identity is inconsistent")
                 raw = details["plan"]
                 plans[event.plan_digest] = FrozenResearchPlan.from_canonical_body(
                     json.loads(raw)
@@ -1512,7 +1528,9 @@ class ResearchGovernor:
             disposition="ACCEPTED",
             details=(
                 "approval=" + canonical_json(approval.canonical_body()).decode("utf-8"),
+                f"assurance_mode={self._trust.assurance_mode.value}",
                 "plan=" + canonical_json(plan.canonical_body()).decode("utf-8"),
+                f"trust_context={self._trust.identity}",
             ),
         )
 
@@ -1537,6 +1555,11 @@ class ResearchGovernor:
         if run.experiment_id != plan.experiment_id:
             raise ResearchGovernanceError("experiment substitution")
         lineage = self._lineage(plan)
+        admission_details = (
+            f"replay_of={run.replay_of.value if run.replay_of else 'none'}",
+            f"maximum={plan.maximum_admitted_trials}",
+            f"reproducibility={run.reproducibility_digest}",
+        )
         if self.trial_state(run.run_id) is not None:
             existing = next(
                 item
@@ -1544,11 +1567,21 @@ class ResearchGovernor:
                 if item.run_id == run.run_id.value
                 and item.kind is EventKind.TRIAL_ADMITTED
             )
-            if existing.plan_digest == plan.plan_digest:
-                return existing
-            raise ResearchGovernanceError(
-                "run identity is already bound to another plan"
+            exact_duplicate = (
+                existing.event_id == f"trial:{run.run_id.value}:admitted"
+                and existing.kind is EventKind.TRIAL_ADMITTED
+                and existing.experiment_id == plan.experiment_id.value
+                and existing.run_id == run.run_id.value
+                and existing.plan_digest == plan.plan_digest
+                and existing.policy_identity == plan.policy_identity
+                and existing.approval_reference == plan.owner_approval_reference
+                and existing.disposition == TrialState.ADMITTED.value
+                and not existing.reasons
+                and existing.details == admission_details
             )
+            if exact_duplicate:
+                return existing
+            raise ResearchGovernanceError("conflicting duplicate admission")
         experiment_admissions = tuple(
             item
             for item in self._journal.recover()
@@ -1583,11 +1616,7 @@ class ResearchGovernor:
             run_id=run.run_id,
             plan=plan,
             disposition=TrialState.ADMITTED.value,
-            details=(
-                f"replay_of={run.replay_of.value if run.replay_of else 'none'}",
-                f"maximum={plan.maximum_admitted_trials}",
-                f"reproducibility={run.reproducibility_digest}",
-            ),
+            details=admission_details,
         )
 
     def transition(
@@ -1697,7 +1726,9 @@ class ResearchGovernor:
                 f"purpose={purpose}",
             ),
         )
-        return HoldoutAccessRecord(decision, disclose, event)
+        return HoldoutAccessRecord(
+            decision, disclose, event, self._trust.assurance_mode
+        )
 
     def consume_holdout(
         self,
@@ -1756,7 +1787,12 @@ class ResearchGovernor:
                 f"version={details['version']}",
             ),
         )
-        return HoldoutAccessRecord(HoldoutDecision.AUTHORIZED_ACCESS, False, event)
+        return HoldoutAccessRecord(
+            HoldoutDecision.AUTHORIZED_ACCESS,
+            False,
+            event,
+            self._trust.assurance_mode,
+        )
 
     def record_contamination(
         self,
@@ -1856,7 +1892,9 @@ class ResearchGovernor:
             reasons.append("trial is not completed")
         if reasons:
             return EvidenceEligibility(
-                EligibilityState.INELIGIBLE_EVIDENCE, tuple(reasons)
+                EligibilityState.INELIGIBLE_EVIDENCE,
+                tuple(reasons),
+                self._trust.assurance_mode,
             )
         technically_valid = True
         confirmatory_reasons: list[str] = []
@@ -1880,5 +1918,10 @@ class ResearchGovernor:
             return EvidenceEligibility(
                 EligibilityState.TECHNICALLY_VALID_EVIDENCE,
                 tuple(confirmatory_reasons),
+                self._trust.assurance_mode,
             )
-        return EvidenceEligibility(EligibilityState.ELIGIBLE_CONFIRMATORY_EVIDENCE, ())
+        return EvidenceEligibility(
+            EligibilityState.ELIGIBLE_CONFIRMATORY_EVIDENCE,
+            (),
+            self._trust.assurance_mode,
+        )

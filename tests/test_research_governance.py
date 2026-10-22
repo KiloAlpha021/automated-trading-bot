@@ -1,4 +1,4 @@
-from dataclasses import FrozenInstanceError, replace
+from dataclasses import dataclass, FrozenInstanceError, replace
 from datetime import date, datetime, timezone
 from decimal import Decimal
 import hashlib
@@ -59,6 +59,7 @@ from automated_trading_bot.research.reproducibility import (
 )
 from automated_trading_bot.research.research_governance import (
     ApprovalEvidence,
+    AssuranceMode,
     CONTRACT_ID,
     EconomicEdgeState,
     EligibilityState,
@@ -74,7 +75,6 @@ from automated_trading_bot.research.research_governance import (
     ResearchGovernor,
     ResearchJournal,
     TrialState,
-    TrustedEstablishment,
     reconciliation_evidence_identity,
 )
 
@@ -136,11 +136,32 @@ def holdout_approval(value):
     return approval(value, operation="S4_08_HOLDOUT_ACCESS")
 
 
+@dataclass(frozen=True, slots=True)
+class EngineeringTrust:
+    """Test-owned verifier; unavailable from the production module."""
+
+    identity: str
+    approval_digests: frozenset[str]
+    checkpoint_digests: frozenset[str]
+    assurance_mode: AssuranceMode = AssuranceMode.ENGINEERING_SIMULATION
+
+    def require_approval(self, evidence, value):
+        evidence.validate_for(value)
+        if evidence.evidence_digest not in self.approval_digests:
+            raise ResearchGovernanceError("owner approval is NOT_ESTABLISHED")
+
+    def require_checkpoint(self, checkpoint):
+        if checkpoint.checkpoint_digest not in self.checkpoint_digests:
+            raise JournalError("trusted journal checkpoint is NOT_ESTABLISHED")
+
+
 def trust_for(*approvals, checkpoints=()):
-    return TrustedEstablishment.non_production_test_fixture(
+    return EngineeringTrust(
         identity="test-trust:s4-08",
-        approvals=tuple(approvals),
-        checkpoints=tuple(checkpoints),
+        approval_digests=frozenset(item.evidence_digest for item in approvals),
+        checkpoint_digests=frozenset(
+            item.checkpoint_digest for item in checkpoints
+        ),
     )
 
 
@@ -149,10 +170,17 @@ def governed(root: Path, value=None, *, approvals=()):
     evidence = approval(value)
     all_approvals = approvals or (evidence,)
     trust = trust_for(*all_approvals)
-    journal = ResearchJournal(root)
+    journal = ResearchJournal(root, trust=trust)
     governor = ResearchGovernor(journal, trust)
     governor.accept_plan(value, evidence)
     return governor, value, evidence, trust
+
+
+def rebound(governor, trust, *, checkpoint=None):
+    journal = ResearchJournal(
+        governor._journal.root, checkpoint=checkpoint, trust=trust
+    )
+    return ResearchGovernor(journal, trust)
 
 
 def run_for(value, salt=b"run", replay_of=None):
@@ -332,19 +360,53 @@ def test_production_missing_trust_and_caller_forgery_fail_closed(tmp_path):
     journal = ResearchJournal(tmp_path / "j")
     with pytest.raises(ResearchGovernanceError, match="NOT_ESTABLISHED"):
         ResearchGovernor(journal).accept_plan(value, evidence)
-    forged = replace(trust_for(evidence), _capability=object())
+    assert not hasattr(governance, "_TEST_TRUST_CAPABILITY")
+    assert not hasattr(governance, "TrustedEstablishment")
+    forged = EngineeringTrust("test-trust:forged", frozenset(), frozenset())
     with pytest.raises(ResearchGovernanceError, match="NOT_ESTABLISHED"):
-        ResearchGovernor(journal, forged).accept_plan(value, evidence)
+        ResearchGovernor(ResearchJournal(tmp_path / "forged", trust=forged), forged).accept_plan(value, evidence)
+
+
+def test_engineering_simulation_is_external_and_non_promotable(tmp_path):
+    value = plan()
+    evidence = approval(value)
+    trust = trust_for(evidence)
+    governor = ResearchGovernor(
+        ResearchJournal(tmp_path / "j", trust=trust), trust
+    )
+    governor.accept_plan(value, evidence)
+    assert trust.assurance_mode is AssuranceMode.ENGINEERING_SIMULATION
+    assert not hasattr(governance, "non_production_test_fixture")
+    assert not hasattr(governance, "_TEST_TRUST_CAPABILITY")
+
+
+def test_mixed_journal_and_governor_trust_contexts_are_rejected(tmp_path):
+    value = plan()
+    evidence = approval(value)
+    journal_trust = trust_for(evidence)
+    other_trust = EngineeringTrust(
+        "test-trust:other",
+        journal_trust.approval_digests,
+        journal_trust.checkpoint_digests,
+    )
+    journal = ResearchJournal(tmp_path / "j", trust=journal_trust)
+    with pytest.raises(ResearchGovernanceError, match="trust contexts differ"):
+        ResearchGovernor(journal, other_trust)
 
 
 def test_wrong_operation_and_replayed_approval_are_rejected(tmp_path):
     value = plan()
     wrong = approval(value, operation="S4_08_HOLDOUT_ACCESS")
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "j"), trust_for(wrong))
+    wrong_trust = trust_for(wrong)
+    governor = ResearchGovernor(
+        ResearchJournal(tmp_path / "j", trust=wrong_trust), wrong_trust
+    )
     with pytest.raises(ResearchGovernanceError, match="operation"):
         governor.accept_plan(value, wrong)
     other = plan(maximum=3)
-    governor = ResearchGovernor(ResearchJournal(tmp_path / "j2"), trust_for(wrong))
+    governor = ResearchGovernor(
+        ResearchJournal(tmp_path / "j2", trust=wrong_trust), wrong_trust
+    )
     with pytest.raises(ResearchGovernanceError, match="binding"):
         governor.accept_plan(other, wrong)
 
@@ -362,6 +424,33 @@ def test_exact_duplicate_admission_is_idempotent(tmp_path):
     governor, value, _, _ = governed(tmp_path / "j")
     run = run_for(value)
     assert governor.admit(value, run) == governor.admit(value, run)
+
+
+def test_conflicting_duplicate_admission_is_rejected_without_write(tmp_path):
+    governor, value, _, _ = governed(tmp_path / "j")
+    original = run_for(value, b"original")
+    governor.admit(value, original)
+    before = tuple(governor._journal.recover())
+    conflicting = replace(
+        original, reproducibility_digest="sha256:" + "a" * 64
+    )
+    with pytest.raises(ResearchGovernanceError, match="conflicting duplicate"):
+        governor.admit(value, conflicting)
+    assert governor._journal.recover() == before
+
+
+def test_conflicting_duplicate_replay_target_is_rejected(tmp_path):
+    value = plan(maximum=3)
+    governor, value, _, _ = governed(tmp_path / "j", value)
+    first = run_for(value, b"first")
+    governor.admit(value, first)
+    replay = run_for(value, b"replay", first.run_id)
+    governor.admit(value, replay)
+    before = tuple(governor._journal.recover())
+    conflicting = replace(replay, replay_of=None)
+    with pytest.raises(ResearchGovernanceError, match="conflicting duplicate"):
+        governor.admit(value, conflicting)
+    assert governor._journal.recover() == before
 
 
 @pytest.mark.parametrize(
@@ -426,7 +515,7 @@ def test_transition_cannot_use_another_plan(tmp_path):
     )
     ev = approval(expanded, operation="S4_08_BUDGET_EXPANSION")
     trust = trust_for(approval(value), ev)
-    other = ResearchGovernor(governor._journal, trust)
+    other = rebound(governor, trust)
     other.accept_plan(expanded, ev)
     with pytest.raises(ResearchGovernanceError, match="plan substitution"):
         other.transition(expanded, run.run_id, TrialState.RUNNING)
@@ -446,7 +535,8 @@ def test_budget_and_replay_are_lineage_wide(tmp_path):
         policy_identity="policy:s4-08:v2",
     )
     successor = approval(expanded, operation="S4_08_BUDGET_EXPANSION")
-    gov = ResearchGovernor(governor._journal, trust_for(base, successor))
+    trust = trust_for(base, successor)
+    gov = rebound(governor, trust)
     gov.accept_plan(expanded, successor)
     replay = run_for(expanded, b"replay", first.run_id)
     gov.admit(expanded, replay)
@@ -483,7 +573,8 @@ def test_holdout_reuse_and_contamination_survive_successor(tmp_path):
     gov, base, _, base_ev, _ = completed(tmp_path / "j")
     predecessors, q = qualification_chain()
     app = holdout_approval(base)
-    gov = ResearchGovernor(gov._journal, trust_for(base_ev, app))
+    trust = trust_for(base_ev, app)
+    gov = rebound(gov, trust)
     first = gov.request_holdout(
         plan=base,
         qualification=q,
@@ -505,9 +596,8 @@ def test_holdout_reuse_and_contamination_survive_successor(tmp_path):
     )
     successor_ev = approval(successor, operation="S4_08_BUDGET_EXPANSION")
     successor_holdout = holdout_approval(successor)
-    next_gov = ResearchGovernor(
-        gov._journal, trust_for(base_ev, app, successor_ev, successor_holdout)
-    )
+    next_trust = trust_for(base_ev, app, successor_ev, successor_holdout)
+    next_gov = rebound(gov, next_trust)
     next_gov.accept_plan(successor, successor_ev)
     repeated = next_gov.request_holdout(
         plan=successor,
@@ -531,7 +621,8 @@ def test_nonprotected_holdout_is_recorded_without_disclosure(tmp_path):
     gov, value, _, base, _ = completed(tmp_path / "j", value)
     predecessors, q = qualification_chain()
     access = holdout_approval(value)
-    gov = ResearchGovernor(gov._journal, trust_for(base, access))
+    trust = trust_for(base, access)
+    gov = rebound(gov, trust)
     result = gov.request_holdout(
         plan=value,
         qualification=q,
@@ -548,7 +639,8 @@ def test_holdout_consumption_requires_exact_checkpoint_and_is_single_use(tmp_pat
     gov, value, run, evidence, _ = completed(tmp_path / "j")
     predecessors, q = qualification_chain()
     access = holdout_approval(value)
-    gov = ResearchGovernor(gov._journal, trust_for(evidence, access))
+    trust = trust_for(evidence, access)
+    gov = rebound(gov, trust)
     request = gov.request_holdout(
         plan=value,
         qualification=q,
@@ -591,7 +683,7 @@ def test_holdout_consumption_requires_exact_checkpoint_and_is_single_use(tmp_pat
     with pytest.raises(ResearchGovernanceError, match="already consumed"):
         checked.consume_holdout(plan=value, authorization_event=request.event)
 
-    restarted = ResearchGovernor(ResearchJournal(gov._journal.root), trust)
+    restarted = rebound(gov, trust)
     with pytest.raises(ResearchGovernanceError, match="already consumed"):
         restarted.consume_holdout(plan=value, authorization_event=request.event)
 
@@ -603,7 +695,8 @@ def test_stale_or_forged_checkpoint_cannot_consume_holdout(tmp_path):
     )
     predecessors, q = qualification_chain()
     access = holdout_approval(value)
-    gov = ResearchGovernor(gov._journal, trust_for(evidence, access))
+    trust = trust_for(evidence, access)
+    gov = rebound(gov, trust)
     request = gov.request_holdout(
         plan=value,
         qualification=q,
@@ -654,6 +747,14 @@ def test_checkpoint_distinguishes_missing_tail_and_complete_history(tmp_path):
         reopened._journal.history_trust_state() is HistoryTrustState.UNCHECKPOINTED_TAIL
     )
     assert checkpoint.accepted_sequence > 0 and run
+
+
+def test_continuity_verification_does_not_imply_owner_approval(tmp_path):
+    governor, _, _, evidence, _ = completed(tmp_path / "j")
+    reopened, _, trust = checkpointed(governor, evidence)
+    assert reopened._journal.recover(continuity_verified=True)
+    assert trust.assurance_mode is AssuranceMode.ENGINEERING_SIMULATION
+    assert reopened._journal.trust_context is trust
 
 
 def test_uncheckpointed_tail_cannot_support_evidence_authority(tmp_path):
@@ -835,7 +936,8 @@ def test_clean_checkpointed_evidence_is_confirmatory_but_never_trading_authority
     gov, value, run, evidence, _ = completed(tmp_path / "j")
     predecessors, q = qualification_chain()
     holdout = holdout_approval(value)
-    gov = ResearchGovernor(gov._journal, trust_for(evidence, holdout))
+    trust = trust_for(evidence, holdout)
+    gov = rebound(gov, trust)
     request = gov.request_holdout(
         plan=value,
         qualification=q,
@@ -888,6 +990,8 @@ def test_clean_checkpointed_evidence_is_confirmatory_but_never_trading_authority
         pit_evidence=pit,
     )
     assert result.state is EligibilityState.ELIGIBLE_CONFIRMATORY_EVIDENCE
+    assert result.assurance_mode is AssuranceMode.ENGINEERING_SIMULATION
+    assert not result.production_authoritative
     assert result.economic_edge is EconomicEdgeState.NOT_ESTABLISHED
     assert result.authority == RESEARCH_ONLY_AUTHORITY and not hasattr(
         result, "trading_authority"
@@ -902,7 +1006,7 @@ def test_failed_trials_consume_budget_after_restart(tmp_path, terminal):
     gov.admit(value, run)
     gov.transition(value, run.run_id, TrialState.RUNNING)
     gov.transition(value, run.run_id, terminal, reasons=("bounded failure",))
-    restarted = ResearchGovernor(ResearchJournal(gov._journal.root), trust)
+    restarted = rebound(gov, trust)
     assert restarted.trial_state(run.run_id) is terminal
     with pytest.raises(ResearchGovernanceError, match="exhausted"):
         restarted.admit(value, run_for(value, b"replacement"))
