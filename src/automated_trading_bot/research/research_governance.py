@@ -110,6 +110,7 @@ class EventKind(StrEnum):
     TRIAL_INTERRUPTED = "TRIAL_INTERRUPTED"
     HOLDOUT_AUTHORIZED = "HOLDOUT_AUTHORIZED"
     HOLDOUT_REJECTED = "HOLDOUT_REJECTED"
+    HOLDOUT_CONSUMED = "HOLDOUT_CONSUMED"
     CONTAMINATION_RECORDED = "CONTAMINATION_RECORDED"
 
 
@@ -1016,6 +1017,8 @@ class ResearchJournal:
         states: dict[str, TrialState] = {}
         run_plans: dict[str, str] = {}
         admitted_by_lineage: dict[str, int] = {}
+        holdout_authorizations: dict[str, JournalEvent] = {}
+        consumed_authorizations: set[str] = set()
         for event in events:
             details = cls._detail_map(event)
             if event.kind is EventKind.PLAN_ACCEPTED:
@@ -1164,6 +1167,42 @@ class ResearchJournal:
                     decision is HoldoutDecision.AUTHORIZED_ACCESS
                 ):
                     raise JournalError("holdout disposition mismatch")
+                if event.kind is EventKind.HOLDOUT_AUTHORIZED:
+                    holdout_authorizations[event.content_digest] = event
+            elif event.kind is EventKind.HOLDOUT_CONSUMED:
+                required = {
+                    "authorization_event_digest",
+                    "authorization_event_id",
+                    "dataset",
+                    "partition",
+                    "version",
+                }
+                if (
+                    event.run_id is not None
+                    or set(details) != required
+                    or event.disposition != "CONSUMED_NO_DELIVERY"
+                    or event.reasons != ("production delivery not established",)
+                ):
+                    raise JournalError("holdout consumption semantics are invalid")
+                authorization_digest = details["authorization_event_digest"]
+                _digest(authorization_digest, "authorization_event_digest")
+                authorization = holdout_authorizations.get(authorization_digest)
+                if (
+                    authorization is None
+                    or authorization.event_id != details["authorization_event_id"]
+                    or authorization.plan_digest != event.plan_digest
+                    or authorization.experiment_id != event.experiment_id
+                ):
+                    raise JournalError("holdout consumption authorization mismatch")
+                authorization_details = cls._detail_map(authorization)
+                if any(
+                    details[name] != authorization_details[name]
+                    for name in ("dataset", "partition", "version")
+                ):
+                    raise JournalError("holdout consumption dataset substitution")
+                if authorization_digest in consumed_authorizations:
+                    raise JournalError("holdout authorization already consumed")
+                consumed_authorizations.add(authorization_digest)
             elif event.kind is EventKind.CONTAMINATION_RECORDED:
                 if (
                     event.run_id is not None
@@ -1344,6 +1383,7 @@ class ResearchJournal:
             provisional.previous_digest,
             digest,
         )
+        self._validate_semantics(events + (event,))
         content = canonical_json(_event_body(event, include_digest=True))
         target = self._root / f"{sequence:08d}.json"
         temporary = self._root / f".{sequence:08d}.{uuid4().hex}.tmp"
@@ -1362,7 +1402,10 @@ class ResearchJournal:
             raise JournalError("journal write failed") from error
         finally:
             temporary.unlink(missing_ok=True)
-        return self.recover()[-1]
+        recovered = self.recover()
+        if recovered[event.sequence - 1] != event:
+            raise JournalError("published journal record identity changed")
+        return event
 
 
 @dataclass(frozen=True, slots=True)
@@ -1633,7 +1676,7 @@ class ResearchGovernor:
             reason = ("holdout access policy not satisfied",)
         else:
             decision = HoldoutDecision.AUTHORIZED_ACCESS
-            disclose = True
+            disclose = False
             reason = ()
         event = self._journal._append(
             event_id=f"holdout:{request_id}",
@@ -1655,6 +1698,65 @@ class ResearchGovernor:
             ),
         )
         return HoldoutAccessRecord(decision, disclose, event)
+
+    def consume_holdout(
+        self,
+        *,
+        plan: FrozenResearchPlan,
+        authorization_event: JournalEvent,
+    ) -> HoldoutAccessRecord:
+        """Consume a checkpointed request without granting protected-data delivery."""
+        if (
+            type(plan) is not FrozenResearchPlan
+            or type(authorization_event) is not JournalEvent
+        ):
+            raise TypeError("protected plan and authorization event are required")
+        events = self._journal.recover()
+        matching_consumption = tuple(
+            item
+            for item in events
+            if item.kind is EventKind.HOLDOUT_CONSUMED
+            and f"authorization_event_digest={authorization_event.content_digest}"
+            in item.details
+        )
+        if matching_consumption:
+            raise ResearchGovernanceError("holdout authorization already consumed")
+        if (
+            authorization_event.kind is not EventKind.HOLDOUT_AUTHORIZED
+            or authorization_event.disposition
+            != HoldoutDecision.AUTHORIZED_ACCESS.value
+            or authorization_event.plan_digest != plan.plan_digest
+            or authorization_event not in events
+        ):
+            raise ResearchGovernanceError("holdout authorization is invalid")
+        self._journal.require_checkpointed(events)
+        checkpoint = self._journal._checkpoint
+        if (
+            checkpoint is None
+            or checkpoint.accepted_sequence != authorization_event.sequence
+            or checkpoint.terminal_digest != authorization_event.content_digest
+        ):
+            raise ResearchGovernanceError(
+                "checkpoint does not bind the exact holdout authorization"
+            )
+        details = self._journal._detail_map(authorization_event)
+        event = self._journal._append(
+            event_id=f"holdout-consumption:{authorization_event.event_id}",
+            kind=EventKind.HOLDOUT_CONSUMED,
+            experiment_id=plan.experiment_id,
+            run_id=None,
+            plan=plan,
+            disposition="CONSUMED_NO_DELIVERY",
+            reasons=("production delivery not established",),
+            details=(
+                f"authorization_event_digest={authorization_event.content_digest}",
+                f"authorization_event_id={authorization_event.event_id}",
+                f"dataset={details['dataset']}",
+                f"partition={details['partition']}",
+                f"version={details['version']}",
+            ),
+        )
+        return HoldoutAccessRecord(HoldoutDecision.AUTHORIZED_ACCESS, False, event)
 
     def record_contamination(
         self,
@@ -1760,12 +1862,10 @@ class ResearchGovernor:
         confirmatory_reasons: list[str] = []
         if not permits_claim(qualification, ClaimCeiling.ECONOMIC_VALIDATION):
             confirmatory_reasons.append("G3 economic-validation qualification required")
-        authorized = [
-            item for item in events if item.kind is EventKind.HOLDOUT_AUTHORIZED
-        ]
-        if len(authorized) != 1:
+        consumed = [item for item in events if item.kind is EventKind.HOLDOUT_CONSUMED]
+        if len(consumed) != 1:
             confirmatory_reasons.append(
-                "exactly one authorized holdout exposure required"
+                "exactly one checkpointed holdout consumption required"
             )
         if any(item.kind is EventKind.HOLDOUT_REJECTED for item in events):
             confirmatory_reasons.append(

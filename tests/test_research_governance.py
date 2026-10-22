@@ -378,6 +378,9 @@ def test_invalid_terminal_transition_is_rejected(tmp_path, target):
 def test_semantically_invalid_hash_linked_completion_is_rejected(tmp_path):
     governor, value, _, _ = governed(tmp_path / "j")
     run = run_for(value)
+    before = {
+        path.name: path.read_bytes() for path in governor._journal.root.iterdir()
+    }
     with pytest.raises(JournalError, match="transition"):
         governor._journal._append(
             event_id=f"trial:{run.run_id.value}:completed",
@@ -387,6 +390,28 @@ def test_semantically_invalid_hash_linked_completion_is_rejected(tmp_path):
             plan=value,
             disposition=TrialState.COMPLETED.value,
         )
+    after = {path.name: path.read_bytes() for path in governor._journal.root.iterdir()}
+    assert after == before
+    assert governor._journal.recover()
+
+
+def test_valid_event_publishes_once_and_conflicting_writer_fails_closed(
+    tmp_path, monkeypatch
+):
+    governor, value, _, _ = governed(tmp_path / "j")
+    first = run_for(value, b"first")
+    event = governor.admit(value, first)
+    assert governor.admit(value, first) == event
+    before = tuple(governor._journal.recover())
+
+    def conflict(*_args):
+        raise FileExistsError("simulated concurrent writer")
+
+    monkeypatch.setattr(governance.os, "link", conflict)
+    with pytest.raises(JournalError, match="concurrent journal writer"):
+        governor.admit(value, run_for(value, b"second"))
+    assert governor._journal.recover() == before
+    assert not tuple(governor._journal.root.glob("*.tmp"))
 
 
 def test_transition_cannot_use_another_plan(tmp_path):
@@ -467,7 +492,8 @@ def test_holdout_reuse_and_contamination_survive_successor(tmp_path):
         approval=app,
         purpose="confirmation",
     )
-    assert first.disclose
+    assert first.decision is HoldoutDecision.AUTHORIZED_ACCESS
+    assert not first.disclose
     gov.record_contamination(
         plan=base, contamination_id="retune:one", reasons=("retuned",)
     )
@@ -516,6 +542,99 @@ def test_nonprotected_holdout_is_recorded_without_disclosure(tmp_path):
     )
     assert result.decision is HoldoutDecision.UNAUTHORIZED_ACCESS
     assert not result.disclose
+
+
+def test_holdout_consumption_requires_exact_checkpoint_and_is_single_use(tmp_path):
+    gov, value, run, evidence, _ = completed(tmp_path / "j")
+    predecessors, q = qualification_chain()
+    access = holdout_approval(value)
+    gov = ResearchGovernor(gov._journal, trust_for(evidence, access))
+    request = gov.request_holdout(
+        plan=value,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        request_id="request:consume",
+        approval=access,
+        purpose="confirmation",
+    )
+    assert not request.disclose
+    with pytest.raises(JournalError, match="checkpointed"):
+        gov.consume_holdout(plan=value, authorization_event=request.event)
+
+    checkpoint = gov._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    trust = trust_for(evidence, access, checkpoints=(checkpoint,))
+    checked = ResearchGovernor(
+        ResearchJournal(gov._journal.root, checkpoint=checkpoint, trust=trust), trust
+    )
+    consumption = checked.consume_holdout(
+        plan=value, authorization_event=request.event
+    )
+    assert consumption.event.kind is EventKind.HOLDOUT_CONSUMED
+    assert not consumption.disclose
+    assert (
+        checked._journal.history_trust_state()
+        is HistoryTrustState.UNCHECKPOINTED_TAIL
+    )
+    rec = reconciliation()
+    pit = pit_evidence(q, value, run)
+    with pytest.raises(JournalError, match="checkpointed"):
+        checked.assess_evidence(
+            plan=value,
+            manifest=manifest_for(value, run, rec, pit),
+            qualification=q,
+            qualification_predecessors=predecessors,
+            reconciliation=rec,
+            pit_evidence=pit,
+        )
+    with pytest.raises(ResearchGovernanceError, match="already consumed"):
+        checked.consume_holdout(plan=value, authorization_event=request.event)
+
+    restarted = ResearchGovernor(ResearchJournal(gov._journal.root), trust)
+    with pytest.raises(ResearchGovernanceError, match="already consumed"):
+        restarted.consume_holdout(plan=value, authorization_event=request.event)
+
+
+def test_stale_or_forged_checkpoint_cannot_consume_holdout(tmp_path):
+    gov, value, _, evidence, _ = completed(tmp_path / "j")
+    stale = gov._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    predecessors, q = qualification_chain()
+    access = holdout_approval(value)
+    gov = ResearchGovernor(gov._journal, trust_for(evidence, access))
+    request = gov.request_holdout(
+        plan=value,
+        qualification=q,
+        qualification_predecessors=predecessors,
+        request_id="request:stale",
+        approval=access,
+        purpose="confirmation",
+    )
+    stale_trust = trust_for(evidence, access, checkpoints=(stale,))
+    stale_governor = ResearchGovernor(
+        ResearchJournal(gov._journal.root, checkpoint=stale, trust=stale_trust),
+        stale_trust,
+    )
+    with pytest.raises(JournalError, match="checkpointed"):
+        stale_governor.consume_holdout(
+            plan=value, authorization_event=request.event
+        )
+
+    exact = gov._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    forged = replace(exact, terminal_digest=SHA)
+    exact_trust = trust_for(evidence, access, checkpoints=(exact,))
+    forged_governor = ResearchGovernor(
+        ResearchJournal(gov._journal.root, checkpoint=forged, trust=exact_trust),
+        exact_trust,
+    )
+    with pytest.raises(JournalError, match="checkpointed"):
+        forged_governor.consume_holdout(
+            plan=value, authorization_event=request.event
+        )
 
 
 def test_checkpoint_distinguishes_missing_tail_and_complete_history(tmp_path):
@@ -717,7 +836,7 @@ def test_clean_checkpointed_evidence_is_confirmatory_but_never_trading_authority
     predecessors, q = qualification_chain()
     holdout = holdout_approval(value)
     gov = ResearchGovernor(gov._journal, trust_for(evidence, holdout))
-    gov.request_holdout(
+    request = gov.request_holdout(
         plan=value,
         qualification=q,
         qualification_predecessors=predecessors,
@@ -725,7 +844,38 @@ def test_clean_checkpointed_evidence_is_confirmatory_but_never_trading_authority
         approval=holdout,
         purpose="confirmation",
     )
-    gov, _, _ = checkpointed(gov, evidence)
+    authorization_checkpoint = gov._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    authorization_trust = trust_for(
+        evidence, holdout, checkpoints=(authorization_checkpoint,)
+    )
+    gov = ResearchGovernor(
+        ResearchJournal(
+            gov._journal.root,
+            checkpoint=authorization_checkpoint,
+            trust=authorization_trust,
+        ),
+        authorization_trust,
+    )
+    consumption = gov.consume_holdout(
+        plan=value, authorization_event=request.event
+    )
+    assert not consumption.disclose
+    consumption_checkpoint = gov._journal.checkpoint_candidate(
+        establishment_identity="test-trust:s4-08"
+    )
+    consumption_trust = trust_for(
+        evidence, checkpoints=(consumption_checkpoint,)
+    )
+    gov = ResearchGovernor(
+        ResearchJournal(
+            gov._journal.root,
+            checkpoint=consumption_checkpoint,
+            trust=consumption_trust,
+        ),
+        consumption_trust,
+    )
     rec = reconciliation()
     pit = pit_evidence(q, value, run)
     manifest = manifest_for(value, run, rec, pit)
