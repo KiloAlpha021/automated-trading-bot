@@ -343,6 +343,28 @@ def test_contract_is_canonical_and_declares_trust_boundaries():
     assert "TRADING_AUTHORITY" in value["prohibited_capabilities"]
 
 
+def test_require_admitted_is_checkpointed_exact_and_read_only(tmp_path):
+    gov, value, evidence, _ = governed(tmp_path / "journal")
+    run = run_for(value)
+    admitted = gov.admit(value, run)
+    before = tuple(path.read_bytes() for path in gov._journal.root.glob("*.json"))
+    checked, _, _ = checkpointed(gov, evidence)
+    assert checked.require_admitted(value, run) == admitted
+    assert tuple(path.read_bytes() for path in checked._journal.root.glob("*.json")) == before
+
+
+def test_require_admitted_rejects_uncheckpointed_and_non_admitted(tmp_path):
+    gov, value, evidence, _ = governed(tmp_path / "journal")
+    run = run_for(value)
+    gov.admit(value, run)
+    with pytest.raises(JournalError, match="checkpointed"):
+        gov.require_admitted(value, run)
+    gov.transition(value, run.run_id, TrialState.RUNNING)
+    checked, _, _ = checkpointed(gov, evidence)
+    with pytest.raises(ResearchGovernanceError, match="binding"):
+        checked.require_admitted(value, run)
+
+
 def test_frozen_plan_reconstructs_identity_and_is_immutable():
     assert plan() == plan()
     with pytest.raises(FrozenInstanceError):

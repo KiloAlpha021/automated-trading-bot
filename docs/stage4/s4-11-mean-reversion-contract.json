@@ -1,0 +1,105 @@
+{
+  "acceptance_checks": {
+    "A01": "Five completed eligible-session total-return calculation with no skip",
+    "A02": "Friday session decision and preceding-session holiday fallback",
+    "A03": "Missing or inconsistent calendar evidence fails closed",
+    "A04": "No future-known data and no signal-close execution",
+    "A05": "PIT eligibility and dataset provenance are bound",
+    "A06": "Ascending rank with canonical instrument identity tie-break",
+    "A07": "Bottom-20-percent floor; zero selection retains cash and emits no entries",
+    "A08": "Equal-weight whole-share affordability with residual cash",
+    "A09": "Invalid prices or insufficient funds emit no executable order",
+    "A10": "First confirmed entry fill starts the holding clock",
+    "A11": "Later partial fills do not reset the first-fill clock",
+    "A12": "Exit intent arises only after the fifth eligible session completes",
+    "A13": "Exit intentions do not fabricate fills or cash",
+    "A14": "Cancelled, rejected, or unfilled exits retain an active cohort",
+    "A15": "Partial exits preserve the residual position",
+    "A16": "Unresolved entry orders block closure",
+    "A17": "OMS fills and ledger positions must reconcile for closure",
+    "A18": "Only one non-overlapping cohort may be admitted",
+    "A19": "Existing EC0-EC3 execution cost scenarios are reused",
+    "A20": "Identical qualified input replays deterministically",
+    "A21": "Research-only authority; H6-R1 and protected holdout excluded",
+    "A22": "Failure modes are explicit and fail closed",
+    "A23": "Original three-file S4-11 provenance preserved within the owner-authorised eight-file systemic recovery and predecessor regressions"
+  },
+  "allocation": {
+    "capital_usd": "100000",
+    "long_only": true,
+    "residual_cash": "RETAIN",
+    "selection_count": "floor(0.20 * eligible_count)",
+    "selection_when_zero": "NO_SELECTION_NO_ENTRY_INTENTIONS_ALL_CASH",
+    "weighting": "EQUAL_WEIGHT_SELECTED_NAMES",
+    "whole_shares": true
+  },
+  "authority": {
+    "broker": false,
+    "capital": false,
+    "economic_edge": "NOT_ESTABLISHED",
+    "live_trading": false,
+    "protected_holdout": false,
+    "scope": "RESEARCH_ONLY_ENGINEERING_SIMULATION"
+  },
+  "calendar": {
+    "decision": "AFTER_COMPLETED_FRIDAY_US_SESSION",
+    "execution": "NEXT_ESTABLISHED_ELIGIBLE_SESSION_ONLY",
+    "friday_closed": "PRECEDING_ESTABLISHED_ELIGIBLE_SESSION_IN_SAME_WEEK",
+    "missing_or_inconsistent": "FAIL_CLOSED",
+    "source": "EXISTING_AUTHORITATIVE_CALENDAR_RESOLUTION"
+  },
+  "cohort": {
+    "admission_protocol": "PREPARED_THEN_COMMITTED_WITH_RECOVERY_REQUIRED_ON_AMBIGUITY",
+    "authority": "CHECKPOINTED_COHORT_HISTORY_AND_COMPLETE_SIMULATION_STATE_LEASE",
+    "closure": "RESOLVED_ORDERS_RECONCILED_FILLS_AND_ZERO_LEDGER_POSITIONS",
+    "false_none_or_caller_closed_authority": "REJECT",
+    "lock_order": ["SIMULATION_STATE", "COHORT_HISTORY"],
+    "maximum_active": 1,
+    "outstanding_entries_block_closure": true,
+    "partial_or_failed_exits_preserve_cohort": true
+  },
+  "contract_id": "ATIS-S4-11-MR-001-R1",
+  "contract_version": "1.0.0",
+  "cost_scenarios": ["EC0", "EC1", "EC2", "EC3"],
+  "holding": {
+    "clock": "PER_POSITION",
+    "exit_intent": "AFTER_SESSION_5_COMPLETES",
+    "later_partial_fill_resets_clock": false,
+    "session_1": "FIRST_CONFIRMED_BUY_FILL_SESSION"
+  },
+  "predecessor_head": "ba7e7f2d6948937f1884ed1a2617a3b48b8d9c24",
+  "research_admission": {
+    "assurance": "ENGINEERING_SIMULATION_ONLY",
+    "method": "NON_MUTATING_CHECKPOINTED_REQUIRE_ADMITTED",
+    "required_state": "ADMITTED"
+  },
+  "prohibitions": [
+    "H6-R1",
+    "BROKER_CONNECTION",
+    "LIVE_OR_PAPER_TRADING",
+    "SHORTING",
+    "LEVERAGE",
+    "FRACTIONAL_SHARES",
+    "PROTECTED_HOLDOUT_ACCESS",
+    "ECONOMIC_EDGE_CLAIM",
+    "FABRICATED_FILLS"
+  ],
+  "signal": {
+    "lookback": "FIVE_COMPLETED_ELIGIBLE_US_SESSIONS",
+    "ranking": "ASCENDING_RAW_TOTAL_RETURN_THEN_CANONICAL_INSTRUMENT_ID",
+    "skip": "NONE",
+    "strategy_id": "MR-001-R1"
+  },
+  "simulation_state": {
+    "authority": "COMMAND_ONLY_APPEND_ONLY_CHECKPOINTED_HISTORY",
+    "genesis": "EMPTY_OMS_AND_ATTRIBUTABLE_OPENING_CASH_LEDGER",
+    "snapshot_import": "PROHIBITED",
+    "truncation_or_replacement": "FAIL_CLOSED"
+  },
+  "value_integrity": {
+    "allocation_price_domain": "ATIS-S4-11-DECISION-CLOSE-PRICE-V1",
+    "decimal_encoding": "CANONICAL_FINITE_DECIMAL_NEGATIVE_ZERO_NORMALIZED",
+    "price_role": "DECISION_SESSION_UNADJUSTED_CLOSE_FOR_HYPOTHETICAL_SIZING_ONLY",
+    "total_return_domain": "ATIS-S4-11-TOTAL-RETURN-INDEX-V1"
+  }
+}

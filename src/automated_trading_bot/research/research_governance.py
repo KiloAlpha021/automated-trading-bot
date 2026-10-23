@@ -198,6 +198,16 @@ def _validate_qualification_chain(
         current = supplied
 
 
+def require_qualification_chain(
+    qualification: DatasetQualification,
+    predecessors: tuple[DatasetQualification, ...],
+) -> None:
+    """Public fail-closed reconstruction boundary for predecessor consumers."""
+    if type(qualification) is not DatasetQualification or type(predecessors) is not tuple:
+        raise TypeError("qualification and predecessor tuple are required")
+    _validate_qualification_chain(qualification, predecessors)
+
+
 def reconciliation_evidence_identity(
     run_id: ResearchRunId, result: ReconciliationResult
 ) -> str:
@@ -1548,6 +1558,65 @@ class ResearchGovernor:
             if item.run_id == run_id.value and item.kind in set(_STATE_KIND.values())
         ]
         return states[-1] if states else None
+
+    def require_admitted(
+        self, plan: FrozenResearchPlan, run: ResearchRun
+    ) -> JournalEvent:
+        """Require one checkpointed, exact, currently-admitted trial without mutation."""
+        if type(plan) is not FrozenResearchPlan or type(run) is not ResearchRun:
+            raise TypeError("plan and run use protected types")
+        rebuilt = ResearchRun.create(
+            run.experiment_id, run.reproducibility_digest, run.replay_of
+        )
+        if rebuilt != run:
+            raise ResearchGovernanceError("research run identity is invalid")
+        if run.experiment_id != plan.experiment_id:
+            raise ResearchGovernanceError("experiment substitution")
+        if self._trust.assurance_mode is not AssuranceMode.ENGINEERING_SIMULATION:
+            raise ResearchGovernanceError(
+                "engineering admission assurance is NOT_ESTABLISHED"
+            )
+        lineage = self._lineage(plan)
+        events = self._journal.recover(continuity_verified=True)
+        matches = tuple(
+            event
+            for event in events
+            if event.kind is EventKind.TRIAL_ADMITTED
+            and event.run_id == run.run_id.value
+        )
+        if len(matches) != 1:
+            raise ResearchGovernanceError(
+                "exactly one attributable trial admission is required"
+            )
+        event = matches[0]
+        details = self._journal._detail_map(event)
+        expected = {
+            "maximum": str(plan.maximum_admitted_trials),
+            "replay_of": run.replay_of.value if run.replay_of else "none",
+            "reproducibility": run.reproducibility_digest,
+        }
+        if (
+            event.event_id != f"trial:{run.run_id.value}:admitted"
+            or event.experiment_id != plan.experiment_id.value
+            or event.plan_digest != plan.plan_digest
+            or event.policy_identity != plan.policy_identity
+            or event.approval_reference != plan.owner_approval_reference
+            or event.disposition != TrialState.ADMITTED.value
+            or event.reasons
+            or details != expected
+            or self.trial_state(run.run_id) is not TrialState.ADMITTED
+        ):
+            raise ResearchGovernanceError("trial admission binding is invalid")
+        lineage_digests = {item.plan_digest for item in lineage}
+        admissions = tuple(
+            item
+            for item in events
+            if item.kind is EventKind.TRIAL_ADMITTED
+            and item.plan_digest in lineage_digests
+        )
+        if len(admissions) > plan.maximum_admitted_trials:
+            raise ResearchGovernanceError("cumulative search budget is invalid")
+        return event
 
     def admit(self, plan: FrozenResearchPlan, run: ResearchRun) -> JournalEvent:
         if type(plan) is not FrozenResearchPlan or type(run) is not ResearchRun:
