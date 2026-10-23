@@ -8,7 +8,10 @@ import subprocess
 import hashlib
 import json
 import os
+import shutil
 import sys
+import tempfile
+from uuid import uuid4
 
 import pytest
 from jsonschema import ValidationError
@@ -352,6 +355,21 @@ AUTHORIZED = [
 ]
 
 
+@pytest.fixture(autouse=True)
+def _isolate_synthetic_runner_state(monkeypatch):
+    """Keep unit fixtures independent of the ambient candidate and globals."""
+    prior = {
+        name: getattr(foundation, name)
+        for name in ("ACTIVE_CONTRACT", "PREFLIGHT_RECORD", "RUN_ENV", "RUN_REPORT")
+    }
+    monkeypatch.setattr(foundation, "changed_paths", lambda: list(AUTHORIZED))
+    try:
+        yield
+    finally:
+        for name, value in prior.items():
+            setattr(foundation, name, value)
+
+
 def _contract(tmp_path: Path) -> dict:
     lock = ROOT / "requirements-dev.lock"
     return {
@@ -589,10 +607,14 @@ def test_full_pytest_command_binds_validated_basetemp(
 
 
 def test_real_short_root_deep_git_probe(tmp_path: Path) -> None:
-    root = tmp_path / "p"
-    root.mkdir()
-    foundation._probe_deep_git(root, os.environ.copy())
-    assert not (root / "pytest-of-ATIS" / "pytest-999" / "synthetic-git0").exists()
+    del tmp_path
+    root = Path(tempfile.gettempdir()) / f"a-{uuid4().hex[:8]}"
+    try:
+        root.mkdir(parents=True)
+        foundation._probe_deep_git(root, os.environ.copy())
+        assert not (root / "pytest-of-ATIS" / "pytest-999" / "synthetic-git0").exists()
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def test_deep_git_probe_fails_closed_when_git_is_missing(tmp_path: Path, monkeypatch) -> None:
