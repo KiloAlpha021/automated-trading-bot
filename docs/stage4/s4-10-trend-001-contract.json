@@ -1,0 +1,22 @@
+{
+  "acceptance_categories": [
+    "completed_month_signal", "pit_dataset_qualification", "signal_state", "asset_class_separation",
+    "all_cash_target", "whole_share_allocation", "exit_reentry_intentions", "actual_fill_separation",
+    "temporal_ordering", "cost_scenarios", "predecessor_integration", "research_authority"
+  ],
+  "allocation": {"capital_currency": "USD", "hypothetical_capital": "100000", "method": "EQUAL_WEIGHT_POSITIVE_SIGNAL", "residual_cash": "RETAIN", "shares": "WHOLE"},
+  "asset_classes": ["US_COMMON_EQUITY", "US_ETF"],
+  "authority": {"broker": false, "capital": false, "economic_edge": "NOT_ESTABLISHED", "live_trading": false, "protected_holdout": false, "scope": "RESEARCH_ONLY_ENGINEERING_SIMULATION"},
+  "cost_scenarios": ["EC0", "EC1", "EC2", "EC3"],
+  "execution": {"earliest": "FIRST_ELIGIBLE_OPPORTUNITY_AFTER_SIGNAL_AVAILABILITY", "same_close": false},
+  "failure_behavior": "FAIL_CLOSED",
+  "falsification_catalogue": ["TR-F01", "TR-F02", "TR-F03", "TR-F04", "TR-F05", "TR-F06", "TR-F07", "TR-F08", "TR-F09", "TR-F10", "TR-F11", "TR-F12", "TR-F13", "TR-F14", "TR-F15"],
+  "falsification_outcomes": "NOT_RUN_NOT_FABRICATED",
+  "position_truth": "ONLY_ACTUAL_SIMULATED_FILLS_CHANGE_LEDGER",
+  "rebalance": "MONTHLY",
+  "signal": {"exposure": {"negative": "CASH", "positive": "LONG", "zero": "CASH"}, "lookback": "12_COMPLETED_CALENDAR_MONTHS", "measure": "OWN_TOTAL_RETURN"},
+  "strategy_id": "TREND-001",
+  "strategy_type": "TIME_SERIES_TREND",
+  "universe": {"classification": "SEPARATE_EQUITY_AND_ETF", "requirements": ["PIT_ELIGIBLE", "LIQUID", "US"]},
+  "version": "1.0.0"
+}
