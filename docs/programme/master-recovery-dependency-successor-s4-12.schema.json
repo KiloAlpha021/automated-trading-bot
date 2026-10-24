@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/master-recovery-dependency-successor-s4-12.schema.json",
+  "title": "ATIS S4-12 master-recovery dependency successor",
+  "description": "The exact non-authorising S4-12 dependency successor chained from the immutable S4-07 record.",
+  "const": {
+    "schema_version": 1,
+    "record_id": "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-S4-12-001",
+    "task_id": "ATIS-S4-12-DEPENDENCY-SECURITY-CORRECTION-001",
+    "record_role": "CURRENT_DEPENDENCY_SUCCESSOR_CHAIN_EVIDENCE",
+    "predecessor_evidence": {
+      "record": {
+        "path": "docs/programme/master-recovery-dependency-successor-s4-07.json",
+        "git_blob": "a59c10956835c224306e4e51c7237702d6523fa8",
+        "sha256": "3563ecffa7b09f0cb88714775534b2669c4f33c1974b5e16427018dba691fbf4"
+      },
+      "schema": {
+        "path": "docs/programme/master-recovery-dependency-successor-s4-07.schema.json",
+        "git_blob": "3f0f41567ca8920507d7b06879a16cb615711f39",
+        "sha256": "5f3c6f8b5f4ec0e2e7106a74586317e8d8b87edaa8ab2f27940b299e9f22e809"
+      }
+    },
+    "dependency_transition": {
+      "path": "requirements-dev.lock",
+      "historical_blob": "30c531abc4b183d7e6114128b1f12be0d954b034",
+      "candidate_blob": "c9946cf9fdc04781fbd48cd7ea176fc7e0845e4e"
+    },
+    "dependency_surface": {
+      "pyproject.toml": "2dfbbf80810f222f904869cb7cdd6dd4fed3da16",
+      "requirements-dev.in": "21bbc60bcc53043637b5ac20340f7554f2e7685b",
+      "requirements-dev.lock": "c9946cf9fdc04781fbd48cd7ea176fc7e0845e4e",
+      "tests/test_dependency_lock.py": "fe60e5e0f66f3baa9f69a007292169142c01b4e6"
+    },
+    "trusted_profile": {
+      "repository": "KiloAlpha021/security-workflows",
+      "protected_main": "f433b2b68d8cd3c4f061fb9c6e8cc417d235780f",
+      "profile_id": "s4-12-dependency-security-recovery",
+      "profile_path": "profiles/s4-12-dependency-security-recovery/profile.json",
+      "profile_blob": "6582556b533723de0c3ac48559c4c6bc881b0768",
+      "lock_path": "profiles/s4-12-dependency-security-recovery/requirements-dev.lock",
+      "lock_blob": "c9946cf9fdc04781fbd48cd7ea176fc7e0845e4e",
+      "manifest_path": "profiles/s4-12-dependency-security-recovery/trusted-git-blobs.txt",
+      "manifest_blob": "1b4bc8eeddf5364dca96f760ab6282dc02cf4815"
+    },
+    "trust_state": "PROTECTED_PROFILE_AVAILABLE",
+    "authorization_reference": {
+      "task_id": "ATIS-S4-12-ROOT-CAUSE-CORRECTION-001",
+      "decision": "AUTHORIZED_ORDERED_DEPENDENCY_SUCCESSOR_CHAIN_RECORDING",
+      "source": "CURRENT_OWNER_INSTRUCTION"
+    },
+    "authority_limitations": [
+      "NO_PROGRAMME_AUTHORITY",
+      "NO_IMPLEMENTATION_AUTHORITY",
+      "NO_TRADING_AUTHORITY",
+      "NO_BROKER_AUTHORITY",
+      "NO_RISK_APPROVAL_AUTHORITY",
+      "NO_ACCOUNTING_AUTHORITY",
+      "NO_FINANCIAL_AUTHORITY"
+    ],
+    "grants_authority": false
+  }
+}
