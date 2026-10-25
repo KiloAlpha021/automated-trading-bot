@@ -595,6 +595,13 @@ def reconcile(oms: object, ledger: object) -> ReconciliationResult:
                 if total == record.order.quantity
                 else OrderStatus.PARTIALLY_FILLED
             )
+            # Cancellation terminates the unfilled remainder, not historical fills.
+            # All fill/ledger checks above and the aggregate quantity check remain required.
+            if record.status is OrderStatus.CANCELLED and total < record.order.quantity:
+                expected_status = OrderStatus.CANCELLED
+        elif record.status in {OrderStatus.PARTIALLY_FILLED, OrderStatus.FULLY_FILLED}:
+            # A filled status requires actual immutable fill history.
+            _add(discrepancies, DiscrepancyCode.QUANTITY_MISMATCH, order_id)
         if total > record.order.quantity or expected_status is not record.status:
             _add(discrepancies, DiscrepancyCode.QUANTITY_MISMATCH, order_id)
 
