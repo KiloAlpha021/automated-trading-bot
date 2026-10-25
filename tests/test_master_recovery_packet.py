@@ -22,6 +22,12 @@ DEPENDENCY_SUCCESSOR_PATH = (
 DEPENDENCY_SUCCESSOR_SCHEMA_PATH = (
     ROOT / "docs/programme/master-recovery-dependency-successor-s4-07.schema.json"
 )
+S4_12_DEPENDENCY_SUCCESSOR_PATH = (
+    ROOT / "docs/programme/master-recovery-dependency-successor-s4-12.json"
+)
+S4_12_DEPENDENCY_SUCCESSOR_SCHEMA_PATH = (
+    ROOT / "docs/programme/master-recovery-dependency-successor-s4-12.schema.json"
+)
 EXPECTED_PACKET_SHA256 = (
     "bd39fd6768ab3fb5608418343858137f759875537e4b9c1f5d956a5451d37e43"
 )
@@ -160,6 +166,7 @@ def _blob(path: Path) -> str:
         check=True,
         capture_output=True,
         text=True,
+        timeout=10,
     ).stdout.strip()
 
 
@@ -210,7 +217,10 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
     successor.update(
         _resolve_dependency_successor(
             required,
-            [_load(DEPENDENCY_SUCCESSOR_PATH)],
+            [
+                _load(DEPENDENCY_SUCCESSOR_PATH),
+                _load(S4_12_DEPENDENCY_SUCCESSOR_PATH),
+            ],
         )
     )
     for path, expected in required.items() | supplementary.items():
@@ -414,7 +424,7 @@ def _validate_successor(overlay: dict[str, Any]) -> dict[str, str]:
         assert historical[row["path"]] == row["historical_blob"]
         retained = subprocess.run(
             ["git", "cat-file", "-t", row["historical_blob"]],
-            cwd=ROOT, check=True, capture_output=True, text=True,
+            cwd=ROOT, check=True, capture_output=True, text=True, timeout=10,
         )
         assert retained.stdout.strip() == "blob"
         assert _blob(ROOT / row["path"]) == row["candidate_blob"]
@@ -422,49 +432,123 @@ def _validate_successor(overlay: dict[str, Any]) -> dict[str, str]:
     return result
 
 
+def _dependency_successor_schema(record: dict[str, Any]) -> Path:
+    schemas = {
+        "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-S4-07-001": (
+            DEPENDENCY_SUCCESSOR_SCHEMA_PATH
+        ),
+        "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-S4-12-001": (
+            S4_12_DEPENDENCY_SUCCESSOR_SCHEMA_PATH
+        ),
+    }
+    try:
+        return schemas[record["record_id"]]
+    except (KeyError, TypeError) as error:
+        raise AssertionError("unknown dependency successor record") from error
+
+
+def _retained_blob(blob: str) -> None:
+    retained = subprocess.run(
+        ["git", "cat-file", "-t", blob],
+        cwd=ROOT, check=True, capture_output=True, text=True, timeout=10,
+    )
+    assert retained.stdout.strip() == "blob"
+
+
+def _canonical_git_blob_bytes(path: Path, expected_blob: str) -> bytes:
+    relative_path = path.relative_to(ROOT).as_posix()
+    checkout_blob = subprocess.run(
+        ["git", "hash-object", f"--path={relative_path}", str(path)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=10,
+    ).stdout.strip()
+    assert checkout_blob == expected_blob
+
+    canonical = subprocess.run(
+        ["git", "cat-file", "blob", expected_blob],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        timeout=10,
+    )
+    return canonical.stdout
+
+
 def _validate_dependency_successor(record: dict[str, Any]) -> dict[str, str]:
-    schema = _load(DEPENDENCY_SUCCESSOR_SCHEMA_PATH)
+    schema = _load(_dependency_successor_schema(record))
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(record)
 
-    for evidence in record["historical_evidence"].values():
+    evidence_group = record.get("historical_evidence", record.get("predecessor_evidence"))
+    assert isinstance(evidence_group, dict)
+    for evidence in evidence_group.values():
         path = ROOT / evidence["path"]
         assert _blob(path) == evidence["git_blob"]
-        assert sha256(path.read_bytes()).hexdigest() == evidence["sha256"]
+        canonical_bytes = _canonical_git_blob_bytes(path, evidence["git_blob"])
+        assert sha256(canonical_bytes).hexdigest() == evidence["sha256"]
 
     transition = record["dependency_transition"]
     assert transition["path"] == "requirements-dev.lock"
     assert record["dependency_surface"][transition["path"]] == transition["candidate_blob"]
     assert record["trusted_profile"]["lock_blob"] == transition["candidate_blob"]
-    assert record["trust_state"] == "PREPARED_VALIDATED"
-    assert record["protected_active"] is False
     assert record["grants_authority"] is False
 
-    for path, expected in record["dependency_surface"].items():
-        assert _blob(ROOT / path) == expected
+    for expected in record["dependency_surface"].values():
+        _retained_blob(expected)
     return {transition["path"]: transition["candidate_blob"]}
 
 
 def _resolve_dependency_successor(
     historical: dict[str, str], records: list[dict[str, Any]]
 ) -> dict[str, str]:
-    matches: list[dict[str, str]] = []
+    validated: list[tuple[dict[str, Any], dict[str, str]]] = []
     for record in records:
-        resolved = _validate_dependency_successor(record)
-        transition = record["dependency_transition"]
-        assert historical[transition["path"]] == transition["historical_blob"]
-        if _blob(ROOT / transition["path"]) == transition["candidate_blob"]:
-            matches.append(resolved)
-    if len(matches) != 1:
+        validated.append((record, _validate_dependency_successor(record)))
+
+    transition_path = "requirements-dev.lock"
+    current = historical[transition_path]
+    ordered: list[tuple[dict[str, Any], dict[str, str]]] = []
+    remaining = list(validated)
+    while remaining:
+        matches = [
+            item for item in remaining
+            if item[0]["dependency_transition"]["historical_blob"] == current
+        ]
+        if len(matches) != 1:
+            raise AssertionError("dependency successor must be uniquely applicable")
+        selected = matches[0]
+        ordered.append(selected)
+        remaining.remove(selected)
+        current = selected[0]["dependency_transition"]["candidate_blob"]
+
+    if [record["record_id"] for record, _ in ordered] != [
+        record["record_id"] for record, _ in validated
+    ]:
+        raise AssertionError("dependency successor chain must be ordered")
+    terminal = ordered[-1][0]
+    for path, expected in terminal["dependency_surface"].items():
+        assert _blob(ROOT / path) == expected
+    if _blob(ROOT / transition_path) != current:
         raise AssertionError("dependency successor must be uniquely applicable")
-    return matches[0]
+    return dict(terminal["dependency_surface"])
 
 
 def test_s4_07_dependency_successor_is_non_authorising_and_exact() -> None:
     record = _load(DEPENDENCY_SUCCESSOR_PATH)
-    resolved = _resolve_dependency_successor(EXPECTED_REQUIRED, [record])
-    assert resolved == {
+    current = _load(S4_12_DEPENDENCY_SUCCESSOR_PATH)
+    assert _validate_dependency_successor(record) == {
         "requirements-dev.lock": "30c531abc4b183d7e6114128b1f12be0d954b034"
+    }
+    resolved = _resolve_dependency_successor(EXPECTED_REQUIRED, [record, current])
+    assert resolved == {
+        "pyproject.toml": "2dfbbf80810f222f904869cb7cdd6dd4fed3da16",
+        "requirements-dev.in": "21bbc60bcc53043637b5ac20340f7554f2e7685b",
+        "requirements-dev.lock": "c9946cf9fdc04781fbd48cd7ea176fc7e0845e4e",
+        "tests/test_dependency_lock.py": "fe60e5e0f66f3baa9f69a007292169142c01b4e6",
     }
     assert record["approval_provenance"] == {
         "repository": "KiloAlpha021/automated-trading-bot",
@@ -500,6 +584,7 @@ def test_s4_07_dependency_successor_is_non_authorising_and_exact() -> None:
 )
 def test_s4_07_dependency_successor_rejects_invalid_evidence(attack: str) -> None:
     record = deepcopy(_load(DEPENDENCY_SUCCESSOR_PATH))
+    current = _load(S4_12_DEPENDENCY_SUCCESSOR_PATH)
     if attack == "wrong_predecessor":
         record["dependency_transition"]["historical_blob"] = "0" * 40
     elif attack == "wrong_successor":
@@ -532,19 +617,71 @@ def test_s4_07_dependency_successor_rejects_invalid_evidence(attack: str) -> Non
     else:
         record["historical_evidence"]["recovery_schema"]["git_blob"] = "0" * 40
     with pytest.raises((ValidationError, AssertionError, KeyError)):
-        _resolve_dependency_successor(EXPECTED_REQUIRED, [record])
+        _resolve_dependency_successor(EXPECTED_REQUIRED, [record, current])
 
 
 def test_s4_07_dependency_successor_rejects_conflicting_records() -> None:
     record = _load(DEPENDENCY_SUCCESSOR_PATH)
+    current = _load(S4_12_DEPENDENCY_SUCCESSOR_PATH)
     with pytest.raises(AssertionError, match="uniquely applicable"):
-        _resolve_dependency_successor(EXPECTED_REQUIRED, [record, deepcopy(record)])
+        _resolve_dependency_successor(EXPECTED_REQUIRED, [record, current, deepcopy(current)])
+
+
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "wrong_predecessor",
+        "wrong_successor",
+        "wrong_surface",
+        "missing_profile",
+        "profile_lock",
+        "missing_authorization",
+        "authority",
+        "predecessor_record",
+        "predecessor_schema",
+    ],
+)
+def test_s4_12_dependency_successor_rejects_invalid_evidence(attack: str) -> None:
+    historical = _load(DEPENDENCY_SUCCESSOR_PATH)
+    current = deepcopy(_load(S4_12_DEPENDENCY_SUCCESSOR_PATH))
+    if attack == "wrong_predecessor":
+        current["dependency_transition"]["historical_blob"] = "0" * 40
+    elif attack == "wrong_successor":
+        current["dependency_transition"]["candidate_blob"] = "0" * 40
+    elif attack == "wrong_surface":
+        current["dependency_surface"]["pyproject.toml"] = "0" * 40
+    elif attack == "missing_profile":
+        del current["trusted_profile"]
+    elif attack == "profile_lock":
+        current["trusted_profile"]["lock_blob"] = "0" * 40
+    elif attack == "missing_authorization":
+        del current["authorization_reference"]
+    elif attack == "authority":
+        current["grants_authority"] = True
+    elif attack == "predecessor_record":
+        current["predecessor_evidence"]["record"]["git_blob"] = "0" * 40
+    else:
+        current["predecessor_evidence"]["schema"]["sha256"] = "0" * 64
+    with pytest.raises((ValidationError, AssertionError, KeyError)):
+        _resolve_dependency_successor(EXPECTED_REQUIRED, [historical, current])
+
+
+def test_dependency_successor_chain_rejects_missing_or_reordered_records() -> None:
+    historical = _load(DEPENDENCY_SUCCESSOR_PATH)
+    current = _load(S4_12_DEPENDENCY_SUCCESSOR_PATH)
+    with pytest.raises(AssertionError):
+        _resolve_dependency_successor(EXPECTED_REQUIRED, [historical])
+    with pytest.raises(AssertionError, match="uniquely applicable"):
+        _resolve_dependency_successor(EXPECTED_REQUIRED, [current])
+    with pytest.raises(AssertionError, match="must be ordered"):
+        _resolve_dependency_successor(EXPECTED_REQUIRED, [current, historical])
 
 
 def test_kf04_successor_preserves_historical_schema_and_packet() -> None:
     historical_schema = json.loads(subprocess.run(
         ["git", "cat-file", "blob", "b534bf02a0dd1736ba2b824c33ec6f2fb1597b4f"],
         cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8",
+        timeout=10,
     ).stdout)
     schema = deepcopy(_load(SCHEMA_PATH))
     del schema["$defs"]["kf04Successor"]

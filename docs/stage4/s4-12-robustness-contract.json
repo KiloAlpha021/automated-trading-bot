@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "contract_id": "ATIS-S4-12-ROBUSTNESS-STATISTICAL-ASSURANCE-V1",
+  "authority": "RESEARCH_ONLY_NO_BROKER_OR_TRADING_AUTHORITY",
+  "economic_edge": "NOT_ESTABLISHED",
+  "strategies": ["MOM-001", "TREND-001", "MR-001-R1"],
+  "outcomes": ["TEST_PASS", "TEST_FAIL", "INSUFFICIENT_EVIDENCE", "INVALID"],
+  "statistical_policy": {
+    "alternative": "TWO_SIDED",
+    "alpha": "0.05",
+    "confidence_level": "0.95",
+    "familywise_correction": "HOLM_STEP_DOWN",
+    "resampling_method": "PERCENTILE_MOVING_BLOCK",
+    "resampling_configuration_required": [
+      "seed",
+      "block_length",
+      "resamples",
+      "confidence_level"
+    ],
+    "sample_adequacy": "EVIDENCE_BASED_PREDECLARED_RULE",
+    "overlapping_returns": "DEPENDENCE_AWARE_BLOCK_LENGTH_REQUIRED",
+    "trial_history": "COMPLETE_PRESPECIFIED_FAMILY_REQUIRED",
+    "zero_variance": "INSUFFICIENT_EVIDENCE",
+    "missing_benchmark": "INSUFFICIENT_EVIDENCE",
+    "synthetic_profitability_claim": "PROHIBITED"
+  },
+  "robustness_catalogue": [
+    ["ROB-01", "DETERMINISTIC_REPLAY"],
+    ["ROB-02", "EXECUTION_COST_STRESS"],
+    ["ROB-03", "EXECUTION_AND_FILL_STRESS"],
+    ["ROB-04", "PARAMETER_NEIGHBOURHOOD"],
+    ["ROB-05", "PIT_QUALIFIED_UNIVERSE_PERTURBATION"],
+    ["ROB-06", "SUBPERIOD_ANALYSIS"],
+    ["ROB-07", "REGIME_ANALYSIS"],
+    ["ROB-08", "ADVERSE_PERIOD_ANALYSIS"],
+    ["ROB-09", "CONTRIBUTION_CONCENTRATION"],
+    ["ROB-10", "REMOVE_STRONGEST_CONTRIBUTORS"],
+    ["ROB-11", "OUT_OF_SAMPLE_ASSESSMENT"],
+    ["ROB-12", "PROTECTED_HOLDOUT_DENIAL"],
+    ["ROB-13", "INDEPENDENT_ADVERSARIAL_CHALLENGE"]
+  ],
+  "input_contract": {
+    "research": [
+      "checkpointed_trial_admission",
+      "frozen_plan_and_lineage",
+      "complete_trial_history",
+      "strategy_and_run_identity"
+    ],
+    "data": [
+      "current_dataset_qualification",
+      "PIT_eligible_observations",
+      "partition_identity",
+      "observation_identity"
+    ],
+    "financial": [
+      "SimulatedOms",
+      "SimulationLedger",
+      "RECONCILED_ReconciliationResult",
+      "PerformanceTruth",
+      "EC0_EC1_EC2_EC3_attribution"
+    ]
+  },
+  "output_contract": [
+    "canonical_evidence_digest",
+    "explicit_outcome",
+    "observed_metrics",
+    "uncertainty",
+    "limitations",
+    "permitted_conclusions"
+  ],
+  "acceptance": {
+    "A01": "deterministic replay",
+    "A02": "input and hash tampering",
+    "A03": "PIT future-known rejection",
+    "A04": "EC0-EC3 cost integrity",
+    "A05": "OMS and ledger reconciliation",
+    "A06": "delayed and partial fills",
+    "A07": "parameter-grid and trial-family completeness",
+    "A08": "universe survivorship rejection",
+    "A09": "subperiod coverage",
+    "A10": "regime cutoff",
+    "A11": "adverse-window integrity",
+    "A12": "concentration and contributor removal",
+    "A13": "OOS contamination",
+    "A14": "protected-holdout denial",
+    "A15": "independent challenge evidence",
+    "A16": "Holm correction and complete trial counting",
+    "A17": "serial dependence and bootstrap replay",
+    "A18": "zero variance and sample inadequacy",
+    "A19": "benchmark alignment",
+    "A20": "failure-state propagation",
+    "A21": "three strategy adapters",
+    "A22": "research-only authority",
+    "A23": "predecessor regression and final validation"
+  },
+  "failure_precedence": ["INVALID", "TEST_FAIL", "INSUFFICIENT_EVIDENCE", "TEST_PASS"],
+  "explicit_exclusions": [
+    "SECOND_SIMULATION_ENGINE",
+    "PROTECTED_HOLDOUT_ACCESS",
+    "ECONOMIC_EDGE_CLAIM_FROM_SYNTHETIC_DATA",
+    "BROKER_CONNECTION",
+    "PAPER_OR_LIVE_ORDERS",
+    "CAPITAL_AUTHORITY",
+    "RISK_OVERRIDE"
+  ]
+}

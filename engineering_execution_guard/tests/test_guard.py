@@ -11,7 +11,7 @@ import threading
 import time
 import unittest
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from unittest.mock import patch
 
 from engineering_execution_guard.guard import (
@@ -35,6 +35,40 @@ from engineering_execution_guard.guard import (
 def run(command: list[str], cwd: Path) -> str:
     completed = subprocess.run(command, cwd=cwd, check=True, capture_output=True, text=True)
     return completed.stdout.strip()
+
+
+def detached_identity(path: Path) -> dict[str, int]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if set(value) != {"pid", "parent_pid"}:
+        raise ValueError("detached identity keys invalid")
+    if any(not isinstance(value[key], int) or value[key] <= 0 for key in value):
+        raise ValueError("detached identity values invalid")
+    if value["pid"] == value["parent_pid"]:
+        raise ValueError("detached child cannot be its own parent")
+    return value
+
+
+def require_directory_release(
+    source: Path,
+    target: Path,
+    timeout: float,
+    replace: Callable[[Path, Path], None] = lambda current, destination: current.replace(destination),
+) -> None:
+    deadline = time.monotonic() + timeout
+    moved = False
+    while True:
+        try:
+            if not moved:
+                replace(source, target)
+                moved = True
+            replace(target, source)
+            return
+        except PermissionError as error:
+            if getattr(error, "winerror", None) != 32:
+                raise
+            if time.monotonic() >= deadline:
+                raise AssertionError("directory handle release timed out") from error
+            time.sleep(0.05)
 
 
 class GuardFixture(unittest.TestCase):
@@ -747,27 +781,80 @@ class GuardFixture(unittest.TestCase):
 
     @unittest.skipUnless(os.name == "nt", "Windows detached-process behavior")
     def test_48_detached_descendant_can_outlive_guarded_parent(self) -> None:
-        marker = self.root / "detached-marker"
+        parent_marker = self.root / "detached-parent.json"
+        child_marker = self.root / "detached-child.json"
         child = (
-            "import pathlib,time; time.sleep(0.4); "
-            f"pathlib.Path({str(marker)!r}).write_text('detached')"
+            "import json,os,pathlib,sys,time; time.sleep(0.4); "
+            f"pathlib.Path({str(child_marker)!r}).write_text("
+            "json.dumps({'pid':os.getpid(),'parent_pid':int(sys.argv[1])}),encoding='utf-8')"
         )
         parent = (
-            "import subprocess,sys; "
-            f"subprocess.Popen([sys.executable,'-c',{child!r}], creationflags=0x208)"
+            "import json,os,pathlib,subprocess,sys; "
+            "parent_pid=os.getpid(); "
+            f"pathlib.Path({str(parent_marker)!r}).write_text("
+            "json.dumps({'pid':parent_pid}),encoding='utf-8'); "
+            f"subprocess.Popen([sys.executable,'-c',{child!r},str(parent_pid)], creationflags=0x208)"
         )
         self.assertEqual(
             run_argv([sys.executable, "-c", parent], self.repo, self.root / "detached-log.json"),
             0,
         )
         deadline = time.time() + 3
-        while not marker.exists() and time.time() < deadline:
+        while not child_marker.exists() and time.time() < deadline:
             time.sleep(0.05)
-        self.assertTrue(marker.exists())
-        # The marker proves that the detached child outlived its parent. Give
-        # Windows time to finish that child and release its inherited cwd
-        # before TemporaryDirectory cleanup runs.
-        time.sleep(0.5)
+        self.assertTrue(child_marker.exists())
+        parent_identity = json.loads(parent_marker.read_text(encoding="utf-8"))
+        child_identity = detached_identity(child_marker)
+        self.assertEqual(set(parent_identity), {"pid"})
+        self.assertIsInstance(parent_identity["pid"], int)
+        self.assertGreater(parent_identity["pid"], 0)
+        self.assertEqual(child_identity["parent_pid"], parent_identity["pid"])
+        self.assertTrue(_windows_process_query(parent_identity["pid"]).death_confirmed)
+
+        deadline = time.time() + 5
+        while not _windows_process_query(child_identity["pid"]).death_confirmed and time.time() < deadline:
+            time.sleep(0.05)
+        self.assertTrue(_windows_process_query(child_identity["pid"]).death_confirmed)
+
+        released = self.root / "repo-handle-released"
+        require_directory_release(self.repo, released, 5.0)
+        self.assertTrue(self.repo.is_dir())
+        self.assertFalse(released.exists())
+
+    @unittest.skipUnless(os.name == "nt", "Windows process-lifetime behavior")
+    def test_48a_process_termination_wait_is_bounded(self) -> None:
+        deadline = time.time() + 0.05
+        while not _windows_process_query(os.getpid()).death_confirmed and time.time() < deadline:
+            time.sleep(0.005)
+        self.assertFalse(_windows_process_query(os.getpid()).death_confirmed)
+
+    @unittest.skipUnless(os.name == "nt", "Windows detached-process behavior")
+    def test_48b_detached_identity_requires_complete_marker(self) -> None:
+        marker = self.root / "incomplete-detached-identity.json"
+        marker.write_text(json.dumps({"pid": os.getpid()}), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "keys invalid"):
+            detached_identity(marker)
+
+    def test_48c_directory_release_wait_is_bounded_and_fail_closed(self) -> None:
+        calls: list[tuple[Path, Path]] = []
+
+        def sharing_violation(source: Path, target: Path) -> None:
+            calls.append((source, target))
+            error = PermissionError("sharing violation")
+            error.winerror = 32
+            raise error
+
+        with self.assertRaisesRegex(AssertionError, "handle release timed out"):
+            require_directory_release(self.repo, self.root / "released", 0.0, sharing_violation)
+        self.assertEqual(calls, [(self.repo, self.root / "released")])
+
+        def unexpected_error(source: Path, target: Path) -> None:
+            error = PermissionError("access denied")
+            error.winerror = 5
+            raise error
+
+        with self.assertRaisesRegex(PermissionError, "access denied"):
+            require_directory_release(self.repo, self.root / "released", 1.0, unexpected_error)
 
     def test_49_existing_evidence_directory_is_preserved_and_failed(self) -> None:
         evidence = self.evidence / "ATIS-TEST-001" / "ATIS-TEST-001-A1"
