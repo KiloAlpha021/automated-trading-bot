@@ -166,6 +166,7 @@ def _blob(path: Path) -> str:
         check=True,
         capture_output=True,
         text=True,
+        timeout=10,
     ).stdout.strip()
 
 
@@ -423,7 +424,7 @@ def _validate_successor(overlay: dict[str, Any]) -> dict[str, str]:
         assert historical[row["path"]] == row["historical_blob"]
         retained = subprocess.run(
             ["git", "cat-file", "-t", row["historical_blob"]],
-            cwd=ROOT, check=True, capture_output=True, text=True,
+            cwd=ROOT, check=True, capture_output=True, text=True, timeout=10,
         )
         assert retained.stdout.strip() == "blob"
         assert _blob(ROOT / row["path"]) == row["candidate_blob"]
@@ -449,9 +450,32 @@ def _dependency_successor_schema(record: dict[str, Any]) -> Path:
 def _retained_blob(blob: str) -> None:
     retained = subprocess.run(
         ["git", "cat-file", "-t", blob],
-        cwd=ROOT, check=True, capture_output=True, text=True,
+        cwd=ROOT, check=True, capture_output=True, text=True, timeout=10,
     )
     assert retained.stdout.strip() == "blob"
+
+
+def _canonical_git_blob_bytes(path: Path, expected_blob: str) -> bytes:
+    relative_path = path.relative_to(ROOT).as_posix()
+    checkout_blob = subprocess.run(
+        ["git", "hash-object", f"--path={relative_path}", str(path)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=10,
+    ).stdout.strip()
+    assert checkout_blob == expected_blob
+
+    canonical = subprocess.run(
+        ["git", "cat-file", "blob", expected_blob],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        timeout=10,
+    )
+    return canonical.stdout
 
 
 def _validate_dependency_successor(record: dict[str, Any]) -> dict[str, str]:
@@ -464,7 +488,8 @@ def _validate_dependency_successor(record: dict[str, Any]) -> dict[str, str]:
     for evidence in evidence_group.values():
         path = ROOT / evidence["path"]
         assert _blob(path) == evidence["git_blob"]
-        assert sha256(path.read_bytes()).hexdigest() == evidence["sha256"]
+        canonical_bytes = _canonical_git_blob_bytes(path, evidence["git_blob"])
+        assert sha256(canonical_bytes).hexdigest() == evidence["sha256"]
 
     transition = record["dependency_transition"]
     assert transition["path"] == "requirements-dev.lock"
@@ -656,6 +681,7 @@ def test_kf04_successor_preserves_historical_schema_and_packet() -> None:
     historical_schema = json.loads(subprocess.run(
         ["git", "cat-file", "blob", "b534bf02a0dd1736ba2b824c33ec6f2fb1597b4f"],
         cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8",
+        timeout=10,
     ).stdout)
     schema = deepcopy(_load(SCHEMA_PATH))
     del schema["$defs"]["kf04Successor"]
