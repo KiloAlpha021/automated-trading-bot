@@ -435,6 +435,8 @@ class SimulatedOms:
         record = self._active(order_id)
         if type(reason) is not str or not reason.strip():
             raise SimulatedExecutionError("unfilled reason must be explicit")
+        if record.filled_quantity != 0:
+            raise SimulatedExecutionError("UNFILLED requires zero executed quantity; cancel partial orders")
         updated = replace(record, status=OrderStatus.UNFILLED, reasons=(reason,))
         attempt = ExecutionAttempt(order_id, record.remaining_quantity, OrderStatus.UNFILLED, (reason,))
         return replace(self._replace_order(record, updated), attempts=self.attempts + (attempt,))

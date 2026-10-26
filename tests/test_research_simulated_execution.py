@@ -16,6 +16,13 @@ from automated_trading_bot.research.pit_features import (
     DecisionInputEligibility,
     EligibilityState,
 )
+from automated_trading_bot.research.reconciliation_performance import (
+    DiscrepancyCode,
+    PerformanceTruthError,
+    ReconciliationState,
+    reconcile,
+    require_performance,
+)
 from automated_trading_bot.research.simulated_execution import (
     CostComponent,
     CostBreakdown,
@@ -30,6 +37,7 @@ from automated_trading_bot.research.simulated_execution import (
     SimulatedExecutionError,
     SimulatedFill,
     SimulatedOms,
+    SimulatedOrder,
     create_order,
     post_fill_to_ledger,
 )
@@ -64,7 +72,7 @@ def eligibility(
     )
 
 
-def order(**values: object):
+def order(**values: object) -> SimulatedOrder:
     fields = dict(
         instrument_id=INSTRUMENT,
         side=OrderSide.BUY,
@@ -123,12 +131,12 @@ def snapshot(**values: object) -> ExecutionSnapshot:
     return ExecutionSnapshot(**fields)  # type: ignore[arg-type]
 
 
-def accepted(**values: object):
+def accepted(**values: object) -> tuple[SimulatedOms, SimulatedOrder]:
     candidate = order(**values)
     return SimulatedOms().submit(candidate), candidate
 
 
-def filled(quantity: str = "10", **snapshot_values: object):
+def filled(quantity: str = "10", **snapshot_values: object) -> tuple[SimulatedOms, SimulatedOrder]:
     oms, candidate = accepted()
     result = oms.execute(candidate.order_id, Decimal(quantity), snapshot(**snapshot_values), model())
     return result, candidate
@@ -527,3 +535,92 @@ def test_history_is_immutable_and_has_no_live_authority() -> None:
         hasattr(oms, name)
         for name in ("connect_broker", "submit_to_broker", "grant_capital", "live_execute")
     )
+
+
+def test_r9_zero_fill_unfilled_preserves_reason_and_reconciles() -> None:
+    oms, candidate = accepted()
+    before = (oms.orders, oms.fills, oms.attempts)
+    result = oms.mark_unfilled(candidate.order_id, "NO_MARKET_SESSION")
+    record = result.order(candidate.order_id)
+    assert record is not None
+    assert record.status is OrderStatus.UNFILLED
+    assert record.filled_quantity == 0 and record.remaining_quantity == 10
+    assert record.reasons == ("NO_MARKET_SESSION",)
+    assert result.fills == () and len(result.attempts) == 1
+    attempt = result.attempts[0]
+    assert attempt.order_id == candidate.order_id
+    assert attempt.requested_quantity == 10 and attempt.fill_id is None
+    assert attempt.outcome is OrderStatus.UNFILLED
+    assert attempt.reasons == ("NO_MARKET_SESSION",)
+    assert (oms.orders, oms.fills, oms.attempts) == before
+    performance = require_performance(reconcile(result, ledger()))
+    assert performance.net_pnl == 0 and performance.portfolio_value == 1000
+
+
+@pytest.mark.parametrize("parts", [("4",), ("1", "3")])
+def test_r9_partial_mark_unfilled_rejects_atomically_and_cancel_reconciles(
+    parts: tuple[str, ...],
+) -> None:
+    oms, candidate = accepted()
+    financial = ledger()
+    for index, part in enumerate(parts):
+        oms = oms.execute(candidate.order_id, Decimal(part),
+                          snapshot(execution_at=time(13 + index)), model())
+        financial = post_fill_to_ledger(financial, oms.fills[-1])
+    before = (oms.orders, oms.fills, oms.attempts, financial)
+    before_oms = replace(oms)
+    with pytest.raises(SimulatedExecutionError, match="UNFILLED requires zero executed quantity"):
+        oms.mark_unfilled(candidate.order_id, "REMAINDER_UNAVAILABLE")
+    assert oms == before_oms
+    assert (oms.orders, oms.fills, oms.attempts, financial) == before
+    assert oms.orders[0].status is OrderStatus.PARTIALLY_FILLED
+    assert oms.orders[0].filled_quantity == 4
+    assert oms.orders[0].remaining_quantity == 6
+    assert len(oms.attempts) == len(parts)
+    assert financial.state.cash == Decimal("919.88")
+    assert require_performance(reconcile(oms, financial)).execution_cost_drag.total == Decimal("0.12")
+    cancelled = oms.cancel(candidate.order_id)
+    assert cancelled.orders[0].status is OrderStatus.CANCELLED
+    assert cancelled.orders[0].filled_quantity == 4
+    assert cancelled.orders[0].remaining_quantity == 6
+    assert cancelled.fills == oms.fills and cancelled.attempts == oms.attempts
+    assert require_performance(reconcile(cancelled, financial)) == require_performance(reconcile(oms, financial))
+    # Corrupt only a copy to challenge the unchanged reconciliation boundary.
+    inconsistent = replace(oms, orders=(replace(oms.orders[0], status=OrderStatus.UNFILLED),))
+    result = reconcile(inconsistent, financial)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert {d.code for d in result.discrepancies} == {DiscrepancyCode.QUANTITY_MISMATCH}
+    assert result.performance is None
+    with pytest.raises(PerformanceTruthError, match="authoritative performance requires reconciled evidence"):
+        require_performance(result)
+
+
+@pytest.mark.parametrize("terminal", ["filled", "cancelled", "rejected", "unfilled"])
+def test_r9_terminal_mark_unfilled_rejected_without_mutation(terminal: str) -> None:
+    oms, candidate = accepted()
+    if terminal == "filled":
+        oms = oms.execute(candidate.order_id, Decimal("10"), snapshot(), model())
+    elif terminal == "cancelled":
+        oms = oms.cancel(candidate.order_id)
+    elif terminal == "rejected":
+        candidate = order(eligibility=eligibility(EligibilityState.INELIGIBLE))
+        oms = SimulatedOms().submit(candidate)
+    else:
+        oms = oms.mark_unfilled(candidate.order_id, "NO_SESSION")
+    before = replace(oms)
+    with pytest.raises(SimulatedExecutionError, match="terminal order accepts no transition or fill"):
+        oms.mark_unfilled(candidate.order_id, "NO_SESSION")
+    assert oms == before
+    assert (oms.orders, oms.fills, oms.attempts) == (before.orders, before.fills, before.attempts)
+
+
+@pytest.mark.parametrize("foreign", [False, True])
+def test_r9_missing_or_foreign_order_rejected_without_mutation(foreign: bool) -> None:
+    oms, candidate = accepted()
+    identity = order(quantity=Decimal("9")).order_id if foreign else OrderId(UUID(int=999))
+    assert identity != candidate.order_id
+    before = replace(oms)
+    with pytest.raises(SimulatedExecutionError, match="order does not exist"):
+        oms.mark_unfilled(identity, "NO_SESSION")
+    assert oms == before
+    assert (oms.orders, oms.fills, oms.attempts) == (before.orders, before.fills, before.attempts)

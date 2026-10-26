@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
+from functools import lru_cache
 from dataclasses import dataclass, fields, is_dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -433,3 +434,477 @@ class SimulationStateJournal:
             if continuity_verified:
                 self.require_checkpointed(state)
             yield state
+
+
+def _v2_json(body: object) -> bytes:
+    return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False).encode("utf-8")
+
+
+def _v2_digest(domain: bytes, body: object) -> str:
+    return EvidenceContentDigest.from_bytes(domain + b"\0" + _v2_json(body)).value
+
+
+# Version 2 is deliberately separate from the S4-11 journal wire protocol.
+# It is a closed engineering fixture, NOT a TrustContext or deployment authority.
+ENGINEERING_SIMULATION_ONLY = "ENGINEERING_SIMULATION_ONLY"
+
+
+@dataclass(frozen=True, slots=True)
+class PortfolioControllerConfig:
+    portfolio_id: str
+    journal_identity: str
+    epoch: str
+    initial_book: object
+    opening_cash: Decimal
+    opening_run: ResearchRunId
+    opened_at: Timestamp
+    provenance: EvidenceContentDigest
+    scheduling_mode: str = "GENERIC"
+    calendar_id: str = ""
+    calendar_version: str = ""
+    authority: str = ENGINEERING_SIMULATION_ONLY
+
+    def __post_init__(self) -> None:
+        from automated_trading_bot.research import portfolio_construction as pc
+
+        for name in ("portfolio_id", "journal_identity", "epoch"):
+            _text(getattr(self, name), name)
+        if self.authority != ENGINEERING_SIMULATION_ONLY:
+            raise SimulationStateError("operational authority NOT_ESTABLISHED")
+        book = self.initial_book
+        if type(book) is not pc.CommitmentBook or book.records or book.rebalance_transitions or book.removed_strategies:
+            raise SimulationStateError("fresh portfolio genesis required; imports forbidden")
+        pc._check_book(book)
+        if book.allocation.currency != Currency("USD") or self.opening_cash != Decimal(book.allocation.total_cents) / 100:
+            raise SimulationStateError("USD genesis funding must equal allocation")
+        if any(a.admission_class is not pc.AdmissionClass.HYPOTHETICAL_PARTICIPATION for a in book.admissions):
+            raise SimulationStateError("engineering admissions only")
+        if book.admissions and self.opening_run.value not in {a.strategy.research_run_id for a in book.admissions}:
+            raise SimulationStateError("opening run is foreign")
+        if self.scheduling_mode not in {"GENERIC", "MONTHLY"}:
+            raise SimulationStateError("unsupported scheduling mode")
+        if self.scheduling_mode == "MONTHLY" and (not self.calendar_id or not self.calendar_version):
+            raise SimulationStateError("monthly calendar identity and version required")
+
+
+@dataclass(frozen=True, slots=True)
+class FinancialCommand:
+    event: FinancialEvent
+    knowledge_cutoff: Timestamp
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionCommand:
+    order_id: OrderId
+    quantity: Decimal
+    snapshot: ExecutionSnapshot
+    cost_model: ExecutionCostModel
+
+
+@dataclass(frozen=True, slots=True)
+class PortfolioCommand:
+    kind: str
+    decision_cutoff: Timestamp
+    payload: object
+    version: int = 2
+
+
+@dataclass(frozen=True, slots=True)
+class AcceptedPortfolioState:
+    sequence: int
+    digest: str
+    previous_digest: str | None
+    book: object
+    oms: SimulatedOms
+    ledger: SimulationLedger
+    decision_cutoff: Timestamp
+    infeasible_reservations: tuple[str, ...]
+    authority: str = ENGINEERING_SIMULATION_ONLY
+
+
+def _wire(value: object) -> object:
+    """Closed tagged JSON, never pickle, eval or a client-selected import."""
+    from datetime import date
+
+    if isinstance(value, Enum):
+        return {"enum": type(value).__module__ + "." + type(value).__name__, "value": value.value}
+    if is_dataclass(value) and not isinstance(value, type):
+        return {"type": type(value).__module__ + "." + type(value).__name__,
+                "fields": {f.name: _wire(getattr(value, f.name)) for f in fields(value)}}
+    if isinstance(value, (Decimal, UUID, datetime, date)):
+        return {"scalar": type(value).__name__, "value": str(value)}
+    if type(value) is bytes:
+        return {"bytes": value.hex()}
+    if type(value) is tuple:
+        return {"tuple": [_wire(v) for v in value]}
+    if value is None or type(value) in {str, bool, int}:
+        return value
+    raise SimulationStateError("unsupported version-2 wire value")
+
+
+@lru_cache(maxsize=1)
+def _wire_registry() -> dict[str, object]:
+    # Only reviewed value-model modules are eligible; names in data never import code.
+    from importlib import import_module
+    from typing import Any
+
+    modules = (
+        "research.simulation_state", "research.portfolio_construction",
+        "research.robustness_assurance", "research.reconciliation_performance",
+        "research.simulated_execution", "research.simulation_ledger", "research.identity",
+        "research.pit_features", "research.dataset_qualification", "research.statistical_assurance",
+        "domain.currency", "domain.identifiers", "domain.order_side", "domain.timestamp",
+        "calendars.model", "calendars.resolution", "instruments.model", "corporate_actions.model",
+    )
+    registry: dict[str, Any] = {}
+    for module in modules:
+        for cls in vars(import_module("automated_trading_bot." + module)).values():
+            if isinstance(cls, type) and (is_dataclass(cls) or issubclass(cls, Enum)):
+                registry[cls.__module__ + "." + cls.__name__] = cls
+    return registry
+
+
+def _unwire(value: object) -> object:
+    from datetime import date
+    from typing import Any, cast
+    from automated_trading_bot.research import portfolio_construction as pc
+
+    registry = cast(dict[str, Any], _wire_registry())
+    if value is None or type(value) in {str, bool, int}:
+        return value
+    if not isinstance(value, dict):
+        raise SimulationStateError("invalid wire object")
+    if set(value) == {"bytes"} and type(value["bytes"]) is str:
+        return bytes.fromhex(value["bytes"])
+    if set(value) == {"tuple"} and type(value["tuple"]) is list:
+        return tuple(_unwire(v) for v in value["tuple"])
+    if set(value) == {"scalar", "value"}:
+        constructors: dict[str, Any] = {"Decimal": Decimal, "UUID": UUID,
+                                       "datetime": datetime.fromisoformat, "date": date.fromisoformat}
+        if value["scalar"] not in constructors:
+            raise SimulationStateError("unknown wire scalar")
+        return constructors[value["scalar"]](value["value"])
+    if set(value) == {"enum", "value"} and value["enum"] in registry:
+        return registry[value["enum"]](value["value"])
+    if set(value) != {"type", "fields"} or value["type"] not in registry:
+        raise SimulationStateError("unknown wire schema")
+    cls = registry[value["type"]]
+    body = value["fields"]
+    if type(body) is not dict or set(body) != {f.name for f in fields(cls)}:
+        raise SimulationStateError("wire fields mismatch")
+    args: dict[str, Any] = {k: _unwire(v) for k, v in body.items()}
+    if cls is pc.PortfolioAdmission:
+        rebuilt = pc.PortfolioAdmission._from_assurance(args["source_context"], args["admission_class"],
+                                                       args["source_robustness"], args["limitations"])
+        if _wire(rebuilt) != value:
+            raise SimulationStateError("admission reconstruction mismatch")
+        return rebuilt
+    rebuilt = cls(**{f.name: args[f.name] for f in fields(cls) if f.init})
+    if _wire(rebuilt) != value:
+        raise SimulationStateError("derived wire fields mismatch")
+    return rebuilt
+
+
+class EngineeringPortfolioController:
+    """Fixture-owned v2 authority over KNOWN simulation commands only.
+
+    The launch code supplies roots/configuration; propose() cannot replace them.
+    Same-privilege filesystem/code tampering and power-loss durability are NOT
+    established. A fresh process requires the retained bootstrap, never discovery
+    from a candidate. Legacy journals and TrustContext are entirely unchanged.
+    """
+
+    def __init__(self, root: Path, accepted_root: Path, config: PortfolioControllerConfig,
+                 *, establish: bool = False) -> None:
+        if type(config) is not PortfolioControllerConfig:
+            raise SimulationStateError("explicit engineering bootstrap required")
+        config.__post_init__()
+        if root.is_symlink() or accepted_root.is_symlink():
+            raise SimulationStateError("unsafe controller root")
+        self._root, self._accepted = root.resolve(), accepted_root.resolve()
+        if self._root == self._accepted or self._root in self._accepted.parents or self._accepted in self._root.parents:
+            raise SimulationStateError("separate non-overlapping accepted storage required")
+        self._config = config
+        self._config_digest = _v2_digest(b"S4-13-CONTROLLER-CONFIG-V2", {
+            "config": _wire(config), "journal_root": str(self._root), "accepted_root": str(self._accepted)})
+        self._seen_sequence = -1
+        self._seen_digest = ""
+        if establish:
+            if root.exists() or accepted_root.exists():
+                raise SimulationStateError("fresh epoch roots must not exist")
+            root.mkdir(parents=True)
+            accepted_root.mkdir(parents=True)
+            self._write(self._accepted / "bootstrap.json", {"config": _wire(config), "digest": self._config_digest})
+            self._write(self._accepted / "head.json", self._head(self._genesis()))
+        self.read_current()
+
+    @staticmethod
+    def _write(path: Path, body: object) -> None:
+        temporary = path.with_suffix(".prepared")
+        if path.is_symlink() or temporary.is_symlink():
+            raise SimulationStateError("unsafe controller file")
+        # An interrupted temporary write is never accepted; it may be replaced.
+        with temporary.open("wb") as stream:
+            stream.write(_v2_json(body))
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+
+    @staticmethod
+    def _read(path: Path) -> dict[str, object]:
+        try:
+            if path.is_symlink():
+                raise SimulationStateError("unsafe controller file")
+            raw = path.read_bytes()
+            body = json.loads(raw)
+            if type(body) is not dict or _v2_json(body) != raw:
+                raise SimulationStateError("noncanonical controller record")
+            return body
+        except (OSError, ValueError) as error:
+            raise SimulationStateError("missing or corrupt controller record") from error
+
+    @contextmanager
+    def _lock(self) -> Iterator[None]:
+        path = self._accepted / ".controller.lock"
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError as error:
+            raise SimulationStateError("controller writer already active") from error
+        os.close(fd)
+        try:
+            yield
+        finally:
+            path.unlink()
+
+    def _genesis(self) -> AcceptedPortfolioState:
+        c = self._config
+        ledger = SimulationLedger.empty(Currency("USD")).apply(FinancialEvent(
+            LedgerEventId("atis:simulation-ledger-event:v1:controller-opening"), 1, c.opened_at,
+            FinancialEventKind.OPENING_CASH, c.opening_run, c.provenance, Currency("USD"), cash_delta=c.opening_cash))
+        return AcceptedPortfolioState(0, self._config_digest, None, c.initial_book, SimulatedOms(), ledger, c.opened_at, ())
+
+    def _head(self, state: AcceptedPortfolioState) -> dict[str, object]:
+        return {"schema": 2, "configuration": self._config_digest, "sequence": state.sequence, "digest": state.digest}
+
+    def _recover(self) -> AcceptedPortfolioState:
+        if self._root.is_symlink() or self._accepted.is_symlink():
+            raise SimulationStateError("unsafe controller root")
+        if self._read(self._accepted / "bootstrap.json") != {"config": _wire(self._config), "digest": self._config_digest}:
+            raise SimulationStateError("foreign or changed bootstrap")
+        head = self._read(self._accepted / "head.json")
+        if set(head) != {"schema", "configuration", "sequence", "digest"} or head["schema"] != 2 or head["configuration"] != self._config_digest:
+            raise SimulationStateError("foreign head configuration")
+        seq = head["sequence"]
+        if type(seq) is not int or seq < 0:
+            raise SimulationStateError("invalid accepted sequence")
+        if seq < self._seen_sequence or (seq == self._seen_sequence and head["digest"] != self._seen_digest):
+            raise SimulationStateError("accepted-head rollback")
+        state = self._genesis()
+        ids: set[str] = set()
+        accepted_heads: dict[int, dict[str, object]] = {}
+        for n in range(1, seq + 1):
+            record = self._read(self._root / f"{n:08d}.json")
+            if set(record) != {"configuration", "previous", "command_id", "command", "state"} or record["configuration"] != self._config_digest or record["previous"] != state.digest:
+                raise SimulationStateError("history identity or continuity mismatch")
+            command_id = _text(record["command_id"], "command_id")
+            if command_id in ids:
+                raise SimulationStateError("duplicate accepted command")
+            ids.add(command_id)
+            command = _unwire(record["command"])
+            if type(command) is not PortfolioCommand:
+                raise SimulationStateError("typed command required")
+            state = self._transition(state, command_id, command)
+            accepted_heads[n] = self._head(state)
+            if record["state"] != _wire(state):
+                raise SimulationStateError("semantic replay mismatch")
+        if head != self._head(state):
+            raise SimulationStateError("head does not bind replayed state")
+        # Durable acknowledgement witnesses detect head-only rollback after restart.
+        for path in self._accepted.glob("ack-*.json"):
+            ack = self._read(path)
+            ack_sequence = ack.get("sequence")
+            if type(ack_sequence) is not int or ack_sequence > state.sequence or ack_sequence < 1:
+                raise SimulationStateError("acknowledged head rollback")
+            if ack != accepted_heads[ack_sequence]:
+                raise SimulationStateError("acknowledgement mismatch")
+        self._seen_sequence, self._seen_digest = state.sequence, state.digest
+        return state
+
+    def read_current(self) -> AcceptedPortfolioState:
+        with self._lock():
+            return self._recover()
+
+    def _crash_point(self, phase: str) -> None:
+        """Fault injection seam for deterministic engineering recovery tests."""
+
+    def propose(self, command_id: str, command: PortfolioCommand, *, expected_sequence: int,
+                expected_digest: str) -> AcceptedPortfolioState:
+        _text(command_id, "command_id")
+        if type(command) is not PortfolioCommand:
+            raise SimulationStateError("typed command required")
+        if type(expected_sequence) is not int or type(expected_digest) is not str:
+            raise SimulationStateError("typed concurrency expectation required")
+        with self._lock():
+            prior = self._recover()
+            for n in range(1, prior.sequence + 1):
+                old = self._read(self._root / f"{n:08d}.json")
+                if old["command_id"] == command_id:
+                    if old["command"] != _wire(command):
+                        raise SimulationStateError("conflicting duplicate command")
+                    # Retry returns current state without reposting. A crash may
+                    # have advanced the head before writing its acknowledgement.
+                    witness = self._accepted / f"ack-{prior.sequence:08d}.json"
+                    self._write(witness, self._head(prior))
+                    if self._read(witness) != self._head(prior):
+                        raise SimulationStateError("retry acknowledgement readback mismatch")
+                    return prior
+            if expected_sequence != prior.sequence or expected_digest != prior.digest:
+                raise SimulationStateError("stale accepted predecessor")
+            if _unwire(_wire(command)) != command:
+                raise SimulationStateError("command cannot replay exactly")
+            successor = self._transition(prior, command_id, command)
+            record = {"configuration": self._config_digest, "previous": prior.digest,
+                      "command_id": command_id, "command": _wire(command), "state": _wire(successor)}
+            self._crash_point("prepared")
+            path = self._root / f"{successor.sequence:08d}.json"
+            if path.exists() and self._read(path) != record:
+                raise SimulationStateError("conflicting unaccepted tail; explicit recovery required")
+            self._write(path, record)
+            self._crash_point("record_persisted")
+            self._write(self._accepted / "head.json", self._head(successor))
+            self._crash_point("head_advanced")
+            recovered = self._recover()
+            if recovered != successor:
+                raise SimulationStateError("accepted-head readback mismatch")
+            self._crash_point("readback")
+            self._write(self._accepted / f"ack-{successor.sequence:08d}.json", self._head(successor))
+            if self._read(self._accepted / f"ack-{successor.sequence:08d}.json") != self._head(successor):
+                raise SimulationStateError("acknowledgement readback mismatch")
+            self._crash_point("acknowledged")
+            return recovered
+
+    def _transition(self, prior: AcceptedPortfolioState, command_id: str,
+                    command: PortfolioCommand) -> AcceptedPortfolioState:
+        from automated_trading_bot.research import portfolio_construction as pc
+
+        if command.version != 2 or type(command.decision_cutoff) is not Timestamp or command.decision_cutoff.value < prior.decision_cutoff.value:
+            raise SimulationStateError("command version or backward decision cutoff")
+        book = prior.book
+        if type(book) is not pc.CommitmentBook:
+            raise SimulationStateError("portfolio state required")
+        oms, ledger = prior.oms, prior.ledger
+        payload, kind = command.payload, command.kind
+        if kind == "RESERVE":
+            if prior.infeasible_reservations:
+                raise SimulationStateError("INFEASIBLE_RESERVATION")
+            if type(payload) is not tuple or any(type(r) is not pc.CommitmentRequest for r in payload):
+                raise SimulationStateError("typed reservation batch required")
+            for request in payload:
+                if request.order.decision_time != command.decision_cutoff:
+                    raise SimulationStateError("reservation decision cutoff mismatch")
+                if self._config.scheduling_mode == "MONTHLY" and request.schedule is None:
+                    raise SimulationStateError("mandatory monthly schedule missing")
+                if request.schedule is not None:
+                    self._schedule_identity(request.schedule)
+                    if request.schedule.source_oms != oms or request.schedule.source_ledger != ledger:
+                        raise SimulationStateError("stale schedule financial state")
+                if request.order.side.value == "SELL" and (request.holdings_oms != oms or request.holdings_ledger != ledger):
+                    raise SimulationStateError("stale sell decision state")
+            book = pc.reserve_commitments(book, payload)
+        elif kind == "SUBMIT":
+            if type(payload) is not SimulatedOrder:
+                raise SimulationStateError("typed original order required")
+            latest = pc._latest_record(book.records, payload.order_id)
+            if latest.original_order != payload or latest.state is pc.CommitmentState.RELEASED:
+                raise SimulationStateError("order is not currently reserved")
+            oms = oms.submit(payload)
+        elif kind in {"CANCEL", "MARK_UNFILLED", "RESOLVE_OBLIGATION", "RECONCILE"}:
+            if type(payload) is not OrderId:
+                raise SimulationStateError("typed order identity required")
+            if kind in {"CANCEL", "RESOLVE_OBLIGATION"}:
+                oms = oms.cancel(payload)
+            elif kind == "MARK_UNFILLED":
+                oms = oms.mark_unfilled(payload, "controller:zero-fill-unfilled")
+            book = pc.reconcile_commitment(book, order_id=payload, oms=oms, ledger=ledger)
+        elif kind == "EXECUTE_AND_POST":
+            if type(payload) is not ExecutionCommand:
+                raise SimulationStateError("typed execution required")
+            if payload.snapshot.execution_at.value != command.decision_cutoff.value:
+                raise SimulationStateError("execution cutoff mismatch")
+            latest = pc._latest_record(book.records, payload.order_id)
+            if latest.cost_model != payload.cost_model:
+                raise SimulationStateError("approved cost model mismatch")
+            oms = oms.execute(payload.order_id, payload.quantity, payload.snapshot, payload.cost_model)
+            for fill in oms.fills[len(prior.oms.fills):]:
+                ledger = post_fill_to_ledger(ledger, fill)
+            book = pc.reconcile_commitment(book, order_id=payload.order_id, oms=oms, ledger=ledger)
+        elif kind in {"MARK", "CASH_DIVIDEND", "SPLIT", "CASH_ADJUSTMENT"}:
+            if type(payload) is not FinancialCommand or payload.event.kind.value != kind:
+                raise SimulationStateError("typed financial event kind mismatch")
+            event = payload.event
+            if (event.research_run_id.value not in {self._config.opening_run.value, *(a.strategy.research_run_id for a in book.admissions)}
+                or event.occurred_at.value < prior.decision_cutoff.value
+                or not event.occurred_at.value <= payload.knowledge_cutoff.value <= command.decision_cutoff.value
+                or event.sequence != len(ledger.events) + 1
+                or any(e.event_id == event.event_id for e in ledger.events)):
+                raise SimulationStateError("financial event identity, sequence or chronology mismatch")
+            if event.instrument_id is not None and ledger.state.position(event.instrument_id) is None:
+                raise SimulationStateError("financial instrument is not established")
+            if event.corporate_action_version_id is not None and any(
+                e.corporate_action_version_id == event.corporate_action_version_id
+                and e.instrument_id == event.instrument_id and e.kind == event.kind for e in ledger.events
+            ):
+                raise SimulationStateError("duplicate corporate action")
+            ledger = ledger.apply(event)
+        elif kind in {"REBALANCE", "REMOVE_STRATEGY"}:
+            if type(payload) is not pc.RebalanceSchedule:
+                raise SimulationStateError("qualified rebalance transition required")
+            self._schedule_identity(payload)
+            if payload.retained_book != book or payload.source_oms != oms or payload.source_ledger != ledger or payload.decision_time != command.decision_cutoff:
+                raise SimulationStateError("stale rebalance predecessor")
+            if kind == "REMOVE_STRATEGY" and not payload.removed_strategies:
+                raise SimulationStateError("removal identities required")
+            book = pc.carry_forward_rebalance(payload)
+        else:
+            raise SimulationStateError("unsupported controller command; raw replacement forbidden")
+        if any(e.occurred_at.value > command.decision_cutoff.value for e in ledger.events):
+            raise SimulationStateError("financial evidence beyond decision cutoff")
+        require_result = reconcile(oms, ledger)
+        if require_result.state is not ReconciliationState.RECONCILED:
+            raise SimulationStateError("controller financial state does not reconcile")
+        issues = pc.current_reservation_issues(book, oms, ledger, command.decision_cutoff)
+        state = AcceptedPortfolioState(prior.sequence + 1, "", prior.digest, book, oms, ledger,
+                                       command.decision_cutoff, issues)
+        digest = _v2_digest(b"S4-13-ACCEPTED-PORTFOLIO-V2", {"config": self._config_digest, "id": command_id,
+                         "command": _wire(command), "state": _wire(state)})
+        from dataclasses import replace
+        return replace(state, digest=digest)
+
+    def _schedule_identity(self, schedule: object) -> None:
+        from automated_trading_bot.research import portfolio_construction as pc
+
+        if type(schedule) is not pc.RebalanceSchedule:
+            raise SimulationStateError("qualified schedule required")
+        if (str(schedule.final_session.calendar_id.value) != self._config.calendar_id
+            or schedule.final_session.selected_calendar_version_id is None
+            or str(schedule.final_session.selected_calendar_version_id.value) != self._config.calendar_version):
+            raise SimulationStateError("configured calendar identity/version mismatch")
+
+    def build_current_evidence(self) -> object:
+        from automated_trading_bot.research import portfolio_construction as pc
+
+        with self._lock():
+            current = self._recover()
+            if current.infeasible_reservations:
+                raise SimulationStateError("INFEASIBLE_RESERVATION")
+            book = current.book
+            if type(book) is not pc.CommitmentBook:
+                raise SimulationStateError("portfolio state required")
+            result = reconcile(current.oms, current.ledger)
+            attribution = pc.attribute_portfolio(admissions=book.admissions, oms=current.oms,
+                                                ledger=current.ledger, reconciliation=result, effects=())
+            return pc.build_portfolio_evidence(configuration_id=self._config_digest, allocation=book.allocation,
+                commitments=book, oms=current.oms, ledger=current.ledger, reconciliation=result,
+                attribution=attribution, stress_results=(),
+                limitations=(ENGINEERING_SIMULATION_ONLY, "OPERATIONAL_AUTHORITY_NOT_ESTABLISHED",
+                             "EXTERNAL_EVENT_COMPLETENESS_NOT_ESTABLISHED", "ACCEPTED_HEAD:" + current.digest))

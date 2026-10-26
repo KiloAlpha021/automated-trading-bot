@@ -2,6 +2,7 @@ from dataclasses import FrozenInstanceError, fields, replace
 from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
+from typing import Any, cast
 
 import pytest
 
@@ -19,6 +20,7 @@ from automated_trading_bot.research.reconciliation_performance import (
     PerformanceTruthError,
     RECONCILIATION_AUTHORITY,
     ReconciliationState,
+    ReconciliationResult,
     reconcile,
     require_performance,
 )
@@ -34,6 +36,8 @@ from automated_trading_bot.research.simulated_execution import (
     ExecutionSnapshot,
     OrderStatus,
     SimulatedOms,
+    SimulatedOrder,
+    SimulatedExecutionError,
     create_order,
     post_fill_to_ledger,
 )
@@ -90,7 +94,7 @@ def snapshot(hour: int = 13, price: str = "20", quantity: str = "10") -> Executi
     )
 
 
-def order(side: OrderSide = OrderSide.BUY, quantity: str = "10"):
+def order(side: OrderSide = OrderSide.BUY, quantity: str = "10") -> SimulatedOrder:
     return create_order(
         instrument_id=INSTRUMENT,
         side=side,
@@ -125,18 +129,18 @@ def chain(fill_quantity: str = "2") -> tuple[SimulatedOms, SimulationLedger]:
     return oms, ledger
 
 
-def unsafe(instance: object, **changes: object):
+def unsafe[T](instance: T, **changes: object) -> T:
     value = object.__new__(type(instance))
-    for field in fields(instance):
+    for field in fields(cast(Any, instance)):
         object.__setattr__(value, field.name, changes.get(field.name, getattr(instance, field.name)))
     return value
 
 
-def codes(result) -> set[DiscrepancyCode]:
+def codes(result: ReconciliationResult) -> set[DiscrepancyCode]:
     return {item.code for item in result.discrepancies}
 
 
-def corrupt(instance: object, path: str, value: object):
+def corrupt[T](instance: T, path: str, value: object) -> T:
     if "." not in path:
         return unsafe(instance, **{path: value})
     field, nested = path.split(".", 1)
@@ -636,3 +640,160 @@ def test_no_live_or_broker_authority_is_exposed() -> None:
         hasattr(result, name)
         for name in ("connect_broker", "submit_order", "grant_capital", "live_execute")
     )
+
+
+def cancelled_chain(parts: tuple[str, ...] = ("40",)) -> tuple[SimulatedOms, SimulationLedger]:
+    candidate = order(quantity="100")
+    oms = SimulatedOms().submit(candidate)
+    ledger = SimulationLedger.empty(USD).apply(opening())
+    for index, quantity in enumerate(parts):
+        oms = oms.execute(candidate.order_id, Decimal(quantity), snapshot(13 + index, quantity=quantity), cost_model())
+        ledger = post_fill_to_ledger(ledger, oms.fills[-1])
+    return oms.cancel(candidate.order_id), ledger
+
+
+@pytest.mark.parametrize("parts", [(), ("40",), ("10", "30")])
+def test_cancelled_remainder_preserves_fills_quantities_and_financial_truth(parts: tuple[str, ...]) -> None:
+    oms, ledger = cancelled_chain(parts)
+    record = oms.orders[0]
+    expected_filled = Decimal("40") if parts else Decimal("0")
+    before = (oms, ledger)
+    assert record.status is OrderStatus.CANCELLED
+    assert record.filled_quantity == expected_filled
+    assert record.remaining_quantity == Decimal("100") - expected_filled
+    assert sum((fill.quantity for fill in oms.fills), Decimal(0)) == expected_filled
+    assert len(oms.fills) == len(parts)
+    result = reconcile(oms, ledger)
+    assert result.state is ReconciliationState.RECONCILED
+    assert result.discrepancies == ()
+    truth = require_performance(result)
+    # 40 * $20 * (1+2+3+4+5) / 10000 = $1.20 embedded costs.
+    assert truth.execution_cost_drag.total == (Decimal("1.20") if parts else Decimal("0"))
+    assert ledger.state.cash == (Decimal("198.80") if parts else Decimal("1000"))
+    assert truth.turnover == (Decimal("800") if parts else Decimal("0"))
+    assert (oms, ledger) == before
+    with pytest.raises(SimulatedExecutionError, match="terminal"):
+        oms.execute(record.order.order_id, Decimal("1"), snapshot(16), cost_model())
+
+
+@pytest.mark.parametrize("defect", [
+    "filled_quantity", "missing_posting", "duplicate_posting", "duplicate_fill", "conflicting_fill",
+    "missing_fill", "overfill", "currency", "instrument", "cost", "run", "order_identity",
+])
+def test_cancelled_partial_fill_does_not_exempt_financial_integrity(defect: str) -> None:
+    oms, ledger = cancelled_chain()
+    if defect == "filled_quantity":
+        oms = replace(oms, orders=(replace(oms.orders[0], filled_quantity=Decimal("39")),))
+    elif defect == "missing_posting":
+        ledger = SimulationLedger.empty(USD).apply(opening())
+    elif defect == "duplicate_posting":
+        ledger = replace(ledger, events=ledger.events + (ledger.events[-1],))
+    elif defect in {"duplicate_fill", "conflicting_fill"}:
+        extra = oms.fills[0] if defect == "duplicate_fill" else replace(oms.fills[0], quantity=Decimal("41"))
+        oms = replace(oms, fills=oms.fills + (extra,))
+    elif defect == "missing_fill":
+        oms = replace(oms, fills=())
+    elif defect == "overfill":
+        oms = replace(oms, fills=(replace(oms.fills[0], quantity=Decimal("101")),))
+    elif defect == "currency":
+        oms = replace(oms, fills=(replace(oms.fills[0], currency=GBP),))
+    elif defect == "instrument":
+        oms = replace(oms, fills=(replace(oms.fills[0], instrument_id=OTHER_INSTRUMENT),))
+    elif defect == "cost":
+        fill = oms.fills[0]
+        oms = replace(oms, fills=(replace(fill, costs=replace(fill.costs, commission_fees=Decimal("9"))),))
+    elif defect == "run":
+        oms = replace(oms, fills=(replace(oms.fills[0], research_run_id=OTHER_RUN),))
+    else:
+        record = oms.orders[0]
+        oms = replace(oms, orders=(replace(record, order=replace(record.order, order_id=OrderId(UUID(int=1)))),))
+    before = (oms, ledger)
+    result = reconcile(oms, ledger)
+    assert result.state is not ReconciliationState.RECONCILED
+    assert result.discrepancies and result.performance is None
+    expected_codes = {
+        "filled_quantity": DiscrepancyCode.QUANTITY_MISMATCH,
+        "missing_posting": DiscrepancyCode.MISSING_LEDGER_EVENT,
+        "duplicate_posting": DiscrepancyCode.DUPLICATE_LEDGER_POSTING,
+        "duplicate_fill": DiscrepancyCode.DUPLICATE_FILL,
+        "conflicting_fill": DiscrepancyCode.DUPLICATE_FILL,
+        "missing_fill": DiscrepancyCode.MISSING_FILL,
+        "overfill": DiscrepancyCode.QUANTITY_MISMATCH,
+        "currency": DiscrepancyCode.CURRENCY_MISMATCH,
+        "instrument": DiscrepancyCode.INSTRUMENT_MISMATCH,
+        "cost": DiscrepancyCode.COST_MISMATCH,
+        "run": DiscrepancyCode.ATTRIBUTION_MISMATCH,
+        "order_identity": DiscrepancyCode.MISSING_ORDER,
+    }
+    assert expected_codes[defect] in codes(result)
+    with pytest.raises(PerformanceTruthError, match="reconciled evidence"):
+        require_performance(result)
+    assert (oms, ledger) == before
+
+
+@pytest.mark.parametrize("status", [OrderStatus.ACCEPTED, OrderStatus.FULLY_FILLED, OrderStatus.REJECTED, OrderStatus.UNFILLED])
+def test_partial_fill_with_inconsistent_terminal_or_active_status_rejects(status: OrderStatus) -> None:
+    oms, ledger = cancelled_chain()
+    malformed = replace(oms, orders=(replace(oms.orders[0], status=status),))
+    result = reconcile(malformed, ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert DiscrepancyCode.QUANTITY_MISMATCH in codes(result)
+    with pytest.raises(PerformanceTruthError):
+        require_performance(result)
+
+
+def test_full_fill_cannot_cancel_or_masquerade_as_cancelled() -> None:
+    oms, ledger = chain("10")
+    before = oms
+    with pytest.raises(SimulatedExecutionError, match="terminal"):
+        oms.cancel(oms.orders[0].order.order_id)
+    assert oms == before
+    malformed = replace(oms, orders=(replace(oms.orders[0], status=OrderStatus.CANCELLED),))
+    result = reconcile(malformed, ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert DiscrepancyCode.QUANTITY_MISMATCH in codes(result)
+    with pytest.raises(PerformanceTruthError):
+        require_performance(result)
+
+
+@pytest.mark.parametrize("status", [OrderStatus.ACCEPTED, OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.UNFILLED])
+def test_zero_fill_supported_lifecycle_states_reconcile(status: OrderStatus) -> None:
+    candidate = order(quantity="100")
+    if status is OrderStatus.REJECTED:
+        candidate = replace(candidate, eligibility_state=EligibilityState.INELIGIBLE,
+                            eligibility_reasons=("UNQUALIFIED_INPUT",))
+    oms = SimulatedOms().submit(candidate)
+    if status is OrderStatus.CANCELLED:
+        oms = oms.cancel(candidate.order_id)
+    elif status is OrderStatus.UNFILLED:
+        oms = oms.mark_unfilled(candidate.order_id, "NO_LIQUIDITY")
+    ledger = SimulationLedger.empty(USD).apply(opening())
+    before = (oms, ledger)
+    assert oms.orders[0].status is status
+    assert oms.orders[0].filled_quantity == 0
+    assert oms.orders[0].remaining_quantity == 100
+    assert oms.fills == ()
+    result = reconcile(oms, ledger)
+    assert result.state is ReconciliationState.RECONCILED and result.discrepancies == ()
+    performance = require_performance(result)
+    assert performance.net_pnl == performance.turnover == performance.execution_cost_drag.total == 0
+    assert performance.portfolio_value == 1000
+    assert (oms, ledger) == before
+
+
+@pytest.mark.parametrize("status", [OrderStatus.PARTIALLY_FILLED, OrderStatus.FULLY_FILLED])
+def test_zero_fill_filled_status_rejects_with_quantity_discrepancy(status: OrderStatus) -> None:
+    candidate = order(quantity="100")
+    oms = SimulatedOms().submit(candidate)
+    oms = replace(oms, orders=(replace(oms.orders[0], status=status),))
+    ledger = SimulationLedger.empty(USD).apply(opening())
+    before = (oms, ledger)
+    assert oms.fills == () and oms.orders[0].filled_quantity == 0
+    assert oms.orders[0].remaining_quantity == 100
+    result = reconcile(oms, ledger)
+    assert result.state is ReconciliationState.DISCREPANCY
+    assert codes(result) == {DiscrepancyCode.QUANTITY_MISMATCH}
+    assert len(result.discrepancies) == 1 and result.performance is None
+    with pytest.raises(PerformanceTruthError, match="reconciled evidence"):
+        require_performance(result)
+    assert (oms, ledger) == before
