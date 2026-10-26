@@ -1,0 +1,326 @@
+{
+  "schema_version": 3,
+  "contract_id": "ATIS-S4-13-PORTFOLIO-CONSTRUCTION-AND-ATTRIBUTION-V3",
+  "architecture": "OWNER_APPROVED_OPTION_B",
+  "authority": "RESEARCH_ONLY_NO_BROKER_CAPITAL_OR_TRADING_AUTHORITY",
+  "economic_edge": "NOT_ESTABLISHED",
+  "financial_truth": "SimulationLedger; accepted pooled average cost unchanged",
+  "admission": {
+    "HYPOTHETICAL_PARTICIPATION": "Explicit hypothetical=True permits deterministic engineering allocation only; source context/content reconstructed at consumers.",
+    "EVIDENCE_SUPPORTED_RESEARCH_ELIGIBILITY": "INSUFFICIENT_EVIDENCE. Authentic attributable ROB package not established; no allocation or admission. A digest is not authentication.",
+    "limitations": [
+      "NO_BROKER_CAPITAL_OR_TRADING_AUTHORITY",
+      "RESEARCH_ELIGIBILITY_NOT_ESTABLISHED"
+    ]
+  },
+  "allocation": {
+    "currency": "USD",
+    "default_capital": "100000.00",
+    "minor_unit": "0.01",
+    "residual": "final canonical strategy IDs",
+    "unused_budget_lending": false
+  },
+  "commitments": {
+    "buy_liability": "buy expenditure plus conservative outstanding reservations; sell receipts excluded and cannot increase original budgets",
+    "history": "Global contiguous chain and per-order immutable terms, recomputed reservation liabilities and reconciled transition sources",
+    "simultaneous_batches": "Whole batch atomic rejection; no priority winners",
+    "terminal_release": "Only reconciled accepted OMS terminal states; partial cancellation retains fill costs",
+    "sell_holdings": "Replayed reconciled declared simulation history, instrument-wide splits, known transition history prefix and active reservations. No external-source completeness claim."
+  },
+  "attribution": {
+    "realised_component": "Trade-only realised component; dividends disclosed separately and added exactly once.",
+    "net_pnl": "Trade realised + unrealised + dividends. Funding/opening cash/adjustments excluded; embedded costs not subtracted again.",
+    "conservation": [
+      "holdings",
+      "cost basis",
+      "realised/unrealised/dividend components",
+      "execution costs",
+      "funding",
+      "net"
+    ],
+    "unsupported": "INCOMPLETE_ATTRIBUTION for overlapping-position sales or shared corporate actions; no balancing entries",
+    "mismatch": "INVALID for component or financial-source discrepancies"
+  },
+  "calendar": {
+    "market": "US",
+    "venue": "XNYS",
+    "timezone": "America/New_York",
+    "coverage": "Every civil date from final completed monthly session through immediate next eligible session; established version/currentness and explicit closures",
+    "monthly_order_path": "Engineering controller bootstrap fixes GENERIC or MONTHLY. MONTHLY requires qualified schedule at proposal and replay; omitted schedule cannot downgrade policy. Pure functions are calculations, not current-state authority.",
+    "removal": "Controller retains accepted rebalance/removal transitions and obligations; client summaries cannot replace history. Existing pending exits remain cancellable without implicit liquidation."
+  },
+  "stress": {
+    "supported": [
+      "EXECUTION_COST fixed-fill changed-cost replay",
+      "CORRELATION explicit engineering matrix assumptions"
+    ],
+    "verification": "Retained typed inputs recomputed against current sources and exact allocation membership; canonical ordering; no return-path/economic-edge claim",
+    "unsupported": "INSUFFICIENT_EVIDENCE; arbitrary metrics or IDs cannot qualify inputs"
+  },
+  "acceptance_catalogue": {
+    "T01": {
+      "requirement": "Three-strategy cent allocation",
+      "production_function": "allocate_equal_budgets",
+      "positive_test": "test_t01_equal_allocation_uses_final_canonical_residual",
+      "negative_test": "test_r1_admission_substitution_rejected",
+      "expected_result": "33333.33 / 33333.33 / 33333.34",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t01_equal_allocation_uses_final_canonical_residual (candidate-bound JUnit)"
+    },
+    "T02": {
+      "requirement": "Two-strategy equal allocation",
+      "production_function": "allocate_equal_budgets",
+      "positive_test": "test_t02_two_strategy_allocation_is_exact",
+      "negative_test": "test_foreign_allocation_run_is_rejected",
+      "expected_result": "50000 / 50000",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t02_two_strategy_allocation_is_exact (candidate-bound JUnit)"
+    },
+    "T03": {
+      "requirement": "Zero eligible strategies retain cash and create no orders",
+      "production_function": "allocate_equal_budgets",
+      "positive_test": "test_t03_zero_eligible_strategies_retain_all_cash",
+      "negative_test": "test_missing_and_forged_research_evidence_never_promotes_hypothetical",
+      "expected_result": "100000 unallocated, no commitments",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t03_zero_eligible_strategies_retain_all_cash (candidate-bound JUnit)"
+    },
+    "T04": {
+      "requirement": "Conservative buy reservation",
+      "production_function": "reserve_commitments",
+      "positive_test": "test_t04_buy_reservation_uses_conservative_upper_obligation",
+      "negative_test": "test_r2_rehashed_zero_reservation_rejected",
+      "expected_result": "4000 reserved against 10000; 6000 available",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t04_buy_reservation_uses_conservative_upper_obligation (candidate-bound JUnit)"
+    },
+    "T05": {
+      "requirement": "Partial fill preserves liability",
+      "production_function": "reconcile_commitment",
+      "positive_test": "test_t05_partial_fill_retains_exact_remaining_reservation",
+      "negative_test": "test_fill_liability_rejects_unapproved_execution_without_mutating_book",
+      "expected_result": "2500 consumed, 1500 reserved",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t05_partial_fill_retains_exact_remaining_reservation (candidate-bound JUnit)"
+    },
+    "T06": {
+      "requirement": "Overlapping holdings and component conservation",
+      "production_function": "attribute_portfolio",
+      "positive_test": "test_t06_overlapping_holdings_remain_strategy_attributable",
+      "negative_test": "test_r7_offsetting_component_errors_reject",
+      "expected_result": "100/50 shares; 2000/1000 basis; zero PnL and costs",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t06_overlapping_holdings_remain_strategy_attributable (candidate-bound JUnit)"
+    },
+    "T07": {
+      "requirement": "Shared cost allocation",
+      "production_function": "allocate_shared_cents",
+      "positive_test": "test_t07_shared_cost_allocation_conserves_cents",
+      "negative_test": "test_unknown_effect_and_missing_component_provenance_are_rejected",
+      "expected_result": "10 at 60:40 => 6/4",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t07_shared_cost_allocation_conserves_cents (candidate-bound JUnit)"
+    },
+    "T08": {
+      "requirement": "Unexplained attribution mismatch",
+      "production_function": "attribute_portfolio",
+      "positive_test": "test_t08_attribution_mismatch_is_invalid",
+      "negative_test": "test_r7_offsetting_component_errors_reject",
+      "expected_result": "1190 authoritative versus 1200 claimed => INVALID",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t08_attribution_mismatch_is_invalid (candidate-bound JUnit)"
+    },
+    "T09": {
+      "requirement": "Overcommitment rejection",
+      "production_function": "reserve_commitments",
+      "positive_test": "test_t09_strategy_budget_overcommitment_fails_closed",
+      "negative_test": "test_t09_strategy_budget_overcommitment_fails_closed",
+      "expected_result": "No new obligations accepted",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t09_strategy_budget_overcommitment_fails_closed (candidate-bound JUnit)"
+    },
+    "T10": {
+      "requirement": "Simultaneous atomic batch rejection",
+      "production_function": "reserve_commitments",
+      "positive_test": "test_t10_simultaneous_batch_rejection_is_atomic_for_every_permutation",
+      "negative_test": "test_t10_simultaneous_batch_rejection_is_atomic_for_every_permutation",
+      "expected_result": "Every permutation rejects; book/OMS/ledger unchanged",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t10_simultaneous_batch_rejection_is_atomic_for_every_permutation (candidate-bound JUnit)"
+    },
+    "T11": {
+      "requirement": "Partial fill and confirmed cancellation",
+      "production_function": "reconcile_commitment",
+      "positive_test": "test_t11_cancellation_releases_only_after_oms_reconciliation",
+      "negative_test": "test_conservative_rounding_and_unconfirmed_cancellation_preserve_liability",
+      "expected_result": "Retain 1600 expenditure; release remaining 2400 only on OMS cancellation",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t11_cancellation_releases_only_after_oms_reconciliation (candidate-bound JUnit)"
+    },
+    "T12": {
+      "requirement": "Sell 40 of 100",
+      "production_function": "reserve_commitments; reconcile_commitment",
+      "positive_test": "test_t12_sell_40_of_100_leaves_60_and_rejects_overlap",
+      "negative_test": "test_r3_stale_prefix_and_r4_sell_proceeds_not_buy_expenditure",
+      "expected_result": "60 shares remain; no shorting",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t12_sell_40_of_100_leaves_60_and_rejects_overlap (candidate-bound JUnit)"
+    },
+    "T13": {
+      "requirement": "No month-end same-close execution",
+      "production_function": "schedule_monthly_rebalance",
+      "positive_test": "test_t13_monthly_rebalance_releases_next_eligible_session",
+      "negative_test": "test_f2_reconstructed_and_final_boundaries_reject_calendar_bypass",
+      "expected_result": "XNYS final session to immediate next session open",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t13_monthly_rebalance_releases_next_eligible_session (candidate-bound JUnit)"
+    },
+    "T14": {
+      "requirement": "Pending exit preserved",
+      "production_function": "schedule_monthly_rebalance; carry_forward_rebalance; reserve_commitments",
+      "positive_test": "test_t14_pending_exit_preserved",
+      "negative_test": "test_t14_pending_exit_preserved",
+      "expected_result": "40-share exit reservation retained; OMS/ledger unchanged",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t14_pending_exit_preserved (candidate-bound JUnit)"
+    },
+    "T15": {
+      "requirement": "Strategy removal preserves existing holdings and obligations",
+      "production_function": "schedule_monthly_rebalance; carry_forward_rebalance; reserve_commitments",
+      "positive_test": "test_t15_strategy_removal_preserves_holdings_and_obligations",
+      "negative_test": "test_f3_rehashed_removal_erasure_rejects_without_releasing_4000",
+      "expected_result": "100 shares and 40-share obligation retained; no implicit liquidation/release",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t15_strategy_removal_preserves_holdings_and_obligations (candidate-bound JUnit)"
+    },
+    "T16": {
+      "requirement": "Qualified changed-cost replay",
+      "production_function": "execution_cost_stress",
+      "positive_test": "test_t16_execution_cost_stress_has_exact_numerical_binding",
+      "negative_test": "test_r5_recomputed_digest_does_not_qualify_fabricated_stress",
+      "expected_result": "2000 notional at 10bps: cost 2, net -2",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t16_execution_cost_stress_has_exact_numerical_binding (candidate-bound JUnit)"
+    },
+    "T17": {
+      "requirement": "Correlation validity and exact dimensions",
+      "production_function": "correlation_stress",
+      "positive_test": "test_t17_covariance_stress_rejects_invalid_matrix",
+      "negative_test": "test_correlation_dimensions_and_permutations",
+      "expected_result": "Symmetric PSD unit diagonal matrix; canonical ordering",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t17_covariance_stress_rejects_invalid_matrix (candidate-bound JUnit)"
+    },
+    "T18": {
+      "requirement": "Nonempty integrated deterministic replay",
+      "production_function": "build_portfolio_evidence",
+      "positive_test": "test_t18_canonical_replay_is_input_order_independent",
+      "negative_test": "test_f1_final_evidence_currency_boundary",
+      "expected_result": "Admission/book/order/fill/ledger/attribution/stress identical under scenario permutation",
+      "evidence_identity": "tests/test_portfolio_construction.py::test_t18_canonical_replay_is_input_order_independent (candidate-bound JUnit)"
+    }
+  },
+  "mandatory_adversarial_tests": [
+    "test_removed_strategy_schedule_declares_preservation",
+    "test_r1_admission_substitution_rejected",
+    "test_r2_rehashed_zero_reservation_rejected",
+    "test_r3_instrument_split_applies_across_admitted_runs",
+    "test_r3_stale_prefix_and_r4_sell_proceeds_not_buy_expenditure",
+    "test_r5_recomputed_digest_does_not_qualify_fabricated_stress",
+    "test_r7_funding_not_profit_and_dividend_counted_once",
+    "test_r6_schedule_binds_market_version_and_order_release",
+    "test_r7_offsetting_component_errors_reject",
+    "test_r7_real_dividend_costs_and_funding_conserve_independently",
+    "test_f1_final_evidence_currency_boundary",
+    "test_f1_mixed_currency_sources_rejected",
+    "test_f2_reconstructed_and_final_boundaries_reject_calendar_bypass",
+    "test_f3_rehashed_removal_erasure_rejects_without_releasing_4000",
+    "test_f3_retained_exit_can_cancel_but_new_entries_cannot_reconstruct",
+    "test_f3_effective_time_and_retained_obligation_substitution_reject"
+  ],
+  "downstream": {
+    "S4-14": "Candidate-bound source, JUnit, financial component and canonical replay assurance; hypotheses must not become research eligibility.",
+    "S4-15": "Separate closure/owner decisions; engineering completion does not establish economic validation or trading authority."
+  },
+  "scope": "Exactly three S4-13 files. No new evidence platform, journal extension, predecessor changes, dependencies, publication or sealing.",
+  "evidence_integrity": {
+    "F1": "USD allocation, original orders, fills, financial events and ledger/state must agree. Currency-less predecessor PerformanceTruth/ReconciliationResult inherit currency only through exact recomputation against verified sources. No conversion.",
+    "F2": "Reservation creation, reconstructed initial history entries and final-evidence consumers share qualified schedule/order-release validation. Recomputed digests do not establish calendar facts.",
+    "F3": "Removed strategy metadata is derived from retained ordered rebalance transitions. Each transition binds its preceding book, effective decision time, qualified calendar, OMS/ledger and obligations. Existing orders may reconcile/cancel; new reservations after removal cannot reconstruct.",
+    "boundary": "Engineering simulation history only; no independent external completeness or production authority. No new evidence infrastructure."
+  },
+  "option_b_engineering_controller": {
+    "schema": 2,
+    "authority": "ENGINEERING_SIMULATION_ONLY",
+    "operational_authority": "NOT_ESTABLISHED",
+    "bootstrap": "Fresh roots and zero-history configuration established by fixture launch, never by candidate commands.",
+    "accepted_head": "Separate retained bootstrap/head plus acknowledgement witnesses; expected references are CAS only; typed command replay reconstructs state. Configuration identity binds launch-selected storage roots. Identical retry repairs a missing acknowledgement witness before returning.",
+    "idempotency": "Identical command ID/payload returns current accepted state without posting; conflicting payload rejects.",
+    "crash_semantics": "Prepared records are not accepted. Exact retries resume tails. Head readback before acknowledgment. Conflicting tails fail closed. File fsync and atomic replace; no power-loss/OS durability or same-privilege filesystem isolation claim. Abrupt-process orphan locks fail closed pending explicit owner recovery.",
+    "legacy": "S4-11 journal API, schemas, command identities and TrustContext unchanged.",
+    "commands": [
+      "RESERVE",
+      "SUBMIT",
+      "CANCEL",
+      "MARK_UNFILLED",
+      "EXECUTE_AND_POST",
+      "RECONCILE",
+      "RESOLVE_OBLIGATION",
+      "REBALANCE",
+      "REMOVE_STRATEGY",
+      "MARK",
+      "CASH_DIVIDEND",
+      "SPLIT",
+      "CASH_ADJUSTMENT"
+    ],
+    "configuration": "Immutable fresh-epoch bootstrap is configuration establishment; no raw state replacement or automatic import.",
+    "H01": "Controller configuration mandates calendar policy; retained history governs removal.",
+    "H02": "One controller transition implementation used for proposal and replay; shared financial extension checks at pure consumers.",
+    "H03": "Retain infeasible split and reservations; block new reservation and qualified final evidence; explicit OMS cancellation/reconciliation resolves. Aggregate buy reservations also cannot exceed current ledger cash; funding withdrawal is retained and blocks reservations/evidence until resolved.",
+    "H04": "Residual cents only to positive weights with deterministic sorted ordering.",
+    "H05": "All traceability cases plus original T01-T18 and existing adversarial tests; exact collection/JUnit, final source hashes and native exits retained externally.",
+    "downstream": "S4-14/S4-15 must retain accepted-head reference and engineering limitations. External event completeness, authentic research eligibility and trading authority are NOT_ESTABLISHED.",
+    "original_acceptance": "Original T01-T18 meanings and mappings preserved; controller tests are additional.",
+    "limits": [
+      "ENGINEERING_SIMULATION_ONLY",
+      "OPERATIONAL_AUTHORITY_NOT_ESTABLISHED",
+      "No same-privilege malicious code/filesystem isolation",
+      "No OS/power-loss durability claim",
+      "Orphan writer locks fail closed; no automatic deletion or takeover",
+      "External market-event completeness NOT_ESTABLISHED",
+      "Authentic positive research eligibility NOT_ESTABLISHED"
+    ],
+    "acceptance_traceability": {
+      "bootstrap": [
+        "test_controller_fresh_bootstrap_and_authority_limit",
+        "test_controller_copied_roots_are_not_the_established_launch"
+      ],
+      "H01": [
+        "test_controller_monthly_omission_and_raw_replacement_reject",
+        "test_controller_monthly_positive_and_removal_survive_restart"
+      ],
+      "H02": [
+        "test_h02_reconstructed_backward_fill_rejects_like_producer",
+        "test_controller_stale_sell_after_completed_sale",
+        "test_controller_rehashed_record_cannot_replace_accepted_head"
+      ],
+      "H03": [
+        "test_controller_split_preserves_truth_and_blocks_until_cancellation",
+        "test_h03_final_consumer_rejects_post_split_sell_overreservation",
+        "test_controller_funding_withdrawal_preserves_truth_and_blocks_buy_liability"
+      ],
+      "H04": [
+        "test_h04_zero_weight_receives_no_cent_for_every_permutation"
+      ],
+      "recovery": [
+        "test_controller_crash_points_never_double_post",
+        "test_controller_interrupted_file_replace_recovers_prior",
+        "test_controller_corrupt_or_truncated_state_rejects",
+        "test_controller_unaccepted_tail_never_promoted",
+        "test_controller_orphan_lock_fails_closed_without_deletion"
+      ],
+      "concurrency": [
+        "test_controller_competing_handles_cannot_accept_conflicting_successors",
+        "test_controller_stale_duplicate_conflict_and_lock"
+      ],
+      "financial": [
+        "test_controller_nontrade_events_roundtrip",
+        "test_controller_invalid_financial_events_are_atomic",
+        "test_controller_duplicate_corporate_action_cannot_double_apply",
+        "test_controller_foreign_instrument_event_rejects"
+      ],
+      "replay": [
+        "test_controller_execution_recovery_and_final_consumer"
+      ],
+      "legacy": [
+        "test_command_history_recovers_complete_reconciled_state",
+        "test_checkpoint_is_independently_required",
+        "test_truncation_and_replacement_fail_checkpoint",
+        "test_incomplete_or_concurrent_publication_fails_closed"
+      ]
+    }
+  }
+}
