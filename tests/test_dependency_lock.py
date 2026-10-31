@@ -33,7 +33,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "license-expression": "30.4.4",
     "markdown-it-py": "4.2.0",
     "mdurl": "0.1.2",
-    "msgpack": "1.2.2",
+    "msgpack": "1.2.3",
     "mypy": "2.3.1",
     "mypy-extensions": "1.1.0",
     "packageurl-python": "0.17.6",
