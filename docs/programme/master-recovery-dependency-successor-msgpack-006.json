@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "record_id": "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-MSGPACK-006-001",
+  "task_id": "ATIS-DEPS-MSGPACK-PROVENANCE-007",
+  "record_role": "DEPENDENCY_SUCCESSOR_LOCAL_VALIDATION_ONLY",
+  "predecessor_evidence": {
+    "record": {
+      "path": "docs/programme/master-recovery-dependency-successor-s4-12.json",
+      "git_blob": "7218541092e7a0877889e5c0eff4ae67b7c9a4b8",
+      "sha256": "c519a4c8adeda167a602ce2aaac7b89b97d497a3a784de75cbafdb14abf9c30d"
+    },
+    "schema": {
+      "path": "docs/programme/master-recovery-dependency-successor-s4-12.schema.json",
+      "git_blob": "06a2d47e4a237cc0a8f201d1494bcebfb682cf7d",
+      "sha256": "08bd9433f99a073456511a5093d922a60560fba89fcac89027b1e6541950ccb3"
+    }
+  },
+  "dependency_transition": {
+    "path": "requirements-dev.lock",
+    "historical_blob": "c9946cf9fdc04781fbd48cd7ea176fc7e0845e4e",
+    "candidate_blob": "541fa78c84d1312cc64af64d734b3c171536ff91"
+  },
+  "dependency_surface": {
+    "pyproject.toml": "2dfbbf80810f222f904869cb7cdd6dd4fed3da16",
+    "requirements-dev.in": "21bbc60bcc53043637b5ac20340f7554f2e7685b",
+    "requirements-dev.lock": "541fa78c84d1312cc64af64d734b3c171536ff91",
+    "tests/test_dependency_lock.py": "ee2946970e46f720030a5cd22013f2cf7c2586b3"
+  },
+  "trusted_profile": {
+    "repository": "KiloAlpha021/security-workflows",
+    "baseline_main": "f433b2b68d8cd3c4f061fb9c6e8cc417d235780f",
+    "profile_id": "deps-msgpack-security-006",
+    "profile_path": "profiles/deps-msgpack-security-006/profile.json",
+    "profile_blob": "201c9063001153fdbb48f03da332fb4e1b2df4a2",
+    "lock_path": "profiles/deps-msgpack-security-006/requirements-dev.lock",
+    "lock_blob": "541fa78c84d1312cc64af64d734b3c171536ff91",
+    "manifest_path": "profiles/deps-msgpack-security-006/trusted-git-blobs.txt",
+    "manifest_blob": "6fc2177ecdbbb217773cefe0e37e53009418b111"
+  },
+  "trust_state": "PREPARED_VALIDATED",
+  "protected_active": false,
+  "authorization_reference": {
+    "task_id": "ATIS-DEPS-MSGPACK-PROVENANCE-007",
+    "decision": "AUTHORIZED_LOCAL_PROVENANCE_SUCCESSOR_PREPARATION",
+    "source": "CURRENT_OWNER_INSTRUCTION"
+  },
+  "authority_limitations": [
+    "NO_PROGRAMME_AUTHORITY",
+    "NO_IMPLEMENTATION_AUTHORITY",
+    "NO_PUBLICATION_AUTHORITY",
+    "NO_DEPLOYMENT_AUTHORITY",
+    "NO_TRADING_AUTHORITY",
+    "NO_BROKER_AUTHORITY",
+    "NO_RISK_APPROVAL_AUTHORITY",
+    "NO_ACCOUNTING_AUTHORITY",
+    "NO_FINANCIAL_AUTHORITY"
+  ],
+  "grants_authority": false
+}
