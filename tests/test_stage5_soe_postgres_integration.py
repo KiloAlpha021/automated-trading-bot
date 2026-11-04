@@ -232,7 +232,9 @@ def test_u1_direct_sql_new_exposure_is_contained(route,gap):
 @pytest.mark.parametrize('route',['legacy','v2'])
 @pytest.mark.parametrize('user',['u1_verifier','u1_recovery','u1_publisher','u1_plain'])
 def test_u1_other_roles_cannot_grant(route,user):
-    before=_u1_snapshot();result=_u1_call('FOREIGN',route,user);after=_u1_snapshot()
+    before=_u1_snapshot()
+    result=_u1_call('FOREIGN',route,user)
+    after=_u1_snapshot()
     _u1_record('roles-'+route+'-'+user,before,after,result)
     assert result['sqlstate']=='42501'
     assert before==after
@@ -253,14 +255,16 @@ def test_u1_historical_readback_and_privileges():
         functions=c.execute("SELECT p.proname,p.proconfig,r.rolname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace JOIN pg_roles r ON r.oid=p.proowner WHERE n.nspname='atis_soe' AND p.prosecdef").fetchall()
     assert functions
     assert all(owner=='atis_soe_owner' and 'search_path=pg_catalog, atis_soe, pg_temp' in settings for _,settings,owner in functions)
-    after=_u1_snapshot();_u1_record('historic-privileges',before,after,functions)
+    after=_u1_snapshot()
+    _u1_record('historic-privileges',before,after,functions)
     assert before==after
 
 
 def test_u1_concurrent_duplicate_requests_and_restriction_hold():
     from concurrent.futures import ThreadPoolExecutor
     import psycopg
-    op='U1-CONCURRENT';_u1_seed(op)
+    op='U1-CONCURRENT'
+    _u1_seed(op)
     before=_u1_snapshot()
     with psycopg.connect(DSN) as publisher:
         # Owner fixture holds an uncommitted emergency barrier. It is rolled
@@ -269,7 +273,8 @@ def test_u1_concurrent_duplicate_requests_and_restriction_hold():
         with ThreadPoolExecutor(max_workers=2) as workers:
             results=list(workers.map(lambda r:_u1_call(op,r),['legacy','v2']))
         publisher.rollback()
-    after=_u1_snapshot();_u1_record('concurrent-restriction',before,after,results)
+    after=_u1_snapshot()
+    _u1_record('concurrent-restriction',before,after,results)
     assert all(r['sqlstate']=='42501' for r in results)
     assert before==after
 
@@ -291,7 +296,9 @@ def test_u1_real_preconnected_worker_keeps_ambiguous_hold(tmp_path):
         value=fresh_evidence(item,admitted_ns)
         receipt=TEST_G00_ROOT.sign(replace(value.g00_receipt,nonce='N-'+op,signature=''))
         return replace(value,g00_receipt=receipt)
-    before=_u1_snapshot();path=tmp_path/'u1-journal.sqlite';journal=RecoveryJournal(path)
+    before=_u1_snapshot()
+    path=tmp_path/'u1-journal.sqlite'
+    journal=RecoveryJournal(path)
     with PreconnectedWorkerPoolSupervisor(journal,ProtectedPsycopgPersistentSessionFactory(_u1_dsn(),_u1_dsn('u1_verifier'),1),g00_controller=g00_controller(),capacity=1,require_protected_factory=True) as pool:
         result=pool.execute(command,evidence)
     after=_u1_snapshot()

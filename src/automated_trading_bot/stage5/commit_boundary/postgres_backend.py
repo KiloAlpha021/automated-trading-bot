@@ -146,7 +146,7 @@ class PostgresProtectedBackend:
         if request.amount_minor is None or request.currency is None:
             raise ValueError("protected capital operation requires amount and currency")
         attestation = self.attestation_provider(request)
-        ticket = _required_int(request, "g00_ticket_sequence")
+        _required_int(request, "g00_ticket_sequence")
         if attestation.replay_identity != _required_text(request, "g00_replay_identity"):
             raise ValueError("request replay identity differs from verified attestation")
         # U1/C013: neither legacy metadata nor a present envelope qualifies

@@ -146,7 +146,7 @@ def test_backend_uses_only_protected_functions() -> None:
             ),
         ]
     )
-    evidence = backend.verify_attempt(cursor, subject, context(subject))
+    backend.verify_attempt(cursor, subject, context(subject))
     outcome = backend.lookup(cursor, subject, context(subject))
     assert outcome == DurableOutcome(
         subject.operation_id,
