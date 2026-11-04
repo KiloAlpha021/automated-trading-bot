@@ -16,6 +16,9 @@ where = ["src"]
 include = ["automated_trading_bot", "automated_trading_bot.*"]
 namespaces = false
 
+[tool.setuptools.package-data]
+"automated_trading_bot.stage5.commit_boundary" = ["sql/*.sql"]
+
 [tool.ruff]
 target-version = "py312"
 
