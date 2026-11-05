@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "record_id": "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-STAGE5-F0-U1-001",
+  "task_id": "ATIS-S5-F0-U1-CI-RECOVERY-CORRECTION-PREPARATION-027",
+  "record_role": "PROPOSED_DEPENDENCY_SUCCESSOR_PREPARATION_ONLY",
+  "predecessor_evidence": {
+    "record": {
+      "path": "docs/programme/master-recovery-dependency-successor-msgpack-006.json",
+      "git_blob": "521e8d46d150f116aca7a3fd5842d3d993a63860",
+      "sha256": "e3bd7c8f43fd2a598c3374f241e0dc038ebbba8e480172e5c10d78da5a17bc6b"
+    },
+    "schema": {
+      "path": "docs/programme/master-recovery-dependency-successor-msgpack-006.schema.json",
+      "git_blob": "9346ff167842621442ace041649496d1a1a6d9fc",
+      "sha256": "e8cf269fdf5c80daee9eb03040dc49dbed6937fde96c0b3d685ca00d4d494215"
+    }
+  },
+  "dependency_transition": {
+    "path": "requirements-dev.lock",
+    "historical_blob": "541fa78c84d1312cc64af64d734b3c171536ff91",
+    "candidate_blob": "b736b99935dc8f6bb3fab8ea593c941d38d25efe"
+  },
+  "dependency_surface": {
+    "pyproject.toml": "8fbe6ec8bbcd2b8b89e705b2bfe5d97f749c2764",
+    "requirements-dev.in": "243635fd813f15d21a1e7eb23e58e3790c2141a9",
+    "requirements-dev.lock": "b736b99935dc8f6bb3fab8ea593c941d38d25efe",
+    "tests/test_dependency_lock.py": "f44638ba2ef64175173e098f934504be2f877b20"
+  },
+  "trusted_profile": {
+    "repository": "KiloAlpha021/security-workflows",
+    "baseline_main": "3e26f86d45943deb6d73da6bdcf5ffecb025dc79",
+    "profile_id": "stage5-f0-u1-pywin32-312-dependency-successor",
+    "profile_path": "profiles/stage5-f0-u1-pywin32-312-dependency-successor/profile.json",
+    "profile_blob": "26324b0dda0adeef8193a0cdd0ca4afb157ceaf3",
+    "lock_path": "profiles/stage5-f0-u1-pywin32-312-dependency-successor/requirements-dev.lock",
+    "lock_blob": "b736b99935dc8f6bb3fab8ea593c941d38d25efe",
+    "manifest_path": "profiles/stage5-f0-u1-pywin32-312-dependency-successor/trusted-git-blobs.txt",
+    "manifest_blob": "5dfd1a56bddf1bca2060033b3323b92158f974b7"
+  },
+  "trust_state": "PROPOSED_VALIDATED_NOT_ACTIVE",
+  "protected_active": false,
+  "authorization_reference": {
+    "task_id": "ATIS-S5-F0-U1-CI-RECOVERY-CORRECTION-PREPARATION-027",
+    "decision": "AUTHORIZED_ISOLATED_PREPARATION_AND_TESTING_ONLY",
+    "source": "CURRENT_OWNER_INSTRUCTION"
+  },
+  "approval_status": "NOT_PROTECTED_NOT_ACTIVE",
+  "authority_limitations": [
+    "NO_PROGRAMME_AUTHORITY",
+    "NO_IMPLEMENTATION_AUTHORITY",
+    "NO_PUBLICATION_AUTHORITY",
+    "NO_DEPLOYMENT_AUTHORITY",
+    "NO_TRADING_AUTHORITY",
+    "NO_BROKER_AUTHORITY",
+    "NO_RISK_APPROVAL_AUTHORITY",
+    "NO_ACCOUNTING_AUTHORITY",
+    "NO_FINANCIAL_AUTHORITY"
+  ],
+  "grants_authority": false
+}
+
