@@ -49,6 +49,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "pygments": "2.21.0",
     "pyparsing": "3.3.2",
     "pytest": "9.1.1",
+    "pywin32": "312",
     "referencing": "0.37.0",
     "requests": "2.34.2",
     "rich": "15.0.0",
@@ -97,7 +98,7 @@ def _lock_text() -> str:
 
 def test_development_lock_contains_declared_exact_requirements() -> None:
     assert _locked_packages(_lock_text()) == EXPECTED_LOCKED_PACKAGES
-    assert len(EXPECTED_LOCKED_PACKAGES) == 46
+    assert len(EXPECTED_LOCKED_PACKAGES) == 47
 
 
 def test_direct_development_declarations_reconcile_with_lock() -> None:

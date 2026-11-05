@@ -28,6 +28,9 @@ jobs:
         shell: pwsh
         env:
           ATIS_HOSTED_POST_SEAL: "1"
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: "false"
           ATIS_EXECUTION_OUTPUT: ${{ runner.temp }}\atis-engineering-evidence
           ATIS_PYTEST_STATE: ${{ runner.temp }}\atis-pytest-state
           PYTHONDONTWRITEBYTECODE: "1"
