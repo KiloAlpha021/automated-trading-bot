@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from threading import Lock
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .service import IdentityCapabilityService
+
 from collections.abc import Callable, Iterator
 from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass
 import json
 import struct
-from threading import Lock
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -67,7 +72,9 @@ def decode_frame(value: bytes) -> dict[str, object]:
     return body
 
 
-def _security_attributes(service_sid: str, client_sid: str) -> pywintypes.SECURITY_ATTRIBUTES:
+def _security_attributes(
+    service_sid: str, client_sid: str
+) -> pywintypes.SECURITY_ATTRIBUTES:
     sddl = f"O:{service_sid}D:P(A;;GA;;;{service_sid})(A;;GRGW;;;{client_sid})"
     descriptor = win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(
         sddl, win32security.SDDL_REVISION_1
@@ -100,13 +107,18 @@ class FencedRuntimeSession:
         envelope = self.context.__enter__()
         entered = True
         try:
-            win32file.WriteFile(handle, encode_frame({
-                "protocol": PROTOCOL,
-                "operation": "FENCED_CONSUMPTION_ACQUIRED",
-                "fence_nonce": self.fence_nonce,
-                "admission_id": envelope.admission_id,
-                "authority_head": envelope.authority_head,
-            }))
+            win32file.WriteFile(
+                handle,
+                encode_frame(
+                    {
+                        "protocol": PROTOCOL,
+                        "operation": "FENCED_CONSUMPTION_ACQUIRED",
+                        "fence_nonce": self.fence_nonce,
+                        "admission_id": envelope.admission_id,
+                        "authority_head": envelope.authority_head,
+                    }
+                ),
+            )
             win32file.FlushFileBuffers(handle)
             _, raw = win32file.ReadFile(handle, MAX_FRAME + 4)
             request = decode_frame(bytes(raw))
@@ -118,13 +130,20 @@ class FencedRuntimeSession:
                 or request.get("fence_nonce") != self.fence_nonce
                 or request.get("admission_id") != envelope.admission_id
             ):
-                raise AuthorityServiceError("operational authority fence release rejected")
+                raise AuthorityServiceError(
+                    "operational authority fence release rejected"
+                )
             release()
-            win32file.WriteFile(handle, encode_frame({
-                "protocol": PROTOCOL,
-                "operation": "FENCED_CONSUMPTION_RELEASED",
-                "fence_nonce": self.fence_nonce,
-            }))
+            win32file.WriteFile(
+                handle,
+                encode_frame(
+                    {
+                        "protocol": PROTOCOL,
+                        "operation": "FENCED_CONSUMPTION_RELEASED",
+                        "fence_nonce": self.fence_nonce,
+                    }
+                ),
+            )
             win32file.FlushFileBuffers(handle)
         except pywintypes.error as error:
             raise AuthorityServiceError(
@@ -137,21 +156,42 @@ class FencedRuntimeSession:
 class NamedPipeEndpoint:
     """One endpoint with a fixed peer SID and no payload-derived privilege."""
 
-    def __init__(self, *, pipe_name: str, service_sid: str, client_sid: str,
-                 handler: Callable[
-                     [dict[str, object]],
-                     dict[str, object] | FencedRuntimeSession,
-                 ]) -> None:
+    def __init__(
+        self,
+        *,
+        pipe_name: str,
+        service_sid: str,
+        client_sid: str,
+        handler: Callable[
+            [dict[str, object]],
+            dict[str, object] | FencedRuntimeSession,
+        ],
+        decoder: Callable[[bytes], dict[str, object]] = decode_frame,
+    ) -> None:
         self._pipe_name = pipe_name
         self._service_sid = service_sid
         self._client_sid = client_sid
         self._handler = handler
+        self._decoder = decoder
+        self._identity_inflight = Lock()
+        self._identity_unavailable = False
+
+    def mark_identity_unavailable(self) -> None:
+        if self._decoder is decode_identity_frame:
+            self._identity_unavailable = True
 
     def serve_once(self) -> None:
-        flags = (
-            win32pipe.PIPE_ACCESS_DUPLEX
-            | win32pipe.FILE_FLAG_FIRST_PIPE_INSTANCE
-        )
+        if self._decoder is not decode_identity_frame:
+            return self._serve_once()
+        if not self._identity_inflight.acquire(blocking=False):
+            raise AuthorityServiceError("INPUT_LIMIT: identity endpoint busy")
+        try:
+            self._serve_once()
+        finally:
+            self._identity_inflight.release()
+
+    def _serve_once(self) -> None:
+        flags = win32pipe.PIPE_ACCESS_DUPLEX | win32pipe.FILE_FLAG_FIRST_PIPE_INSTANCE
         mode = (
             win32pipe.PIPE_TYPE_MESSAGE
             | win32pipe.PIPE_READMODE_MESSAGE
@@ -160,8 +200,13 @@ class NamedPipeEndpoint:
         )
         try:
             handle = win32pipe.CreateNamedPipe(
-                self._pipe_name, flags, mode, 1, MAX_FRAME + 4,
-                MAX_FRAME + 4, 5000,
+                self._pipe_name,
+                flags,
+                mode,
+                1,
+                MAX_FRAME + 4,
+                MAX_FRAME + 4,
+                5000,
                 _security_attributes(self._service_sid, self._client_sid),
             )
         except pywintypes.error as error:
@@ -173,7 +218,27 @@ class NamedPipeEndpoint:
                 win32pipe.ConnectNamedPipe(handle, None)
                 _, request = win32file.ReadFile(handle, MAX_FRAME + 4)
                 with ImpersonatedPipeClient(handle, self._client_sid):
-                    response = self._handler(decode_frame(bytes(request)))
+                    if self._decoder is decode_identity_frame:
+                        from automated_trading_bot.stage5.identity_scope import (
+                            identity_request_budget,
+                        )
+
+                        try:
+                            with identity_request_budget():
+                                if self._identity_unavailable:
+                                    raise AuthorityServiceError(
+                                        "INTERNAL_UNAVAILABLE: identity endpoint"
+                                    )
+                                response = self._handler(self._decoder(bytes(request)))
+                        except AuthorityServiceError as error:
+                            response = {"error": str(error).split(":", 1)[0]}
+                        except Exception as error:
+                            self._identity_unavailable = True
+                            raise AuthorityServiceError(
+                                "INTERNAL_UNAVAILABLE: identity transport"
+                            ) from error
+                    else:
+                        response = self._handler(self._decoder(bytes(request)))
                 if type(response) is FencedRuntimeSession:
                     response.serve(handle)
                 else:
@@ -228,10 +293,16 @@ class WindowsRuntimePipeTransport:
             handle = win32file.CreateFile(
                 configuration.runtime_pipe,
                 win32con.GENERIC_READ | win32con.GENERIC_WRITE,
-                0, None, win32con.OPEN_EXISTING, 0, None,
+                0,
+                None,
+                win32con.OPEN_EXISTING,
+                0,
+                None,
             )
         except pywintypes.error as error:
-            raise AuthorityServiceError("Authority Service Runtime endpoint unavailable") from error
+            raise AuthorityServiceError(
+                "Authority Service Runtime endpoint unavailable"
+            ) from error
         try:
             win32pipe.SetNamedPipeHandleState(
                 handle, win32pipe.PIPE_READMODE_MESSAGE, None, None
@@ -240,7 +311,9 @@ class WindowsRuntimePipeTransport:
             _, response = win32file.ReadFile(handle, MAX_FRAME + 4)
             return decode_frame(bytes(response))
         except pywintypes.error as error:
-            raise AuthorityServiceError("Authority Service Runtime request failed") from error
+            raise AuthorityServiceError(
+                "Authority Service Runtime request failed"
+            ) from error
         finally:
             win32file.CloseHandle(handle)
 
@@ -250,15 +323,17 @@ class WindowsRuntimePipeTransport:
         if type(snapshot) is not CapitalSnapshot:
             raise AuthorityServiceError("canonical CapitalSnapshot required")
         request_nonce = str(uuid4())
-        response = self._request({
-            "protocol": "ATIS_STAGE5_AUTHORITY_SERVICE_V1",
-            "operation": "ADMIT_CAPITAL_SNAPSHOT",
-            "portfolio_id": snapshot.portfolio_id,
-            "run_scope": snapshot.run_scope,
-            "operation_purpose": operation_purpose,
-            "expected_domain_identity": self._configuration.authority_domain_identity,
-            "request_nonce": request_nonce,
-        })
+        response = self._request(
+            {
+                "protocol": "ATIS_STAGE5_AUTHORITY_SERVICE_V1",
+                "operation": "ADMIT_CAPITAL_SNAPSHOT",
+                "portfolio_id": snapshot.portfolio_id,
+                "run_scope": snapshot.run_scope,
+                "operation_purpose": operation_purpose,
+                "expected_domain_identity": self._configuration.authority_domain_identity,
+                "request_nonce": request_nonce,
+            }
+        )
         signed = SignedAdmission.from_wire(response.get("signed_admission"))
         if signed.envelope.request_nonce != request_nonce:
             raise AuthorityServiceError("Runtime admission replay detected")
@@ -273,7 +348,11 @@ class WindowsRuntimePipeTransport:
             handle = win32file.CreateFile(
                 configuration.runtime_pipe,
                 win32con.GENERIC_READ | win32con.GENERIC_WRITE,
-                0, None, win32con.OPEN_EXISTING, 0, None,
+                0,
+                None,
+                win32con.OPEN_EXISTING,
+                0,
+                None,
             )
         except pywintypes.error as error:
             raise AuthorityServiceError(
@@ -284,14 +363,19 @@ class WindowsRuntimePipeTransport:
             win32pipe.SetNamedPipeHandleState(
                 handle, win32pipe.PIPE_READMODE_MESSAGE, None, None
             )
-            win32file.WriteFile(handle, encode_frame({
-                "protocol": PROTOCOL,
-                "operation": "BEGIN_FENCED_CONSUMPTION",
-                "expected_domain_identity": configuration.authority_domain_identity,
-                "operation_purpose": operation_purpose,
-                "fence_nonce": fence_nonce,
-                "signed_admission": admission.wire(),
-            }))
+            win32file.WriteFile(
+                handle,
+                encode_frame(
+                    {
+                        "protocol": PROTOCOL,
+                        "operation": "BEGIN_FENCED_CONSUMPTION",
+                        "expected_domain_identity": configuration.authority_domain_identity,
+                        "operation_purpose": operation_purpose,
+                        "fence_nonce": fence_nonce,
+                        "signed_admission": admission.wire(),
+                    }
+                ),
+            )
             _, raw = win32file.ReadFile(handle, MAX_FRAME + 4)
             acquired = decode_frame(bytes(raw))
             if (
@@ -301,14 +385,21 @@ class WindowsRuntimePipeTransport:
                 or acquired.get("admission_id") != admission.envelope.admission_id
                 or acquired.get("authority_head") != admission.envelope.authority_head
             ):
-                raise AuthorityServiceError("operational authority fence acquisition failed")
+                raise AuthorityServiceError(
+                    "operational authority fence acquisition failed"
+                )
             yield
-            win32file.WriteFile(handle, encode_frame({
-                "protocol": PROTOCOL,
-                "operation": "RELEASE_FENCED_CONSUMPTION",
-                "fence_nonce": fence_nonce,
-                "admission_id": admission.envelope.admission_id,
-            }))
+            win32file.WriteFile(
+                handle,
+                encode_frame(
+                    {
+                        "protocol": PROTOCOL,
+                        "operation": "RELEASE_FENCED_CONSUMPTION",
+                        "fence_nonce": fence_nonce,
+                        "admission_id": admission.envelope.admission_id,
+                    }
+                ),
+            )
             _, raw = win32file.ReadFile(handle, MAX_FRAME + 4)
             released = decode_frame(bytes(raw))
             if (
@@ -316,11 +407,14 @@ class WindowsRuntimePipeTransport:
                 or released.get("operation") != "FENCED_CONSUMPTION_RELEASED"
                 or released.get("fence_nonce") != fence_nonce
             ):
-                raise AuthorityServiceError("operational authority fence release failed")
+                raise AuthorityServiceError(
+                    "operational authority fence release failed"
+                )
         except pywintypes.error as error:
             raise AuthorityServiceError("operational authority fence failed") from error
         finally:
             win32file.CloseHandle(handle)
+
 
 class AuthorityRuntimeHandler:
     """Strict Runtime protocol; it exposes no management transition operation."""
@@ -347,7 +441,10 @@ class AuthorityRuntimeHandler:
             if any(
                 type(value) is not str or not value
                 for value in (
-                    portfolio_id, run_scope, operation_purpose, request_nonce,
+                    portfolio_id,
+                    run_scope,
+                    operation_purpose,
+                    request_nonce,
                 )
             ):
                 raise AuthorityServiceError("malformed Runtime admission request")
@@ -355,10 +452,15 @@ class AuthorityRuntimeHandler:
             assert isinstance(run_scope, str)
             assert isinstance(operation_purpose, str)
             assert isinstance(request_nonce, str)
-            signed = self._service.admit(RuntimeAdmissionRequest(
-                portfolio_id, run_scope, operation_purpose, self._domain_identity,
-                request_nonce,
-            ))
+            signed = self._service.admit(
+                RuntimeAdmissionRequest(
+                    portfolio_id,
+                    run_scope,
+                    operation_purpose,
+                    self._domain_identity,
+                    request_nonce,
+                )
+            )
             return {"signed_admission": signed.wire()}
         if operation == "BEGIN_FENCED_CONSUMPTION":
             operation_purpose = request.get("operation_purpose")
@@ -385,9 +487,14 @@ class AuthorityRuntimeHandler:
 class AuthorityManagementHandler:
     """Bounded Management protocol behind the Management SID endpoint."""
 
-    _OPERATIONS = frozenset({
-        "BOOTSTRAP", "ENROL_ACTIVATE", "ROTATE_SUPERSEDE", "REVOKE",
-    })
+    _OPERATIONS = frozenset(
+        {
+            "BOOTSTRAP",
+            "ENROL_ACTIVATE",
+            "ROTATE_SUPERSEDE",
+            "REVOKE",
+        }
+    )
 
     def __init__(
         self,
@@ -446,3 +553,99 @@ class ProtectedAuthorityServiceEndpoints:
             ),
         )
 
+
+def decode_identity_frame(value: bytes) -> dict[str, object]:
+    from .protocol import decode_identity_payload
+    from automated_trading_bot.stage5.identity_scope import IdentityScopeError
+
+    if type(value) is not bytes or len(value) < 4:
+        raise AuthorityServiceError("INPUT_INVALID: identity frame")
+    size = struct.unpack("!I", value[:4])[0]
+    if size > MAX_FRAME or size != len(value) - 4:
+        raise AuthorityServiceError("INPUT_LIMIT: identity frame length")
+    try:
+        return decode_identity_payload(value[4:])
+    except IdentityScopeError as exc:
+        raise AuthorityServiceError(exc.code + ": canonical identity frame") from exc
+    except (ValueError, TypeError, RecursionError, OverflowError) as exc:
+        raise AuthorityServiceError("INPUT_INVALID: canonical identity frame") from exc
+
+
+class IdentityCapabilityHandler:
+    """Fixed capability dispatcher with one in-flight request and fail-stop health."""
+
+    def __init__(
+        self, service: IdentityCapabilityService, dimension: str, *, management: bool
+    ) -> None:
+        if dimension not in ("ACCOUNT", "PORTFOLIO") or type(management) is not bool:
+            raise AuthorityServiceError("invalid identity endpoint binding")
+        self._service = service
+        self._dimension = dimension
+        self._management = management
+        self._inflight = Lock()
+        self._unavailable = False
+
+    def __call__(self, request: object) -> dict[str, object]:
+        from automated_trading_bot.stage5.identity_scope import (
+            identity_request_budget,
+            IdentityScopeError,
+        )
+
+        if not self._inflight.acquire(blocking=False):
+            raise AuthorityServiceError(
+                "INPUT_LIMIT: endpoint busy; one in-flight request"
+            )
+        try:
+            if self._unavailable:
+                raise AuthorityServiceError(
+                    "INTERNAL_UNAVAILABLE: identity endpoint requires investigation"
+                )
+            with identity_request_budget():
+                return self._dispatch(request)
+        except AuthorityServiceError:
+            raise
+        except IdentityScopeError as exc:
+            raise AuthorityServiceError(
+                exc.code + ": identity request rejected"
+            ) from exc
+        except (ValueError, TypeError, KeyError, OverflowError, RecursionError) as exc:
+            raise AuthorityServiceError(
+                "INPUT_INVALID: identity request rejected"
+            ) from exc
+        except Exception as exc:
+            self._unavailable = True
+            raise AuthorityServiceError(
+                "INTERNAL_UNAVAILABLE: identity endpoint failed closed"
+            ) from exc
+        finally:
+            self._inflight.release()
+
+    def _dispatch(self, request: object) -> dict[str, object]:
+        from automated_trading_bot.stage5.identity_scope import (
+            exact_fields,
+            IdentityScopeError,
+            json_object,
+            canonical_bytes,
+        )
+
+        value = json_object(request)
+        canonical_bytes(value)
+        action = value.get("action")
+        if action == "read":
+            exact_fields(value, ("action", "record"))
+            raw = self._service.read(self._dimension, value["record"])
+        elif action in ("issue", "transition") and self._management:
+            exact_fields(value, ("action", "command"))
+            if action == "transition":
+                raw = (
+                    self._service.transition_account_identity(value["command"])
+                    if self._dimension == "ACCOUNT"
+                    else self._service.transition_portfolio_identity(value["command"])
+                )
+            else:
+                raw = self._service.issue(self._dimension, value["command"])
+        else:
+            raise IdentityScopeError(
+                "AUTHENTICATION_REJECTED: runtime has no identity issuer privilege"
+            )
+        return {"assertion_hex": raw.hex()}

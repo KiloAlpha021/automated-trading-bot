@@ -7,16 +7,21 @@ from datetime import datetime, timezone
 from importlib import import_module
 from pathlib import Path
 from threading import Event, Thread
-from typing import cast
+from typing import cast, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .windows_security import WindowsIdentityBinding, WindowsDeploymentConfiguration
 
 from automated_trading_bot.stage5.authority_service.cng import (
     CngAdmissionSigner,
     CngAdmissionVerifier,
+    CngIdentityCapabilitySigner,
 )
 from automated_trading_bot.stage5.authority_service.ipc import (
     AuthorityManagementHandler,
     AuthorityRuntimeHandler,
     ProtectedAuthorityServiceEndpoints,
+    NamedPipeEndpoint,
 )
 from automated_trading_bot.stage5.authority_service.persistence import (
     AuthorityDatabase,
@@ -84,7 +89,8 @@ class ProtectedAuthorityManager:
         current = self._database.read()
         if expected_head != current.authority_head:
             committed = self._database.retry_result(
-                witness=self._witness, command_id=command_id,
+                witness=self._witness,
+                command_id=command_id,
                 payload_digest=payload_digest,
             )
             return {"result": committed.decode("ascii")}
@@ -115,11 +121,13 @@ class ProtectedAuthorityManager:
             raise AuthorityServiceError("bootstrap is an owner provisioning operation")
         body["authority_head"] = digest(body)
         successor = AuthorityState.create(**body)
-        result = canonical_bytes({
-            "command_id": command_id,
-            "state_digest": successor.state_digest,
-            "authority_head": successor.authority_head,
-        })
+        result = canonical_bytes(
+            {
+                "command_id": command_id,
+                "state_digest": successor.state_digest,
+                "authority_head": successor.authority_head,
+            }
+        )
         committed = self._database.publish(
             witness=self._witness,
             command_id=command_id,
@@ -150,10 +158,14 @@ class ProtectedAuthorityServiceHost:
         endpoints: ProtectedAuthorityServiceEndpoints,
         signer: CngAdmissionSigner,
         ownership: WindowsDomainMutex,
+        identity_endpoints: tuple[NamedPipeEndpoint, ...] = (),
+        identity_signers: tuple[CngIdentityCapabilitySigner, ...] = (),
     ) -> None:
         self.endpoints = endpoints
         self._signer = signer
         self._ownership = ownership
+        self._identity_endpoints = tuple(identity_endpoints)
+        self._identity_signers = tuple(identity_signers)
 
     @classmethod
     def from_protected_windows_deployment(cls) -> ProtectedAuthorityServiceHost:
@@ -195,7 +207,21 @@ class ProtectedAuthorityServiceHost:
                     domain_identity=configuration.authority_domain_identity,
                 ),
             )
-            return cls(endpoints=endpoints, signer=signer, ownership=ownership)
+            from .windows_security import load_identity_bindings
+
+            bindings = load_identity_bindings(configuration)
+            identity_endpoints, identity_signers = (
+                compose_identity_capabilities(configuration, bindings)
+                if bindings
+                else ((), ())
+            )
+            return cls(
+                endpoints=endpoints,
+                signer=signer,
+                ownership=ownership,
+                identity_endpoints=identity_endpoints,
+                identity_signers=identity_signers,
+            )
         except Exception:
             ownership.close()
             raise
@@ -208,10 +234,22 @@ class ProtectedAuthorityServiceHost:
                 except AuthorityServiceError:
                     if stop.is_set():
                         return
+                except Exception:
+                    if endpoint not in self._identity_endpoints:
+                        raise
+                    if isinstance(endpoint, NamedPipeEndpoint):
+                        endpoint.mark_identity_unavailable()
+                    else:
+                        stop.set()
+                        return
 
-        threads = (
+        threads: tuple[Thread, ...] = (
             Thread(target=serve, args=(self.endpoints.runtime,), daemon=True),
             Thread(target=serve, args=(self.endpoints.management,), daemon=True),
+        )
+        threads += tuple(
+            Thread(target=serve, args=(endpoint,), daemon=True)
+            for endpoint in self._identity_endpoints
         )
         for thread in threads:
             thread.start()
@@ -219,6 +257,73 @@ class ProtectedAuthorityServiceHost:
             thread.join()
 
     def close(self) -> None:
+        for signer in self._identity_signers:
+            signer.close()
         self._signer.close()
         self._ownership.close()
 
+
+def compose_identity_capabilities(
+    configuration: WindowsDeploymentConfiguration,
+    bindings: tuple[WindowsIdentityBinding, ...],
+) -> tuple[tuple[NamedPipeEndpoint, ...], tuple[CngIdentityCapabilitySigner, ...]]:
+    """Existing host only; all bindings came from fixed protected configuration."""
+    from .cng import CngIdentityCapabilitySigner
+    from .client import IdentityConsumer, IdentityKeyPolicy
+    from .service import IdentityCapabilityService
+    from .persistence import IdentityLifecycleStore
+    from .ipc import IdentityCapabilityHandler, NamedPipeEndpoint, decode_identity_frame
+    from automated_trading_bot.stage5.identity_scope import parse_timestamp
+
+    IdentityLifecycleStore.require_operational_bootstrap()
+    signers: dict[str, CngIdentityCapabilitySigner] = {}
+    try:
+        for b in bindings:
+            signers[b.dimension] = CngIdentityCapabilitySigner.open_identity(
+                dimension=b.dimension,
+                key_name=b.key_name,
+                key_id=b.key_id,
+                key_version=b.key_version,
+                expected_public_blob=b.public_blob,
+            )
+        store = IdentityLifecycleStore(Path(configuration.store_path))
+        clock = SystemTrustedClock()
+        policies = tuple(
+            IdentityKeyPolicy(
+                b.dimension,
+                configuration.deployment_identity,
+                b.key_id,
+                b.key_version,
+                b.policy_version,
+                b.public_blob,
+                parse_timestamp(b.valid_from),
+                parse_timestamp(b.valid_until),
+            )
+            for b in bindings
+        )
+        consumer = IdentityConsumer(policies, store.current, clock.now)
+        service = IdentityCapabilityService(
+            store, signers, consumer, clock.now, configuration.deployment_identity
+        )
+        endpoints = []
+        for b in bindings:
+            for management, pipe, peer in [
+                (True, b.management_pipe, b.issuer_sid),
+                (False, b.read_pipe, b.reader_sid),
+            ]:
+                endpoints.append(
+                    NamedPipeEndpoint(
+                        pipe_name=pipe,
+                        service_sid=configuration.service_sid,
+                        client_sid=peer,
+                        handler=IdentityCapabilityHandler(
+                            service, b.dimension, management=management
+                        ),
+                        decoder=decode_identity_frame,
+                    )
+                )
+        return tuple(endpoints), tuple(signers.values())
+    except BaseException:
+        for signer in signers.values():
+            signer.close()
+        raise
