@@ -803,13 +803,18 @@ def test_g00_stale_and_wrong_context_receipts_are_rejected(
 
 
 @pytest.mark.parametrize(
-    "mode", ("readiness-error", "readiness-eof", "unsafe-readiness")
+    ("mode", "expected_error"),
+    (
+        ("readiness-error", "readiness"),
+        ("readiness-eof", "bootstrap pipe closed"),
+        ("unsafe-readiness", "readiness"),
+    ),
 )
 def test_failed_worker_readiness_leaves_no_untracked_child_or_pipe(
-    tmp_path: Path, mode: str
+    tmp_path: Path, mode: str, expected_error: str
 ) -> None:
     before = {child.pid for child in multiprocessing.active_children()}
-    with pytest.raises(RuntimeError, match="readiness"):
+    with pytest.raises(RuntimeError, match=expected_error):
         PreconnectedWorkerPoolSupervisor(
             RecoveryJournal(tmp_path / f"{mode}.sqlite"),
             FakeFactory(mode),
