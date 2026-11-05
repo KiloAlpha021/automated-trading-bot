@@ -145,6 +145,22 @@ class OperationRequest:
             digest=operation_digest(body),
         )
 
+    def bind_scope(self, core, signed_envelope: bytes, verifier):
+        """C013 two-stage binding; this method never grants financial authority."""
+        from automated_trading_bot.stage5.identity_scope import OperationCoreV1,IdentityScopeError,parse_canonical
+        if verifier is None or 'atis_scope_envelope_digest' in self.immutable_parameters:
+            raise IdentityScopeError("qualified scope verifier required; reserved key forbidden")
+        body=parse_canonical(core.raw)
+        if OperationCoreV1.from_request(self,body['deployment_id'],body['operation_class'])!=core:
+            raise IdentityScopeError("operation core mismatch")
+        envelope=verifier.verify_scope(core,signed_envelope)
+        parameters=_plain(self.immutable_parameters)
+        parameters['atis_scope_envelope_digest']=envelope.digest
+        return OperationRequest.create(operation_id=self.operation_id,request_type=self.request_type,
+            scope=self.scope,amount_minor=self.amount_minor,currency=self.currency,
+            expected_generation=self.expected_generation,expected_epoch=self.expected_epoch,
+            immutable_parameters=parameters)
+
 
 def operation_digest(body: Mapping[str, object]) -> str:
     encoded = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False).encode("ascii")
