@@ -5,7 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from contextlib import AbstractContextManager, contextmanager
 from datetime import datetime, timedelta, timezone
-from typing import Iterator, Protocol
+from typing import Iterator, Protocol, Callable, Mapping, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .persistence import IdentityLifecycleStore
+    from .cng import CngIdentityCapabilitySigner
+    from .client import IdentityConsumer
 from uuid import uuid4
 
 from automated_trading_bot.stage5.identity_scope import IdentityCapabilityV1
@@ -57,8 +62,9 @@ class TrustedClock(Protocol):
 
 
 class AuthoritativeSnapshotSource(Protocol):
-    def resolve_snapshot(self, *, portfolio_id: str, run_scope: str,
-                         operation_purpose: str) -> AuthoritativeSnapshotRecord: ...
+    def resolve_snapshot(
+        self, *, portfolio_id: str, run_scope: str, operation_purpose: str
+    ) -> AuthoritativeSnapshotRecord: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -101,12 +107,20 @@ class AuthorityLineage:
             state, key_id=state.current_key_id, version=state.current_key_version
         )
         return cls(
-            state.domain_identity, state.store_epoch, state.authority_id,
-            state.authority_head, state.authority_generation,
-            state.authority_status.value, state.authority_valid_from,
-            state.authority_expires_at, state.provider_descriptor_digest,
-            state.policy_id, state.policy_version, state.current_key_id,
-            state.current_key_version, True,
+            state.domain_identity,
+            state.store_epoch,
+            state.authority_id,
+            state.authority_head,
+            state.authority_generation,
+            state.authority_status.value,
+            state.authority_valid_from,
+            state.authority_expires_at,
+            state.provider_descriptor_digest,
+            state.policy_id,
+            state.policy_version,
+            state.current_key_id,
+            state.current_key_version,
+            True,
         )
 
 
@@ -122,12 +136,18 @@ class RuntimeAdmissionRequest:
 class AuthorityService:
     """No generic signing API: only validated canonical admissions are signed."""
 
-    def __init__(self, *, service_identity: str, deployment_identity: str,
-                 authority: CurrentAuthority, signer: AdmissionSigner,
-                 snapshot_source: AuthoritativeSnapshotSource,
-                 clock: TrustedClock,
-                 admission_verifier: AdmissionSignatureVerifier | None = None,
-                 identity_signers: tuple[IdentityCapabilitySigner, ...] = ()) -> None:
+    def __init__(
+        self,
+        *,
+        service_identity: str,
+        deployment_identity: str,
+        authority: CurrentAuthority,
+        signer: AdmissionSigner,
+        snapshot_source: AuthoritativeSnapshotSource,
+        clock: TrustedClock,
+        admission_verifier: AdmissionSignatureVerifier | None = None,
+        identity_signers: tuple[IdentityCapabilitySigner, ...] = (),
+    ) -> None:
         self._service_identity = service_identity
         self._deployment_identity = deployment_identity
         self._authority = authority
@@ -135,43 +155,16 @@ class AuthorityService:
         self._snapshot_source = snapshot_source
         self._clock = clock
         self._admission_verifier = admission_verifier
-        self._identity_signers = {
-            value.capability: value for value in identity_signers
-        }
+        self._identity_signers = {value.capability: value for value in identity_signers}
         if len(self._identity_signers) != len(identity_signers):
             raise AuthorityServiceError("duplicate identity capability signer")
 
     def issue_identity(
         self, capability: IdentityCapabilityV1, *, request_nonce: str
     ) -> SignedIdentityCapability:
-        """Issue one bounded identity assertion with a capability-specific key."""
-        if type(capability) is not IdentityCapabilityV1:
-            raise AuthorityServiceError("typed identity capability required")
-        if capability.deployment_identity != self._deployment_identity:
-            raise AuthorityServiceError("foreign identity deployment")
-        signer = self._identity_signers.get(capability.capability)
-        if signer is None:
-            raise AuthorityServiceError("identity capability is unavailable")
-        now = self._clock.now()
-        if now.tzinfo is not timezone.utc:
-            raise AuthorityServiceError("trusted clock must return canonical UTC")
-        unsigned = SignedIdentityCapability(
-            capability=capability,
-            key_id=signer.key_id,
-            key_version=signer.key_version,
-            nonce=request_nonce,
-            issued_at=now.isoformat(),
-            valid_until=(now + timedelta(minutes=5)).isoformat(),
-            signature=b"UNSIGNED",
-        )
-        return SignedIdentityCapability(
-            capability=capability,
-            key_id=signer.key_id,
-            key_version=signer.key_version,
-            nonce=request_nonce,
-            issued_at=unsigned.issued_at,
-            valid_until=unsigned.valid_until,
-            signature=signer.sign_identity(unsigned.signing_bytes()),
+        """Legacy unsigned-schema issuance cannot bypass durable capabilities."""
+        raise AuthorityServiceError(
+            "legacy identity issuance unavailable; use protected lifecycle endpoint"
         )
 
     def admit(self, request: RuntimeAdmissionRequest) -> SignedAdmission:
@@ -190,7 +183,8 @@ class AuthorityService:
             if request.expected_domain_identity != state.domain_identity:
                 raise AuthorityServiceError("foreign authority domain")
             snapshot = self._snapshot_source.resolve_snapshot(
-                portfolio_id=request.portfolio_id, run_scope=request.run_scope,
+                portfolio_id=request.portfolio_id,
+                run_scope=request.run_scope,
                 operation_purpose=request.operation_purpose,
             )
             if (
@@ -198,13 +192,16 @@ class AuthorityService:
                 or snapshot.run_scope != request.run_scope
                 or snapshot.operation_purpose != request.operation_purpose
                 or snapshot.currency != state.currency
-                or snapshot.provider_descriptor_digest != state.provider_descriptor_digest
+                or snapshot.provider_descriptor_digest
+                != state.provider_descriptor_digest
                 or snapshot.provider_implementation_identity
                 != state.provider_implementation_identity
                 or snapshot.policy_id != state.policy_id
                 or snapshot.policy_version != state.policy_version
             ):
-                raise AuthorityServiceError("authoritative snapshot provenance mismatch")
+                raise AuthorityServiceError(
+                    "authoritative snapshot provenance mismatch"
+                )
             snapshot_expiry = datetime.fromisoformat(snapshot.expires_at)
             if snapshot_expiry.tzinfo is not timezone.utc or snapshot_expiry <= now:
                 raise AuthorityServiceError("authoritative snapshot is stale")
@@ -335,10 +332,16 @@ class AuthorityService:
 class AdmissionVerifier:
     """Runtime has pinned verification identity and no signing capability."""
 
-    def __init__(self, *, verifier: AdmissionSignatureVerifier,
-                 service_identity: str, deployment_identity: str,
-                 authority_domain_identity: str, signing_key_id: str,
-                 signing_key_version: int) -> None:
+    def __init__(
+        self,
+        *,
+        verifier: AdmissionSignatureVerifier,
+        service_identity: str,
+        deployment_identity: str,
+        authority_domain_identity: str,
+        signing_key_id: str,
+        signing_key_version: int,
+    ) -> None:
         self._verifier = verifier
         self._service_identity = service_identity
         self._deployment_identity = deployment_identity
@@ -346,10 +349,19 @@ class AdmissionVerifier:
         self._signing_key_id = signing_key_id
         self._signing_key_version = signing_key_version
 
-    def verify(self, admission: SignedAdmission, *, snapshot_digest: str,
-               snapshot_id: str, snapshot_version: int,
-               snapshot_expires_at: str, currency: str, portfolio_id: str, run_scope: str,
-               operation_purpose: str) -> AdmissionEnvelope:
+    def verify(
+        self,
+        admission: SignedAdmission,
+        *,
+        snapshot_digest: str,
+        snapshot_id: str,
+        snapshot_version: int,
+        snapshot_expires_at: str,
+        currency: str,
+        portfolio_id: str,
+        run_scope: str,
+        operation_purpose: str,
+    ) -> AdmissionEnvelope:
         if type(admission) is not SignedAdmission:
             raise AuthorityServiceError("signed admission required")
         envelope = admission.envelope
@@ -374,3 +386,281 @@ class AdmissionVerifier:
         if not self._verifier.verify_admission(admission):
             raise AuthorityServiceError("invalid service admission signature")
         return envelope
+
+
+class IdentityCapabilityService:
+    """Two capability-specific issuers within the existing independent host.
+
+    Only protected management handlers own this object. Runtime consumers own
+    verify-only policy. All issuance state changes use one durable transaction.
+    """
+
+    def __init__(
+        self,
+        store: IdentityLifecycleStore,
+        signers: Mapping[str, CngIdentityCapabilitySigner],
+        consumer: IdentityConsumer,
+        clock: Callable[[], datetime],
+        deployment: str,
+    ) -> None:
+        from automated_trading_bot.stage5.identity_scope import IdentityScopeError
+
+        self.store = store
+        self._signers = dict(signers)
+        self.consumer = consumer
+        self.clock = clock
+        self.deployment = deployment
+        if set(self._signers) != {"ACCOUNT", "PORTFOLIO"}:
+            raise IdentityScopeError("two independent identity capabilities required")
+        for dimension, signer in self._signers.items():
+            policies = [p for p in consumer.policies if p.dimension == dimension]
+            if (
+                len(policies) != 1
+                or signer.capability != dimension + "_IDENTITY_V1"
+                or signer.public_blob() != policies[0].public_blob
+                or signer.key_id != policies[0].key_id
+                or signer.key_version != policies[0].key_version
+            ):
+                raise IdentityScopeError("identity signer/policy mismatch")
+
+    def issue(self, dimension: str, command: object) -> bytes:
+        from automated_trading_bot.stage5.identity_scope import (
+            IdentityScopeError,
+            IdentityRecordV1,
+            exact_fields,
+            positive,
+            hex_digest,
+            parse_timestamp,
+            canonical_bytes as wire,
+            parse_canonical,
+            assertion_signing_bytes,
+            signed_container,
+            assertion_digest,
+            json_object,
+            check_request_budget,
+        )
+
+        command = json_object(command)
+        wire(command)
+        exact_fields(
+            command,
+            (
+                "command_id",
+                "record",
+                "lifecycle_version",
+                "state",
+                "valid_from",
+                "valid_until",
+                "policy_version",
+                "nonce",
+                "parent",
+            ),
+        )
+        if dimension not in self._signers:
+            raise IdentityScopeError("invalid issuing endpoint")
+        record = IdentityRecordV1.parse(command["record"])
+        if record.dimension != dimension or record.deployment_id != self.deployment:
+            raise IdentityScopeError("foreign identity endpoint/deployment")
+        if type(command["command_id"]) is not str or not command["command_id"]:
+            raise IdentityScopeError("command ID required")
+        version = positive(command["lifecycle_version"], "lifecycle")
+        hex_digest(command["nonce"])
+        positive(command["policy_version"], "policy version")
+        signer = self._signers[dimension]
+        self.consumer.policy(
+            dimension,
+            self.deployment,
+            signer.key_id,
+            signer.key_version,
+            command["policy_version"],
+        )
+        if (
+            not parse_timestamp(command["valid_from"])
+            <= self.clock()
+            < parse_timestamp(command["valid_until"])
+        ):
+            raise IdentityScopeError("issuance outside validity")
+        assertions, current_table, commands = self.store.tables_for(dimension)
+        with self.store.transaction() as c:
+            if c.execute(
+                "SELECT 1 FROM "
+                + commands
+                + " WHERE (dimension=? AND command_id=?) OR (key_id=? AND nonce=?)",
+                (dimension, command["command_id"], signer.key_id, command["nonce"]),
+            ).fetchone():
+                raise IdentityScopeError("command/nonce replay")
+            prior = self.store.current(record, c)
+            predecessor = None
+            if prior is not None:
+                old = IdentityRecordV1.parse(parse_canonical(prior[0]))
+                # Public digest/lineage consistency is not signing authority.
+                # Authenticate the exact current predecessor under this same
+                # write transaction before using its epoch or lifecycle state.
+                oldp = self.consumer.verify_signature(old, prior[1])
+                if record.producer_epoch < old.producer_epoch:
+                    raise IdentityScopeError("producer epoch rollback")
+                if record.producer_epoch == old.producer_epoch:
+                    if (
+                        oldp["state"] == "REVOKED"
+                        or version != oldp["lifecycle_version"] + 1
+                    ):
+                        raise IdentityScopeError("revoked or nonmonotonic lifecycle")
+                    predecessor = assertion_digest(prior[1])
+                elif version != 1:
+                    raise IdentityScopeError("new epoch must start lifecycle")
+            elif version != 1:
+                raise IdentityScopeError("missing lifecycle predecessor")
+            if predecessor is None and command["state"] != "ACTIVE":
+                raise IdentityScopeError("creation must be ACTIVE")
+            payload = {
+                "schema": dimension.lower() + "-identity-assertion/v1",
+                "identity_digest": record.digest,
+                "lifecycle_version": version,
+                "state": command["state"],
+                "valid_from": command["valid_from"],
+                "valid_until": command["valid_until"],
+                "policy_version": command["policy_version"],
+                "producer_key_id": signer.key_id,
+                "producer_key_version": signer.key_version,
+                "predecessor_digest": predecessor,
+                "nonce": command["nonce"],
+            }
+            if dimension == "PORTFOLIO":
+                parent = command["parent"]
+                exact_fields(parent, ("record", "assertion_hex"))
+                parent_record = IdentityRecordV1.parse(parent["record"])
+                if (
+                    parent_record.dimension != "ACCOUNT"
+                    or parent_record.deployment_id != self.deployment
+                ):
+                    raise IdentityScopeError("foreign parent")
+                try:
+                    parent_raw = bytes.fromhex(parent["assertion_hex"])
+                except (ValueError, TypeError) as exc:
+                    raise IdentityScopeError("invalid parent evidence") from exc
+                parent_payload = self.consumer.verify_signature(
+                    parent_record, parent_raw
+                )
+                if parent_payload["state"] != "ACTIVE" or self.store.current(
+                    parent_record, c
+                ) != (wire(parent_record.body()), parent_raw):
+                    raise IdentityScopeError("stale/revoked parent")
+                payload["parent_account_identity_digest"] = parent_record.digest
+                if (
+                    predecessor is not None
+                    and oldp["parent_account_identity_digest"] != parent_record.digest
+                ):
+                    raise IdentityScopeError("in-place parent substitution")
+            elif command["parent"] is not None:
+                raise IdentityScopeError("account cannot have parent")
+            check_request_budget()
+            signing = assertion_signing_bytes(payload)
+            raw = signed_container(payload, signer.sign_identity(signing))
+            self.consumer.verify_signature(record, raw)
+            check_request_budget()
+            digest = assertion_digest(raw)
+            c.execute(
+                "INSERT INTO " + assertions + " VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (
+                    digest,
+                    record.digest,
+                    wire(record.body()),
+                    raw,
+                    record.deployment_id,
+                    dimension,
+                    record.value,
+                    record.producer_epoch,
+                    version,
+                    command["state"],
+                ),
+            )
+            c.execute(
+                "INSERT INTO " + commands + " VALUES (?,?,?,?,?)",
+                (
+                    dimension,
+                    command["command_id"],
+                    signer.key_id,
+                    command["nonce"],
+                    digest,
+                ),
+            )
+            c.execute(
+                "INSERT INTO "
+                + current_table
+                + " VALUES (?,?,?,?) ON CONFLICT(deployment,dimension,value) DO UPDATE SET digest=excluded.digest",
+                (record.deployment_id, dimension, record.value, digest),
+            )
+        # Returned only after durable commit; ambiguous completion cannot reissue
+        # the same command. A protected read resolves the exact stored assertion.
+        return raw
+
+    def read(self, dimension: str, record: object) -> bytes:
+        from automated_trading_bot.stage5.identity_scope import (
+            IdentityRecordV1,
+            IdentityScopeError,
+        )
+
+        record = IdentityRecordV1.parse(record)
+        if record.dimension != dimension or record.deployment_id != self.deployment:
+            raise IdentityScopeError("foreign read endpoint")
+        current = self.store.current(record)
+        if current is None:
+            raise IdentityScopeError("identity unavailable")
+        self.consumer.verify(record, current[1])
+        return current[1]
+
+    def issue_account_identity(self, command: object) -> bytes:
+        return self.issue("ACCOUNT", command)
+
+    def issue_portfolio_identity(self, command: object) -> bytes:
+        return self.issue("PORTFOLIO", command)
+
+    def transition_account_identity(self, command: object) -> bytes:
+        from automated_trading_bot.stage5.identity_scope import (
+            exact_fields,
+            positive,
+            json_object,
+        )
+
+        exact_fields(
+            command,
+            (
+                "command_id",
+                "record",
+                "lifecycle_version",
+                "state",
+                "valid_from",
+                "valid_until",
+                "policy_version",
+                "nonce",
+                "parent",
+            ),
+        )
+        command = json_object(command)
+        positive(command["lifecycle_version"], "transition successor version", 2)
+        return self.issue("ACCOUNT", command)
+
+    def transition_portfolio_identity(self, command: object) -> bytes:
+        from automated_trading_bot.stage5.identity_scope import (
+            exact_fields,
+            positive,
+            json_object,
+        )
+
+        exact_fields(
+            command,
+            (
+                "command_id",
+                "record",
+                "lifecycle_version",
+                "state",
+                "valid_from",
+                "valid_until",
+                "policy_version",
+                "nonce",
+                "parent",
+            ),
+        )
+        command = json_object(command)
+        positive(command["lifecycle_version"], "transition successor version", 2)
+        return self.issue("PORTFOLIO", command)

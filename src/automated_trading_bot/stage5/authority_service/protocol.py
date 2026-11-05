@@ -23,7 +23,10 @@ class AuthorityServiceError(RuntimeError):
 
 def canonical_bytes(value: object) -> bytes:
     return json.dumps(
-        value, ensure_ascii=True, allow_nan=False, sort_keys=True,
+        value,
+        ensure_ascii=True,
+        allow_nan=False,
+        sort_keys=True,
         separators=(",", ":"),
     ).encode("ascii")
 
@@ -83,19 +86,37 @@ class AdmissionEnvelope:
 
     def __post_init__(self) -> None:
         for name in (
-            "service_identity", "deployment_identity", "authority_domain_identity",
-            "signing_key_id", "signing_key_status", "store_epoch", "authority_id",
-            "authority_head", "authority_status", "authority_valid_from",
-            "authority_expires_at", "provider_descriptor_digest",
-            "provider_implementation_identity", "snapshot_id", "snapshot_digest",
-            "currency", "portfolio_id",
-            "run_scope", "operation_purpose", "policy_id", "admission_id",
+            "service_identity",
+            "deployment_identity",
+            "authority_domain_identity",
+            "signing_key_id",
+            "signing_key_status",
+            "store_epoch",
+            "authority_id",
+            "authority_head",
+            "authority_status",
+            "authority_valid_from",
+            "authority_expires_at",
+            "provider_descriptor_digest",
+            "provider_implementation_identity",
+            "snapshot_id",
+            "snapshot_digest",
+            "currency",
+            "portfolio_id",
+            "run_scope",
+            "operation_purpose",
+            "policy_id",
+            "admission_id",
             "request_nonce",
         ):
             _text(getattr(self, name), name)
         if self.protocol != PROTOCOL:
             raise AuthorityServiceError("unsupported admission protocol")
-        if self.signing_key_version < 1 or self.authority_generation < 1 or self.policy_version < 1:
+        if (
+            self.signing_key_version < 1
+            or self.authority_generation < 1
+            or self.policy_version < 1
+        ):
             raise AuthorityServiceError("invalid key or authority generation")
         if self.signing_key_status != "SIGN_CURRENT":
             raise AuthorityServiceError("admission signing key is not current")
@@ -106,12 +127,8 @@ class AdmissionEnvelope:
         admitted = _utc(self.admitted_at, "admitted_at")
         valid_until = _utc(self.valid_until, "valid_until")
         snapshot_expires_at = _utc(self.snapshot_expires_at, "snapshot_expires_at")
-        authority_valid_from = _utc(
-            self.authority_valid_from, "authority_valid_from"
-        )
-        authority_expires_at = _utc(
-            self.authority_expires_at, "authority_expires_at"
-        )
+        authority_valid_from = _utc(self.authority_valid_from, "authority_valid_from")
+        authority_expires_at = _utc(self.authority_expires_at, "authority_expires_at")
         if not authority_valid_from <= admitted < authority_expires_at:
             raise AuthorityServiceError("admission authority validity is inconsistent")
         if valid_until <= admitted:
@@ -120,10 +137,7 @@ class AdmissionEnvelope:
             raise AuthorityServiceError("admission exceeds snapshot currentness")
 
     def body(self) -> dict[str, object]:
-        return {
-            name: getattr(self, name)
-            for name in self.__dataclass_fields__
-        }
+        return {name: getattr(self, name) for name in self.__dataclass_fields__}
 
     def signing_bytes(self) -> bytes:
         return ADMISSION_DOMAIN + canonical_bytes(self.body())
@@ -158,7 +172,9 @@ class SignedAdmission:
             envelope = AdmissionEnvelope(**envelope_value)
             signature = b64decode(signature_value, validate=True)
         except (TypeError, ValueError) as error:
-            raise AuthorityServiceError("signed admission response is malformed") from error
+            raise AuthorityServiceError(
+                "signed admission response is malformed"
+            ) from error
         return cls(envelope, signature)
 
 
@@ -207,3 +223,10 @@ class SignedIdentityCapability:
 
 def same_digest(left: str, right: str) -> bool:
     return compare_digest(left.encode("ascii"), right.encode("ascii"))
+
+
+def decode_identity_payload(raw: bytes) -> dict[str, object]:
+    """C013 canonical identity commands; admission codec remains unchanged."""
+    from automated_trading_bot.stage5.identity_scope import parse_canonical
+
+    return parse_canonical(raw)
