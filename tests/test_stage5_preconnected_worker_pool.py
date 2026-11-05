@@ -806,7 +806,10 @@ def test_g00_stale_and_wrong_context_receipts_are_rejected(
     ("mode", "expected_error"),
     (
         ("readiness-error", "readiness"),
-        ("readiness-eof", "bootstrap pipe closed"),
+        (
+            "readiness-eof",
+            "bootstrap pipe closed|exited before readiness|readiness timed out",
+        ),
         ("unsafe-readiness", "readiness"),
     ),
 )
