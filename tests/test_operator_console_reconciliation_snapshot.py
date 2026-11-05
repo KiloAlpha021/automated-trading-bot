@@ -1,9 +1,13 @@
 from dataclasses import FrozenInstanceError
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from hashlib import sha256
 import inspect
+import json
+from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from automated_trading_bot.domain.timestamp import Timestamp
 from automated_trading_bot.instruments.model import (
@@ -22,6 +26,7 @@ from automated_trading_bot.reconciliation.operator_console_snapshot import (
     SnapshotValidationError,
     evidence_digest_for,
     produce_reconciliation_snapshot,
+    validate_snapshot,
 )
 from automated_trading_bot.research.identity import ResearchRunId
 from automated_trading_bot.research.reconciliation_performance import (
@@ -39,6 +44,12 @@ NOW = Timestamp(datetime(2026, 11, 5, 12, tzinfo=UTC))
 OBSERVED = Timestamp(NOW.value - timedelta(minutes=2))
 PRODUCED = Timestamp(NOW.value - timedelta(minutes=1))
 RUN_ID = ResearchRunId("atis:research:run:v1:sha256:" + "1" * 64)
+SCHEMA_PATH = (
+    Path(__file__).parents[1]
+    / "docs"
+    / "stage4"
+    / "s4-operator-console-reconciliation-snapshot-v1.schema.json"
+)
 
 
 def _evidence(content: bytes = b"stage4-reconciliation-evidence") -> EvidenceRef:
@@ -98,6 +109,46 @@ def _snapshot(
     )
 
 
+def _attacker_recomputed_identity(snapshot: object) -> str:
+    performance = snapshot.performance
+    performance_mapping = None
+    if performance is not None:
+        performance_mapping = {
+            name: str(getattr(performance, name))
+            for name in module._PERFORMANCE_DECIMAL_FIELDS
+        }
+        performance_mapping.update(
+            {
+                "participation": performance.participation,
+                "capacity": performance.capacity,
+            }
+        )
+    body = {
+        "discrepancy_codes": [value.value for value in snapshot.discrepancy_codes],
+        "evidence_digest": snapshot.evidence_digest,
+        "observed_at_utc": snapshot.observed_at_utc.value.isoformat(
+            timespec="microseconds"
+        ).replace("+00:00", "Z"),
+        "performance": performance_mapping,
+        "produced_at_utc": snapshot.produced_at_utc.value.isoformat(
+            timespec="microseconds"
+        ).replace("+00:00", "Z"),
+        "reconciliation_state": snapshot.reconciliation_state.value,
+        "schema_version": snapshot.schema_version,
+        "simulation_only": snapshot.simulation_only,
+        "source_authority": snapshot.source_authority,
+        "source_run_id": snapshot.source_run_id.value,
+        "trading_authority": snapshot.trading_authority,
+    }
+    encoded = json.dumps(
+        body, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("ascii")
+    return (
+        "atis:operator-console:reconciliation-observation:v1:sha256:"
+        + sha256(encoded).hexdigest()
+    )
+
+
 def test_valid_reconciliation_result_preserves_truth_and_performance() -> None:
     snapshot = _snapshot()
     assert snapshot.reconciliation_state is ReconciliationState.RECONCILED
@@ -105,6 +156,105 @@ def test_valid_reconciliation_result_preserves_truth_and_performance() -> None:
     assert snapshot.performance is not None
     assert snapshot.performance.net_pnl == Decimal("85")
     assert snapshot.source_run_id is RUN_ID
+
+
+def test_performance_validation_accepts_valid_finite_values() -> None:
+    snapshot = _snapshot()
+    assert validate_snapshot(snapshot, evaluated_at_utc=NOW) is snapshot
+
+
+def test_performance_validation_preserves_legitimate_negative_pnl() -> None:
+    truth = PerformanceTruth(
+        Decimal("-100.25"),
+        CostDrag(*(Decimal(value) for value in ("1", "2", "3", "4", "5"))),
+        Decimal("-115.25"),
+        Decimal("-80"),
+        Decimal("-35.25"),
+        Decimal("24884.75"),
+        Decimal("0.4"),
+        MetricAvailability.NOT_ESTABLISHED,
+        MetricAvailability.NOT_ESTABLISHED,
+    )
+    snapshot = _snapshot(
+        ReconciliationResult(ReconciliationState.RECONCILED, (), truth)
+    )
+    assert snapshot.performance is not None
+    assert snapshot.performance.gross_pnl == Decimal("-100.25")
+    assert snapshot.performance.net_pnl == Decimal("-115.25")
+
+
+@pytest.mark.parametrize("field", module._PERFORMANCE_DECIMAL_FIELDS)
+@pytest.mark.parametrize("invalid", [Decimal("NaN"), Decimal("Infinity"), Decimal("-Infinity")])
+def test_performance_validation_rejects_non_finite_decimal_fields(
+    field: str, invalid: Decimal
+) -> None:
+    snapshot = _snapshot()
+    assert snapshot.performance is not None
+    object.__setattr__(snapshot.performance, field, invalid)
+    object.__setattr__(snapshot, "observation_id", _attacker_recomputed_identity(snapshot))
+    with pytest.raises(SnapshotValidationError, match="finite Decimal"):
+        validate_snapshot(snapshot, evaluated_at_utc=NOW)
+
+
+@pytest.mark.parametrize("field", module._PERFORMANCE_DECIMAL_FIELDS)
+@pytest.mark.parametrize("invalid", ["1.0", 1, 1.0])
+def test_performance_validation_rejects_incorrect_decimal_types(
+    field: str, invalid: object
+) -> None:
+    snapshot = _snapshot()
+    assert snapshot.performance is not None
+    object.__setattr__(snapshot.performance, field, invalid)
+    object.__setattr__(snapshot, "observation_id", _attacker_recomputed_identity(snapshot))
+    with pytest.raises(SnapshotValidationError, match="finite Decimal"):
+        validate_snapshot(snapshot, evaluated_at_utc=NOW)
+
+
+@pytest.mark.parametrize("field", ["participation", "capacity"])
+def test_performance_validation_rejects_unsupported_metric_states(field: str) -> None:
+    snapshot = _snapshot()
+    assert snapshot.performance is not None
+    object.__setattr__(snapshot.performance, field, "UNSUPPORTED")
+    object.__setattr__(snapshot, "observation_id", _attacker_recomputed_identity(snapshot))
+    with pytest.raises(SnapshotValidationError, match="supported metric state"):
+        validate_snapshot(snapshot, evaluated_at_utc=NOW)
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    ["NaN", "Infinity", "-Infinity", "+1", "01", "1.", ".5", "1e3", " 1"],
+)
+def test_schema_rejects_malformed_or_noncanonical_numeric_strings(
+    malformed: str,
+) -> None:
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    Draft202012Validator.check_schema(schema)
+    document = _snapshot().as_mapping()
+    performance = document["performance"]
+    assert isinstance(performance, dict)
+    performance["net_pnl"] = malformed
+    assert list(Draft202012Validator(schema).iter_errors(document))
+
+
+def test_schema_accepts_canonical_negative_decimal_strings() -> None:
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    document = _snapshot().as_mapping()
+    performance = document["performance"]
+    assert isinstance(performance, dict)
+    performance["gross_pnl"] = "-100.25"
+    performance["net_pnl"] = "-115.25"
+    assert list(Draft202012Validator(schema).iter_errors(document)) == []
+
+
+def test_recomputed_identity_does_not_bypass_independent_validation() -> None:
+    snapshot = _snapshot()
+    assert snapshot.performance is not None
+    object.__setattr__(snapshot.performance, "participation", "UNSUPPORTED")
+    object.__setattr__(snapshot, "observation_id", _attacker_recomputed_identity(snapshot))
+    read = ReconciliationSnapshotAdapter(enabled=True).read(
+        snapshot, evaluated_at_utc=NOW
+    )
+    assert read.state is AdapterReadState.UNKNOWN
+    assert read.snapshot is None
 
 
 @pytest.mark.parametrize(

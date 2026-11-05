@@ -5,6 +5,12 @@
   "description": "Immutable research-simulation reconciliation truth. It grants no trading authority.",
   "type": "object",
   "additionalProperties": false,
+  "$defs": {
+    "canonical_decimal": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:E[+-]?(?:0|[1-9][0-9]*))?$"
+    }
+  },
   "required": [
     "schema_version",
     "observation_id",
@@ -84,17 +90,17 @@
             "unrealised_pnl", "portfolio_value", "turnover", "participation", "capacity"
           ],
           "properties": {
-            "gross_pnl": {"type": "string"},
-            "commission_fees": {"type": "string"},
-            "bid_ask_spread": {"type": "string"},
-            "slippage": {"type": "string"},
-            "market_impact": {"type": "string"},
-            "additional_friction": {"type": "string"},
-            "net_pnl": {"type": "string"},
-            "realised_pnl": {"type": "string"},
-            "unrealised_pnl": {"type": "string"},
-            "portfolio_value": {"type": "string"},
-            "turnover": {"type": "string"},
+            "gross_pnl": {"$ref": "#/$defs/canonical_decimal"},
+            "commission_fees": {"$ref": "#/$defs/canonical_decimal"},
+            "bid_ask_spread": {"$ref": "#/$defs/canonical_decimal"},
+            "slippage": {"$ref": "#/$defs/canonical_decimal"},
+            "market_impact": {"$ref": "#/$defs/canonical_decimal"},
+            "additional_friction": {"$ref": "#/$defs/canonical_decimal"},
+            "net_pnl": {"$ref": "#/$defs/canonical_decimal"},
+            "realised_pnl": {"$ref": "#/$defs/canonical_decimal"},
+            "unrealised_pnl": {"$ref": "#/$defs/canonical_decimal"},
+            "portfolio_value": {"$ref": "#/$defs/canonical_decimal"},
+            "turnover": {"$ref": "#/$defs/canonical_decimal"},
             "participation": {"const": "NOT_ESTABLISHED"},
             "capacity": {"const": "NOT_ESTABLISHED"}
           }

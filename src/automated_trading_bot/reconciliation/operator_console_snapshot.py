@@ -24,6 +24,7 @@ from automated_trading_bot.research.identity import ResearchRunId
 from automated_trading_bot.research.reconciliation_performance import (
     RECONCILIATION_AUTHORITY,
     DiscrepancyCode,
+    MetricAvailability,
     PerformanceTruth,
     ReconciliationResult,
     ReconciliationState,
@@ -37,6 +38,24 @@ _OBSERVATION_ID = re.compile(
     re.ASCII,
 )
 _DIGEST = re.compile(r"sha256:[0-9a-f]{64}", re.ASCII)
+_CANONICAL_DECIMAL_TEXT = re.compile(
+    r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:E[+-]?(?:0|[1-9][0-9]*))?",
+    re.ASCII,
+)
+_PERFORMANCE_DECIMAL_FIELDS = (
+    "gross_pnl",
+    "commission_fees",
+    "bid_ask_spread",
+    "slippage",
+    "market_impact",
+    "additional_friction",
+    "net_pnl",
+    "realised_pnl",
+    "unrealised_pnl",
+    "portfolio_value",
+    "turnover",
+)
+_SUPPORTED_METRIC_STATES = frozenset(value.value for value in MetricAvailability)
 
 
 class SnapshotValidationError(ValueError):
@@ -78,10 +97,21 @@ def _validated_timestamp(value: object, name: str) -> Timestamp:
     return value
 
 
-def _decimal_text(value: Decimal) -> str:
+def _decimal_text(value: object, name: str = "performance value") -> str:
     if type(value) is not Decimal or not value.is_finite():
-        raise SnapshotValidationError("performance values must be finite Decimals")
-    return str(value)
+        raise SnapshotValidationError(f"{name} must be a finite Decimal")
+    text = str(value)
+    if _CANONICAL_DECIMAL_TEXT.fullmatch(text) is None:
+        raise SnapshotValidationError(f"{name} is not a canonical Decimal")
+    return text
+
+
+def _metric_state_text(value: object, name: str) -> str:
+    if type(value) is MetricAvailability:
+        return value.value
+    if type(value) is str and value in _SUPPORTED_METRIC_STATES:
+        return value
+    raise SnapshotValidationError(f"{name} is not a supported metric state")
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,26 +148,42 @@ class PerformanceSnapshotV1:
             truth.portfolio_value,
             truth.turnover,
         )
-        for value in values:
-            _decimal_text(value)
-        return cls(*values, truth.participation.value, truth.capacity.value)
+        for name, value in zip(_PERFORMANCE_DECIMAL_FIELDS, values, strict=True):
+            _decimal_text(value, name)
+        return cls(
+            *values,
+            _metric_state_text(truth.participation, "participation"),
+            _metric_state_text(truth.capacity, "capacity"),
+        )
 
     def as_mapping(self) -> dict[str, str]:
         return {
-            "additional_friction": _decimal_text(self.additional_friction),
-            "bid_ask_spread": _decimal_text(self.bid_ask_spread),
-            "capacity": self.capacity,
-            "commission_fees": _decimal_text(self.commission_fees),
-            "gross_pnl": _decimal_text(self.gross_pnl),
-            "market_impact": _decimal_text(self.market_impact),
-            "net_pnl": _decimal_text(self.net_pnl),
-            "participation": self.participation,
-            "portfolio_value": _decimal_text(self.portfolio_value),
-            "realised_pnl": _decimal_text(self.realised_pnl),
-            "slippage": _decimal_text(self.slippage),
-            "turnover": _decimal_text(self.turnover),
-            "unrealised_pnl": _decimal_text(self.unrealised_pnl),
+            "additional_friction": _decimal_text(
+                self.additional_friction, "additional_friction"
+            ),
+            "bid_ask_spread": _decimal_text(self.bid_ask_spread, "bid_ask_spread"),
+            "capacity": _metric_state_text(self.capacity, "capacity"),
+            "commission_fees": _decimal_text(self.commission_fees, "commission_fees"),
+            "gross_pnl": _decimal_text(self.gross_pnl, "gross_pnl"),
+            "market_impact": _decimal_text(self.market_impact, "market_impact"),
+            "net_pnl": _decimal_text(self.net_pnl, "net_pnl"),
+            "participation": _metric_state_text(self.participation, "participation"),
+            "portfolio_value": _decimal_text(self.portfolio_value, "portfolio_value"),
+            "realised_pnl": _decimal_text(self.realised_pnl, "realised_pnl"),
+            "slippage": _decimal_text(self.slippage, "slippage"),
+            "turnover": _decimal_text(self.turnover, "turnover"),
+            "unrealised_pnl": _decimal_text(self.unrealised_pnl, "unrealised_pnl"),
         }
+
+
+def _validate_performance_snapshot(value: object) -> PerformanceSnapshotV1:
+    if type(value) is not PerformanceSnapshotV1:
+        raise SnapshotValidationError("performance must be PerformanceSnapshotV1")
+    for name in _PERFORMANCE_DECIMAL_FIELDS:
+        _decimal_text(getattr(value, name), name)
+    _metric_state_text(value.participation, "participation")
+    _metric_state_text(value.capacity, "capacity")
+    return value
 
 
 def _evidence_mapping(value: EvidenceRef) -> dict[str, str]:
@@ -355,6 +401,7 @@ def validate_snapshot(
     if snapshot.reconciliation_state is ReconciliationState.RECONCILED:
         if snapshot.discrepancy_codes or type(snapshot.performance) is not PerformanceSnapshotV1:
             raise SnapshotValidationError("RECONCILED snapshot semantics are invalid")
+        _validate_performance_snapshot(snapshot.performance)
     elif snapshot.performance is not None or not snapshot.discrepancy_codes:
         raise SnapshotValidationError("unreconciled snapshot semantics are invalid")
     expected_observation_id = _observation_id_for(
