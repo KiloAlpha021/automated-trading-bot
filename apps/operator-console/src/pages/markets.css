@@ -1,0 +1,11 @@
+.console-frame.markets-frame{background:#06101d;border:0}
+.markets-frame::before{display:none}
+.markets-page{position:absolute;inset:0;font-family:Inter,sans-serif;font-synthesis:none}
+.markets-page div,.markets-page span,.markets-page section,.markets-page h1,.markets-page h2,.markets-page figure{margin:0;padding:0;border:0}
+.markets-page h1{font:inherit;color:inherit;letter-spacing:inherit;line-height:inherit}
+.markets-page a{display:block;color:inherit;text-decoration:none}
+.markets-page a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.markets-page .markets-vector{overflow:visible}
+.markets-page .markets-logo{object-fit:contain;mask-image:url('/assets/atis-logo.png');mask-size:100% 100%;mask-mode:luminance;mix-blend-mode:screen;}
+.markets-page .markets-chart{overflow:visible}
+.markets-page .markets-accessible-note{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
