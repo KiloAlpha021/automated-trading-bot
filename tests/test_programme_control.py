@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime
 from hashlib import sha1, sha256
 import json
 from pathlib import Path
@@ -23,6 +24,30 @@ SHA256_ID = re.compile(r"^[0-9a-f]{64}$")
 EXPECTED_BASELINE = {
     "commit": "12560025bbc87ee237bb2252215305f8d2fc9e47",
     "tree": "404ad9a9ae0454ad36040c7bc690d7ec3eeaf968",
+}
+EXPECTED_EXECUTION_BASELINE = {
+    "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
+    "tree": "b289c4b3848747e61611bbdf689e92a62ec29690",
+}
+EXECUTION_GATE_ORDER = [
+    "TASK_ENTRY",
+    "BOUNDED_ENGINEERING",
+    "REAL_ENVIRONMENT_QUALIFICATION",
+    "INDEPENDENT_ASSURANCE",
+    "PROTECTED_PUBLICATION",
+]
+MANDATORY_POINTER_AUTHORITY_DENIALS = {
+    "OWNER_ACCEPTANCE",
+    "PROTECTED_MERGE",
+    "DEPLOYMENT",
+    "BROKER_CONNECTION",
+    "FINANCIAL_EFFECTS",
+    "TRADING_ACTIVATION",
+}
+PERMITTED_POINTER_MUTATION_PATHS = {
+    "docs/programme/programme-control.json",
+    "docs/programme/programme-control.schema.json",
+    "tests/test_programme_control.py",
 }
 EXPECTED_SOURCE_IDENTITIES = {
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
@@ -287,6 +312,127 @@ def _canonical_record_sha256(record: dict[str, Any]) -> str:
     return sha256(encoded).hexdigest()
 
 
+def _canonical_pointer_sha256(pointer: dict[str, Any]) -> str:
+    return _canonical_record_sha256(pointer)
+
+
+def _parse_utc(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def _validate_execution_pointer(pointer: dict[str, Any]) -> None:
+    if pointer["protected_baseline"] != EXPECTED_EXECUTION_BASELINE:
+        raise ControlValidationError("execution pointer protected baseline mismatch")
+
+    evidence = pointer["evidence"]
+    authentication = evidence["receiver_authentication"]
+    if evidence["sha256"] != authentication["archive_sha256"]:
+        raise ControlValidationError("receiver archive SHA-256 mismatch")
+    if evidence["manifest_sha256"] is None:
+        if authentication["manifest_status"] != "NOT_APPLICABLE":
+            raise ControlValidationError("manifest status conflicts with evidence")
+    elif authentication["manifest_status"] != "VERIFIED":
+        raise ControlValidationError("manifest status conflicts with evidence")
+
+    prefixes = {
+        "GITHUB": "github:",
+        "GOOGLE_DRIVE": "gdrive:",
+        "CHATGPT_LIBRARY": "library:",
+    }
+    if not evidence["locator"].startswith(prefixes[evidence["source_system"]]):
+        raise ControlValidationError("evidence source and locator mismatch")
+
+    disposition = pointer["disposition"]
+    state = disposition["state"]
+    blockers = disposition["blocker_ids"]
+    invalidation_values = (
+        disposition["invalidation_reason"], disposition["invalidated_at"]
+    )
+    transition = pointer["last_material_transition"]
+    if state in {"ACTIVE", "CLOSED"} and (blockers or any(invalidation_values)):
+        raise ControlValidationError("active or closed pointer has restrictive disposition data")
+    if state == "BLOCKED" and (not blockers or any(invalidation_values)):
+        raise ControlValidationError("blocked pointer lacks blocker or has invalidation data")
+    if state == "INVALIDATED":
+        if not blockers or not all(invalidation_values):
+            raise ControlValidationError("invalidated pointer is incomplete")
+        if transition["reason"] != "EVIDENCE_INVALIDATION":
+            raise ControlValidationError("invalidation transition mismatch")
+    elif transition["reason"] == "EVIDENCE_INVALIDATION":
+        raise ControlValidationError("invalidation transition mismatch")
+
+    if state == "CLOSED":
+        if transition["reason"] not in {"CLOSURE", "PROTECTED_PUBLICATION"}:
+            raise ControlValidationError("closed pointer transition conflicts with verified gate")
+        if (
+            transition["reason"] == "PROTECTED_PUBLICATION"
+            and pointer["latest_verified_gate"] != "PROTECTED_PUBLICATION"
+        ):
+            raise ControlValidationError("closed pointer transition conflicts with verified gate")
+
+    if transition["reason"] == "TASK_ENTRY":
+        if transition["sequence"] != 1 or transition["predecessor_pointer_sha256"] is not None:
+            raise ControlValidationError("task entry predecessor must be null and sequence one")
+    elif transition["sequence"] <= 1 or transition["predecessor_pointer_sha256"] is None:
+        raise ControlValidationError("execution pointer predecessor missing")
+
+    if pointer["authority_granted"]:
+        raise ControlValidationError("execution pointer grants authority")
+    if not MANDATORY_POINTER_AUTHORITY_DENIALS <= set(pointer["authority_not_granted"]):
+        raise ControlValidationError("execution pointer authority exclusions incomplete")
+
+
+def _validate_pointer_transition(
+    previous: dict[str, Any],
+    current: dict[str, Any],
+    *,
+    prior_task_ids: set[str] | None = None,
+) -> None:
+    _validate_execution_pointer(current)
+    transition = current["last_material_transition"]
+    if transition["reason"] == "TASK_ENTRY":
+        if current["task_id"] in (prior_task_ids or set()):
+            raise ControlValidationError("task entry replay")
+        return
+
+    previous_transition = previous["last_material_transition"]
+    if current["task_id"] != previous["task_id"]:
+        raise ControlValidationError("task identity changed outside task entry")
+    if transition["sequence"] <= previous_transition["sequence"]:
+        raise ControlValidationError("execution pointer sequence replay")
+    if transition["sequence"] != previous_transition["sequence"] + 1:
+        raise ControlValidationError("execution pointer sequence gap")
+    if transition["predecessor_pointer_sha256"] != _canonical_pointer_sha256(previous):
+        raise ControlValidationError("execution pointer predecessor mismatch")
+    if _parse_utc(transition["occurred_at"]) <= _parse_utc(previous_transition["occurred_at"]):
+        raise ControlValidationError("execution pointer chronology regression")
+
+    previous_gate = EXECUTION_GATE_ORDER.index(previous["latest_verified_gate"])
+    current_gate = EXECUTION_GATE_ORDER.index(current["latest_verified_gate"])
+    if current_gate < previous_gate:
+        raise ControlValidationError("execution gate regression")
+    if current_gate > previous_gate + 1:
+        raise ControlValidationError("execution gate transition is non-contiguous")
+
+    old_evidence = previous["evidence"]
+    new_evidence = current["evidence"]
+    if old_evidence["sha256"] == new_evidence["sha256"] and (
+        old_evidence["artifact_id"] != new_evidence["artifact_id"]
+        or old_evidence["locator"] != new_evidence["locator"]
+    ):
+        raise ControlValidationError("evidence identity replay conflict")
+    if old_evidence != new_evidence and _parse_utc(
+        new_evidence["receiver_authentication"]["verified_at"]
+    ) <= _parse_utc(previous_transition["occurred_at"]):
+        raise ControlValidationError("evidence transition lacks fresh receiver authentication")
+
+
+def _validate_mutation_paths(paths: set[str]) -> None:
+    extras = paths - PERMITTED_POINTER_MUTATION_PATHS
+    if extras:
+        raise ControlValidationError(f"execution pointer mutation boundary exceeded: {sorted(extras)}")
+
+
 def validate_control(control: dict[str, Any]) -> None:
     schema = _load(SCHEMA_PATH)
     Draft202012Validator.check_schema(schema)
@@ -296,6 +442,10 @@ def validate_control(control: dict[str, Any]) -> None:
         raise ControlValidationError(f"schema validation failed (pattern/structure): {exc.message}") from exc
     if control["source_baseline"] != EXPECTED_BASELINE:
         raise ControlValidationError("protected baseline identity mismatch")
+    if "current_execution_pointer" not in control:
+        raise ControlValidationError("canonical current execution pointer missing")
+    pointer = control["current_execution_pointer"]
+    _validate_execution_pointer(pointer)
     records = _all_records(control)
     ids = [_record_id(record) for record in records]
     if len(ids) != len(set(ids)):
@@ -314,6 +464,7 @@ def validate_control(control: dict[str, Any]) -> None:
     gate_ids = {record["gate_id"] for record in control["milestone_gate_register"]["records"]}
     decision_ids = {record["record_id"] for record in control["decision_register"]["records"]}
     resolvable = ledger_ids | deferral_ids | evidence_ids | gate_ids | decision_ids
+    pointer_authority_ids = {pointer["pointer_id"], pointer["evidence"]["artifact_id"]}
 
     for record in ledger:
         if not record["source_authority"]:
@@ -481,6 +632,8 @@ def validate_control(control: dict[str, Any]) -> None:
                 raise ControlValidationError("unresolved decision supersession")
 
     for gate in control["milestone_gate_register"]["records"]:
+        if pointer_authority_ids & set(gate["required_evidence"]):
+            raise ControlValidationError("execution pointer cannot satisfy programme gate")
         for reference in gate["required_evidence"]:
             if reference not in evidence_ids:
                 raise ControlValidationError(f"unresolved gate evidence: {reference}")
@@ -518,6 +671,55 @@ def _control() -> dict[str, Any]:
     return _load(CONTROL_PATH)
 
 
+def _next_pointer(
+    previous: dict[str, Any],
+    *,
+    gate: str | None = None,
+    reason: str = "MATERIAL_GATE_TRANSITION",
+    state: str = "ACTIVE",
+    change_evidence: bool = False,
+) -> dict[str, Any]:
+    current = deepcopy(previous)
+    current["latest_verified_gate"] = gate or previous["latest_verified_gate"]
+    current["disposition"] = {
+        "state": state,
+        "blocker_ids": ["BLOCKER-001"] if state in {"BLOCKED", "INVALIDATED"} else [],
+        "invalidation_reason": "AUTHENTICATED_EVIDENCE_INVALIDATED" if state == "INVALIDATED" else None,
+        "invalidated_at": "2026-11-06T22:00:00Z" if state == "INVALIDATED" else None,
+    }
+    current["last_material_transition"] = {
+        "sequence": previous["last_material_transition"]["sequence"] + 1,
+        "reason": reason,
+        "occurred_at": "2026-11-06T22:00:00Z",
+        "predecessor_pointer_sha256": _canonical_pointer_sha256(previous),
+    }
+    if change_evidence:
+        current["evidence"]["artifact_id"] = "ATIS-EXECUTION-POINTER-GATE-EVIDENCE.ZIP"
+        current["evidence"]["locator"] = "library:gate-evidence"
+        current["evidence"]["sha256"] = "a" * 64
+        current["evidence"]["manifest_sha256"] = "b" * 64
+        current["evidence"]["receiver_authentication"].update(
+            {
+                "verified_at": "2026-11-06T21:59:00Z",
+                "archive_sha256": "a" * 64,
+                "manifest_status": "VERIFIED",
+            }
+        )
+    return current
+
+
+def _assert_control_rejects(control: dict[str, Any], match: str) -> None:
+    with pytest.raises(ControlValidationError, match=match):
+        validate_control(control)
+
+
+def _assert_transition_rejects(
+    previous: dict[str, Any], current: dict[str, Any], match: str
+) -> None:
+    with pytest.raises(ControlValidationError, match=match):
+        _validate_pointer_transition(previous, current)
+
+
 def test_json_and_schema_parse_with_duplicate_key_rejection() -> None:
     control = _control()
     schema = _load(SCHEMA_PATH)
@@ -529,6 +731,335 @@ def test_json_and_schema_parse_with_duplicate_key_rejection() -> None:
 
 def test_schema_validates_canonical_artifact() -> None:
     validate_control(_control())
+
+
+def test_pointer_p01_version_one_schema_accepts_legacy_fixture_without_pointer() -> None:
+    control = _control()
+    del control["current_execution_pointer"]
+    Draft202012Validator(
+        _load(SCHEMA_PATH), format_checker=FormatChecker()
+    ).validate(control)
+
+
+def test_pointer_p02_canonical_task_entry_is_valid() -> None:
+    validate_control(_control())
+
+
+def test_pointer_p03_contiguous_gate_transition_with_fresh_evidence_is_valid() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(
+        previous, gate="BOUNDED_ENGINEERING", change_evidence=True
+    )
+    _validate_pointer_transition(previous, current)
+
+
+def test_pointer_p04_blocked_transition_preserves_latest_verified_gate() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous, state="BLOCKED")
+    _validate_pointer_transition(previous, current)
+
+
+def test_pointer_p05_evidence_invalidation_successor_is_valid() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(
+        previous, reason="EVIDENCE_INVALIDATION", state="INVALIDATED"
+    )
+    _validate_pointer_transition(previous, current)
+
+
+def test_pointer_p06_protected_publication_closure_is_valid() -> None:
+    previous = deepcopy(_control()["current_execution_pointer"])
+    previous["latest_verified_gate"] = "INDEPENDENT_ASSURANCE"
+    previous["last_material_transition"].update(
+        {"sequence": 4, "reason": "MATERIAL_GATE_TRANSITION"}
+    )
+    current = _next_pointer(
+        previous,
+        gate="PROTECTED_PUBLICATION",
+        reason="PROTECTED_PUBLICATION",
+        state="CLOSED",
+        change_evidence=True,
+    )
+    _validate_pointer_transition(previous, current)
+
+
+def test_pointer_n01_unknown_pointer_property_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["unknown"] = True
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n02_missing_canonical_pointer_rejects() -> None:
+    control = _control()
+    del control["current_execution_pointer"]
+    _assert_control_rejects(control, "canonical current execution pointer missing")
+
+
+def test_pointer_n03_second_pointer_property_rejects() -> None:
+    control = _control()
+    control["alternate_execution_pointer"] = deepcopy(control["current_execution_pointer"])
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n04_wrong_pointer_id_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["pointer_id"] = "ATIS-OTHER-POINTER"
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n05_malformed_task_id_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["task_id"] = "invalid/task"
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n06_malformed_baseline_hash_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["protected_baseline"]["commit"] = "bad"
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n07_stale_protected_baseline_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["protected_baseline"]["commit"] = "a" * 40
+    _assert_control_rejects(control, "execution pointer protected baseline mismatch")
+
+
+def test_pointer_n08_missing_evidence_rejects() -> None:
+    control = _control()
+    del control["current_execution_pointer"]["evidence"]
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n09_malformed_evidence_hash_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["evidence"]["sha256"] = "bad"
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n10_receiver_hash_mismatch_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["evidence"]["receiver_authentication"]["archive_sha256"] = "a" * 64
+    _assert_control_rejects(control, "receiver archive SHA-256 mismatch")
+
+
+def test_pointer_n11_null_manifest_marked_verified_rejects() -> None:
+    control = _control()
+    evidence = control["current_execution_pointer"]["evidence"]
+    evidence["manifest_sha256"] = None
+    _assert_control_rejects(control, "manifest status conflicts with evidence")
+
+
+def test_pointer_n12_manifest_marked_not_applicable_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["evidence"]["receiver_authentication"]["manifest_status"] = "NOT_APPLICABLE"
+    _assert_control_rejects(control, "manifest status conflicts with evidence")
+
+
+def test_pointer_n13_unsupported_locator_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["evidence"]["locator"] = "https://example.invalid/evidence"
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n14_source_locator_conflict_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["evidence"]["locator"] = "github:commit/evidence"
+    _assert_control_rejects(control, "evidence source and locator mismatch")
+
+
+def test_pointer_n15_active_pointer_with_blocker_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["disposition"]["blocker_ids"] = ["BLOCKER-001"]
+    _assert_control_rejects(control, "active or closed pointer has restrictive disposition data")
+
+
+def test_pointer_n16_blocked_pointer_without_blocker_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["disposition"]["state"] = "BLOCKED"
+    _assert_control_rejects(control, "blocked pointer lacks blocker")
+
+
+def test_pointer_n17_incomplete_invalidated_pointer_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["disposition"]["state"] = "INVALIDATED"
+    _assert_control_rejects(control, "invalidated pointer is incomplete")
+
+
+def test_pointer_n18_invalidated_pointer_wrong_transition_rejects() -> None:
+    control = _control()
+    pointer = control["current_execution_pointer"]
+    pointer["disposition"].update(
+        {
+            "state": "INVALIDATED",
+            "blocker_ids": ["BLOCKER-001"],
+            "invalidation_reason": "EVIDENCE_INVALID",
+            "invalidated_at": "2026-11-06T22:00:00Z",
+        }
+    )
+    _assert_control_rejects(control, "invalidation transition mismatch")
+
+
+def test_pointer_n19_invalidation_transition_without_invalidated_state_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["last_material_transition"]["reason"] = "EVIDENCE_INVALIDATION"
+    _assert_control_rejects(control, "invalidation transition mismatch")
+
+
+def test_pointer_n20_closure_conflicts_with_gate_rejects() -> None:
+    control = _control()
+    pointer = control["current_execution_pointer"]
+    pointer["disposition"]["state"] = "CLOSED"
+    pointer["last_material_transition"].update(
+        {"sequence": 2, "reason": "PROTECTED_PUBLICATION", "predecessor_pointer_sha256": "a" * 64}
+    )
+    _assert_control_rejects(control, "closed pointer transition conflicts with verified gate")
+
+
+def test_pointer_n21_authority_grant_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["authority_granted"] = ["PROTECTED_MERGE"]
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n22_missing_authority_exclusion_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["authority_not_granted"].remove("PROTECTED_MERGE")
+    _assert_control_rejects(control, "authority exclusions incomplete")
+
+
+def test_pointer_n23_gate_regression_rejects() -> None:
+    previous = deepcopy(_control()["current_execution_pointer"])
+    previous["latest_verified_gate"] = "BOUNDED_ENGINEERING"
+    current = _next_pointer(previous, gate="TASK_ENTRY")
+    _assert_transition_rejects(previous, current, "execution gate regression")
+
+
+def test_pointer_n24_noncontiguous_gate_skip_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous, gate="INDEPENDENT_ASSURANCE")
+    _assert_transition_rejects(previous, current, "execution gate transition is non-contiguous")
+
+
+def test_pointer_n25_task_change_outside_entry_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous)
+    current["task_id"] = "ATIS-DIFFERENT-TASK"
+    _assert_transition_rejects(previous, current, "task identity changed outside task entry")
+
+
+def test_pointer_n26_task_entry_replay_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = deepcopy(previous)
+    with pytest.raises(ControlValidationError, match="task entry replay"):
+        _validate_pointer_transition(previous, current, prior_task_ids={current["task_id"]})
+
+
+def test_pointer_n27_sequence_replay_rejects() -> None:
+    previous = deepcopy(_control()["current_execution_pointer"])
+    previous["last_material_transition"].update(
+        {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": "b" * 64}
+    )
+    current = _next_pointer(previous)
+    current["last_material_transition"]["sequence"] = 2
+    _assert_transition_rejects(previous, current, "execution pointer sequence replay")
+
+
+def test_pointer_n28_sequence_gap_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous)
+    current["last_material_transition"]["sequence"] = 3
+    _assert_transition_rejects(previous, current, "execution pointer sequence gap")
+
+
+def test_pointer_n29_missing_predecessor_rejects() -> None:
+    control = _control()
+    pointer = control["current_execution_pointer"]
+    pointer["last_material_transition"].update(
+        {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": None}
+    )
+    _assert_control_rejects(control, "execution pointer predecessor missing")
+
+
+def test_pointer_n30_wrong_predecessor_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous)
+    current["last_material_transition"]["predecessor_pointer_sha256"] = "a" * 64
+    _assert_transition_rejects(previous, current, "execution pointer predecessor mismatch")
+
+
+def test_pointer_n31_entry_with_predecessor_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["last_material_transition"]["predecessor_pointer_sha256"] = "a" * 64
+    _assert_control_rejects(control, "task entry predecessor must be null")
+
+
+def test_pointer_n32_evidence_replay_conflict_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous)
+    current["evidence"]["artifact_id"] = "CONFLICTING-ARTIFACT.ZIP"
+    _assert_transition_rejects(previous, current, "evidence identity replay conflict")
+
+
+def test_pointer_n33_stale_receiver_authentication_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous, change_evidence=True)
+    current["evidence"]["receiver_authentication"]["verified_at"] = previous["last_material_transition"]["occurred_at"]
+    _assert_transition_rejects(previous, current, "evidence transition lacks fresh receiver authentication")
+
+
+def test_pointer_n34_nonmaterial_sequence_reuse_rejects() -> None:
+    previous = deepcopy(_control()["current_execution_pointer"])
+    previous["last_material_transition"].update(
+        {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": "b" * 64}
+    )
+    current = _next_pointer(previous)
+    current["last_material_transition"]["sequence"] = previous["last_material_transition"]["sequence"]
+    _assert_transition_rejects(previous, current, "execution pointer sequence replay")
+
+
+def test_pointer_n35_chronology_regression_rejects() -> None:
+    previous = _control()["current_execution_pointer"]
+    current = _next_pointer(previous)
+    current["last_material_transition"]["occurred_at"] = "2026-11-06T21:00:00Z"
+    _assert_transition_rejects(previous, current, "execution pointer chronology regression")
+
+
+def test_pointer_n36_pointer_cannot_satisfy_programme_gate() -> None:
+    control = _control()
+    control["milestone_gate_register"]["records"][0]["required_evidence"].append(
+        control["current_execution_pointer"]["pointer_id"]
+    )
+    _assert_control_rejects(control, "execution pointer cannot satisfy programme gate")
+
+
+def test_pointer_n37_pointer_cannot_enter_evidence_inventory() -> None:
+    control = _control()
+    control["evidence_invalidation_register"]["records"].append(
+        deepcopy(control["current_execution_pointer"])
+    )
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n38_machine_local_locator_rejects() -> None:
+    control = _control()
+    control["current_execution_pointer"]["evidence"]["locator"] = "library:C:\\Users\\SK\\evidence.zip"
+    _assert_control_rejects(control, "schema validation failed")
+
+
+def test_pointer_n39_historical_record_mutation_rejects() -> None:
+    control = _control()
+    record = next(
+        item for item in control["evidence_invalidation_register"]["records"]
+        if item["record_id"] == "PC-EVID-014"
+    )
+    record["notes"] = "rewritten"
+    _assert_control_rejects(control, "recovered source semantic record mismatch")
+
+
+def test_pointer_n40_accepted_unit_path_drift_rejects() -> None:
+    with pytest.raises(ControlValidationError, match="mutation boundary exceeded"):
+        _validate_mutation_paths(PERMITTED_POINTER_MUTATION_PATHS | {"src/automated_trading_bot/stage5/u3.py"})
 
 
 def test_serialization_is_exact_and_deterministic() -> None:

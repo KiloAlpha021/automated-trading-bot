@@ -40,6 +40,9 @@
       "type": "string",
       "minLength": 1
     },
+    "current_execution_pointer": {
+      "$ref": "#/$defs/currentExecutionPointer"
+    },
     "control_lifecycle_vocabulary": {
       "const": [
         "PROPOSED",
@@ -501,6 +504,253 @@
     }
   },
   "$defs": {
+    "executionGate": {
+      "enum": [
+        "TASK_ENTRY",
+        "BOUNDED_ENGINEERING",
+        "REAL_ENVIRONMENT_QUALIFICATION",
+        "INDEPENDENT_ASSURANCE",
+        "PROTECTED_PUBLICATION"
+      ]
+    },
+    "pointerState": {
+      "enum": [
+        "ACTIVE",
+        "BLOCKED",
+        "CLOSED",
+        "INVALIDATED"
+      ]
+    },
+    "transitionReason": {
+      "enum": [
+        "TASK_ENTRY",
+        "MATERIAL_GATE_TRANSITION",
+        "CLOSURE",
+        "PROTECTED_PUBLICATION",
+        "EVIDENCE_INVALIDATION"
+      ]
+    },
+    "evidenceSystem": {
+      "enum": [
+        "GITHUB",
+        "GOOGLE_DRIVE",
+        "CHATGPT_LIBRARY"
+      ]
+    },
+    "receiverAuthentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "receiver_role",
+        "verified_at",
+        "archive_sha256",
+        "manifest_status"
+      ],
+      "properties": {
+        "status": {
+          "const": "VERIFIED"
+        },
+        "receiver_role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "verified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "archive_sha256": {
+          "$ref": "#/$defs/sha256Identity"
+        },
+        "manifest_status": {
+          "enum": [
+            "NOT_APPLICABLE",
+            "VERIFIED"
+          ]
+        }
+      }
+    },
+    "immutableEvidenceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "source_system",
+        "locator",
+        "sha256",
+        "manifest_sha256",
+        "receiver_authentication"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+        },
+        "source_system": {
+          "$ref": "#/$defs/evidenceSystem"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^(github|gdrive|library):[^\\\\\\u0000]+$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256Identity"
+        },
+        "manifest_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sha256Identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "receiver_authentication": {
+          "$ref": "#/$defs/receiverAuthentication"
+        }
+      }
+    },
+    "pointerDisposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "blocker_ids",
+        "invalidation_reason",
+        "invalidated_at"
+      ],
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/pointerState"
+        },
+        "blocker_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+          }
+        },
+        "invalidation_reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "invalidated_at": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "materialTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "reason",
+        "occurred_at",
+        "predecessor_pointer_sha256"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reason": {
+          "$ref": "#/$defs/transitionReason"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "predecessor_pointer_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sha256Identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "currentExecutionPointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pointer_id",
+        "task_id",
+        "protected_baseline",
+        "latest_verified_gate",
+        "evidence",
+        "disposition",
+        "last_material_transition",
+        "authority_granted",
+        "authority_not_granted"
+      ],
+      "properties": {
+        "pointer_id": {
+          "const": "ATIS-CURRENT-EXECUTION-POINTER-001"
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Z0-9][A-Z0-9._-]*$"
+        },
+        "protected_baseline": {
+          "$ref": "#/$defs/baseline"
+        },
+        "latest_verified_gate": {
+          "$ref": "#/$defs/executionGate"
+        },
+        "evidence": {
+          "$ref": "#/$defs/immutableEvidenceReference"
+        },
+        "disposition": {
+          "$ref": "#/$defs/pointerDisposition"
+        },
+        "last_material_transition": {
+          "$ref": "#/$defs/materialTransition"
+        },
+        "authority_granted": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "authority_not_granted": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "gitIdentity": {
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"

@@ -7,6 +7,50 @@
     "tree": "404ad9a9ae0454ad36040c7bc690d7ec3eeaf968"
   },
   "non_authorizing_statement": "This index records attributable programme controls and evidence. It grants no implementation, trading, financial, broker, OMS, risk, ledger, capital-allocation, execution or AI authority.",
+  "current_execution_pointer": {
+    "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+    "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+    "protected_baseline": {
+      "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
+      "tree": "b289c4b3848747e61611bbdf689e92a62ec29690"
+    },
+    "latest_verified_gate": "TASK_ENTRY",
+    "evidence": {
+      "artifact_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION-INPUT-2026-11-06.ZIP",
+      "source_system": "CHATGPT_LIBRARY",
+      "locator": "library:libfile_fde3_f-5d7daf1ddf98819185ced6e722d3c36b_9d75b74aec208191bd3bc15d54d5e55e",
+      "sha256": "d439db26f3cb428c44cffb3255a4829eb845fcda1907db88f22c6e11cd256111",
+      "manifest_sha256": "d3c5c1c36a742522154e5e0efeb64b323b2a341f807e538a6123eab990a3ef54",
+      "receiver_authentication": {
+        "status": "VERIFIED",
+        "receiver_role": "CHATGPT_WORK_IMPLEMENTATION_RECEIVER",
+        "verified_at": "2026-11-06T21:53:56Z",
+        "archive_sha256": "d439db26f3cb428c44cffb3255a4829eb845fcda1907db88f22c6e11cd256111",
+        "manifest_status": "VERIFIED"
+      }
+    },
+    "disposition": {
+      "state": "ACTIVE",
+      "blocker_ids": [],
+      "invalidation_reason": null,
+      "invalidated_at": null
+    },
+    "last_material_transition": {
+      "sequence": 1,
+      "reason": "TASK_ENTRY",
+      "occurred_at": "2026-11-06T21:53:56Z",
+      "predecessor_pointer_sha256": null
+    },
+    "authority_granted": [],
+    "authority_not_granted": [
+      "OWNER_ACCEPTANCE",
+      "PROTECTED_MERGE",
+      "DEPLOYMENT",
+      "BROKER_CONNECTION",
+      "FINANCIAL_EFFECTS",
+      "TRADING_ACTIVATION"
+    ]
+  },
   "control_lifecycle_vocabulary": [
     "PROPOSED",
     "SPECIFIED",

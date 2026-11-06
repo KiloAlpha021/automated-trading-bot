@@ -46,6 +46,12 @@ STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH = (
 STAGE5_U3_DEPENDENCY_SUCCESSOR_SCHEMA_PATH = (
     ROOT / "docs/programme/master-recovery-dependency-successor-stage5-u3-060.schema.json"
 )
+EXECUTION_POINTER_SUCCESSOR_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-pointer-001.json"
+)
+EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-pointer-001.schema.json"
+)
 EXPECTED_PACKET_SHA256 = (
     "bd39fd6768ab3fb5608418343858137f759875537e4b9c1f5d956a5451d37e43"
 )
@@ -232,6 +238,9 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
     assert supplementary == EXPECTED_SUPPLEMENTARY
     assert (len(required), len(supplementary), len(packet["historical_sources"])) == (15, 5, 3)
     successor = _validate_successor(_load(SUCCESSOR_PATH))
+    successor = _resolve_programme_control_successor(
+        successor, [_load(EXECUTION_POINTER_SUCCESSOR_PATH)]
+    )
     successor.update(
         _resolve_dependency_successor(
             required,
@@ -448,9 +457,74 @@ def _validate_successor(overlay: dict[str, Any]) -> dict[str, str]:
             cwd=ROOT, check=True, capture_output=True, text=True, timeout=10,
         )
         assert retained.stdout.strip() == "blob"
-        assert _blob(ROOT / row["path"]) == row["candidate_blob"]
+        candidate = subprocess.run(
+            ["git", "cat-file", "-t", row["candidate_blob"]],
+            cwd=ROOT, check=True, capture_output=True, text=True, timeout=10,
+        )
+        assert candidate.stdout.strip() == "blob"
         result[row["path"]] = row["candidate_blob"]
     return result
+
+
+def _validate_execution_pointer_successor(
+    record: dict[str, Any], predecessor: dict[str, str]
+) -> dict[str, str]:
+    schema = _load(EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH)
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(record)
+
+    for evidence in record["predecessor_evidence"].values():
+        path = ROOT / evidence["path"]
+        assert _blob(path) == evidence["git_blob"]
+        canonical = subprocess.run(
+            ["git", "cat-file", "blob", evidence["git_blob"]],
+            cwd=ROOT, check=True, capture_output=True, timeout=10,
+        ).stdout
+        assert sha256(canonical).hexdigest() == evidence["sha256"]
+
+    assert record["protected_predecessor"] == {
+        "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
+        "tree": "b289c4b3848747e61611bbdf689e92a62ec29690",
+    }
+    assert record["protected_active"] is False
+    assert record["grants_authority"] is False
+
+    result: dict[str, str] = {}
+    for transition in record["transitions"]:
+        path = transition["path"]
+        assert path not in result
+        assert predecessor[path] == transition["historical_blob"]
+        _retained_blob(transition["historical_blob"])
+        _retained_blob(transition["candidate_blob"])
+        assert _blob(ROOT / path) == transition["candidate_blob"]
+        result[path] = transition["candidate_blob"]
+    assert result.keys() == predecessor.keys()
+    return result
+
+
+def _resolve_programme_control_successor(
+    historical: dict[str, str], records: list[dict[str, Any]]
+) -> dict[str, str]:
+    if not records:
+        raise AssertionError("programme-control successor is missing")
+    current = dict(historical)
+    remaining = list(records)
+    while remaining:
+        matches = [
+            record
+            for record in remaining
+            if {
+                transition["path"]: transition["historical_blob"]
+                for transition in record.get("transitions", [])
+            }
+            == current
+        ]
+        if len(matches) != 1:
+            raise AssertionError("programme-control successor must be uniquely applicable")
+        selected = matches[0]
+        current = _validate_execution_pointer_successor(selected, current)
+        remaining.remove(selected)
+    return current
 
 
 def _dependency_successor_schema(record: dict[str, Any]) -> Path:
@@ -909,7 +983,114 @@ def test_kf04_successor_preserves_historical_schema_and_packet() -> None:
     assert schema == historical_schema
     Draft202012Validator(historical_schema).validate(_packet())
     _validate(_packet())
-    assert len(_validate_successor(_load(SUCCESSOR_PATH))) == 3
+    kf04 = _validate_successor(_load(SUCCESSOR_PATH))
+    assert len(kf04) == 3
+    terminal = _resolve_programme_control_successor(
+        kf04, [_load(EXECUTION_POINTER_SUCCESSOR_PATH)]
+    )
+    assert terminal == {
+        "docs/programme/programme-control.json": "77e36465556e54c654be25ea36dafd7376d1485a",
+        "docs/programme/programme-control.schema.json": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a",
+        "tests/test_programme_control.py": "88998f4ed850d5be2e7f1ad3081073fe9ba37b44",
+    }
+
+
+def test_execution_pointer_successor_is_append_only_non_authorising_and_exact() -> None:
+    record = _load(EXECUTION_POINTER_SUCCESSOR_PATH)
+    schema = _load(EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH)
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(record)
+    kf04 = _validate_successor(_load(SUCCESSOR_PATH))
+    assert _resolve_programme_control_successor(kf04, [record]) == {
+        "docs/programme/programme-control.json": "77e36465556e54c654be25ea36dafd7376d1485a",
+        "docs/programme/programme-control.schema.json": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a",
+        "tests/test_programme_control.py": "88998f4ed850d5be2e7f1ad3081073fe9ba37b44",
+    }
+    assert record["protected_active"] is False
+    assert record["grants_authority"] is False
+
+
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "predecessor_record_blob",
+        "predecessor_record_sha256",
+        "predecessor_schema_blob",
+        "predecessor_schema_sha256",
+        "protected_commit",
+        "protected_tree",
+        "missing_transition",
+        "additional_transition",
+        "duplicate_transition",
+        "reordered_transition",
+        "wrong_path",
+        "wrong_historical_blob",
+        "arbitrary_candidate_blob",
+        "protected_active",
+        "authority",
+        "forged_authorization",
+    ],
+)
+def test_execution_pointer_successor_rejects_forged_or_unauthorised_transition(
+    attack: str,
+) -> None:
+    record = deepcopy(_load(EXECUTION_POINTER_SUCCESSOR_PATH))
+    if attack == "predecessor_record_blob":
+        record["predecessor_evidence"]["record"]["git_blob"] = "0" * 40
+    elif attack == "predecessor_record_sha256":
+        record["predecessor_evidence"]["record"]["sha256"] = "0" * 64
+    elif attack == "predecessor_schema_blob":
+        record["predecessor_evidence"]["schema"]["git_blob"] = "0" * 40
+    elif attack == "predecessor_schema_sha256":
+        record["predecessor_evidence"]["schema"]["sha256"] = "0" * 64
+    elif attack == "protected_commit":
+        record["protected_predecessor"]["commit"] = "0" * 40
+    elif attack == "protected_tree":
+        record["protected_predecessor"]["tree"] = "0" * 40
+    elif attack == "missing_transition":
+        record["transitions"].pop()
+    elif attack == "additional_transition":
+        record["transitions"].append(
+            {
+                "path": "README.md",
+                "historical_blob": "0" * 40,
+                "candidate_blob": "1" * 40,
+            }
+        )
+    elif attack == "duplicate_transition":
+        record["transitions"].append(deepcopy(record["transitions"][0]))
+    elif attack == "reordered_transition":
+        record["transitions"].reverse()
+    elif attack == "wrong_path":
+        record["transitions"][0]["path"] = "tests/test_master_recovery_packet.py"
+    elif attack == "wrong_historical_blob":
+        record["transitions"][0]["historical_blob"] = "0" * 40
+    elif attack == "arbitrary_candidate_blob":
+        record["transitions"][0]["candidate_blob"] = "1" * 40
+    elif attack == "protected_active":
+        record["protected_active"] = True
+    elif attack == "authority":
+        record["grants_authority"] = True
+    else:
+        record["authorization_reference"]["decision"] = "OWNER_ACCEPTED_AND_MERGED"
+    with pytest.raises((ValidationError, AssertionError, KeyError)):
+        _resolve_programme_control_successor(
+            _validate_successor(_load(SUCCESSOR_PATH)), [record]
+        )
+
+
+def test_execution_pointer_successor_rejects_missing_conflicting_and_replayed_chain() -> None:
+    kf04 = _validate_successor(_load(SUCCESSOR_PATH))
+    record = _load(EXECUTION_POINTER_SUCCESSOR_PATH)
+    with pytest.raises(AssertionError, match="missing"):
+        _resolve_programme_control_successor(kf04, [])
+    with pytest.raises(AssertionError, match="uniquely applicable"):
+        _resolve_programme_control_successor(kf04, [record, deepcopy(record)])
+    replay = deepcopy(record)
+    for transition in replay["transitions"]:
+        transition["historical_blob"] = transition["candidate_blob"]
+    with pytest.raises((ValidationError, AssertionError)):
+        _resolve_programme_control_successor(kf04, [replay])
 
 
 @pytest.mark.parametrize("attack", [
