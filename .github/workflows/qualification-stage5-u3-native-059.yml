@@ -230,7 +230,7 @@ jobs:
           [ordered]@{ started_at_utc=$startedAt.ToString('O'); ended_at_utc=[DateTimeOffset]::UtcNow.ToString('O'); exit_code=$process.ExitCode } |
             ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $env:EVIDENCE 'u3-import-probe.json')
           if ($process.ExitCode -ne 0) { throw "U3_PLPYTHON_IMPORT_PROBE_EXIT_$($process.ExitCode)" }
-          if ((Get-Content -Raw $stdout) -notmatch 'U3_CAPABILITY_REJECTED') { throw 'U3_PLPYTHON_IMPORT_PROBE_UNEXPECTED_RESULT' }
+          if ((Get-Content -Raw $stdout) -notmatch 'U3_CANONICAL_REJECTED') { throw 'U3_PLPYTHON_IMPORT_PROBE_UNEXPECTED_RESULT' }
       - name: Run native U3 qualification
         shell: pwsh
         env:
