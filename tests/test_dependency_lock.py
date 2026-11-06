@@ -62,6 +62,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "tomli": "2.4.1",
     "tomli-w": "1.2.0",
     "typing-extensions": "4.16.0",
+    "tzdata": "2026.6",
     "urllib3": "2.8.0",
 }
 
@@ -100,7 +101,7 @@ def _lock_text() -> str:
 
 def test_development_lock_contains_declared_exact_requirements() -> None:
     assert _locked_packages(_lock_text()) == EXPECTED_LOCKED_PACKAGES
-    assert len(EXPECTED_LOCKED_PACKAGES) == 49
+    assert len(EXPECTED_LOCKED_PACKAGES) == 50
 
 
 def test_direct_development_declarations_reconcile_with_lock() -> None:
