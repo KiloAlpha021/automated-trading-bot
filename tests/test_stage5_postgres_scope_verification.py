@@ -127,7 +127,9 @@ def test_financial_functions_remain_closed(db, vectors):
 
 @pytest.fixture
 def db():
-    dsn = os.environ["ATIS_U3_TEST_DSN"]
+    dsn = os.environ.get("ATIS_U3_TEST_DSN")
+    if dsn is None:
+        pytest.skip("requires authorised disposable native PostgreSQL harness")
     with psycopg.connect(dsn, autocommit=True) as admin:
         assert (
             Path(admin.execute("SHOW data_directory").fetchone()[0]).resolve()

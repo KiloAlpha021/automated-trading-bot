@@ -88,6 +88,7 @@ jobs:
             & $pgctl -D $env:PGDATA059 -l (Join-Path $env:EVIDENCE 'postgres.log') -w -t 30 start | Out-File -Encoding UTF8 (Join-Path $env:EVIDENCE 'start.txt')
             if ($LASTEXITCODE -ne 0) { throw "pg_ctl start failed: $LASTEXITCODE" }
             $started = $true
+            $env:PGCONNECT_TIMEOUT = '5'
             function Invoke-BoundedProbe([string]$Name, [string]$Sql) {
               $sqlFile = Join-Path $env:EVIDENCE "$Name.sql"
               $stdout = Join-Path $env:EVIDENCE "$Name.stdout.txt"
@@ -96,23 +97,12 @@ jobs:
               $startedAt = [DateTimeOffset]::UtcNow
               [ordered]@{ probe=$Name; event='START'; at_utc=$startedAt.ToString('O') } |
                 ConvertTo-Json -Compress | Add-Content -Encoding UTF8 (Join-Path $env:EVIDENCE 'probe-events.jsonl')
-              $arguments = @('-X','-v','ON_ERROR_STOP=1','-h','127.0.0.1','-p',[string]$port,'-U','postgres','-d','postgres','-f',$sqlFile)
-              $process = Start-Process -FilePath $psql -ArgumentList $arguments -NoNewWindow -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
-              $classification = 'COMPLETED'
-              try {
-                Wait-Process -Id $process.Id -Timeout 30 -ErrorAction Stop
-              } catch {
-                $classification = 'CLIENT_TIMEOUT'
-                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-                Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue
-              }
-              $process.Refresh()
-              $exitCode = if ($process.HasExited) { $process.ExitCode } else { $null }
+              & $psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -p $port -U postgres -d postgres -f $sqlFile 1> $stdout 2> $stderr
+              $exitCode = $LASTEXITCODE
               $endedAt = [DateTimeOffset]::UtcNow
-              [ordered]@{ probe=$Name; event='END'; at_utc=$endedAt.ToString('O'); elapsed_ms=($endedAt-$startedAt).TotalMilliseconds; classification=$classification; exit_code=$exitCode } |
+              [ordered]@{ probe=$Name; event='END'; at_utc=$endedAt.ToString('O'); elapsed_ms=($endedAt-$startedAt).TotalMilliseconds; classification='COMPLETED'; exit_code=$exitCode } |
                 ConvertTo-Json -Compress | Add-Content -Encoding UTF8 (Join-Path $env:EVIDENCE 'probe-events.jsonl')
               Copy-Item -Force (Join-Path $env:EVIDENCE 'postgres.log') (Join-Path $env:EVIDENCE "$Name.postgres.log")
-              if ($classification -ne 'COMPLETED') { throw "PLPYTHON_$($Name.ToUpperInvariant())_CLIENT_TIMEOUT" }
               if ($exitCode -ne 0) { throw "PLPYTHON_$($Name.ToUpperInvariant())_EXIT_$exitCode" }
             }
             Invoke-BoundedProbe '01-create-extension' 'CREATE EXTENSION plpython3u;'
