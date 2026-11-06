@@ -211,3 +211,34 @@ class ProtectedEvidenceRegistrar:
 
     def close(self) -> None:
         self._raw.close()
+
+
+
+class ProtectedU3Registrar:
+    """Standalone verifier connection; no worker payload or financial interface."""
+
+    def __init__(self, verifier_conninfo: str) -> None:
+        self._raw = import_module("psycopg").connect(verifier_conninfo, autocommit=True)
+
+    def prepare_identity(
+        self, evidence: object, *, timeout_ms: int = 5000
+    ) -> dict[str, Any]:
+        return self._submit(evidence, "PREPARE", timeout_ms)
+
+    def register_scope(
+        self, evidence: object, *, timeout_ms: int = 5000
+    ) -> dict[str, Any]:
+        return self._submit(evidence, "REGISTER", timeout_ms)
+
+    def read_exact(self, evidence: object, *, timeout_ms: int = 5000) -> dict[str, Any]:
+        return self._submit(evidence, "READ", timeout_ms)
+
+    def _submit(self, evidence: object, action: str, timeout_ms: int) -> dict[str, Any]:
+        from .postgres_backend import submit_u3_registration_on_connection
+
+        return submit_u3_registration_on_connection(
+            self._raw, evidence, action=action, timeout_ms=timeout_ms
+        )
+
+    def close(self) -> None:
+        self._raw.close()

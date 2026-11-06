@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "record_id": "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-STAGE5-U3-060-001",
+  "task_id": "ATIS-S5-U3-CONSOLIDATED-READINESS-060",
+  "record_role": "PROPOSED_DEPENDENCY_SUCCESSOR_PREPARATION_ONLY",
+  "predecessor_evidence": {
+    "record": {
+      "path": "docs/programme/master-recovery-dependency-successor-stage5-f0-u1.json",
+      "git_blob": "2a729c4798a664e54f79e2f473537f3ac850082f",
+      "sha256": "72fbb868348d3999f5e96edad6db40e0b8f106c8cc61eed0bac0d4fdafc1b47b"
+    },
+    "schema": {
+      "path": "docs/programme/master-recovery-dependency-successor-stage5-f0-u1.schema.json",
+      "git_blob": "24a09e560f7eebbf30fe3c6fab87d8ae4950758b",
+      "sha256": "72d85b8be970a669b60d32eddb54fd954cb7157f4acddba159668f98ea958f75"
+    }
+  },
+  "dependency_transition": {
+    "path": "requirements-dev.lock",
+    "historical_blob": "b736b99935dc8f6bb3fab8ea593c941d38d25efe",
+    "candidate_blob": "e2c911ab66b6a325aa9d36137ed920d191f3c282"
+  },
+  "dependency_surface": {
+    "pyproject.toml": "6c407b8a062acee75885551789ec79ce13c978c3",
+    "requirements-dev.in": "ed69a066d501d4e1db0b5b58a2460632375689a7",
+    "requirements-dev.lock": "e2c911ab66b6a325aa9d36137ed920d191f3c282",
+    "tests/test_dependency_lock.py": "26d689ac6da9bace3436dd90fc3a369b6c929479"
+  },
+  "trusted_profile": {
+    "repository": "KiloAlpha021/security-workflows",
+    "baseline_main": "25e67d884180210a90a196752d74a601c988e5fd",
+    "profile_id": "stage5-u3-psycopg-336-dependency-successor",
+    "profile_path": "profiles/stage5-u3-psycopg-336-dependency-successor/profile.json",
+    "profile_blob": "c824faf29bee27f7bc3810ab9f94fe29525e60f4",
+    "lock_path": "profiles/stage5-u3-psycopg-336-dependency-successor/requirements-dev.lock",
+    "lock_blob": "e2c911ab66b6a325aa9d36137ed920d191f3c282",
+    "manifest_path": "profiles/stage5-u3-psycopg-336-dependency-successor/trusted-git-blobs.txt",
+    "manifest_blob": "283ee922ecc781e5523970f76bbdff7433ba6215"
+  },
+  "trust_state": "PROTECTED_PROFILE_ACTIVE_CANDIDATE_NOT_MERGED",
+  "protected_active": false,
+  "authorization_reference": {
+    "task_id": "ATIS-S5-U3-INTEGRATED-REMEDIATION-072",
+    "decision": "AUTHORIZED_TASK060_CORRECTION_RECONCILIATION",
+    "source": "CURRENT_OWNER_INSTRUCTION"
+  },
+  "approval_status": "NOT_PROTECTED_NOT_ACTIVE",
+  "authority_limitations": [
+    "NO_PROGRAMME_AUTHORITY",
+    "NO_IMPLEMENTATION_AUTHORITY",
+    "NO_PUBLICATION_AUTHORITY",
+    "NO_DEPLOYMENT_AUTHORITY",
+    "NO_TRADING_AUTHORITY",
+    "NO_BROKER_AUTHORITY",
+    "NO_RISK_APPROVAL_AUTHORITY",
+    "NO_ACCOUNTING_AUTHORITY",
+    "NO_FINANCIAL_AUTHORITY"
+  ],
+  "grants_authority": false
+}

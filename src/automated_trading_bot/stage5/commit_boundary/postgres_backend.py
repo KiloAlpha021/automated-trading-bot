@@ -394,3 +394,17 @@ class ProtectedPersistentExecutor:
             outcome.capital_effect_minor,
             outcome.liability_effect_minor,
         )
+
+
+
+def submit_u3_registration_on_connection(
+    connection: Any, evidence: object, *, action: str, timeout_ms: int = 5000
+) -> dict[str, Any]:
+    """Standalone nonfinancial sidecar entry, separate from worker/G00 dispatch."""
+    from ..scope_registry import U3RegistrationEvidenceV1, submit_registration
+
+    if type(evidence) is not U3RegistrationEvidenceV1:
+        raise ValueError("exact U3 registration sidecar required")
+    return submit_registration(
+        connection, evidence, action=action, timeout_ms=timeout_ms
+    )

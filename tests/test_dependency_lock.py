@@ -45,6 +45,8 @@ EXPECTED_LOCKED_PACKAGES = {
     "pip-requirements-parser": "32.0.1",
     "platformdirs": "4.11.8",
     "pluggy": "1.6.0",
+    "psycopg": "3.3.6",
+    "psycopg-binary": "3.3.6",
     "py-serializable": "2.1.0",
     "pygments": "2.21.0",
     "pyparsing": "3.3.2",
@@ -60,6 +62,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "tomli": "2.4.1",
     "tomli-w": "1.2.0",
     "typing-extensions": "4.16.0",
+    "tzdata": "2026.6",
     "urllib3": "2.8.0",
 }
 
@@ -98,7 +101,7 @@ def _lock_text() -> str:
 
 def test_development_lock_contains_declared_exact_requirements() -> None:
     assert _locked_packages(_lock_text()) == EXPECTED_LOCKED_PACKAGES
-    assert len(EXPECTED_LOCKED_PACKAGES) == 47
+    assert len(EXPECTED_LOCKED_PACKAGES) == 50
 
 
 def test_direct_development_declarations_reconcile_with_lock() -> None:
@@ -107,9 +110,11 @@ def test_direct_development_declarations_reconcile_with_lock() -> None:
     )
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     project_dev = _exact_requirements(pyproject["project"]["optional-dependencies"]["dev"])
+    project_runtime = _exact_requirements(pyproject["project"]["dependencies"])
     locked = _locked_packages(_lock_text())
 
     assert project_dev.items() <= requirements_input.items()
+    assert project_runtime.items() <= requirements_input.items()
     assert requirements_input.items() <= locked.items()
 
 
