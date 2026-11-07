@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.local/schemas/master-recovery-successor-execution-pointer-closure-002.schema.json",
+  "title": "ATIS closed execution-pointer lifecycle successor 002",
+  "const": {
+    "schema_version": 1,
+    "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002",
+    "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+    "record_role": "APPEND_ONLY_POST_MERGE_POINTER_CLOSURE",
+    "predecessor_evidence": {
+      "record": {
+        "path": "docs/programme/master-recovery-successor-execution-pointer-001.json",
+        "git_blob": "2265a49cdab31c93b6dc26f7cbe309c8c3c3a1eb",
+        "sha256": "c4424f4e1b0edd19568d6d4705ed98e2c859878166574cf7b72db8661f87e186"
+      },
+      "schema": {
+        "path": "docs/programme/master-recovery-successor-execution-pointer-001.schema.json",
+        "git_blob": "0f4cb48e71db89c1bfd5866b621758a99642af18",
+        "sha256": "0eb117cc51baa8e2b4909a320c5c47510c5c30c9f1386f84113b00c823b77d1c"
+      }
+    },
+    "protected_predecessor": {
+      "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+      "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
+    },
+    "pointer_predecessor": {
+      "git_blob": "77e36465556e54c654be25ea36dafd7376d1485a",
+      "canonical_sha256": "d6ee5ece9ab86deca08857b733ca31ee89a5e307c5f0083bca485dc32b2ab50f"
+    },
+    "pointer_transitions": [
+      {
+        "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+        "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+        "protected_baseline": {
+          "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+          "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
+        },
+        "latest_verified_gate": "BOUNDED_ENGINEERING",
+        "evidence": {
+          "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
+          "source_system": "CHATGPT_LIBRARY",
+          "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
+          "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+          "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
+          "receiver_authentication": {
+            "status": "VERIFIED",
+            "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
+            "verified_at": "2026-11-07T15:38:58.724511328Z",
+            "archive_sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+            "manifest_status": "VERIFIED"
+          }
+        },
+        "disposition": {
+          "state": "ACTIVE",
+          "blocker_ids": [],
+          "invalidation_reason": null,
+          "invalidated_at": null
+        },
+        "last_material_transition": {
+          "sequence": 2,
+          "reason": "MATERIAL_GATE_TRANSITION",
+          "occurred_at": "2026-11-07T15:39:04.000923831Z",
+          "predecessor_pointer_sha256": "d6ee5ece9ab86deca08857b733ca31ee89a5e307c5f0083bca485dc32b2ab50f"
+        },
+        "authority_granted": [],
+        "authority_not_granted": [
+          "OWNER_ACCEPTANCE",
+          "PROTECTED_MERGE",
+          "DEPLOYMENT",
+          "BROKER_CONNECTION",
+          "FINANCIAL_EFFECTS",
+          "TRADING_ACTIVATION"
+        ]
+      },
+      {
+        "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+        "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+        "protected_baseline": {
+          "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+          "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
+        },
+        "latest_verified_gate": "REAL_ENVIRONMENT_QUALIFICATION",
+        "evidence": {
+          "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
+          "source_system": "CHATGPT_LIBRARY",
+          "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
+          "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+          "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
+          "receiver_authentication": {
+            "status": "VERIFIED",
+            "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
+            "verified_at": "2026-11-07T15:38:58.724511328Z",
+            "archive_sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+            "manifest_status": "VERIFIED"
+          }
+        },
+        "disposition": {
+          "state": "ACTIVE",
+          "blocker_ids": [],
+          "invalidation_reason": null,
+          "invalidated_at": null
+        },
+        "last_material_transition": {
+          "sequence": 3,
+          "reason": "MATERIAL_GATE_TRANSITION",
+          "occurred_at": "2026-11-07T15:39:04.002377088Z",
+          "predecessor_pointer_sha256": "bd73780ea9c8c87f017a2b513266d2584bec62aa62e7cdbde85a5353a239d039"
+        },
+        "authority_granted": [],
+        "authority_not_granted": [
+          "OWNER_ACCEPTANCE",
+          "PROTECTED_MERGE",
+          "DEPLOYMENT",
+          "BROKER_CONNECTION",
+          "FINANCIAL_EFFECTS",
+          "TRADING_ACTIVATION"
+        ]
+      },
+      {
+        "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+        "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+        "protected_baseline": {
+          "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+          "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
+        },
+        "latest_verified_gate": "INDEPENDENT_ASSURANCE",
+        "evidence": {
+          "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
+          "source_system": "CHATGPT_LIBRARY",
+          "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
+          "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+          "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
+          "receiver_authentication": {
+            "status": "VERIFIED",
+            "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
+            "verified_at": "2026-11-07T15:38:58.724511328Z",
+            "archive_sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+            "manifest_status": "VERIFIED"
+          }
+        },
+        "disposition": {
+          "state": "ACTIVE",
+          "blocker_ids": [],
+          "invalidation_reason": null,
+          "invalidated_at": null
+        },
+        "last_material_transition": {
+          "sequence": 4,
+          "reason": "MATERIAL_GATE_TRANSITION",
+          "occurred_at": "2026-11-07T15:39:04.003970384Z",
+          "predecessor_pointer_sha256": "8d4ed07303c54a4fdaf4fecdd335d3db40c7ed7654923d7848f1cf3b50ef7c61"
+        },
+        "authority_granted": [],
+        "authority_not_granted": [
+          "OWNER_ACCEPTANCE",
+          "PROTECTED_MERGE",
+          "DEPLOYMENT",
+          "BROKER_CONNECTION",
+          "FINANCIAL_EFFECTS",
+          "TRADING_ACTIVATION"
+        ]
+      },
+      {
+        "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+        "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+        "protected_baseline": {
+          "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+          "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
+        },
+        "latest_verified_gate": "PROTECTED_PUBLICATION",
+        "evidence": {
+          "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
+          "source_system": "CHATGPT_LIBRARY",
+          "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
+          "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+          "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
+          "receiver_authentication": {
+            "status": "VERIFIED",
+            "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
+            "verified_at": "2026-11-07T15:38:58.724511328Z",
+            "archive_sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+            "manifest_status": "VERIFIED"
+          }
+        },
+        "disposition": {
+          "state": "CLOSED",
+          "blocker_ids": [],
+          "invalidation_reason": null,
+          "invalidated_at": null
+        },
+        "last_material_transition": {
+          "sequence": 5,
+          "reason": "PROTECTED_PUBLICATION",
+          "occurred_at": "2026-11-07T15:39:04.005518860Z",
+          "predecessor_pointer_sha256": "fef979808e68bb12fa453c47822b3b7b4e6dc54d22d8970e634ec9d5ee2a8639"
+        },
+        "authority_granted": [],
+        "authority_not_granted": [
+          "OWNER_ACCEPTANCE",
+          "PROTECTED_MERGE",
+          "DEPLOYMENT",
+          "BROKER_CONNECTION",
+          "FINANCIAL_EFFECTS",
+          "TRADING_ACTIVATION"
+        ]
+      }
+    ],
+    "transitions": [
+      {
+        "path": "docs/programme/programme-control.json",
+        "historical_blob": "77e36465556e54c654be25ea36dafd7376d1485a",
+        "candidate_blob": "71921c6dafbbed7be9e423e9df2ec9e11cf6c0ae"
+      },
+      {
+        "path": "docs/programme/programme-control.schema.json",
+        "historical_blob": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a",
+        "candidate_blob": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a"
+      },
+      {
+        "path": "tests/test_programme_control.py",
+        "historical_blob": "88998f4ed850d5be2e7f1ad3081073fe9ba37b44",
+        "candidate_blob": "563015bc65b4b6a3c876924e56f2f80190caa2a6"
+      }
+    ],
+    "closure_evidence": {
+      "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
+      "source_system": "CHATGPT_LIBRARY",
+      "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
+      "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+      "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
+      "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
+      "verified_at": "2026-11-07T15:38:58.724511328Z"
+    },
+    "trust_state": "PROPOSED_VALIDATED_NOT_PROTECTED",
+    "protected_active": false,
+    "authorization_reference": {
+      "task_id": "ATIS-ENGINEERING-AUDIT-POST-MERGE-POINTER-LIFECYCLE-IMPLEMENTATION-003",
+      "decision": "FIVE_PATH_IMPLEMENTATION_AND_TESTING_GRANTED",
+      "source": "CURRENT_OWNER_INSTRUCTION"
+    },
+    "authority_limitations": [
+      "NO_PROGRAMME_AUTHORITY",
+      "NO_OWNER_ACCEPTANCE_AUTHORITY",
+      "NO_PUBLICATION_AUTHORITY",
+      "NO_MERGE_AUTHORITY",
+      "NO_DEPLOYMENT_AUTHORITY",
+      "NO_TRADING_AUTHORITY",
+      "NO_BROKER_AUTHORITY",
+      "NO_FINANCIAL_AUTHORITY"
+    ],
+    "grants_authority": false
+  }
+}
