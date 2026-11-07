@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/master-recovery-successor-execution-pointer-001.schema.json",
+  "title": "ATIS execution-pointer append-only master-recovery successor",
+  "description": "Exact non-authorising successor from immutable KF04 terminal programme-control blobs to the bounded execution-pointer candidate.",
+  "const": {
+    "schema_version": 1,
+    "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-001",
+    "task_id": "ATIS-EXECUTION-POINTER-KF04-COMPATIBILITY",
+    "record_role": "PROPOSED_PROGRAMME_CONTROL_SUCCESSOR_PREPARATION_ONLY",
+    "predecessor_evidence": {
+      "record": {
+        "path": "docs/programme/master-recovery-successor-kf04.json",
+        "git_blob": "1188be4d3964fe6bd1899bc2dd28ccd488df80a3",
+        "sha256": "1a882a5794bba3b9e54a0bbae34013e740105054126ebf108c5c12ebdd7f4d9b"
+      },
+      "schema": {
+        "path": "docs/programme/master-recovery-packet.schema.json",
+        "git_blob": "ad08099c71dc670b8c5a635fdecf21193cc01dba",
+        "sha256": "1f281b4bdd8eb8f0f45662ac3e0271c797f93c4d844b3ad6154fd4263327d0ff"
+      }
+    },
+    "protected_predecessor": {
+      "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
+      "tree": "b289c4b3848747e61611bbdf689e92a62ec29690"
+    },
+    "transitions": [
+      {
+        "path": "docs/programme/programme-control.json",
+        "historical_blob": "e6bea36dd82a5a64e98397e4ca332cc88f8913d1",
+        "candidate_blob": "77e36465556e54c654be25ea36dafd7376d1485a"
+      },
+      {
+        "path": "docs/programme/programme-control.schema.json",
+        "historical_blob": "40c03dfbcde899c18f0dd1e1edd3ea408bd7c504",
+        "candidate_blob": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a"
+      },
+      {
+        "path": "tests/test_programme_control.py",
+        "historical_blob": "b62fdc607ee290d8a1f82cb0f7c0e1f0c03ddc76",
+        "candidate_blob": "88998f4ed850d5be2e7f1ad3081073fe9ba37b44"
+      }
+    ],
+    "trust_state": "PROPOSED_VALIDATED_NOT_PROTECTED",
+    "protected_active": false,
+    "authorization_reference": {
+      "task_id": "ATIS-EXECUTION-POINTER-KF04-COMPATIBILITY",
+      "decision": "SIX_PATH_BOUNDED_IMPLEMENTATION_AND_TESTING_GRANTED",
+      "source": "CURRENT_OWNER_INSTRUCTION"
+    },
+    "authority_limitations": [
+      "NO_PROGRAMME_AUTHORITY",
+      "NO_OWNER_ACCEPTANCE_AUTHORITY",
+      "NO_PUBLICATION_AUTHORITY",
+      "NO_MERGE_AUTHORITY",
+      "NO_DEPLOYMENT_AUTHORITY",
+      "NO_TRADING_AUTHORITY",
+      "NO_BROKER_AUTHORITY",
+      "NO_FINANCIAL_AUTHORITY"
+    ],
+    "grants_authority": false
+  }
+}
