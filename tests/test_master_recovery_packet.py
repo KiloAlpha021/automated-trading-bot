@@ -52,6 +52,12 @@ EXECUTION_POINTER_SUCCESSOR_PATH = (
 EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH = (
     ROOT / "docs/programme/master-recovery-successor-execution-pointer-001.schema.json"
 )
+EXECUTION_POINTER_CLOSURE_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-pointer-closure-002.json"
+)
+EXECUTION_POINTER_CLOSURE_SCHEMA_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-pointer-closure-002.schema.json"
+)
 EXPECTED_PACKET_SHA256 = (
     "bd39fd6768ab3fb5608418343858137f759875537e4b9c1f5d956a5451d37e43"
 )
@@ -239,7 +245,11 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
     assert (len(required), len(supplementary), len(packet["historical_sources"])) == (15, 5, 3)
     successor = _validate_successor(_load(SUCCESSOR_PATH))
     successor = _resolve_programme_control_successor(
-        successor, [_load(EXECUTION_POINTER_SUCCESSOR_PATH)]
+        successor,
+        [
+            _load(EXECUTION_POINTER_SUCCESSOR_PATH),
+            _load(EXECUTION_POINTER_CLOSURE_PATH),
+        ],
     )
     successor.update(
         _resolve_dependency_successor(
@@ -469,7 +479,14 @@ def _validate_successor(overlay: dict[str, Any]) -> dict[str, str]:
 def _validate_execution_pointer_successor(
     record: dict[str, Any], predecessor: dict[str, str]
 ) -> dict[str, str]:
-    schema = _load(EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH)
+    closure = record["record_id"] == (
+        "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002"
+    )
+    schema = _load(
+        EXECUTION_POINTER_CLOSURE_SCHEMA_PATH
+        if closure
+        else EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH
+    )
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(record)
 
@@ -482,12 +499,32 @@ def _validate_execution_pointer_successor(
         ).stdout
         assert sha256(canonical).hexdigest() == evidence["sha256"]
 
-    assert record["protected_predecessor"] == {
-        "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
-        "tree": "b289c4b3848747e61611bbdf689e92a62ec29690",
-    }
+    expected_predecessor = (
+        {
+            "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+            "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b",
+        }
+        if closure
+        else {
+            "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
+            "tree": "b289c4b3848747e61611bbdf689e92a62ec29690",
+        }
+    )
+    assert record["protected_predecessor"] == expected_predecessor
     assert record["protected_active"] is False
     assert record["grants_authority"] is False
+
+    if closure:
+        pointers = record["pointer_transitions"]
+        assert [row["last_material_transition"]["sequence"] for row in pointers] == [2, 3, 4, 5]
+        assert [row["latest_verified_gate"] for row in pointers] == [
+            "BOUNDED_ENGINEERING",
+            "REAL_ENVIRONMENT_QUALIFICATION",
+            "INDEPENDENT_ASSURANCE",
+            "PROTECTED_PUBLICATION",
+        ]
+        assert pointers[-1]["disposition"]["state"] == "CLOSED"
+        assert pointers[-1]["last_material_transition"]["reason"] == "PROTECTED_PUBLICATION"
 
     result: dict[str, str] = {}
     for transition in record["transitions"]:
@@ -496,7 +533,8 @@ def _validate_execution_pointer_successor(
         assert predecessor[path] == transition["historical_blob"]
         _retained_blob(transition["historical_blob"])
         _retained_blob(transition["candidate_blob"])
-        assert _blob(ROOT / path) == transition["candidate_blob"]
+        if closure:
+            assert _blob(ROOT / path) == transition["candidate_blob"]
         result[path] = transition["candidate_blob"]
     assert result.keys() == predecessor.keys()
     return result
@@ -1008,6 +1046,94 @@ def test_execution_pointer_successor_is_append_only_non_authorising_and_exact() 
     }
     assert record["protected_active"] is False
     assert record["grants_authority"] is False
+
+
+def test_execution_pointer_closure_successor_is_unique_closed_and_non_authorising() -> None:
+    kf04 = _validate_successor(_load(SUCCESSOR_PATH))
+    records = [
+        _load(EXECUTION_POINTER_SUCCESSOR_PATH),
+        _load(EXECUTION_POINTER_CLOSURE_PATH),
+    ]
+    assert _resolve_programme_control_successor(kf04, records) == {
+        "docs/programme/programme-control.json": "71921c6dafbbed7be9e423e9df2ec9e11cf6c0ae",
+        "docs/programme/programme-control.schema.json": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a",
+        "tests/test_programme_control.py": "563015bc65b4b6a3c876924e56f2f80190caa2a6",
+    }
+    closure = records[-1]
+    assert closure["protected_active"] is False
+    assert closure["grants_authority"] is False
+    assert closure["closure_evidence"]["sha256"] == (
+        "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61"
+    )
+
+
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "predecessor_record",
+        "predecessor_schema",
+        "protected_commit",
+        "pointer_predecessor",
+        "missing_pointer_transition",
+        "sequence_gap",
+        "wrong_pointer_hash",
+        "forged_evidence",
+        "missing_readback",
+        "open_terminal",
+        "authority_grant",
+        "historical_blob",
+        "candidate_blob",
+    ],
+)
+def test_execution_pointer_closure_successor_rejects_forgery(attack: str) -> None:
+    closure = deepcopy(_load(EXECUTION_POINTER_CLOSURE_PATH))
+    if attack == "predecessor_record":
+        closure["predecessor_evidence"]["record"]["git_blob"] = "0" * 40
+    elif attack == "predecessor_schema":
+        closure["predecessor_evidence"]["schema"]["sha256"] = "0" * 64
+    elif attack == "protected_commit":
+        closure["protected_predecessor"]["commit"] = "0" * 40
+    elif attack == "pointer_predecessor":
+        closure["pointer_predecessor"]["canonical_sha256"] = "0" * 64
+    elif attack == "missing_pointer_transition":
+        closure["pointer_transitions"].pop()
+    elif attack == "sequence_gap":
+        closure["pointer_transitions"][1]["last_material_transition"]["sequence"] = 4
+    elif attack == "wrong_pointer_hash":
+        closure["pointer_transitions"][1]["last_material_transition"]["predecessor_pointer_sha256"] = "0" * 64
+    elif attack == "forged_evidence":
+        closure["pointer_transitions"][1]["evidence"]["sha256"] = "0" * 64
+    elif attack == "missing_readback":
+        closure["closure_evidence"]["receiver_role"] = ""
+    elif attack == "open_terminal":
+        closure["pointer_transitions"][-1]["disposition"]["state"] = "ACTIVE"
+    elif attack == "authority_grant":
+        closure["grants_authority"] = True
+    elif attack == "historical_blob":
+        closure["transitions"][0]["historical_blob"] = "0" * 40
+    else:
+        closure["transitions"][0]["candidate_blob"] = "0" * 40
+    with pytest.raises((ValidationError, AssertionError, KeyError)):
+        _resolve_programme_control_successor(
+            _validate_successor(_load(SUCCESSOR_PATH)),
+            [_load(EXECUTION_POINTER_SUCCESSOR_PATH), closure],
+        )
+
+
+def test_execution_pointer_closure_preserves_historical_successor_bytes() -> None:
+    identities = {
+        EXECUTION_POINTER_SUCCESSOR_PATH: (
+            "2265a49cdab31c93b6dc26f7cbe309c8c3c3a1eb",
+            "c4424f4e1b0edd19568d6d4705ed98e2c859878166574cf7b72db8661f87e186",
+        ),
+        EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH: (
+            "0f4cb48e71db89c1bfd5866b621758a99642af18",
+            "0eb117cc51baa8e2b4909a320c5c47510c5c30c9f1386f84113b00c823b77d1c",
+        ),
+    }
+    for path, (blob, digest) in identities.items():
+        assert _blob(path) == blob
+        assert sha256(path.read_bytes()).hexdigest() == digest
 
 
 @pytest.mark.parametrize(

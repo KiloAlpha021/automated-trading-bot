@@ -26,9 +26,22 @@ EXPECTED_BASELINE = {
     "tree": "404ad9a9ae0454ad36040c7bc690d7ec3eeaf968",
 }
 EXPECTED_EXECUTION_BASELINE = {
-    "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
-    "tree": "b289c4b3848747e61611bbdf689e92a62ec29690",
+    "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+    "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b",
 }
+TASK_ENTRY_POINTER_BLOB = "77e36465556e54c654be25ea36dafd7376d1485a"
+CLOSURE_SUCCESSOR_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-pointer-closure-002.json"
+)
+CLOSURE_EVIDENCE_SHA256 = "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61"
+CLOSURE_MANIFEST_SHA256 = "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd"
+EXPECTED_POINTER_HASHES = [
+    "d6ee5ece9ab86deca08857b733ca31ee89a5e307c5f0083bca485dc32b2ab50f",
+    "bd73780ea9c8c87f017a2b513266d2584bec62aa62e7cdbde85a5353a239d039",
+    "8d4ed07303c54a4fdaf4fecdd335d3db40c7ed7654923d7848f1cf3b50ef7c61",
+    "fef979808e68bb12fa453c47822b3b7b4e6dc54d22d8970e634ec9d5ee2a8639",
+    "082414d8a9afe47a3b08ba3f1baa9e5abb9693a78828c4e2843dfc58676057b6",
+]
 EXECUTION_GATE_ORDER = [
     "TASK_ENTRY",
     "BOUNDED_ENGINEERING",
@@ -671,6 +684,22 @@ def _control() -> dict[str, Any]:
     return _load(CONTROL_PATH)
 
 
+def _task_entry_pointer() -> dict[str, Any]:
+    raw = subprocess.run(
+        ["git", "cat-file", "blob", TASK_ENTRY_POINTER_BLOB],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    ).stdout
+    return json.loads(raw)["current_execution_pointer"]
+
+
+def _closure_chain() -> list[dict[str, Any]]:
+    return [_task_entry_pointer(), *_load(CLOSURE_SUCCESSOR_PATH)["pointer_transitions"]]
+
+
 def _next_pointer(
     previous: dict[str, Any],
     *,
@@ -680,6 +709,7 @@ def _next_pointer(
     change_evidence: bool = False,
 ) -> dict[str, Any]:
     current = deepcopy(previous)
+    current["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
     current["latest_verified_gate"] = gate or previous["latest_verified_gate"]
     current["disposition"] = {
         "state": state,
@@ -746,7 +776,7 @@ def test_pointer_p02_canonical_task_entry_is_valid() -> None:
 
 
 def test_pointer_p03_contiguous_gate_transition_with_fresh_evidence_is_valid() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(
         previous, gate="BOUNDED_ENGINEERING", change_evidence=True
     )
@@ -754,13 +784,13 @@ def test_pointer_p03_contiguous_gate_transition_with_fresh_evidence_is_valid() -
 
 
 def test_pointer_p04_blocked_transition_preserves_latest_verified_gate() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous, state="BLOCKED")
     _validate_pointer_transition(previous, current)
 
 
 def test_pointer_p05_evidence_invalidation_successor_is_valid() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(
         previous, reason="EVIDENCE_INVALIDATION", state="INVALIDATED"
     )
@@ -768,7 +798,7 @@ def test_pointer_p05_evidence_invalidation_successor_is_valid() -> None:
 
 
 def test_pointer_p06_protected_publication_closure_is_valid() -> None:
-    previous = deepcopy(_control()["current_execution_pointer"])
+    previous = deepcopy(_task_entry_pointer())
     previous["latest_verified_gate"] = "INDEPENDENT_ASSURANCE"
     previous["last_material_transition"].update(
         {"sequence": 4, "reason": "MATERIAL_GATE_TRANSITION"}
@@ -913,6 +943,7 @@ def test_pointer_n20_closure_conflicts_with_gate_rejects() -> None:
     pointer["last_material_transition"].update(
         {"sequence": 2, "reason": "PROTECTED_PUBLICATION", "predecessor_pointer_sha256": "a" * 64}
     )
+    pointer["latest_verified_gate"] = "INDEPENDENT_ASSURANCE"
     _assert_control_rejects(control, "closed pointer transition conflicts with verified gate")
 
 
@@ -929,34 +960,35 @@ def test_pointer_n22_missing_authority_exclusion_rejects() -> None:
 
 
 def test_pointer_n23_gate_regression_rejects() -> None:
-    previous = deepcopy(_control()["current_execution_pointer"])
+    previous = deepcopy(_task_entry_pointer())
     previous["latest_verified_gate"] = "BOUNDED_ENGINEERING"
     current = _next_pointer(previous, gate="TASK_ENTRY")
     _assert_transition_rejects(previous, current, "execution gate regression")
 
 
 def test_pointer_n24_noncontiguous_gate_skip_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous, gate="INDEPENDENT_ASSURANCE")
     _assert_transition_rejects(previous, current, "execution gate transition is non-contiguous")
 
 
 def test_pointer_n25_task_change_outside_entry_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous)
     current["task_id"] = "ATIS-DIFFERENT-TASK"
     _assert_transition_rejects(previous, current, "task identity changed outside task entry")
 
 
 def test_pointer_n26_task_entry_replay_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = deepcopy(previous)
+    current["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
     with pytest.raises(ControlValidationError, match="task entry replay"):
         _validate_pointer_transition(previous, current, prior_task_ids={current["task_id"]})
 
 
 def test_pointer_n27_sequence_replay_rejects() -> None:
-    previous = deepcopy(_control()["current_execution_pointer"])
+    previous = deepcopy(_task_entry_pointer())
     previous["last_material_transition"].update(
         {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": "b" * 64}
     )
@@ -966,50 +998,53 @@ def test_pointer_n27_sequence_replay_rejects() -> None:
 
 
 def test_pointer_n28_sequence_gap_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous)
     current["last_material_transition"]["sequence"] = 3
     _assert_transition_rejects(previous, current, "execution pointer sequence gap")
 
 
 def test_pointer_n29_missing_predecessor_rejects() -> None:
-    control = _control()
-    pointer = control["current_execution_pointer"]
+    pointer = deepcopy(_task_entry_pointer())
+    pointer["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
     pointer["last_material_transition"].update(
         {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": None}
     )
-    _assert_control_rejects(control, "execution pointer predecessor missing")
+    with pytest.raises(ControlValidationError, match="execution pointer predecessor missing"):
+        _validate_execution_pointer(pointer)
 
 
 def test_pointer_n30_wrong_predecessor_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous)
     current["last_material_transition"]["predecessor_pointer_sha256"] = "a" * 64
     _assert_transition_rejects(previous, current, "execution pointer predecessor mismatch")
 
 
 def test_pointer_n31_entry_with_predecessor_rejects() -> None:
-    control = _control()
-    control["current_execution_pointer"]["last_material_transition"]["predecessor_pointer_sha256"] = "a" * 64
-    _assert_control_rejects(control, "task entry predecessor must be null")
+    pointer = deepcopy(_task_entry_pointer())
+    pointer["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
+    pointer["last_material_transition"]["predecessor_pointer_sha256"] = "a" * 64
+    with pytest.raises(ControlValidationError, match="task entry predecessor must be null"):
+        _validate_execution_pointer(pointer)
 
 
 def test_pointer_n32_evidence_replay_conflict_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous)
     current["evidence"]["artifact_id"] = "CONFLICTING-ARTIFACT.ZIP"
     _assert_transition_rejects(previous, current, "evidence identity replay conflict")
 
 
 def test_pointer_n33_stale_receiver_authentication_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous, change_evidence=True)
     current["evidence"]["receiver_authentication"]["verified_at"] = previous["last_material_transition"]["occurred_at"]
     _assert_transition_rejects(previous, current, "evidence transition lacks fresh receiver authentication")
 
 
 def test_pointer_n34_nonmaterial_sequence_reuse_rejects() -> None:
-    previous = deepcopy(_control()["current_execution_pointer"])
+    previous = deepcopy(_task_entry_pointer())
     previous["last_material_transition"].update(
         {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": "b" * 64}
     )
@@ -1019,7 +1054,7 @@ def test_pointer_n34_nonmaterial_sequence_reuse_rejects() -> None:
 
 
 def test_pointer_n35_chronology_regression_rejects() -> None:
-    previous = _control()["current_execution_pointer"]
+    previous = _task_entry_pointer()
     current = _next_pointer(previous)
     current["last_material_transition"]["occurred_at"] = "2026-11-06T21:00:00Z"
     _assert_transition_rejects(previous, current, "execution pointer chronology regression")
@@ -1060,6 +1095,157 @@ def test_pointer_n39_historical_record_mutation_rejects() -> None:
 def test_pointer_n40_accepted_unit_path_drift_rejects() -> None:
     with pytest.raises(ControlValidationError, match="mutation boundary exceeded"):
         _validate_mutation_paths(PERMITTED_POINTER_MUTATION_PATHS | {"src/automated_trading_bot/stage5/u3.py"})
+
+
+def test_pointer_p07_authenticated_historical_task_entry_is_retained() -> None:
+    pointer = _task_entry_pointer()
+    assert _canonical_pointer_sha256(pointer) == EXPECTED_POINTER_HASHES[0]
+    assert pointer["last_material_transition"]["sequence"] == 1
+
+
+def test_pointer_p08_closure_chain_contains_all_required_gates() -> None:
+    assert [p["latest_verified_gate"] for p in _closure_chain()] == EXECUTION_GATE_ORDER
+
+
+def test_pointer_p09_closure_chain_sequences_are_contiguous() -> None:
+    assert [p["last_material_transition"]["sequence"] for p in _closure_chain()] == list(range(1, 6))
+
+
+def test_pointer_p10_closure_chain_predecessor_hashes_are_exact() -> None:
+    chain = _closure_chain()
+    assert [p["last_material_transition"]["predecessor_pointer_sha256"] for p in chain[1:]] == EXPECTED_POINTER_HASHES[:-1]
+
+
+def test_pointer_p11_closure_chain_canonical_hashes_are_exact() -> None:
+    assert [_canonical_pointer_sha256(p) for p in _closure_chain()] == EXPECTED_POINTER_HASHES
+
+
+def test_pointer_p12_closure_chain_transitions_validate() -> None:
+    chain = _closure_chain()
+    for previous, current in zip(chain, chain[1:]):
+        _validate_pointer_transition(previous, current)
+
+
+def test_pointer_p13_closure_evidence_is_receiver_authenticated() -> None:
+    for pointer in _closure_chain()[1:]:
+        assert pointer["evidence"]["sha256"] == CLOSURE_EVIDENCE_SHA256
+        assert pointer["evidence"]["receiver_authentication"]["archive_sha256"] == CLOSURE_EVIDENCE_SHA256
+
+
+def test_pointer_p14_closure_manifest_is_authenticated() -> None:
+    assert {p["evidence"]["manifest_sha256"] for p in _closure_chain()[1:]} == {CLOSURE_MANIFEST_SHA256}
+
+
+def test_pointer_p15_closure_baseline_is_protected_pr124_merge() -> None:
+    assert all(p["protected_baseline"] == EXPECTED_EXECUTION_BASELINE for p in _closure_chain()[1:])
+
+
+def test_pointer_p16_intermediate_transitions_remain_active() -> None:
+    assert all(p["disposition"]["state"] == "ACTIVE" for p in _closure_chain()[1:-1])
+
+
+def test_pointer_p17_publication_transition_is_closed() -> None:
+    pointer = _closure_chain()[-1]
+    assert pointer["disposition"]["state"] == "CLOSED"
+    assert pointer["last_material_transition"]["reason"] == "PROTECTED_PUBLICATION"
+
+
+def test_pointer_p18_canonical_pointer_equals_terminal_chain_record() -> None:
+    assert _control()["current_execution_pointer"] == _closure_chain()[-1]
+
+
+def test_pointer_p19_closure_chain_grants_no_authority() -> None:
+    assert all(not p["authority_granted"] for p in _closure_chain())
+
+
+def test_pointer_p20_closure_chain_preserves_mandatory_denials() -> None:
+    assert all(MANDATORY_POINTER_AUTHORITY_DENIALS <= set(p["authority_not_granted"]) for p in _closure_chain())
+
+
+@pytest.mark.parametrize(
+    ("attack", "message"),
+    [
+        ("stale_final", "sequence replay"),
+        ("missing_p5", "canonical terminal pointer mismatch"),
+        ("wrong_predecessor", "predecessor mismatch"),
+        ("invalid_sequence", "sequence gap"),
+        ("forged_evidence", "receiver archive SHA-256 mismatch"),
+        ("conflicting_baseline", "protected baseline mismatch"),
+        ("authority_grant", "grants authority"),
+        ("missing_denial", "authority exclusions incomplete"),
+        ("historical_mutation", "historical pointer mismatch"),
+        ("missing_readback", "manifest status conflicts"),
+        ("replayed_sequence", "sequence replay"),
+        ("gate_skip", "non-contiguous"),
+        ("gate_regression", "gate regression"),
+        ("chronology", "chronology regression"),
+        ("task_change", "task identity changed"),
+        ("artifact_conflict", "evidence identity replay conflict"),
+        ("open_publication", "publication pointer must be closed"),
+        ("wrong_reason", "closed pointer transition conflicts"),
+        ("wrong_terminal_hash", "canonical terminal pointer mismatch"),
+        ("extra_transition", "closure transition count mismatch"),
+    ],
+    ids=[f"n{number}" for number in range(41, 61)],
+)
+def test_pointer_n41_to_n60_closure_attacks_reject(attack: str, message: str) -> None:
+    chain = deepcopy(_closure_chain())
+    if attack == "historical_mutation":
+        chain[0]["task_id"] = "ATIS-FORGED-TASK"
+    elif attack == "missing_p5":
+        chain.pop()
+    elif attack == "extra_transition":
+        chain.append(deepcopy(chain[-1]))
+    elif attack == "stale_final":
+        chain[-1] = deepcopy(chain[-2])
+    elif attack == "wrong_predecessor":
+        chain[2]["last_material_transition"]["predecessor_pointer_sha256"] = "0" * 64
+    elif attack == "invalid_sequence":
+        chain[2]["last_material_transition"]["sequence"] = 4
+    elif attack == "replayed_sequence":
+        chain[2]["last_material_transition"]["sequence"] = 2
+    elif attack == "forged_evidence":
+        chain[2]["evidence"]["sha256"] = "0" * 64
+    elif attack == "conflicting_baseline":
+        chain[2]["protected_baseline"]["commit"] = "0" * 40
+    elif attack == "authority_grant":
+        chain[2]["authority_granted"] = ["PROTECTED_MERGE"]
+    elif attack == "missing_denial":
+        chain[2]["authority_not_granted"].remove("PROTECTED_MERGE")
+    elif attack == "missing_readback":
+        chain[2]["evidence"]["receiver_authentication"]["manifest_status"] = "NOT_APPLICABLE"
+    elif attack == "gate_skip":
+        chain[2]["latest_verified_gate"] = "INDEPENDENT_ASSURANCE"
+    elif attack == "gate_regression":
+        chain[2]["latest_verified_gate"] = "TASK_ENTRY"
+    elif attack == "chronology":
+        chain[2]["last_material_transition"]["occurred_at"] = chain[1]["last_material_transition"]["occurred_at"]
+    elif attack == "task_change":
+        chain[2]["task_id"] = "ATIS-DIFFERENT-TASK"
+    elif attack == "artifact_conflict":
+        chain[2]["evidence"]["artifact_id"] = "CONFLICT.ZIP"
+    elif attack == "open_publication":
+        chain[-1]["disposition"]["state"] = "ACTIVE"
+    elif attack == "wrong_reason":
+        chain[-1]["last_material_transition"]["reason"] = "MATERIAL_GATE_TRANSITION"
+    elif attack == "wrong_terminal_hash":
+        chain[-1]["last_material_transition"]["occurred_at"] = "2026-11-07T15:39:05Z"
+
+    with pytest.raises((ControlValidationError, AssertionError), match=message):
+        if len(chain) != 5:
+            raise AssertionError("closure transition count mismatch" if len(chain) > 5 else "canonical terminal pointer mismatch")
+        if _canonical_pointer_sha256(chain[0]) != EXPECTED_POINTER_HASHES[0]:
+            raise AssertionError("historical pointer mismatch")
+        for previous, current in zip(chain, chain[1:]):
+            _validate_pointer_transition(previous, current)
+        if chain[-1]["latest_verified_gate"] == "PROTECTED_PUBLICATION" and chain[-1]["disposition"]["state"] != "CLOSED":
+            raise AssertionError("publication pointer must be closed")
+        if chain[-1]["last_material_transition"]["reason"] != "PROTECTED_PUBLICATION":
+            raise AssertionError("publication pointer reason mismatch")
+        if chain[-1] != _control()["current_execution_pointer"]:
+            raise AssertionError("canonical terminal pointer mismatch")
+        if _canonical_pointer_sha256(chain[-1]) != EXPECTED_POINTER_HASHES[-1]:
+            raise AssertionError("terminal pointer hash mismatch")
 
 
 def test_serialization_is_exact_and_deterministic() -> None:

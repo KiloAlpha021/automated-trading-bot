@@ -11,35 +11,35 @@
     "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
     "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
     "protected_baseline": {
-      "commit": "0f813481407ae8c19b26f4b8055ee2be5a31933d",
-      "tree": "b289c4b3848747e61611bbdf689e92a62ec29690"
+      "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
+      "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
     },
-    "latest_verified_gate": "TASK_ENTRY",
+    "latest_verified_gate": "PROTECTED_PUBLICATION",
     "evidence": {
-      "artifact_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION-INPUT-2026-11-06.ZIP",
+      "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
       "source_system": "CHATGPT_LIBRARY",
-      "locator": "library:libfile_fde3_f-5d7daf1ddf98819185ced6e722d3c36b_9d75b74aec208191bd3bc15d54d5e55e",
-      "sha256": "d439db26f3cb428c44cffb3255a4829eb845fcda1907db88f22c6e11cd256111",
-      "manifest_sha256": "d3c5c1c36a742522154e5e0efeb64b323b2a341f807e538a6123eab990a3ef54",
+      "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
+      "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+      "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
       "receiver_authentication": {
         "status": "VERIFIED",
-        "receiver_role": "CHATGPT_WORK_IMPLEMENTATION_RECEIVER",
-        "verified_at": "2026-11-06T21:53:56Z",
-        "archive_sha256": "d439db26f3cb428c44cffb3255a4829eb845fcda1907db88f22c6e11cd256111",
+        "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
+        "verified_at": "2026-11-07T15:38:58.724511328Z",
+        "archive_sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
         "manifest_status": "VERIFIED"
       }
     },
     "disposition": {
-      "state": "ACTIVE",
+      "state": "CLOSED",
       "blocker_ids": [],
       "invalidation_reason": null,
       "invalidated_at": null
     },
     "last_material_transition": {
-      "sequence": 1,
-      "reason": "TASK_ENTRY",
-      "occurred_at": "2026-11-06T21:53:56Z",
-      "predecessor_pointer_sha256": null
+      "sequence": 5,
+      "reason": "PROTECTED_PUBLICATION",
+      "occurred_at": "2026-11-07T15:39:04.005518860Z",
+      "predecessor_pointer_sha256": "fef979808e68bb12fa453c47822b3b7b4e6dc54d22d8970e634ec9d5ee2a8639"
     },
     "authority_granted": [],
     "authority_not_granted": [
