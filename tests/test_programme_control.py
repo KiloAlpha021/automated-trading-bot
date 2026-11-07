@@ -25,10 +25,17 @@ EXPECTED_BASELINE = {
     "commit": "12560025bbc87ee237bb2252215305f8d2fc9e47",
     "tree": "404ad9a9ae0454ad36040c7bc690d7ec3eeaf968",
 }
-EXPECTED_EXECUTION_BASELINE = {
+HISTORICAL_PR124_EXECUTION_BASELINE = {
     "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
     "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b",
 }
+TASK006_CURRENT_PROTECTED_BASELINE = {
+    "commit": "86adecca0f6796fe68f2f0e0681c217545461b12",
+    "tree": "29a6fa114e2afa4609dc07c854fa0873b23adbf5",
+}
+TASK006_RECEIPT_SHA256 = (
+    "5ca5f9b361e5e4217a9ea6b330ed950528eb6da86992082b7f9b821073b9081e"
+)
 TASK_ENTRY_POINTER_BLOB = "77e36465556e54c654be25ea36dafd7376d1485a"
 CLOSURE_SUCCESSOR_PATH = (
     ROOT / "docs/programme/master-recovery-successor-execution-pointer-closure-002.json"
@@ -333,8 +340,16 @@ def _parse_utc(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def _validate_execution_pointer(pointer: dict[str, Any]) -> None:
-    if pointer["protected_baseline"] != EXPECTED_EXECUTION_BASELINE:
+def _validate_execution_pointer(
+    pointer: dict[str, Any],
+    *,
+    expected_protected_baseline: dict[str, str],
+) -> None:
+    if set(expected_protected_baseline) != {"commit", "tree"} or not all(
+        GIT_ID.fullmatch(value) for value in expected_protected_baseline.values()
+    ):
+        raise ControlValidationError("expected protected baseline identity is malformed")
+    if pointer["protected_baseline"] != expected_protected_baseline:
         raise ControlValidationError("execution pointer protected baseline mismatch")
 
     evidence = pointer["evidence"]
@@ -395,19 +410,191 @@ def _validate_execution_pointer(pointer: dict[str, Any]) -> None:
         raise ControlValidationError("execution pointer authority exclusions incomplete")
 
 
+def _validate_predecessor_publication_receipt(
+    receipt: dict[str, Any] | None,
+    *,
+    receipt_sha256: str | None,
+    predecessor: dict[str, Any],
+    expected_current_baseline: dict[str, str],
+) -> None:
+    if receipt is None or receipt_sha256 is None:
+        raise ControlValidationError("predecessor publication receipt missing")
+    if not SHA256_ID.fullmatch(receipt_sha256):
+        raise ControlValidationError("predecessor publication receipt SHA-256 malformed")
+    rendered = json.dumps(receipt, ensure_ascii=False, indent=2) + "\n"
+    if sha256(rendered.encode("utf-8")).hexdigest() != receipt_sha256:
+        raise ControlValidationError("predecessor publication receipt SHA-256 mismatch")
+
+    required = {
+        "schema_version",
+        "receipt_id",
+        "created_at",
+        "predecessor",
+        "publication",
+        "publication_ci",
+        "current_protected_baseline",
+        "evidence_receiver_authentication",
+        "creates_new_pointer_task",
+        "requires_closure_successor",
+        "authority_granted",
+        "authority_not_granted",
+        "grants_authority",
+    }
+    if set(receipt) != required or receipt["schema_version"] != 1:
+        raise ControlValidationError("predecessor publication receipt structure mismatch")
+
+    predecessor_receipt = receipt["predecessor"]
+    expected_predecessor = {
+        "pointer_id": predecessor["pointer_id"],
+        "task_id": predecessor["task_id"],
+        "canonical_pointer_sha256": _canonical_pointer_sha256(predecessor),
+        "terminal_sequence": predecessor["last_material_transition"]["sequence"],
+        "latest_verified_gate": "PROTECTED_PUBLICATION",
+        "disposition_state": "CLOSED",
+        "transition_reason": "PROTECTED_PUBLICATION",
+    }
+    if predecessor_receipt != expected_predecessor:
+        raise ControlValidationError("predecessor publication identity mismatch")
+
+    publication = receipt["publication"]
+    if set(publication) != {
+        "repository",
+        "pull_request",
+        "merge_commit",
+        "tree",
+        "merged_at",
+        "signature_status",
+    }:
+        raise ControlValidationError("predecessor publication structure mismatch")
+    if (
+        publication["repository"] != "KiloAlpha021/automated-trading-bot"
+        or type(publication["pull_request"]) is not int
+        or publication["pull_request"] <= 0
+        or not GIT_ID.fullmatch(publication["merge_commit"])
+        or not GIT_ID.fullmatch(publication["tree"])
+        or publication["signature_status"] != "VERIFIED"
+    ):
+        raise ControlValidationError("predecessor publication identity conflicts")
+    _parse_utc(publication["merged_at"])
+
+    if receipt["current_protected_baseline"] != {
+        **expected_current_baseline,
+        "observed_at": receipt["current_protected_baseline"].get("observed_at"),
+    }:
+        raise ControlValidationError("receipt current protected baseline mismatch")
+    if not GIT_ID.fullmatch(expected_current_baseline.get("commit", "")) or not GIT_ID.fullmatch(
+        expected_current_baseline.get("tree", "")
+    ):
+        raise ControlValidationError("current protected baseline identity is malformed")
+    _parse_utc(receipt["current_protected_baseline"]["observed_at"])
+    if {
+        "commit": publication["merge_commit"],
+        "tree": publication["tree"],
+    } != expected_current_baseline:
+        raise ControlValidationError("publication and current protected baseline conflict")
+
+    ci = receipt["publication_ci"]
+    if set(ci) != {"engineering", "trusted", "post_merge_engineering"}:
+        raise ControlValidationError("publication CI inventory mismatch")
+    for job in ci.values():
+        if (
+            set(job)
+            != {"run_id", "job_id", "job_name", "status", "conclusion"}
+            or type(job["run_id"]) is not int
+            or type(job["job_id"]) is not int
+            or not job["job_name"]
+            or job["status"] != "completed"
+            or job["conclusion"] != "success"
+        ):
+            raise ControlValidationError("publication CI is not successful")
+
+    authentication = receipt["evidence_receiver_authentication"]
+    if set(authentication) != {
+        "status",
+        "receiver_role",
+        "verified_at",
+        "source_system",
+        "locator",
+        "sha256",
+        "manifest_status",
+    }:
+        raise ControlValidationError("receipt receiver authentication structure mismatch")
+    if (
+        authentication["status"] != "VERIFIED"
+        or not authentication["receiver_role"]
+        or authentication["source_system"] != "CHATGPT_LIBRARY"
+        or not authentication["locator"].startswith("library:")
+        or not SHA256_ID.fullmatch(authentication["sha256"])
+        or authentication["manifest_status"] != "VERIFIED"
+    ):
+        raise ControlValidationError("receipt receiver authentication failed")
+    _parse_utc(authentication["verified_at"])
+
+    if receipt["creates_new_pointer_task"] or receipt["requires_closure_successor"]:
+        raise ControlValidationError("publication receipt creates recursive closure")
+    if receipt["authority_granted"] or receipt["grants_authority"]:
+        raise ControlValidationError("publication receipt grants authority")
+    if not MANDATORY_POINTER_AUTHORITY_DENIALS <= set(receipt["authority_not_granted"]):
+        raise ControlValidationError("publication receipt authority exclusions incomplete")
+
+
 def _validate_pointer_transition(
-    previous: dict[str, Any],
+    previous: dict[str, Any] | None,
     current: dict[str, Any],
     *,
+    expected_current_baseline: dict[str, str],
+    predecessor_publication_receipt: dict[str, Any] | None = None,
+    predecessor_publication_receipt_sha256: str | None = None,
     prior_task_ids: set[str] | None = None,
 ) -> None:
-    _validate_execution_pointer(current)
+    _validate_execution_pointer(
+        current,
+        expected_protected_baseline=expected_current_baseline,
+    )
     transition = current["last_material_transition"]
     if transition["reason"] == "TASK_ENTRY":
+        if previous is None:
+            raise ControlValidationError("task entry predecessor missing")
+        _validate_execution_pointer(
+            previous,
+            expected_protected_baseline=previous["protected_baseline"],
+        )
+        if (
+            previous["latest_verified_gate"] != "PROTECTED_PUBLICATION"
+            or previous["disposition"]["state"] != "CLOSED"
+            or previous["last_material_transition"]["reason"] != "PROTECTED_PUBLICATION"
+        ):
+            raise ControlValidationError(
+                "task entry predecessor is not protected-publication closed"
+            )
+        _validate_predecessor_publication_receipt(
+            predecessor_publication_receipt,
+            receipt_sha256=predecessor_publication_receipt_sha256,
+            predecessor=previous,
+            expected_current_baseline=expected_current_baseline,
+        )
+        if current["latest_verified_gate"] != "TASK_ENTRY":
+            raise ControlValidationError("new task entry gate mismatch")
+        if current["disposition"]["state"] != "ACTIVE":
+            raise ControlValidationError("new task entry must be active")
+        if not current["task_id"] or current["task_id"] == previous["task_id"]:
+            raise ControlValidationError("task entry identity conflicts with predecessor")
         if current["task_id"] in (prior_task_ids or set()):
             raise ControlValidationError("task entry replay")
+        receipt_verified_at = predecessor_publication_receipt[
+            "evidence_receiver_authentication"
+        ]["verified_at"]
+        if _parse_utc(transition["occurred_at"]) <= _parse_utc(receipt_verified_at):
+            raise ControlValidationError("task entry chronology precedes receipt authentication")
         return
 
+    if previous is None:
+        raise ControlValidationError("execution pointer predecessor missing")
+    if (
+        predecessor_publication_receipt is not None
+        or predecessor_publication_receipt_sha256 is not None
+    ):
+        raise ControlValidationError("same-task transition supplied publication receipt")
     previous_transition = previous["last_material_transition"]
     if current["task_id"] != previous["task_id"]:
         raise ControlValidationError("task identity changed outside task entry")
@@ -458,7 +645,10 @@ def validate_control(control: dict[str, Any]) -> None:
     if "current_execution_pointer" not in control:
         raise ControlValidationError("canonical current execution pointer missing")
     pointer = control["current_execution_pointer"]
-    _validate_execution_pointer(pointer)
+    _validate_execution_pointer(
+        pointer,
+        expected_protected_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+    )
     records = _all_records(control)
     ids = [_record_id(record) for record in records]
     if len(ids) != len(set(ids)):
@@ -700,6 +890,124 @@ def _closure_chain() -> list[dict[str, Any]]:
     return [_task_entry_pointer(), *_load(CLOSURE_SUCCESSOR_PATH)["pointer_transitions"]]
 
 
+def _task006_publication_receipt() -> dict[str, Any]:
+    return json.loads(
+        """{
+  "schema_version": 1,
+  "receipt_id": "ATIS-EXECUTION-POINTER-PREDECESSOR-PUBLICATION-RECEIPT-001",
+  "created_at": "2026-11-07T21:41:29.746317800Z",
+  "predecessor": {
+    "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+    "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+    "canonical_pointer_sha256": "082414d8a9afe47a3b08ba3f1baa9e5abb9693a78828c4e2843dfc58676057b6",
+    "terminal_sequence": 5,
+    "latest_verified_gate": "PROTECTED_PUBLICATION",
+    "disposition_state": "CLOSED",
+    "transition_reason": "PROTECTED_PUBLICATION"
+  },
+  "publication": {
+    "repository": "KiloAlpha021/automated-trading-bot",
+    "pull_request": 125,
+    "merge_commit": "86adecca0f6796fe68f2f0e0681c217545461b12",
+    "tree": "29a6fa114e2afa4609dc07c854fa0873b23adbf5",
+    "merged_at": "2026-11-07T16:14:26Z",
+    "signature_status": "VERIFIED"
+  },
+  "publication_ci": {
+    "engineering": {
+      "run_id": 42388451959,
+      "job_id": 128450740172,
+      "job_name": "m1-engineering-foundation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "trusted": {
+      "run_id": 42388451975,
+      "job_id": 128450740114,
+      "job_name": "trusted-m1-evaluator",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "post_merge_engineering": {
+      "run_id": 42390290875,
+      "job_id": 128456247585,
+      "job_name": "m1-engineering-foundation",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "current_protected_baseline": {
+    "commit": "86adecca0f6796fe68f2f0e0681c217545461b12",
+    "tree": "29a6fa114e2afa4609dc07c854fa0873b23adbf5",
+    "observed_at": "2026-11-07T21:41:29.746317800Z"
+  },
+  "evidence_receiver_authentication": {
+    "status": "VERIFIED",
+    "receiver_role": "CHATGPT_WORK_INDEPENDENT_TASK006_RECEIVER",
+    "verified_at": "2026-11-07T21:41:29.746317800Z",
+    "source_system": "CHATGPT_LIBRARY",
+    "locator": "library:libfile_fde3_f-7b532e2c60088191a2e498d42cf74ece_9d75b74aec208191bd3bc15d54d5e55e",
+    "sha256": "34abc19a892874cdc6ecd1a7a083aeab58204ee6f112b993b6f94689e2c2e6d4",
+    "manifest_status": "VERIFIED"
+  },
+  "creates_new_pointer_task": false,
+  "requires_closure_successor": false,
+  "authority_granted": [],
+  "authority_not_granted": [
+    "OWNER_ACCEPTANCE",
+    "PROTECTED_MERGE",
+    "DEPLOYMENT",
+    "BROKER_CONNECTION",
+    "FINANCIAL_EFFECTS",
+    "TRADING_ACTIVATION"
+  ],
+  "grants_authority": false
+}""",
+        object_pairs_hook=_unique_object,
+    )
+
+
+def _publication_receipt_sha256(receipt: dict[str, Any]) -> str:
+    rendered = json.dumps(receipt, ensure_ascii=False, indent=2) + "\n"
+    return sha256(rendered.encode("utf-8")).hexdigest()
+
+
+def _new_task_entry(previous: dict[str, Any]) -> dict[str, Any]:
+    current = deepcopy(previous)
+    current["task_id"] = "ATIS-ENGINEERING-AUDIT-NEXT-BOUNDED-TASK"
+    current["protected_baseline"] = deepcopy(TASK006_CURRENT_PROTECTED_BASELINE)
+    current["latest_verified_gate"] = "TASK_ENTRY"
+    current["evidence"] = deepcopy(previous["evidence"])
+    current["evidence"].update(
+        {
+            "artifact_id": "ATIS-NEXT-BOUNDED-TASK-ENTRY-EVIDENCE.ZIP",
+            "locator": "library:next-bounded-task-entry-evidence",
+            "sha256": "c" * 64,
+            "manifest_sha256": "d" * 64,
+        }
+    )
+    current["evidence"]["receiver_authentication"].update(
+        {
+            "verified_at": "2026-11-07T21:42:00Z",
+            "archive_sha256": "c" * 64,
+            "manifest_status": "VERIFIED",
+        }
+    )
+    current["disposition"] = {
+        "state": "ACTIVE",
+        "blocker_ids": [],
+        "invalidation_reason": None,
+        "invalidated_at": None,
+    }
+    current["last_material_transition"] = {
+        "sequence": 1,
+        "reason": "TASK_ENTRY",
+        "occurred_at": "2026-11-07T21:42:01Z",
+        "predecessor_pointer_sha256": None,
+    }
+    return current
+
+
 def _next_pointer(
     previous: dict[str, Any],
     *,
@@ -709,7 +1017,7 @@ def _next_pointer(
     change_evidence: bool = False,
 ) -> dict[str, Any]:
     current = deepcopy(previous)
-    current["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
+    current["protected_baseline"] = deepcopy(HISTORICAL_PR124_EXECUTION_BASELINE)
     current["latest_verified_gate"] = gate or previous["latest_verified_gate"]
     current["disposition"] = {
         "state": state,
@@ -747,7 +1055,11 @@ def _assert_transition_rejects(
     previous: dict[str, Any], current: dict[str, Any], match: str
 ) -> None:
     with pytest.raises(ControlValidationError, match=match):
-        _validate_pointer_transition(previous, current)
+        _validate_pointer_transition(
+            previous,
+            current,
+            expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+        )
 
 
 def test_json_and_schema_parse_with_duplicate_key_rejection() -> None:
@@ -780,13 +1092,21 @@ def test_pointer_p03_contiguous_gate_transition_with_fresh_evidence_is_valid() -
     current = _next_pointer(
         previous, gate="BOUNDED_ENGINEERING", change_evidence=True
     )
-    _validate_pointer_transition(previous, current)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+    )
 
 
 def test_pointer_p04_blocked_transition_preserves_latest_verified_gate() -> None:
     previous = _task_entry_pointer()
     current = _next_pointer(previous, state="BLOCKED")
-    _validate_pointer_transition(previous, current)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+    )
 
 
 def test_pointer_p05_evidence_invalidation_successor_is_valid() -> None:
@@ -794,7 +1114,11 @@ def test_pointer_p05_evidence_invalidation_successor_is_valid() -> None:
     current = _next_pointer(
         previous, reason="EVIDENCE_INVALIDATION", state="INVALIDATED"
     )
-    _validate_pointer_transition(previous, current)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+    )
 
 
 def test_pointer_p06_protected_publication_closure_is_valid() -> None:
@@ -810,7 +1134,11 @@ def test_pointer_p06_protected_publication_closure_is_valid() -> None:
         state="CLOSED",
         change_evidence=True,
     )
-    _validate_pointer_transition(previous, current)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+    )
 
 
 def test_pointer_n01_unknown_pointer_property_rejects() -> None:
@@ -980,11 +1308,17 @@ def test_pointer_n25_task_change_outside_entry_rejects() -> None:
 
 
 def test_pointer_n26_task_entry_replay_rejects() -> None:
-    previous = _task_entry_pointer()
-    current = deepcopy(previous)
-    current["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
+    previous = _closure_chain()[-1]
+    current = _new_task_entry(previous)
     with pytest.raises(ControlValidationError, match="task entry replay"):
-        _validate_pointer_transition(previous, current, prior_task_ids={current["task_id"]})
+        _validate_pointer_transition(
+            previous,
+            current,
+            expected_current_baseline=TASK006_CURRENT_PROTECTED_BASELINE,
+            predecessor_publication_receipt=_task006_publication_receipt(),
+            predecessor_publication_receipt_sha256=TASK006_RECEIPT_SHA256,
+            prior_task_ids={current["task_id"]},
+        )
 
 
 def test_pointer_n27_sequence_replay_rejects() -> None:
@@ -1006,12 +1340,15 @@ def test_pointer_n28_sequence_gap_rejects() -> None:
 
 def test_pointer_n29_missing_predecessor_rejects() -> None:
     pointer = deepcopy(_task_entry_pointer())
-    pointer["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
+    pointer["protected_baseline"] = deepcopy(HISTORICAL_PR124_EXECUTION_BASELINE)
     pointer["last_material_transition"].update(
         {"sequence": 2, "reason": "MATERIAL_GATE_TRANSITION", "predecessor_pointer_sha256": None}
     )
     with pytest.raises(ControlValidationError, match="execution pointer predecessor missing"):
-        _validate_execution_pointer(pointer)
+        _validate_execution_pointer(
+            pointer,
+            expected_protected_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+        )
 
 
 def test_pointer_n30_wrong_predecessor_rejects() -> None:
@@ -1023,10 +1360,13 @@ def test_pointer_n30_wrong_predecessor_rejects() -> None:
 
 def test_pointer_n31_entry_with_predecessor_rejects() -> None:
     pointer = deepcopy(_task_entry_pointer())
-    pointer["protected_baseline"] = deepcopy(EXPECTED_EXECUTION_BASELINE)
+    pointer["protected_baseline"] = deepcopy(HISTORICAL_PR124_EXECUTION_BASELINE)
     pointer["last_material_transition"]["predecessor_pointer_sha256"] = "a" * 64
     with pytest.raises(ControlValidationError, match="task entry predecessor must be null"):
-        _validate_execution_pointer(pointer)
+        _validate_execution_pointer(
+            pointer,
+            expected_protected_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+        )
 
 
 def test_pointer_n32_evidence_replay_conflict_rejects() -> None:
@@ -1123,7 +1463,11 @@ def test_pointer_p11_closure_chain_canonical_hashes_are_exact() -> None:
 def test_pointer_p12_closure_chain_transitions_validate() -> None:
     chain = _closure_chain()
     for previous, current in zip(chain, chain[1:]):
-        _validate_pointer_transition(previous, current)
+        _validate_pointer_transition(
+            previous,
+            current,
+            expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+        )
 
 
 def test_pointer_p13_closure_evidence_is_receiver_authenticated() -> None:
@@ -1137,7 +1481,10 @@ def test_pointer_p14_closure_manifest_is_authenticated() -> None:
 
 
 def test_pointer_p15_closure_baseline_is_protected_pr124_merge() -> None:
-    assert all(p["protected_baseline"] == EXPECTED_EXECUTION_BASELINE for p in _closure_chain()[1:])
+    assert all(
+        p["protected_baseline"] == HISTORICAL_PR124_EXECUTION_BASELINE
+        for p in _closure_chain()[1:]
+    )
 
 
 def test_pointer_p16_intermediate_transitions_remain_active() -> None:
@@ -1160,6 +1507,168 @@ def test_pointer_p19_closure_chain_grants_no_authority() -> None:
 
 def test_pointer_p20_closure_chain_preserves_mandatory_denials() -> None:
     assert all(MANDATORY_POINTER_AUTHORITY_DENIALS <= set(p["authority_not_granted"]) for p in _closure_chain())
+
+
+def test_pointer_p21_external_receipt_bytes_are_exact() -> None:
+    assert (
+        _publication_receipt_sha256(_task006_publication_receipt())
+        == TASK006_RECEIPT_SHA256
+    )
+
+
+def test_pointer_p22_closed_predecessor_allows_authenticated_new_task_entry() -> None:
+    previous = _closure_chain()[-1]
+    current = _new_task_entry(previous)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=TASK006_CURRENT_PROTECTED_BASELINE,
+        predecessor_publication_receipt=_task006_publication_receipt(),
+        predecessor_publication_receipt_sha256=TASK006_RECEIPT_SHA256,
+        prior_task_ids={previous["task_id"]},
+    )
+
+
+def test_pointer_p23_explicit_newer_protected_baseline_is_accepted() -> None:
+    previous = _closure_chain()[-1]
+    current = _new_task_entry(previous)
+    newer = {"commit": "1" * 40, "tree": "2" * 40}
+    current["protected_baseline"] = deepcopy(newer)
+    receipt = _task006_publication_receipt()
+    receipt["publication"]["merge_commit"] = newer["commit"]
+    receipt["publication"]["tree"] = newer["tree"]
+    receipt["current_protected_baseline"].update(newer)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=newer,
+        predecessor_publication_receipt=receipt,
+        predecessor_publication_receipt_sha256=_publication_receipt_sha256(receipt),
+        prior_task_ids={previous["task_id"]},
+    )
+
+
+def test_pointer_p24_new_task_entry_resets_intra_task_sequence() -> None:
+    current = _new_task_entry(_closure_chain()[-1])
+    transition = current["last_material_transition"]
+    assert transition["sequence"] == 1
+    assert transition["predecessor_pointer_sha256"] is None
+
+
+def test_pointer_p25_same_task_transition_needs_no_publication_receipt() -> None:
+    previous = _task_entry_pointer()
+    current = _next_pointer(previous)
+    _validate_pointer_transition(
+        previous,
+        current,
+        expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+    )
+
+
+def test_pointer_p26_receipt_is_non_authorizing_and_non_recursive() -> None:
+    receipt = _task006_publication_receipt()
+    assert receipt["authority_granted"] == []
+    assert receipt["grants_authority"] is False
+    assert receipt["creates_new_pointer_task"] is False
+    assert receipt["requires_closure_successor"] is False
+
+
+@pytest.mark.parametrize(
+    ("attack", "message"),
+    [
+        ("missing_predecessor", "task entry predecessor missing"),
+        ("open_predecessor", "not protected-publication closed"),
+        ("wrong_gate", "closed pointer transition conflicts"),
+        ("wrong_reason", "not protected-publication closed"),
+        ("missing_receipt", "publication receipt missing"),
+        ("receipt_hash", "receipt SHA-256 mismatch"),
+        ("receipt_predecessor", "publication identity mismatch"),
+        ("stale_baseline", "protected baseline mismatch"),
+        ("malformed_baseline", "baseline identity is malformed"),
+        ("ci_failure", "publication CI is not successful"),
+        ("missing_readback", "receiver authentication failed"),
+        ("publication_conflict", "publication and current protected baseline conflict"),
+        ("task_replay", "task entry replay"),
+        ("task_conflict", "identity conflicts with predecessor"),
+        ("authority_grant", "execution pointer grants authority"),
+        ("missing_denial", "authority exclusions incomplete"),
+        ("recursive_receipt", "creates recursive closure"),
+        ("bad_sequence", "task entry predecessor must be null"),
+        ("chronology", "chronology precedes receipt authentication"),
+        ("same_task_receipt", "same-task transition supplied publication receipt"),
+    ],
+    ids=[f"n{number}" for number in range(61, 81)],
+)
+def test_pointer_n61_to_n80_new_task_entry_attacks_reject(
+    attack: str, message: str
+) -> None:
+    previous: dict[str, Any] | None = deepcopy(_closure_chain()[-1])
+    current = _new_task_entry(previous)
+    receipt: dict[str, Any] | None = _task006_publication_receipt()
+    receipt_sha256: str | None = TASK006_RECEIPT_SHA256
+    expected_baseline = deepcopy(TASK006_CURRENT_PROTECTED_BASELINE)
+    prior_task_ids = {previous["task_id"]}
+
+    if attack == "missing_predecessor":
+        previous = None
+    elif attack == "open_predecessor":
+        previous["disposition"]["state"] = "ACTIVE"
+    elif attack == "wrong_gate":
+        previous["latest_verified_gate"] = "INDEPENDENT_ASSURANCE"
+    elif attack == "wrong_reason":
+        previous["last_material_transition"]["reason"] = "CLOSURE"
+    elif attack == "missing_receipt":
+        receipt = None
+        receipt_sha256 = None
+    elif attack == "receipt_hash":
+        receipt_sha256 = "0" * 64
+    elif attack == "receipt_predecessor":
+        receipt["predecessor"]["canonical_pointer_sha256"] = "0" * 64
+        receipt_sha256 = _publication_receipt_sha256(receipt)
+    elif attack == "stale_baseline":
+        current["protected_baseline"]["commit"] = "3" * 40
+    elif attack == "malformed_baseline":
+        expected_baseline["commit"] = "not-a-git-identity"
+    elif attack == "ci_failure":
+        receipt["publication_ci"]["trusted"]["conclusion"] = "failure"
+        receipt_sha256 = _publication_receipt_sha256(receipt)
+    elif attack == "missing_readback":
+        receipt["evidence_receiver_authentication"]["status"] = "NOT_TESTED"
+        receipt_sha256 = _publication_receipt_sha256(receipt)
+    elif attack == "publication_conflict":
+        receipt["publication"]["merge_commit"] = "4" * 40
+        receipt_sha256 = _publication_receipt_sha256(receipt)
+    elif attack == "task_replay":
+        prior_task_ids.add(current["task_id"])
+    elif attack == "task_conflict":
+        current["task_id"] = previous["task_id"]
+    elif attack == "authority_grant":
+        current["authority_granted"] = ["PROTECTED_MERGE"]
+    elif attack == "missing_denial":
+        current["authority_not_granted"].remove("PROTECTED_MERGE")
+    elif attack == "recursive_receipt":
+        receipt["requires_closure_successor"] = True
+        receipt_sha256 = _publication_receipt_sha256(receipt)
+    elif attack == "bad_sequence":
+        current["last_material_transition"]["sequence"] = 2
+    elif attack == "chronology":
+        current["last_material_transition"]["occurred_at"] = receipt[
+            "evidence_receiver_authentication"
+        ]["verified_at"]
+    elif attack == "same_task_receipt":
+        previous = _task_entry_pointer()
+        current = _next_pointer(previous)
+        expected_baseline = deepcopy(HISTORICAL_PR124_EXECUTION_BASELINE)
+
+    with pytest.raises((ControlValidationError, TypeError), match=message):
+        _validate_pointer_transition(
+            previous,
+            current,
+            expected_current_baseline=expected_baseline,
+            predecessor_publication_receipt=receipt,
+            predecessor_publication_receipt_sha256=receipt_sha256,
+            prior_task_ids=prior_task_ids,
+        )
 
 
 @pytest.mark.parametrize(
@@ -1237,7 +1746,11 @@ def test_pointer_n41_to_n60_closure_attacks_reject(attack: str, message: str) ->
         if _canonical_pointer_sha256(chain[0]) != EXPECTED_POINTER_HASHES[0]:
             raise AssertionError("historical pointer mismatch")
         for previous, current in zip(chain, chain[1:]):
-            _validate_pointer_transition(previous, current)
+            _validate_pointer_transition(
+                previous,
+                current,
+                expected_current_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+            )
         if chain[-1]["latest_verified_gate"] == "PROTECTED_PUBLICATION" and chain[-1]["disposition"]["state"] != "CLOSED":
             raise AssertionError("publication pointer must be closed")
         if chain[-1]["last_material_transition"]["reason"] != "PROTECTED_PUBLICATION":

@@ -58,6 +58,14 @@ EXECUTION_POINTER_CLOSURE_PATH = (
 EXECUTION_POINTER_CLOSURE_SCHEMA_PATH = (
     ROOT / "docs/programme/master-recovery-successor-execution-pointer-closure-002.schema.json"
 )
+LIFECYCLE_VALIDATOR_PATH = "tests/test_programme_control.py"
+EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION = {
+    "historical_blob": "563015bc65b4b6a3c876924e56f2f80190caa2a6",
+    "successor_blob": "3196221ee39cf1c20f8be25e45d588869ad8c4c2",
+    "publication_receipt_sha256": (
+        "5ca5f9b361e5e4217a9ea6b330ed950528eb6da86992082b7f9b821073b9081e"
+    ),
+}
 EXPECTED_PACKET_SHA256 = (
     "bd39fd6768ab3fb5608418343858137f759875537e4b9c1f5d956a5451d37e43"
 )
@@ -534,7 +542,13 @@ def _validate_execution_pointer_successor(
         _retained_blob(transition["historical_blob"])
         _retained_blob(transition["candidate_blob"])
         if closure:
-            assert _blob(ROOT / path) == transition["candidate_blob"]
+            current_blob = _blob(ROOT / path)
+            if path == LIFECYCLE_VALIDATOR_PATH:
+                _validate_lifecycle_validator_transition(transition, current_blob)
+                result[path] = current_blob
+                continue
+            else:
+                assert current_blob == transition["candidate_blob"]
         result[path] = transition["candidate_blob"]
     assert result.keys() == predecessor.keys()
     return result
@@ -563,6 +577,17 @@ def _resolve_programme_control_successor(
         current = _validate_execution_pointer_successor(selected, current)
         remaining.remove(selected)
     return current
+
+
+def _validate_lifecycle_validator_transition(
+    historical_transition: dict[str, Any], current_blob: str
+) -> None:
+    expected = EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION
+    assert historical_transition["path"] == LIFECYCLE_VALIDATOR_PATH
+    assert historical_transition["candidate_blob"] == expected["historical_blob"]
+    assert current_blob == expected["successor_blob"]
+    source = (ROOT / LIFECYCLE_VALIDATOR_PATH).read_text(encoding="utf-8")
+    assert expected["publication_receipt_sha256"] in source
 
 
 def _dependency_successor_schema(record: dict[str, Any]) -> Path:
@@ -1057,7 +1082,7 @@ def test_execution_pointer_closure_successor_is_unique_closed_and_non_authorisin
     assert _resolve_programme_control_successor(kf04, records) == {
         "docs/programme/programme-control.json": "71921c6dafbbed7be9e423e9df2ec9e11cf6c0ae",
         "docs/programme/programme-control.schema.json": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a",
-        "tests/test_programme_control.py": "563015bc65b4b6a3c876924e56f2f80190caa2a6",
+        "tests/test_programme_control.py": "3196221ee39cf1c20f8be25e45d588869ad8c4c2",
     }
     closure = records[-1]
     assert closure["protected_active"] is False
@@ -1065,6 +1090,30 @@ def test_execution_pointer_closure_successor_is_unique_closed_and_non_authorisin
     assert closure["closure_evidence"]["sha256"] == (
         "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61"
     )
+
+
+def test_lifecycle_validator_successor_preserves_authenticated_history() -> None:
+    closure = _load(EXECUTION_POINTER_CLOSURE_PATH)
+    transition = next(
+        row
+        for row in closure["transitions"]
+        if row["path"] == LIFECYCLE_VALIDATOR_PATH
+    )
+    _retained_blob(EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION["historical_blob"])
+    _validate_lifecycle_validator_transition(
+        transition, EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION["successor_blob"]
+    )
+
+
+def test_lifecycle_validator_successor_rejects_unauthorised_substitution() -> None:
+    closure = _load(EXECUTION_POINTER_CLOSURE_PATH)
+    transition = next(
+        row
+        for row in closure["transitions"]
+        if row["path"] == LIFECYCLE_VALIDATOR_PATH
+    )
+    with pytest.raises(AssertionError):
+        _validate_lifecycle_validator_transition(transition, "0" * 40)
 
 
 @pytest.mark.parametrize(
