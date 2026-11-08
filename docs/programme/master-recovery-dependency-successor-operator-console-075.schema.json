@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/master-recovery-dependency-successor-operator-console-075.schema.json",
+  "title": "ATIS Operator Console proposed master-recovery dependency successor",
+  "description": "Exact non-authorising, non-active Task075 dependency successor chained append-only from the Stage 5 U3 terminal; publication and activation remain external.",
+  "const": {
+    "schema_version": 1,
+    "record_id": "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-OPERATOR-CONSOLE-075-001",
+    "task_id": "ATIS-OC-PR127-MASTER-RECOVERY-SUCCESSOR-CORRECTION-STEP2",
+    "record_role": "PROPOSED_DEPENDENCY_SUCCESSOR_PREPARATION_ONLY",
+    "predecessor_evidence": {
+      "record": {
+        "path": "docs/programme/master-recovery-dependency-successor-stage5-u3-060.json",
+        "git_blob": "e7f92e7582530ce962d99904bdcc882d5199f191",
+        "sha256": "b7615b55cac049b0ff4043ce64e4ba33b6ed9bf91c42c3e8afa0a93596cd2c04"
+      },
+      "schema": {
+        "path": "docs/programme/master-recovery-dependency-successor-stage5-u3-060.schema.json",
+        "git_blob": "0a0c831527939198399620408e973af3d96707c6",
+        "sha256": "1e8b18c62d398a6bf284f1fded32c88bbf75ab0145570116229e1bb31bf0ad75"
+      }
+    },
+    "dependency_transition": {
+      "path": "requirements-dev.lock",
+      "historical_blob": "e2c911ab66b6a325aa9d36137ed920d191f3c282",
+      "candidate_blob": "a4d6fa8518a4104431d07729654c5d3eef3ba5dc"
+    },
+    "dependency_surface": {
+      "pyproject.toml": "52b1c8301a49e9adac27cc3a5f1d16ab18165f1c",
+      "requirements-dev.in": "14079f7d3b82dc1da3d0b410cc1e2964257afb05",
+      "requirements-dev.lock": "a4d6fa8518a4104431d07729654c5d3eef3ba5dc",
+      "tests/test_dependency_lock.py": "da29d8681f8ff82ca5d9f847f4ef45e52d3f0454"
+    },
+    "trusted_profile": {
+      "repository": "KiloAlpha021/security-workflows",
+      "baseline_main": "f49525b3d733ff544195f452c59166bbbc6fb5be",
+      "profile_id": "operator-console-auth-bff-audit-075-dependency-successor",
+      "profile_path": "profiles/operator-console-auth-bff-audit-075-dependency-successor/profile.json",
+      "profile_blob": "cf3e0421d1bacc29b6cd65c43d6f8d8621111ccb",
+      "lock_path": "profiles/operator-console-auth-bff-audit-075-dependency-successor/requirements-dev.lock",
+      "lock_blob": "a4d6fa8518a4104431d07729654c5d3eef3ba5dc",
+      "manifest_path": "profiles/operator-console-auth-bff-audit-075-dependency-successor/trusted-git-blobs.txt",
+      "manifest_blob": "5a2ec7a169de9467fb3cf00b5866789601ca8ba6"
+    },
+    "trust_state": "PROTECTED_PROFILE_ACTIVE_CANDIDATE_PR_NOT_MERGED",
+    "protected_active": false,
+    "authorization_reference": {
+      "task_id": "ATIS-OC-PR127-MASTER-RECOVERY-SUCCESSOR-CORRECTION-STEP2",
+      "decision": "AUTHORIZED_BOUNDED_OFFLINE_SUCCESSOR_CORRECTION",
+      "source": "CURRENT_OWNER_INSTRUCTION"
+    },
+    "approval_status": "NOT_PROTECTED_NOT_ACTIVE",
+    "authority_limitations": [
+      "NO_PROGRAMME_AUTHORITY",
+      "NO_IMPLEMENTATION_AUTHORITY",
+      "NO_PUBLICATION_AUTHORITY",
+      "NO_DEPLOYMENT_AUTHORITY",
+      "NO_TRADING_AUTHORITY",
+      "NO_BROKER_AUTHORITY",
+      "NO_RISK_APPROVAL_AUTHORITY",
+      "NO_ACCOUNTING_AUTHORITY",
+      "NO_FINANCIAL_AUTHORITY"
+    ],
+    "grants_authority": false
+  }
+}

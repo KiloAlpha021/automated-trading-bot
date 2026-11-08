@@ -46,6 +46,13 @@ STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH = (
 STAGE5_U3_DEPENDENCY_SUCCESSOR_SCHEMA_PATH = (
     ROOT / "docs/programme/master-recovery-dependency-successor-stage5-u3-060.schema.json"
 )
+OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH = (
+    ROOT / "docs/programme/master-recovery-dependency-successor-operator-console-075.json"
+)
+OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_SCHEMA_PATH = (
+    ROOT
+    / "docs/programme/master-recovery-dependency-successor-operator-console-075.schema.json"
+)
 EXECUTION_POINTER_SUCCESSOR_PATH = (
     ROOT / "docs/programme/master-recovery-successor-execution-pointer-001.json"
 )
@@ -268,6 +275,7 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
                 _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH),
                 _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH),
                 _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH),
+                _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH),
             ],
         )
     )
@@ -607,6 +615,9 @@ def _dependency_successor_schema(record: dict[str, Any]) -> Path:
         "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-STAGE5-U3-060-001": (
             STAGE5_U3_DEPENDENCY_SUCCESSOR_SCHEMA_PATH
         ),
+        "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-OPERATOR-CONSOLE-075-001": (
+            OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_SCHEMA_PATH
+        ),
     }
     try:
         return schemas[record["record_id"]]
@@ -710,17 +721,19 @@ def test_s4_07_dependency_successor_is_non_authorising_and_exact() -> None:
     terminal = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     assert _validate_dependency_successor(record) == {
         "requirements-dev.lock": "30c531abc4b183d7e6114128b1f12be0d954b034"
     }
     resolved = _resolve_dependency_successor(
-        EXPECTED_REQUIRED, [record, current, terminal, stage5, stage5_u3]
+        EXPECTED_REQUIRED,
+        [record, current, terminal, stage5, stage5_u3, operator_console],
     )
     assert resolved == {
-        "pyproject.toml": "6c407b8a062acee75885551789ec79ce13c978c3",
-        "requirements-dev.in": "ed69a066d501d4e1db0b5b58a2460632375689a7",
-        "requirements-dev.lock": "e2c911ab66b6a325aa9d36137ed920d191f3c282",
-        "tests/test_dependency_lock.py": "26d689ac6da9bace3436dd90fc3a369b6c929479",
+        "pyproject.toml": "52b1c8301a49e9adac27cc3a5f1d16ab18165f1c",
+        "requirements-dev.in": "14079f7d3b82dc1da3d0b410cc1e2964257afb05",
+        "requirements-dev.lock": "a4d6fa8518a4104431d07729654c5d3eef3ba5dc",
+        "tests/test_dependency_lock.py": "da29d8681f8ff82ca5d9f847f4ef45e52d3f0454",
     }
     assert record["approval_provenance"] == {
         "repository": "KiloAlpha021/automated-trading-bot",
@@ -760,6 +773,7 @@ def test_s4_07_dependency_successor_rejects_invalid_evidence(attack: str) -> Non
     terminal = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     if attack == "wrong_predecessor":
         record["dependency_transition"]["historical_blob"] = "0" * 40
     elif attack == "wrong_successor":
@@ -793,7 +807,8 @@ def test_s4_07_dependency_successor_rejects_invalid_evidence(attack: str) -> Non
         record["historical_evidence"]["recovery_schema"]["git_blob"] = "0" * 40
     with pytest.raises((ValidationError, AssertionError, KeyError)):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [record, current, terminal, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [record, current, terminal, stage5, stage5_u3, operator_console],
         )
 
 
@@ -803,10 +818,19 @@ def test_s4_07_dependency_successor_rejects_conflicting_records() -> None:
     terminal = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     with pytest.raises(AssertionError, match="uniquely applicable"):
         _resolve_dependency_successor(
             EXPECTED_REQUIRED,
-            [record, current, deepcopy(current), terminal, stage5, stage5_u3],
+            [
+                record,
+                current,
+                deepcopy(current),
+                terminal,
+                stage5,
+                stage5_u3,
+                operator_console,
+            ],
         )
 
 
@@ -830,6 +854,7 @@ def test_s4_12_dependency_successor_rejects_invalid_evidence(attack: str) -> Non
     terminal = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     if attack == "wrong_predecessor":
         current["dependency_transition"]["historical_blob"] = "0" * 40
     elif attack == "wrong_successor":
@@ -850,7 +875,8 @@ def test_s4_12_dependency_successor_rejects_invalid_evidence(attack: str) -> Non
         current["predecessor_evidence"]["schema"]["sha256"] = "0" * 64
     with pytest.raises((ValidationError, AssertionError, KeyError)):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [historical, current, terminal, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [historical, current, terminal, stage5, stage5_u3, operator_console],
         )
 
 
@@ -875,6 +901,7 @@ def test_msgpack_dependency_successor_rejects_invalid_evidence(attack: str) -> N
     terminal = deepcopy(_load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH))
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     if attack == "wrong_predecessor":
         terminal["dependency_transition"]["historical_blob"] = "0" * 40
     elif attack == "wrong_successor":
@@ -897,7 +924,8 @@ def test_msgpack_dependency_successor_rejects_invalid_evidence(attack: str) -> N
         terminal["predecessor_evidence"]["schema"]["sha256"] = "0" * 64
     with pytest.raises((ValidationError, AssertionError, KeyError)):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [historical, current, terminal, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [historical, current, terminal, stage5, stage5_u3, operator_console],
         )
 
 
@@ -923,6 +951,7 @@ def test_stage5_dependency_successor_rejects_invalid_evidence(attack: str) -> No
     msgpack = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = deepcopy(_load(STAGE5_DEPENDENCY_SUCCESSOR_PATH))
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     if attack == "wrong_predecessor":
         stage5["dependency_transition"]["historical_blob"] = "0" * 40
     elif attack == "wrong_successor":
@@ -947,7 +976,8 @@ def test_stage5_dependency_successor_rejects_invalid_evidence(attack: str) -> No
         stage5["approval_status"] = "PROTECTED_ACTIVE"
     with pytest.raises((ValidationError, AssertionError, KeyError)):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [historical, current, msgpack, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [historical, current, msgpack, stage5, stage5_u3, operator_console],
         )
 
 
@@ -975,6 +1005,7 @@ def test_stage5_u3_dependency_successor_rejects_invalid_evidence(
     msgpack = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = deepcopy(_load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH))
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     if attack == "wrong_predecessor":
         stage5_u3["dependency_transition"]["historical_blob"] = "0" * 40
     elif attack == "wrong_successor":
@@ -999,8 +1030,72 @@ def test_stage5_u3_dependency_successor_rejects_invalid_evidence(
         stage5_u3["approval_status"] = "PROTECTED_ACTIVE"
     with pytest.raises((ValidationError, AssertionError, KeyError)):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [historical, current, msgpack, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [historical, current, msgpack, stage5, stage5_u3, operator_console],
         )
+
+
+@pytest.mark.parametrize(
+    "attack",
+    [
+        "wrong_predecessor",
+        "wrong_successor",
+        "wrong_surface",
+        "missing_profile",
+        "profile_lock",
+        "missing_authorization",
+        "protected_active",
+        "authority",
+        "predecessor_record",
+        "predecessor_schema",
+        "false_approval",
+    ],
+)
+def test_operator_console_dependency_successor_rejects_invalid_evidence(
+    attack: str,
+) -> None:
+    historical = _load(DEPENDENCY_SUCCESSOR_PATH)
+    current = _load(S4_12_DEPENDENCY_SUCCESSOR_PATH)
+    msgpack = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
+    stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
+    stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = deepcopy(_load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH))
+    if attack == "wrong_predecessor":
+        operator_console["dependency_transition"]["historical_blob"] = "0" * 40
+    elif attack == "wrong_successor":
+        operator_console["dependency_transition"]["candidate_blob"] = "0" * 40
+    elif attack == "wrong_surface":
+        operator_console["dependency_surface"]["tests/test_dependency_lock.py"] = (
+            "0" * 40
+        )
+    elif attack == "missing_profile":
+        del operator_console["trusted_profile"]
+    elif attack == "profile_lock":
+        operator_console["trusted_profile"]["lock_blob"] = "0" * 40
+    elif attack == "missing_authorization":
+        del operator_console["authorization_reference"]
+    elif attack == "protected_active":
+        operator_console["protected_active"] = True
+    elif attack == "authority":
+        operator_console["grants_authority"] = True
+    elif attack == "predecessor_record":
+        operator_console["predecessor_evidence"]["record"]["git_blob"] = "0" * 40
+    elif attack == "predecessor_schema":
+        operator_console["predecessor_evidence"]["schema"]["sha256"] = "0" * 64
+    else:
+        operator_console["approval_status"] = "PROTECTED_ACTIVE"
+    with pytest.raises((ValidationError, AssertionError, KeyError)):
+        _resolve_dependency_successor(
+            EXPECTED_REQUIRED,
+            [historical, current, msgpack, stage5, stage5_u3, operator_console],
+        )
+
+
+def test_dependency_successor_rejects_unknown_record() -> None:
+    unknown = deepcopy(_load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH))
+    unknown["record_id"] = "ATIS-MASTER-RECOVERY-DEPENDENCY-SUCCESSOR-UNKNOWN"
+    with pytest.raises(AssertionError, match="unknown dependency successor record"):
+        _validate_dependency_successor(unknown)
 
 
 def test_dependency_successor_chain_rejects_missing_or_reordered_records() -> None:
@@ -1009,17 +1104,20 @@ def test_dependency_successor_chain_rejects_missing_or_reordered_records() -> No
     terminal = _load(MSGPACK_DEPENDENCY_SUCCESSOR_PATH)
     stage5 = _load(STAGE5_DEPENDENCY_SUCCESSOR_PATH)
     stage5_u3 = _load(STAGE5_U3_DEPENDENCY_SUCCESSOR_PATH)
+    operator_console = _load(OPERATOR_CONSOLE_DEPENDENCY_SUCCESSOR_PATH)
     with pytest.raises(AssertionError):
         _resolve_dependency_successor(
             EXPECTED_REQUIRED, [historical, current, terminal, stage5]
         )
     with pytest.raises(AssertionError, match="uniquely applicable"):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [current, terminal, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [current, terminal, stage5, stage5_u3, operator_console],
         )
     with pytest.raises(AssertionError, match="must be ordered"):
         _resolve_dependency_successor(
-            EXPECTED_REQUIRED, [historical, terminal, current, stage5, stage5_u3]
+            EXPECTED_REQUIRED,
+            [historical, terminal, current, stage5, stage5_u3, operator_console],
         )
     with pytest.raises(AssertionError, match="uniquely applicable"):
         _resolve_dependency_successor(
@@ -1031,6 +1129,37 @@ def test_dependency_successor_chain_rejects_missing_or_reordered_records() -> No
                 stage5,
                 deepcopy(stage5_u3),
                 stage5_u3,
+                operator_console,
+            ],
+        )
+    with pytest.raises(AssertionError):
+        _resolve_dependency_successor(
+            EXPECTED_REQUIRED,
+            [historical, current, terminal, stage5, stage5_u3],
+        )
+    with pytest.raises(AssertionError, match="must be ordered"):
+        _resolve_dependency_successor(
+            EXPECTED_REQUIRED,
+            [
+                historical,
+                current,
+                terminal,
+                stage5,
+                operator_console,
+                stage5_u3,
+            ],
+        )
+    with pytest.raises(AssertionError, match="uniquely applicable"):
+        _resolve_dependency_successor(
+            EXPECTED_REQUIRED,
+            [
+                historical,
+                current,
+                terminal,
+                stage5,
+                stage5_u3,
+                deepcopy(operator_console),
+                operator_console,
             ],
         )
 
