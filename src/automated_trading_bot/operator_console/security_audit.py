@@ -11,13 +11,14 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from hashlib import sha256
 import hmac
+from importlib import import_module
 import json
 import os
 from pathlib import Path
 import re
 import stat
 import threading
-from typing import BinaryIO, Callable, Final, Protocol
+from typing import BinaryIO, Callable, Final, Protocol, cast
 
 
 AUDIT_SCHEMA: Final = "ATIS-OC-SECURITY-AUDIT-V1"
@@ -48,6 +49,21 @@ class ProtectedAuditKey(Protocol):
     """Returns key bytes already released by a qualified protected store."""
 
     def load_key(self) -> bytes: ...
+
+
+class _WindowsFileLock(Protocol):
+    LK_NBLCK: int
+    LK_UNLCK: int
+
+    def locking(self, fd: int, mode: int, nbytes: int, /) -> None: ...
+
+
+class _PosixFileLock(Protocol):
+    LOCK_EX: int
+    LOCK_NB: int
+    LOCK_UN: int
+
+    def flock(self, fd: int, operation: int, /) -> None: ...
 
 
 FaultInjector = Callable[[str], None]
@@ -128,17 +144,10 @@ class _AuditWriterLock:
             handle.seek(0)
             try:
                 if os.name == "nt":
-                    import msvcrt
-
-                    # The Linux type-checking environment exposes the POSIX
-                    # ``msvcrt`` stub, which intentionally omits Windows-only
-                    # locking members.  Runtime access is guarded by os.name.
-                    msvcrt.locking(  # type: ignore[attr-defined]
-                        handle.fileno(), msvcrt.LK_NBLCK, 1  # type: ignore[attr-defined]
-                    )
+                    msvcrt = cast(_WindowsFileLock, import_module("msvcrt"))
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
                 else:
-                    import fcntl
-
+                    fcntl = cast(_PosixFileLock, import_module("fcntl"))
                     fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             except (OSError, BlockingIOError):
                 handle.close()
@@ -158,14 +167,10 @@ class _AuditWriterLock:
         try:
             handle.seek(0)
             if os.name == "nt":
-                import msvcrt
-
-                msvcrt.locking(  # type: ignore[attr-defined]
-                    handle.fileno(), msvcrt.LK_UNLCK, 1  # type: ignore[attr-defined]
-                )
+                msvcrt = cast(_WindowsFileLock, import_module("msvcrt"))
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
             else:
-                import fcntl
-
+                fcntl = cast(_PosixFileLock, import_module("fcntl"))
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         finally:
             handle.close()
