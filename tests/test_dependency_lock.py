@@ -19,9 +19,12 @@ EXPECTED_LOCKED_PACKAGES = {
     "boolean-py": "5.0",
     "cachecontrol": "0.14.4",
     "certifi": "2026.10.19",
+    "cbor2": "6.2.1",
+    "cffi": "2.1.1",
     "charset-normalizer": "3.5.1",
     "colorama": "0.4.6",
     "coverage": "7.16.0",
+    "cryptography": "50.0.2",
     "cyclonedx-python-lib": "11.12.0",
     "defusedxml": "0.7.1",
     "filelock": "4.2.1",
@@ -48,7 +51,11 @@ EXPECTED_LOCKED_PACKAGES = {
     "psycopg": "3.3.6",
     "psycopg-binary": "3.3.6",
     "py-serializable": "2.1.0",
+    "pyasn1": "0.6.5",
+    "pyasn1-modules": "0.4.2",
+    "pycparser": "3.12",
     "pygments": "2.21.0",
+    "pyopenssl": "26.4.0",
     "pyparsing": "3.3.2",
     "pytest": "9.1.1",
     "pywin32": "312",
@@ -64,6 +71,7 @@ EXPECTED_LOCKED_PACKAGES = {
     "typing-extensions": "4.16.0",
     "tzdata": "2026.6",
     "urllib3": "2.8.0",
+    "webauthn": "3.0.1",
 }
 
 
@@ -101,7 +109,7 @@ def _lock_text() -> str:
 
 def test_development_lock_contains_declared_exact_requirements() -> None:
     assert _locked_packages(_lock_text()) == EXPECTED_LOCKED_PACKAGES
-    assert len(EXPECTED_LOCKED_PACKAGES) == 50
+    assert len(EXPECTED_LOCKED_PACKAGES) == 58
 
 
 def test_direct_development_declarations_reconcile_with_lock() -> None:
