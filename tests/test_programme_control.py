@@ -88,7 +88,7 @@ CURRENT_AUTHORITY_SOURCE = (
     "OWNER_INSTRUCTION_2026-11-11_REJECTED_CANDIDATE_REMEDIATION"
 )
 CURRENT_AUTHORITY_SHA256 = (
-    "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957"
+    "4635e1339508eb08251d8be3d4115e55c7754bb488feb11581bc9976f3f72b1f"
 )
 CURRENT_PERMITTED_OPERATIONS = {
     "APPROPRIATE_BROADER_OFFLINE_REGRESSION",
@@ -143,6 +143,12 @@ CURRENT_COMPLETION_CRITERIA = {
     "FOCUSED_AND_BROADER_TESTS_PASS",
     "INDEPENDENT_ASSURANCE_COMPLETE",
     "PROTECTED_PUBLICATION_GATE_COMPLETE",
+}
+CURRENT_COMPLETION_REQUIREMENTS = {
+    "oracle_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001-COMPLETION-ORACLE",
+    "success_status": "PASS",
+    "success_exit_code": 0,
+    "evidence_member_path": "completion-result.json",
 }
 EXPECTED_SOURCE_IDENTITIES = {
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
@@ -421,6 +427,7 @@ def _authority_payload(pointer: dict[str, Any]) -> dict[str, Any]:
         "authorized_paths": sorted(candidate["authorized_paths"]),
         "permitted_operations": sorted(scope["permitted_operations"]),
         "prohibited_operations": sorted(scope["prohibited_operations"]),
+        "completion_requirements": pointer["completion_requirements"],
     }
 
 
@@ -428,10 +435,118 @@ def _parse_utc(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def _rendered_record_sha256(record: dict[str, Any]) -> str:
+    rendered = json.dumps(record, ensure_ascii=False, indent=2) + "\n"
+    return sha256(rendered.encode("utf-8")).hexdigest()
+
+
+def _validate_completion_receipt(
+    pointer: dict[str, Any],
+    receipt: dict[str, Any] | None,
+    *,
+    receipt_sha256: str | None,
+    evidence_bytes: bytes | None,
+) -> None:
+    completion = pointer["completion_evidence"]
+    if receipt is None or receipt_sha256 is None or evidence_bytes is None:
+        raise ControlValidationError("completion receipt or evidence bytes missing")
+    if not SHA256_ID.fullmatch(receipt_sha256):
+        raise ControlValidationError("completion receipt SHA-256 malformed")
+    if _rendered_record_sha256(receipt) != receipt_sha256:
+        raise ControlValidationError("completion receipt SHA-256 mismatch")
+    if completion != {"receipt_sha256": receipt_sha256}:
+        raise ControlValidationError("completion receipt binding mismatch")
+
+    required = {
+        "schema_version",
+        "receipt_id",
+        "task_id",
+        "candidate_identity_sha256",
+        "evidence",
+        "manifest",
+        "oracle",
+        "receiver_authentication",
+        "satisfied_criteria",
+        "terminal_state",
+    }
+    if set(receipt) != required or receipt["schema_version"] != 1:
+        raise ControlValidationError("completion receipt structure mismatch")
+    if receipt["task_id"] != pointer["task_id"]:
+        raise ControlValidationError("completion task identity mismatch")
+    if receipt["candidate_identity_sha256"] != _canonical_record_sha256(
+        pointer["candidate_identity"]
+    ):
+        raise ControlValidationError("completion candidate identity mismatch")
+
+    evidence = receipt["evidence"]
+    requirements = pointer["completion_requirements"]
+    member_sha256 = sha256(evidence_bytes).hexdigest()
+    candidate = pointer["candidate_identity"]
+    if (
+        pointer["evidence"]["artifact_id"] != candidate["artifact_id"]
+        or pointer["evidence"]["sha256"] != candidate["artifact_sha256"]
+        or pointer["evidence"]["manifest_sha256"] != candidate["manifest_sha256"]
+    ):
+        raise ControlValidationError("completion archive and candidate identity mismatch")
+    expected_evidence = {
+        "artifact_id": pointer["evidence"]["artifact_id"],
+        "archive_sha256": pointer["evidence"]["sha256"],
+        "manifest_sha256": pointer["evidence"]["manifest_sha256"],
+        "member_path": requirements["evidence_member_path"],
+        "member_sha256": member_sha256,
+    }
+    if evidence != expected_evidence:
+        raise ControlValidationError("completion evidence identity mismatch")
+    if not evidence["archive_sha256"].strip("0") or not member_sha256.strip("0"):
+        raise ControlValidationError("completion evidence placeholder digest")
+    if _rendered_record_sha256(receipt["manifest"]) != evidence["manifest_sha256"]:
+        raise ControlValidationError("completion manifest SHA-256 mismatch")
+    entries = receipt["manifest"].get("files")
+    if not isinstance(entries, list):
+        raise ControlValidationError("completion manifest inventory missing")
+    matching = [
+        row for row in entries
+        if row.get("path") == evidence["member_path"]
+    ]
+    if len(matching) != 1:
+        raise ControlValidationError("completion evidence member is unauthenticated or ambiguous")
+    if matching[0].get("sha256") != evidence["member_sha256"]:
+        raise ControlValidationError("completion evidence member digest mismatch")
+    if receipt["receiver_authentication"] != pointer["evidence"]["receiver_authentication"]:
+        raise ControlValidationError("completion receiver binding mismatch")
+
+    oracle = receipt["oracle"]
+    if oracle.get("id") != requirements["oracle_id"]:
+        raise ControlValidationError("completion oracle identity mismatch")
+    if (
+        oracle.get("status") != requirements["success_status"]
+        or oracle.get("exit_code") != requirements["success_exit_code"]
+    ):
+        raise ControlValidationError("completion oracle is not successful")
+    try:
+        result = json.loads(evidence_bytes)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ControlValidationError("completion evidence payload is not JSON") from exc
+    if (
+        result.get("task_id") != pointer["task_id"]
+        or result.get("command") != oracle["id"]
+        or result.get("exit_code") != oracle["exit_code"]
+        or result.get("stdout") != "ORACLE_PASS\n"
+    ):
+        raise ControlValidationError("completion oracle evidence payload mismatch")
+    if set(receipt["satisfied_criteria"]) != set(pointer["completion_criteria"]):
+        raise ControlValidationError("closed v2 pointer completion evidence is incomplete")
+    if receipt["terminal_state"] != pointer["terminal_disposition"]["state"]:
+        raise ControlValidationError("completion terminal state mismatch")
+
+
 def _validate_execution_pointer(
     pointer: dict[str, Any],
     *,
     expected_protected_baseline: dict[str, str],
+    completion_receipt: dict[str, Any] | None = None,
+    completion_receipt_sha256: str | None = None,
+    completion_evidence_bytes: bytes | None = None,
 ) -> None:
     legacy_pointer = "pointer_contract_version" not in pointer
     if not legacy_pointer and pointer["pointer_contract_version"] != 2:
@@ -502,6 +617,7 @@ def _validate_execution_pointer(
         pointer.get("execution_scope"),
         pointer.get("continuation"),
         pointer.get("completion_criteria"),
+        pointer.get("completion_requirements"),
     )
     terminal = pointer.get("terminal_disposition")
     completion_evidence = pointer.get("completion_evidence")
@@ -585,6 +701,8 @@ def _validate_execution_pointer(
                 raise ControlValidationError("historical closed-pointer reference mismatch")
             if set(pointer["completion_criteria"]) != CURRENT_COMPLETION_CRITERIA:
                 raise ControlValidationError("completion criteria mismatch")
+            if pointer["completion_requirements"] != CURRENT_COMPLETION_REQUIREMENTS:
+                raise ControlValidationError("completion requirements mismatch")
             if completion_evidence is not None:
                 raise ControlValidationError("active pointer carries terminal completion evidence")
     elif state == "CLOSED":
@@ -599,12 +717,14 @@ def _validate_execution_pointer(
                 raise ControlValidationError("closed v2 pointer lacks completion criteria")
             if pointer["latest_verified_gate"] != "PROTECTED_PUBLICATION":
                 raise ControlValidationError("closed v2 pointer lacks lifecycle gates")
-            if completion_evidence is None or not completion_evidence["receiver_verified"]:
+            if completion_evidence is None:
                 raise ControlValidationError("closed v2 pointer lacks authenticated completion evidence")
-            if set(completion_evidence["satisfied_criteria"]) != set(
-                pointer["completion_criteria"]
-            ):
-                raise ControlValidationError("closed v2 pointer completion evidence is incomplete")
+            _validate_completion_receipt(
+                pointer,
+                completion_receipt,
+                receipt_sha256=completion_receipt_sha256,
+                evidence_bytes=completion_evidence_bytes,
+            )
     elif state == "INVALIDATED":
         if terminal is None or terminal["state"] != "INVALIDATED":
             raise ControlValidationError("invalidated pointer lacks terminal disposition")
@@ -757,10 +877,16 @@ def _validate_pointer_transition(
     predecessor_publication_receipt: dict[str, Any] | None = None,
     predecessor_publication_receipt_sha256: str | None = None,
     prior_task_ids: set[str] | None = None,
+    completion_receipt: dict[str, Any] | None = None,
+    completion_receipt_sha256: str | None = None,
+    completion_evidence_bytes: bytes | None = None,
 ) -> None:
     _validate_execution_pointer(
         current,
         expected_protected_baseline=expected_current_baseline,
+        completion_receipt=completion_receipt,
+        completion_receipt_sha256=completion_receipt_sha256,
+        completion_evidence_bytes=completion_evidence_bytes,
     )
     transition = current["last_material_transition"]
     if transition["reason"] == "TASK_ENTRY":
@@ -801,6 +927,8 @@ def _validate_pointer_transition(
 
     if previous is None:
         raise ControlValidationError("execution pointer predecessor missing")
+    if previous["disposition"]["state"] in {"CLOSED", "INVALIDATED"}:
+        raise ControlValidationError("terminal execution pointer cannot transition")
     if (
         predecessor_publication_receipt is not None
         or predecessor_publication_receipt_sha256 is not None
@@ -1450,6 +1578,342 @@ def test_remediation_binds_exact_rejected_candidate_identity_non_circularly() ->
     assert candidate["artifact_sha256"] == REJECTED_CANDIDATE_ARCHIVE_SHA256
     assert candidate["manifest_sha256"] == REJECTED_CANDIDATE_MANIFEST_SHA256
     assert candidate["git_blobs"] == REJECTED_CANDIDATE_BLOBS
+
+
+SESSION_B_ARCHIVE_SHA256 = (
+    "e2622409c69d6ed1ecade272194e97cbc45da053fc0319b6a3e4a4cb678e602c"
+)
+SESSION_B_MANIFEST_SHA256 = (
+    "084e119893e14c34a9a9db09f6977f16f32fc9a38c58c355905af72bf9b319b7"
+)
+SESSION_B_RESULT_SHA256 = (
+    "be68341e9962acc256159944c41faedf1f7ce4d9154b0f3f550059d4108e6646"
+)
+SESSION_B_RESULT = {
+    "task_id": "ATIS-ENGINEERING-PRACTICAL-RELIABILITY-VALIDATION-001",
+    "manifest_entries_verified": 10,
+    "checkpoint_exact_match": True,
+    "changed_fields": ["observed_value"],
+    "before": 41,
+    "after": 42,
+    "before_sha256": "c2c1382195a2fd7064351471cc1de8bffb35198a194d948cc63b329146197c57",
+    "after_sha256": "573770c1acf540c0503043641b256e4883935d56334f9d898a291d08facb5b70",
+    "command": "python3 session_a/oracle.py",
+    "exit_code": 0,
+    "stdout": "ORACLE_PASS\n",
+    "v4": "PASS_CROSS_SESSION_CHECKPOINT_RETRIEVAL",
+    "v5": "PASS_MINIMUM_CORRECTION_FOCUSED_ORACLE",
+    "v6": "PASS_FOCUSED_COMPLETION_EVIDENCE_AND_CLOSED_STATE",
+    "v7": "PASS_LOCAL_TERMINAL_RECOVERY_REOPEN_REJECTED",
+}
+SESSION_B_MANIFEST = {
+    "task_id": "ATIS-ENGINEERING-PRACTICAL-RELIABILITY-VALIDATION-001",
+    "files": [
+        {"path": "evidence.zip", "sha256": "386c97a11a1f8cc2fd44fb3e2e7135c49769308a51910f158c9fb19431b0978c"},
+        {"path": "checkpoint.json", "sha256": "7159ebf786e45b25d508c81cba922f08a6299e4116f1607b9b6755d6881e9353"},
+        {"path": "focused_result.json", "sha256": SESSION_B_RESULT_SHA256},
+        {"path": "terminal.json", "sha256": "88bbaf62a598f21764bdcc90baf2303d593949ad7677ede5c9035a0057d25d4c"},
+        {"path": "terminal_recovery.json", "sha256": "21f743322fac2ea7640094c9354f19de1ff0b23a0b1a00bc37a47b96ccb00354"},
+        {"path": "SESSION-B-RESULT.txt", "sha256": "d1299a9cfe32a64bd67db437edda62afd775635a90906f06cee040253cf585ce"},
+        {"path": "session_a/contract.json", "sha256": "8176c610734a2d5bf5c4fda2a85bc73741fa6a2fbf6de2cae1fec613ed859001"},
+        {"path": "session_a/negative_tests.py", "sha256": "f7450fcabfb42cfcdeb3a0463ae3c2f90ac62a9f80e22b54561df14495444aa0"},
+        {"path": "session_a/oracle.py", "sha256": "7008a364367918e9228e102f5c25f54c4817131bcb60ded549604d739277ae01"},
+        {"path": "session_a/specimen.json", "sha256": "573770c1acf540c0503043641b256e4883935d56334f9d898a291d08facb5b70"},
+    ],
+}
+
+
+def _session_b_result_bytes() -> bytes:
+    data = (json.dumps(SESSION_B_RESULT, ensure_ascii=False, indent=2) + "\n").encode()
+    assert sha256(data).hexdigest() == SESSION_B_RESULT_SHA256
+    return data
+
+
+def _v6c_completion_fixture() -> tuple[dict[str, Any], dict[str, Any], str, bytes]:
+    pointer = _v2_active_pointer()
+    pointer["task_id"] = SESSION_B_RESULT["task_id"]
+    pointer["protected_baseline"] = {
+        "commit": "204f902807c39e5f542d099d816a0da065b1e3e5",
+        "tree": "9acb04ca2476e3e8d2e55a44ac746440b247af9c",
+    }
+    candidate = pointer["candidate_identity"]
+    candidate["baseline"] = pointer["protected_baseline"]
+    candidate["authorized_paths"] = ["session_a/specimen.json"]
+    candidate["artifact_id"] = "ATIS-PRACTICAL-RELIABILITY-SESSION-B.zip"
+    candidate["artifact_sha256"] = SESSION_B_ARCHIVE_SHA256
+    candidate["manifest_sha256"] = SESSION_B_MANIFEST_SHA256
+    candidate["git_blobs"] = {
+        "session_a/specimen.json": "a8b9cb210f46f1c510e3e8f5b5c06b3fe8ec078b"
+    }
+    pointer["owner_authorization"]["decision_id"] = pointer["task_id"]
+    pointer["owner_authorization"]["source_reference"] = (
+        "OWNER_SESSION_B_V6_V7_CONTINUATION_2026-11-11"
+    )
+    pointer["execution_scope"]["permitted_operations"] = [
+        "DISPOSABLE_FIXTURE_VALIDATION"
+    ]
+    pointer["completion_requirements"] = {
+        "oracle_id": "python3 session_a/oracle.py",
+        "success_status": "PASS",
+        "success_exit_code": 0,
+        "evidence_member_path": "focused_result.json",
+    }
+    _set_self_consistent_authority_digest(pointer)
+    pointer["completion_criteria"] = [
+        "CONTROLLED_FAILURE_CORRECTED_BY_AUTHORISED_MINIMUM_CHANGE",
+        "FOCUSED_ORACLE_PASS",
+        "AUTHENTICATED_COMPLETION_EVIDENCE_PRESENT",
+    ]
+    pointer["evidence"] = {
+        "artifact_id": candidate["artifact_id"],
+        "source_system": "CHATGPT_LIBRARY",
+        "locator": "library:libfile_fde3_f-f64d024660d08191a32f10a27a7b3103_9d75b74aec208191bd3bc15d54d5e55e",
+        "sha256": SESSION_B_ARCHIVE_SHA256,
+        "manifest_sha256": SESSION_B_MANIFEST_SHA256,
+        "receiver_authentication": {
+            "status": "VERIFIED",
+            "receiver_role": "CHATGPT_WORK_V6C_RECEIVER",
+            "verified_at": "2026-11-11T19:57:45Z",
+            "archive_sha256": SESSION_B_ARCHIVE_SHA256,
+            "manifest_status": "VERIFIED",
+        },
+        "producer_authentication": {
+            "producer_role": "CHATGPT_WORK_SESSION_B_PRODUCER",
+            "produced_at": "2026-11-11T19:50:00Z",
+            "archive_sha256": SESSION_B_ARCHIVE_SHA256,
+            "manifest_sha256": SESSION_B_MANIFEST_SHA256,
+        },
+    }
+    pointer["disposition"]["state"] = "CLOSED"
+    pointer["latest_verified_gate"] = "PROTECTED_PUBLICATION"
+    pointer["last_material_transition"].update(
+        sequence=2, reason="CLOSURE", predecessor_pointer_sha256="1" * 64
+    )
+    pointer["terminal_disposition"] = {
+        "state": "CLOSED",
+        "reason": "DISPOSABLE_COMPLETION",
+        "occurred_at": "2026-11-11T19:54:00Z",
+    }
+    result_bytes = _session_b_result_bytes()
+    receipt = {
+        "schema_version": 1,
+        "receipt_id": "ATIS-PRV-V6C-COMPLETION-RECEIPT-001",
+        "task_id": pointer["task_id"],
+        "candidate_identity_sha256": _canonical_record_sha256(candidate),
+        "evidence": {
+            "artifact_id": candidate["artifact_id"],
+            "archive_sha256": SESSION_B_ARCHIVE_SHA256,
+            "manifest_sha256": SESSION_B_MANIFEST_SHA256,
+            "member_path": "focused_result.json",
+            "member_sha256": SESSION_B_RESULT_SHA256,
+        },
+        "manifest": deepcopy(SESSION_B_MANIFEST),
+        "oracle": {"id": "python3 session_a/oracle.py", "status": "PASS", "exit_code": 0},
+        "receiver_authentication": deepcopy(pointer["evidence"]["receiver_authentication"]),
+        "satisfied_criteria": pointer["completion_criteria"],
+        "terminal_state": "CLOSED",
+    }
+    receipt_sha256 = _rendered_record_sha256(receipt)
+    pointer["completion_evidence"] = {"receipt_sha256": receipt_sha256}
+    return pointer, receipt, receipt_sha256, result_bytes
+
+
+def _assert_v6c_rejects(
+    pointer: dict[str, Any],
+    receipt: dict[str, Any] | None,
+    receipt_sha256: str | None,
+    result_bytes: bytes | None,
+    message: str,
+) -> None:
+    with pytest.raises((ControlValidationError, ValidationError), match=message):
+        _validate_execution_pointer(
+            pointer,
+            expected_protected_baseline=pointer["protected_baseline"],
+            completion_receipt=receipt,
+            completion_receipt_sha256=receipt_sha256,
+            completion_evidence_bytes=result_bytes,
+        )
+
+
+def test_v6c_authentic_session_b_completion_is_accepted() -> None:
+    pointer, receipt, receipt_sha256, result_bytes = _v6c_completion_fixture()
+    _validate_execution_pointer(
+        pointer,
+        expected_protected_baseline=pointer["protected_baseline"],
+        completion_receipt=receipt,
+        completion_receipt_sha256=receipt_sha256,
+        completion_evidence_bytes=result_bytes,
+    )
+
+
+def test_v6a_narrative_only_completion_remains_rejected() -> None:
+    pointer, _, _, _ = _v6c_completion_fixture()
+    pointer["completion_evidence"] = None
+    _assert_v6c_rejects(pointer, None, None, None, "lacks authenticated completion evidence")
+
+
+def test_v6b_incomplete_completion_criteria_remains_rejected() -> None:
+    pointer, receipt, _, result_bytes = _v6c_completion_fixture()
+    receipt["satisfied_criteria"] = receipt["satisfied_criteria"][:-1]
+    receipt_sha256 = _rendered_record_sha256(receipt)
+    pointer["completion_evidence"] = {"receipt_sha256": receipt_sha256}
+    _assert_v6c_rejects(pointer, receipt, receipt_sha256, result_bytes, "completion evidence is incomplete")
+
+
+def test_original_v6c_boolean_and_label_attack_is_rejected_by_schema() -> None:
+    pointer, _, _, _ = _v6c_completion_fixture()
+    pointer["completion_evidence"] = {
+        "artifact_id": "WRONG-TASK-NONEXISTENT-EVIDENCE",
+        "sha256": "0" * 64,
+        "receiver_verified": True,
+        "satisfied_criteria": pointer["completion_criteria"],
+    }
+    schema = _load(SCHEMA_PATH)
+    with pytest.raises(ValidationError):
+        Draft202012Validator(
+            {"$ref": "#/$defs/currentExecutionPointer", "$defs": schema["$defs"]},
+            format_checker=FormatChecker(),
+        ).validate(pointer)
+
+
+@pytest.mark.parametrize(
+    ("attack", "message"),
+    [
+        ("nonexistent", "evidence identity mismatch"),
+        ("zero_digest", "evidence identity mismatch"),
+        ("wrong_task", "task identity mismatch"),
+        ("wrong_candidate", "candidate identity mismatch"),
+        ("wrong_digest", "evidence identity mismatch"),
+        ("stale", "candidate identity mismatch"),
+        ("wrong_oracle", "oracle identity mismatch"),
+        ("oracle_fail", "oracle is not successful"),
+        ("manifest_digest", "manifest SHA-256 mismatch"),
+        ("missing_member", "member is unauthenticated"),
+        ("duplicate_member_conflicting", "member is unauthenticated or ambiguous"),
+        ("duplicate_member_identical", "member is unauthenticated or ambiguous"),
+        ("receiver_mismatch", "completion receiver binding mismatch"),
+        ("terminal_mismatch", "terminal state mismatch"),
+    ],
+)
+def test_v6c_completion_binding_rejects_invalid_evidence(attack: str, message: str) -> None:
+    pointer, receipt, _, result_bytes = _v6c_completion_fixture()
+    if attack == "nonexistent":
+        receipt["evidence"]["member_path"] = "missing.json"
+    elif attack == "zero_digest":
+        receipt["evidence"]["member_sha256"] = "0" * 64
+    elif attack == "wrong_task":
+        receipt["task_id"] = "WRONG-TASK"
+    elif attack == "wrong_candidate":
+        receipt["candidate_identity_sha256"] = "f" * 64
+    elif attack == "wrong_digest":
+        receipt["evidence"]["member_sha256"] = "f" * 64
+    elif attack == "stale":
+        receipt["candidate_identity_sha256"] = sha256(b"stale").hexdigest()
+    elif attack == "wrong_oracle":
+        receipt["oracle"]["id"] = "python3 other_oracle.py"
+    elif attack == "oracle_fail":
+        receipt["oracle"].update(status="FAIL", exit_code=1)
+    elif attack == "manifest_digest":
+        receipt["manifest"]["task_id"] = "WRONG-TASK"
+    elif attack == "missing_member":
+        receipt["manifest"]["files"] = [
+            row for row in receipt["manifest"]["files"]
+            if row["path"] != "focused_result.json"
+        ]
+        receipt["evidence"]["manifest_sha256"] = _rendered_record_sha256(receipt["manifest"])
+        pointer["evidence"]["manifest_sha256"] = receipt["evidence"]["manifest_sha256"]
+        pointer["evidence"]["producer_authentication"]["manifest_sha256"] = receipt["evidence"]["manifest_sha256"]
+        pointer["candidate_identity"]["manifest_sha256"] = receipt["evidence"]["manifest_sha256"]
+        receipt["candidate_identity_sha256"] = _canonical_record_sha256(pointer["candidate_identity"])
+    elif attack in {"duplicate_member_conflicting", "duplicate_member_identical"}:
+        receipt["manifest"]["files"].append(
+            {
+                "path": "focused_result.json",
+                "sha256": (
+                    "f" * 64
+                    if attack == "duplicate_member_conflicting"
+                    else SESSION_B_RESULT_SHA256
+                ),
+            }
+        )
+        receipt["evidence"]["manifest_sha256"] = _rendered_record_sha256(receipt["manifest"])
+        pointer["evidence"]["manifest_sha256"] = receipt["evidence"]["manifest_sha256"]
+        pointer["evidence"]["producer_authentication"]["manifest_sha256"] = receipt["evidence"]["manifest_sha256"]
+        pointer["candidate_identity"]["manifest_sha256"] = receipt["evidence"]["manifest_sha256"]
+        receipt["candidate_identity_sha256"] = _canonical_record_sha256(pointer["candidate_identity"])
+    elif attack == "receiver_mismatch":
+        receipt["receiver_authentication"]["receiver_id"] = "WRONG-RECEIVER"
+    else:
+        receipt["terminal_state"] = "ACTIVE"
+    receipt_sha256 = _rendered_record_sha256(receipt)
+    pointer["completion_evidence"] = {"receipt_sha256": receipt_sha256}
+    _assert_v6c_rejects(pointer, receipt, receipt_sha256, result_bytes, message)
+
+
+@pytest.mark.parametrize("missing", ["receipt", "digest", "bytes"])
+def test_v6c_missing_receipt_material_fails_closed(missing: str) -> None:
+    pointer, receipt, receipt_sha256, result_bytes = _v6c_completion_fixture()
+    if missing == "receipt":
+        receipt = None
+    elif missing == "digest":
+        receipt_sha256 = None
+    else:
+        result_bytes = None
+    _assert_v6c_rejects(pointer, receipt, receipt_sha256, result_bytes, "receipt or evidence bytes missing")
+
+
+def test_v6c_receipt_digest_mismatch_rejects() -> None:
+    pointer, receipt, _, result_bytes = _v6c_completion_fixture()
+    pointer["completion_evidence"] = {"receipt_sha256": "f" * 64}
+    _assert_v6c_rejects(pointer, receipt, "f" * 64, result_bytes, "receipt SHA-256 mismatch")
+
+
+def test_v6c_naked_receiver_and_criteria_only_attacks_reject() -> None:
+    pointer, _, _, _ = _v6c_completion_fixture()
+    for attack in (
+        {"receiver_verified": True},
+        {"satisfied_criteria": pointer["completion_criteria"]},
+    ):
+        pointer["completion_evidence"] = attack
+        _assert_v6c_rejects(pointer, None, None, None, "receipt or evidence bytes missing")
+
+
+def test_v6c_completion_requirements_are_authority_bound() -> None:
+    pointer = _v2_active_pointer()
+    pointer["completion_requirements"]["oracle_id"] = "OTHER"
+    with pytest.raises(ControlValidationError, match="authenticated owner decision mismatch"):
+        _validate_execution_pointer(
+            pointer, expected_protected_baseline=CURRENT_EXECUTION_BASELINE
+        )
+
+
+@pytest.mark.parametrize("attack", ["reopen", "path", "operation", "stale"])
+def test_v7_closed_pointer_cannot_transition_back_to_active(attack: str) -> None:
+    previous, _, _, _ = _v6c_completion_fixture()
+    current = deepcopy(previous)
+    current["disposition"]["state"] = "ACTIVE"
+    current["completion_evidence"] = None
+    current["terminal_disposition"] = None
+    current["last_material_transition"].update(
+        sequence=3,
+        reason="BOUNDED_ENGINEERING",
+        occurred_at="2026-11-11T20:00:00Z",
+        predecessor_pointer_sha256=_canonical_pointer_sha256(previous),
+    )
+    if attack == "path":
+        current["candidate_identity"]["authorized_paths"].append("unauthorised/path")
+        _set_self_consistent_authority_digest(current)
+    elif attack == "operation":
+        current["execution_scope"]["permitted_operations"].append("UNAUTHORISED_OPERATION")
+        _set_self_consistent_authority_digest(current)
+    elif attack == "stale":
+        current["last_material_transition"]["sequence"] = 1
+    with pytest.raises(ControlValidationError):
+        _validate_pointer_transition(
+            previous,
+            current,
+            expected_current_baseline=current["protected_baseline"],
+        )
 
 
 @pytest.mark.parametrize(
