@@ -64,10 +64,85 @@ MANDATORY_POINTER_AUTHORITY_DENIALS = {
     "FINANCIAL_EFFECTS",
     "TRADING_ACTIVATION",
 }
+MANDATORY_EXECUTION_PROHIBITIONS = {
+    "GITHUB_PUBLICATION",
+    "MERGE",
+    "DEPLOYMENT",
+    "STAGE5_WORK",
+    "TRADING_ACTIVITY",
+}
 PERMITTED_POINTER_MUTATION_PATHS = {
     "docs/programme/programme-control.json",
     "docs/programme/programme-control.schema.json",
+    "docs/programme/master-recovery-successor-execution-state-003.json",
+    "docs/programme/master-recovery-successor-execution-state-003.schema.json",
+    "tests/test_master_recovery_packet.py",
     "tests/test_programme_control.py",
+}
+CURRENT_EXECUTION_BASELINE = {
+    "commit": "96c753459759d47ab267e547166ba0ecbc5e8d1e",
+    "tree": "c902c988cd8654b305ba1cc0fedd3ed86675ce25",
+}
+CURRENT_EXECUTION_TASK_ID = "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001"
+CURRENT_AUTHORITY_SOURCE = (
+    "OWNER_INSTRUCTION_2026-11-11_REJECTED_CANDIDATE_REMEDIATION"
+)
+CURRENT_AUTHORITY_SHA256 = (
+    "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957"
+)
+CURRENT_PERMITTED_OPERATIONS = {
+    "APPROPRIATE_BROADER_OFFLINE_REGRESSION",
+    "BOUNDED_IMPLEMENTATION",
+    "EVIDENCE_PREPARATION",
+    "FOCUSED_OFFLINE_TESTING",
+    "GOOGLE_DRIVE_EVIDENCE_TRANSFER",
+    "NEGATIVE_TESTING",
+}
+CURRENT_PROHIBITED_OPERATIONS = {
+    "ADDITIONAL_REPOSITORY_PATHS",
+    "BRANCH_CREATION",
+    "COMMITS",
+    "DEPLOYMENT",
+    "GITHUB_PUBLICATION",
+    "GITHUB_WRITES",
+    "MERGE",
+    "MERGES",
+    "NATIVE_WINDOWS_EXECUTION",
+    "POSTGRESQL_EXECUTION",
+    "PULL_REQUESTS",
+    "PUSHES",
+    "STAGE5_WORK",
+    "TRADING_ACTIVITY",
+}
+REJECTED_CANDIDATE_ARCHIVE_ID = "1BQZXVjU-CuWw-b4hAZyzUfvEgaTrJsiD"
+REJECTED_CANDIDATE_ARCHIVE_SHA256 = (
+    "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8"
+)
+REJECTED_CANDIDATE_MANIFEST_SHA256 = (
+    "2f01b271509ce941e6627028f259ed6ac69a109ba7f655bed8c2fb00fcfc8c0e"
+)
+REJECTED_CANDIDATE_BLOBS = {
+    "docs/programme/master-recovery-successor-execution-state-003.json": "6e076a255904dbd0ff5cf256c6f2e739097e2f0f",
+    "docs/programme/master-recovery-successor-execution-state-003.schema.json": "8d8b7383d4a15055a8b0e3788f49fbc69f3d0060",
+    "docs/programme/programme-control.json": "8a04ea881383af43487bb84a79c044b956c26816",
+    "docs/programme/programme-control.schema.json": "bfca0e4a4f4b20a6a3d4928a1cf70cd6603399f5",
+    "tests/test_master_recovery_packet.py": "ab8a6d42e6c0fe462044567581fc8423e23cf4d1",
+    "tests/test_programme_control.py": "984bf6ed2bf0b5998e573639abd44665a8512ecc",
+}
+HISTORICAL_CLOSED_POINTER_SHA256 = (
+    "082414d8a9afe47a3b08ba3f1baa9e5abb9693a78828c4e2843dfc58676057b6"
+)
+CURRENT_RESUME_CONDITIONS = {
+    "AUTHENTICATE_REJECTED_CANDIDATE_ARCHIVE",
+    "PRESERVE_HISTORICAL_CLOSED_POINTER",
+    "REJECT_SCOPE_OR_AUTHORITY_DRIFT",
+}
+CURRENT_COMPLETION_CRITERIA = {
+    "ALL_FOUR_ADVERSARIAL_INPUTS_REJECTED",
+    "AUTHENTICATED_COMPLETION_EVIDENCE",
+    "FOCUSED_AND_BROADER_TESTS_PASS",
+    "INDEPENDENT_ASSURANCE_COMPLETE",
+    "PROTECTED_PUBLICATION_GATE_COMPLETE",
 }
 EXPECTED_SOURCE_IDENTITIES = {
     "docs/m1-closure/closure-manifest.json": "9c653dc2183700c86191e8f14bfd4db020f38a5b",
@@ -336,6 +411,19 @@ def _canonical_pointer_sha256(pointer: dict[str, Any]) -> str:
     return _canonical_record_sha256(pointer)
 
 
+def _authority_payload(pointer: dict[str, Any]) -> dict[str, Any]:
+    candidate = pointer["candidate_identity"]
+    authorization = pointer["owner_authorization"]
+    scope = pointer["execution_scope"]
+    return {
+        "decision_id": authorization["decision_id"],
+        "source_reference": authorization["source_reference"],
+        "authorized_paths": sorted(candidate["authorized_paths"]),
+        "permitted_operations": sorted(scope["permitted_operations"]),
+        "prohibited_operations": sorted(scope["prohibited_operations"]),
+    }
+
+
 def _parse_utc(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
@@ -345,6 +433,9 @@ def _validate_execution_pointer(
     *,
     expected_protected_baseline: dict[str, str],
 ) -> None:
+    legacy_pointer = "pointer_contract_version" not in pointer
+    if not legacy_pointer and pointer["pointer_contract_version"] != 2:
+        raise ControlValidationError("execution pointer contract version mismatch")
     if set(expected_protected_baseline) != {"commit", "tree"} or not all(
         GIT_ID.fullmatch(value) for value in expected_protected_baseline.values()
     ):
@@ -369,6 +460,13 @@ def _validate_execution_pointer(
     }
     if not evidence["locator"].startswith(prefixes[evidence["source_system"]]):
         raise ControlValidationError("evidence source and locator mismatch")
+
+    producer = evidence.get("producer_authentication")
+    if producer is not None:
+        if producer["archive_sha256"] != evidence["sha256"]:
+            raise ControlValidationError("producer archive SHA-256 mismatch")
+        if producer["manifest_sha256"] != evidence["manifest_sha256"]:
+            raise ControlValidationError("producer manifest SHA-256 mismatch")
 
     disposition = pointer["disposition"]
     state = disposition["state"]
@@ -397,6 +495,119 @@ def _validate_execution_pointer(
             and pointer["latest_verified_gate"] != "PROTECTED_PUBLICATION"
         ):
             raise ControlValidationError("closed pointer transition conflicts with verified gate")
+
+    active_contract = (
+        pointer.get("candidate_identity"),
+        pointer.get("owner_authorization"),
+        pointer.get("execution_scope"),
+        pointer.get("continuation"),
+        pointer.get("completion_criteria"),
+    )
+    terminal = pointer.get("terminal_disposition")
+    completion_evidence = pointer.get("completion_evidence")
+    if legacy_pointer:
+        active_contract = (None, None, None, None, None)
+        terminal = None
+    elif state in {"ACTIVE", "BLOCKED"}:
+        if any(value is None for value in active_contract):
+            raise ControlValidationError("active execution contract is incomplete")
+        if terminal is not None:
+            raise ControlValidationError("active execution pointer has terminal disposition")
+        candidate = pointer["candidate_identity"]
+        authorization = pointer["owner_authorization"]
+        scope = pointer["execution_scope"]
+        if candidate["baseline"] != pointer["protected_baseline"]:
+            raise ControlValidationError("candidate baseline mismatch")
+        if not (
+            candidate["scope_sha256"]
+            == authorization["authorized_scope_sha256"]
+            == scope["scope_sha256"]
+        ):
+            raise ControlValidationError("owner-authorized scope mismatch")
+        permitted = set(scope["permitted_operations"])
+        prohibited = set(scope["prohibited_operations"])
+        if permitted & prohibited:
+            raise ControlValidationError("permitted and prohibited operations overlap")
+        if not MANDATORY_EXECUTION_PROHIBITIONS <= prohibited:
+            raise ControlValidationError("execution prohibitions incomplete")
+        if producer is None:
+            raise ControlValidationError("active pointer lacks producer authentication")
+        if state == "BLOCKED" and pointer["continuation"] is None:
+            raise ControlValidationError("blocked pointer lacks continuation conditions")
+        if pointer["task_id"] == CURRENT_EXECUTION_TASK_ID:
+            if pointer["protected_baseline"] != CURRENT_EXECUTION_BASELINE:
+                raise ControlValidationError("current correction baseline mismatch")
+            if set(candidate["authorized_paths"]) != PERMITTED_POINTER_MUTATION_PATHS:
+                raise ControlValidationError("owner-authorized path boundary mismatch")
+            if candidate["git_blobs"] != REJECTED_CANDIDATE_BLOBS:
+                raise ControlValidationError("source candidate Git blob set mismatch")
+            if (
+                candidate["artifact_id"] != REJECTED_CANDIDATE_ARCHIVE_ID
+                or candidate["artifact_sha256"] != REJECTED_CANDIDATE_ARCHIVE_SHA256
+                or candidate["manifest_sha256"] != REJECTED_CANDIDATE_MANIFEST_SHA256
+            ):
+                raise ControlValidationError("source candidate artifact identity mismatch")
+            if scope["executor"] != "CHATGPT_WORK_ONLY" or scope["agent_count"] != 1:
+                raise ControlValidationError("owner-authorized executor boundary mismatch")
+            if set(scope["permitted_operations"]) != CURRENT_PERMITTED_OPERATIONS:
+                raise ControlValidationError("owner-authorized operation boundary mismatch")
+            if set(scope["prohibited_operations"]) != CURRENT_PROHIBITED_OPERATIONS:
+                raise ControlValidationError("owner-authorized prohibition boundary mismatch")
+            if (
+                authorization["source_reference"] != CURRENT_AUTHORITY_SOURCE
+                or authorization["decision_id"] != CURRENT_EXECUTION_TASK_ID
+                or authorization["authorized_scope_sha256"] != CURRENT_AUTHORITY_SHA256
+                or candidate["scope_sha256"] != CURRENT_AUTHORITY_SHA256
+                or scope["scope_sha256"] != CURRENT_AUTHORITY_SHA256
+                or _canonical_record_sha256(_authority_payload(pointer))
+                != CURRENT_AUTHORITY_SHA256
+            ):
+                raise ControlValidationError("authenticated owner decision mismatch")
+            continuation = pointer["continuation"]
+            if (
+                continuation["checkpoint_sha256"] != REJECTED_CANDIDATE_ARCHIVE_SHA256
+                or continuation["predecessor_pointer_sha256"]
+                != HISTORICAL_CLOSED_POINTER_SHA256
+                or continuation["predecessor_task_id"]
+                != "ATIS-EXECUTION-POINTER-IMPLEMENTATION"
+                or continuation["predecessor_disposition"]
+                != "CLOSED_PROTECTED_PUBLICATION"
+                or set(continuation["resume_conditions"]) != CURRENT_RESUME_CONDITIONS
+            ):
+                raise ControlValidationError("authenticated continuation mismatch")
+            historical = pointer.get("historical_pointer_reference")
+            if historical != {
+                "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002",
+                "canonical_pointer_sha256": HISTORICAL_CLOSED_POINTER_SHA256,
+                "state": "CLOSED",
+                "latest_verified_gate": "PROTECTED_PUBLICATION",
+            }:
+                raise ControlValidationError("historical closed-pointer reference mismatch")
+            if set(pointer["completion_criteria"]) != CURRENT_COMPLETION_CRITERIA:
+                raise ControlValidationError("completion criteria mismatch")
+            if completion_evidence is not None:
+                raise ControlValidationError("active pointer carries terminal completion evidence")
+    elif state == "CLOSED":
+        if terminal is None or terminal["state"] != "CLOSED":
+            raise ControlValidationError("closed pointer lacks terminal disposition")
+        # The protected PR124 pointer predates the v2 active-work fields. Its
+        # authenticated closed semantics remain valid without inventing history.
+        if any(value is not None for value in active_contract):
+            if producer is None:
+                raise ControlValidationError("closed v2 pointer lacks producer authentication")
+            if not pointer["completion_criteria"]:
+                raise ControlValidationError("closed v2 pointer lacks completion criteria")
+            if pointer["latest_verified_gate"] != "PROTECTED_PUBLICATION":
+                raise ControlValidationError("closed v2 pointer lacks lifecycle gates")
+            if completion_evidence is None or not completion_evidence["receiver_verified"]:
+                raise ControlValidationError("closed v2 pointer lacks authenticated completion evidence")
+            if set(completion_evidence["satisfied_criteria"]) != set(
+                pointer["completion_criteria"]
+            ):
+                raise ControlValidationError("closed v2 pointer completion evidence is incomplete")
+    elif state == "INVALIDATED":
+        if terminal is None or terminal["state"] != "INVALIDATED":
+            raise ControlValidationError("invalidated pointer lacks terminal disposition")
 
     if transition["reason"] == "TASK_ENTRY":
         if transition["sequence"] != 1 or transition["predecessor_pointer_sha256"] is not None:
@@ -647,8 +858,12 @@ def validate_control(control: dict[str, Any]) -> None:
     pointer = control["current_execution_pointer"]
     _validate_execution_pointer(
         pointer,
-        expected_protected_baseline=HISTORICAL_PR124_EXECUTION_BASELINE,
+        expected_protected_baseline=CURRENT_EXECUTION_BASELINE,
     )
+    if pointer["task_id"] != CURRENT_EXECUTION_TASK_ID:
+        raise ControlValidationError("canonical active pointer task mismatch")
+    if pointer["disposition"]["state"] not in {"ACTIVE", "BLOCKED"}:
+        raise ControlValidationError("canonical current pointer is not active work")
     records = _all_records(control)
     ids = [_record_id(record) for record in records]
     if len(ids) != len(set(ids)):
@@ -1008,6 +1223,10 @@ def _new_task_entry(previous: dict[str, Any]) -> dict[str, Any]:
     return current
 
 
+def _v2_active_pointer() -> dict[str, Any]:
+    return deepcopy(_control()["current_execution_pointer"])
+
+
 def _next_pointer(
     previous: dict[str, Any],
     *,
@@ -1075,12 +1294,13 @@ def test_schema_validates_canonical_artifact() -> None:
     validate_control(_control())
 
 
-def test_pointer_p01_version_one_schema_accepts_legacy_fixture_without_pointer() -> None:
+def test_pointer_p01_canonical_schema_rejects_missing_pointer() -> None:
     control = _control()
     del control["current_execution_pointer"]
-    Draft202012Validator(
-        _load(SCHEMA_PATH), format_checker=FormatChecker()
-    ).validate(control)
+    with pytest.raises(ValidationError, match="current_execution_pointer"):
+        Draft202012Validator(
+            _load(SCHEMA_PATH), format_checker=FormatChecker()
+        ).validate(control)
 
 
 def test_pointer_p02_canonical_task_entry_is_valid() -> None:
@@ -1141,6 +1361,133 @@ def test_pointer_p06_protected_publication_closure_is_valid() -> None:
     )
 
 
+def test_v2_authorised_active_pointer_and_cross_session_round_trip_validate() -> None:
+    pointer = _v2_active_pointer()
+    recovered = json.loads(json.dumps(pointer, sort_keys=True))
+    _validate_execution_pointer(recovered, expected_protected_baseline=CURRENT_EXECUTION_BASELINE)
+
+
+def _set_self_consistent_authority_digest(pointer: dict[str, Any]) -> None:
+    digest = _canonical_record_sha256(_authority_payload(pointer))
+    pointer["candidate_identity"]["scope_sha256"] = digest
+    pointer["owner_authorization"]["authorized_scope_sha256"] = digest
+    pointer["execution_scope"]["scope_sha256"] = digest
+
+
+def test_remediation_rejects_narrative_only_closure() -> None:
+    pointer = _v2_active_pointer()
+    pointer["disposition"]["state"] = "CLOSED"
+    pointer["latest_verified_gate"] = "PROTECTED_PUBLICATION"
+    pointer["last_material_transition"] = {
+        "sequence": 2,
+        "reason": "CLOSURE",
+        "occurred_at": "2026-11-11T16:00:00Z",
+        "predecessor_pointer_sha256": "1" * 64,
+    }
+    pointer["terminal_disposition"] = {
+        "state": "CLOSED",
+        "reason": "NARRATIVE_ONLY",
+        "occurred_at": "2026-11-11T16:00:00Z",
+    }
+    with pytest.raises(
+        ControlValidationError,
+        match="closed v2 pointer lacks authenticated completion evidence",
+    ):
+        _validate_execution_pointer(
+            pointer, expected_protected_baseline=CURRENT_EXECUTION_BASELINE
+        )
+
+
+def test_remediation_rejects_self_consistent_unauthorised_seventh_path() -> None:
+    pointer = _v2_active_pointer()
+    pointer["candidate_identity"]["authorized_paths"].append("README.md")
+    _set_self_consistent_authority_digest(pointer)
+    with pytest.raises(ControlValidationError, match="owner-authorized path boundary mismatch"):
+        _validate_execution_pointer(
+            pointer, expected_protected_baseline=CURRENT_EXECUTION_BASELINE
+        )
+
+
+def test_remediation_rejects_self_consistent_unauthorised_operation() -> None:
+    pointer = _v2_active_pointer()
+    pointer["execution_scope"]["permitted_operations"].append(
+        "UNAUTHORISED_OPERATION"
+    )
+    _set_self_consistent_authority_digest(pointer)
+    with pytest.raises(
+        ControlValidationError, match="owner-authorized operation boundary mismatch"
+    ):
+        _validate_execution_pointer(
+            pointer, expected_protected_baseline=CURRENT_EXECUTION_BASELINE
+        )
+
+
+def test_remediation_rejects_unrelated_continuation() -> None:
+    pointer = _v2_active_pointer()
+    pointer["continuation"].update(
+        {
+            "checkpoint_sha256": "0" * 64,
+            "resume_conditions": ["UNRELATED_BLOCKER", "ARBITRARY_RESUME"],
+        }
+    )
+    with pytest.raises(ControlValidationError, match="authenticated continuation mismatch"):
+        _validate_execution_pointer(
+            pointer, expected_protected_baseline=CURRENT_EXECUTION_BASELINE
+        )
+
+
+def test_remediation_installs_one_canonical_active_pointer() -> None:
+    pointer = _control()["current_execution_pointer"]
+    assert pointer["task_id"] == CURRENT_EXECUTION_TASK_ID
+    assert pointer["disposition"]["state"] == "ACTIVE"
+    assert pointer["historical_pointer_reference"]["canonical_pointer_sha256"] == (
+        HISTORICAL_CLOSED_POINTER_SHA256
+    )
+
+
+def test_remediation_binds_exact_rejected_candidate_identity_non_circularly() -> None:
+    candidate = _control()["current_execution_pointer"]["candidate_identity"]
+    assert candidate["artifact_sha256"] == REJECTED_CANDIDATE_ARCHIVE_SHA256
+    assert candidate["manifest_sha256"] == REJECTED_CANDIDATE_MANIFEST_SHA256
+    assert candidate["git_blobs"] == REJECTED_CANDIDATE_BLOBS
+
+
+@pytest.mark.parametrize(
+    ("attack", "message"),
+    [
+        ("stale_baseline", "protected baseline mismatch"),
+        ("missing_authority", "active execution contract is incomplete"),
+        ("expanded_authority", "owner-authorized scope mismatch"),
+        ("candidate_mismatch", "candidate baseline mismatch"),
+        ("evidence_mismatch", "producer archive SHA-256 mismatch"),
+        ("scope_drift", "owner-authorized scope mismatch"),
+        ("narrative_completion", "closed v2 pointer lacks completion criteria"),
+    ],
+)
+def test_v2_pointer_rejects_unreliable_state(attack: str, message: str) -> None:
+    pointer = _v2_active_pointer()
+    expected = deepcopy(CURRENT_EXECUTION_BASELINE)
+    if attack == "stale_baseline":
+        expected["commit"] = "f" * 40
+    elif attack == "missing_authority":
+        pointer["owner_authorization"] = None
+    elif attack == "expanded_authority":
+        pointer["owner_authorization"]["authorized_scope_sha256"] = "c" * 64
+    elif attack == "candidate_mismatch":
+        pointer["candidate_identity"]["baseline"]["tree"] = "f" * 40
+    elif attack == "evidence_mismatch":
+        pointer["evidence"]["producer_authentication"]["archive_sha256"] = "f" * 64
+    elif attack == "scope_drift":
+        pointer["execution_scope"]["scope_sha256"] = "d" * 64
+    else:
+        pointer["disposition"]["state"] = "CLOSED"
+        pointer["last_material_transition"].update({"sequence": 2, "reason": "CLOSURE", "predecessor_pointer_sha256": "e" * 64})
+        pointer["terminal_disposition"] = {"state": "CLOSED", "reason": "NARRATIVE_ONLY", "occurred_at": "2026-11-11T14:32:00Z"}
+        pointer["completion_criteria"] = []
+    with pytest.raises(ControlValidationError, match=message):
+        _validate_execution_pointer(pointer, expected_protected_baseline=expected)
+
+
 def test_pointer_n01_unknown_pointer_property_rejects() -> None:
     control = _control()
     control["current_execution_pointer"]["unknown"] = True
@@ -1150,7 +1497,7 @@ def test_pointer_n01_unknown_pointer_property_rejects() -> None:
 def test_pointer_n02_missing_canonical_pointer_rejects() -> None:
     control = _control()
     del control["current_execution_pointer"]
-    _assert_control_rejects(control, "canonical current execution pointer missing")
+    _assert_control_rejects(control, "schema validation failed")
 
 
 def test_pointer_n03_second_pointer_property_rejects() -> None:
@@ -1498,7 +1845,17 @@ def test_pointer_p17_publication_transition_is_closed() -> None:
 
 
 def test_pointer_p18_canonical_pointer_equals_terminal_chain_record() -> None:
-    assert _control()["current_execution_pointer"] == _closure_chain()[-1]
+    current = _control()["current_execution_pointer"]
+    historical = _closure_chain()[-1]
+    assert _canonical_pointer_sha256(historical) == HISTORICAL_CLOSED_POINTER_SHA256
+    assert current["historical_pointer_reference"] == {
+        "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002",
+        "canonical_pointer_sha256": HISTORICAL_CLOSED_POINTER_SHA256,
+        "state": "CLOSED",
+        "latest_verified_gate": "PROTECTED_PUBLICATION",
+    }
+    assert current["pointer_contract_version"] == 2
+    assert current["disposition"]["state"] == "ACTIVE"
 
 
 def test_pointer_p19_closure_chain_grants_no_authority() -> None:

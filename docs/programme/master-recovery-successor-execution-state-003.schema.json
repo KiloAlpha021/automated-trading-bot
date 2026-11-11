@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/master-recovery-successor-execution-state-003.schema.json",
+  "title": "ATIS execution-state reliability recovery successor",
+  "description": "Exact non-authorising append-only successor preserving the closed execution-pointer history while binding the bounded v2 execution-state candidate.",
+  "const": {
+    "schema_version": 1,
+    "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-STATE-003",
+    "task_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001",
+    "record_role": "PROPOSED_PROGRAMME_CONTROL_SUCCESSOR_PREPARATION_ONLY",
+    "predecessor_evidence": {
+      "record": {
+        "path": "docs/programme/master-recovery-successor-execution-pointer-closure-002.json",
+        "git_blob": "b60b7f8a81a55e982e65870e08e41e841c134202",
+        "sha256": "9fff784c551fc2d2a3afaae26d8904d7a71dd57c518a7178a3cd9db67dcec218"
+      },
+      "schema": {
+        "path": "docs/programme/master-recovery-successor-execution-pointer-closure-002.schema.json",
+        "git_blob": "b58f4e945a0e8c71fc6ed04d146c62b1b39baa66",
+        "sha256": "f5355e762391c60ebaa1cfdad066d4509828d6e802b59a00a9de011c78f4abd5"
+      }
+    },
+    "protected_predecessor": {
+      "commit": "96c753459759d47ab267e547166ba0ecbc5e8d1e",
+      "tree": "c902c988cd8654b305ba1cc0fedd3ed86675ce25"
+    },
+    "transitions": [
+      {"path": "docs/programme/programme-control.json", "historical_blob": "71921c6dafbbed7be9e423e9df2ec9e11cf6c0ae", "candidate_blob": "d5dc24d5cee002f8827213effca3db8c0afe9e42"},
+      {"path": "docs/programme/programme-control.schema.json", "historical_blob": "3250ee8ddfd695b4d2db2d9d633967dac4945e7a", "candidate_blob": "a908497214f1d005e78cf95b22da802f3d48d69b"},
+      {"path": "tests/test_programme_control.py", "historical_blob": "3196221ee39cf1c20f8be25e45d588869ad8c4c2", "candidate_blob": "149059054263d6a867824e6d1e398c0932ac668e"}
+    ],
+    "trust_state": "LOCAL_CORRECTED_FOCUSED_QUALIFIED_BROADER_ENVIRONMENT_LIMITED_PENDING_INDEPENDENT_ASSURANCE",
+    "protected_active": false,
+    "source_candidate_identity": {
+      "drive_file_id": "1BQZXVjU-CuWw-b4hAZyzUfvEgaTrJsiD",
+      "archive_sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
+      "manifest_sha256": "2f01b271509ce941e6627028f259ed6ac69a109ba7f655bed8c2fb00fcfc8c0e"
+    },
+    "active_pointer_binding": {
+      "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
+      "task_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001",
+      "authority_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "historical_closed_pointer_sha256": "082414d8a9afe47a3b08ba3f1baa9e5abb9693a78828c4e2843dfc58676057b6",
+      "state": "ACTIVE"
+    },
+    "authorization_reference": {
+      "task_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001",
+      "decision": "SIX_PATH_REJECTED_CANDIDATE_REMEDIATION_AND_QUALIFICATION_GRANTED",
+      "source": "CURRENT_OWNER_INSTRUCTION"
+    },
+    "authority_limitations": [
+      "NO_GITHUB_PUBLICATION_AUTHORITY", "NO_BRANCH_AUTHORITY", "NO_COMMIT_AUTHORITY",
+      "NO_PULL_REQUEST_AUTHORITY", "NO_MERGE_AUTHORITY", "NO_DEPLOYMENT_AUTHORITY",
+      "NO_STAGE5_AUTHORITY", "NO_TRADING_AUTHORITY"
+    ],
+    "grants_authority": false
+  }
+}

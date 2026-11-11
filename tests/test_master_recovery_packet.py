@@ -65,6 +65,12 @@ EXECUTION_POINTER_CLOSURE_PATH = (
 EXECUTION_POINTER_CLOSURE_SCHEMA_PATH = (
     ROOT / "docs/programme/master-recovery-successor-execution-pointer-closure-002.schema.json"
 )
+EXECUTION_STATE_SUCCESSOR_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-state-003.json"
+)
+EXECUTION_STATE_SUCCESSOR_SCHEMA_PATH = (
+    ROOT / "docs/programme/master-recovery-successor-execution-state-003.schema.json"
+)
 LIFECYCLE_VALIDATOR_PATH = "tests/test_programme_control.py"
 EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION = {
     "historical_blob": "563015bc65b4b6a3c876924e56f2f80190caa2a6",
@@ -264,6 +270,7 @@ def test_exact_source_inventories_exist_and_match_git_blobs() -> None:
         [
             _load(EXECUTION_POINTER_SUCCESSOR_PATH),
             _load(EXECUTION_POINTER_CLOSURE_PATH),
+            _load(EXECUTION_STATE_SUCCESSOR_PATH),
         ],
     )
     successor.update(
@@ -498,10 +505,13 @@ def _validate_execution_pointer_successor(
     closure = record["record_id"] == (
         "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002"
     )
+    execution_state = record["record_id"] == (
+        "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-STATE-003"
+    )
     schema = _load(
-        EXECUTION_POINTER_CLOSURE_SCHEMA_PATH
-        if closure
-        else EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH
+        EXECUTION_POINTER_CLOSURE_SCHEMA_PATH if closure else
+        EXECUTION_STATE_SUCCESSOR_SCHEMA_PATH if execution_state else
+        EXECUTION_POINTER_SUCCESSOR_SCHEMA_PATH
     )
     Draft202012Validator.check_schema(schema)
     Draft202012Validator(schema).validate(record)
@@ -516,6 +526,9 @@ def _validate_execution_pointer_successor(
         assert sha256(canonical).hexdigest() == evidence["sha256"]
 
     expected_predecessor = (
+        {"commit": "96c753459759d47ab267e547166ba0ecbc5e8d1e", "tree": "c902c988cd8654b305ba1cc0fedd3ed86675ce25"}
+        if execution_state
+        else
         {
             "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
             "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b",
@@ -548,15 +561,16 @@ def _validate_execution_pointer_successor(
         assert path not in result
         assert predecessor[path] == transition["historical_blob"]
         _retained_blob(transition["historical_blob"])
-        _retained_blob(transition["candidate_blob"])
-        if closure:
-            current_blob = _blob(ROOT / path)
-            if path == LIFECYCLE_VALIDATOR_PATH:
-                _validate_lifecycle_validator_transition(transition, current_blob)
-                result[path] = current_blob
-                continue
-            else:
-                assert current_blob == transition["candidate_blob"]
+        if not execution_state:
+            _retained_blob(transition["candidate_blob"])
+        if closure and path == LIFECYCLE_VALIDATOR_PATH:
+            _validate_lifecycle_validator_transition(
+                transition, EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION["successor_blob"]
+            )
+            result[path] = EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION["successor_blob"]
+            continue
+        if execution_state:
+            assert _blob(ROOT / path) == transition["candidate_blob"]
         result[path] = transition["candidate_blob"]
     assert result.keys() == predecessor.keys()
     return result
@@ -593,6 +607,7 @@ def _validate_lifecycle_validator_transition(
     expected = EXPECTED_LIFECYCLE_VALIDATOR_TRANSITION
     assert historical_transition["path"] == LIFECYCLE_VALIDATOR_PATH
     assert historical_transition["candidate_blob"] == expected["historical_blob"]
+    _retained_blob(expected["successor_blob"])
     assert current_blob == expected["successor_blob"]
     source = (ROOT / LIFECYCLE_VALIDATOR_PATH).read_text(encoding="utf-8")
     assert expected["publication_receipt_sha256"] in source
@@ -1219,6 +1234,44 @@ def test_execution_pointer_closure_successor_is_unique_closed_and_non_authorisin
     assert closure["closure_evidence"]["sha256"] == (
         "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61"
     )
+
+
+def test_execution_state_successor_is_exact_non_authorising_and_current() -> None:
+    kf04 = _validate_successor(_load(SUCCESSOR_PATH))
+    records = [
+        _load(EXECUTION_POINTER_SUCCESSOR_PATH),
+        _load(EXECUTION_POINTER_CLOSURE_PATH),
+        _load(EXECUTION_STATE_SUCCESSOR_PATH),
+    ]
+    assert _resolve_programme_control_successor(kf04, records) == {
+        "docs/programme/programme-control.json": "d5dc24d5cee002f8827213effca3db8c0afe9e42",
+        "docs/programme/programme-control.schema.json": "a908497214f1d005e78cf95b22da802f3d48d69b",
+        "tests/test_programme_control.py": "149059054263d6a867824e6d1e398c0932ac668e",
+    }
+    record = records[-1]
+    assert record["protected_active"] is False
+    assert record["grants_authority"] is False
+
+
+@pytest.mark.parametrize("attack", ["duplicate", "stale", "authority", "candidate"])
+def test_execution_state_successor_rejects_forgery(attack: str) -> None:
+    kf04 = _validate_successor(_load(SUCCESSOR_PATH))
+    record = deepcopy(_load(EXECUTION_STATE_SUCCESSOR_PATH))
+    if attack == "duplicate":
+        records = [record, deepcopy(record)]
+    else:
+        if attack == "stale":
+            record["protected_predecessor"]["commit"] = "0" * 40
+        elif attack == "authority":
+            record["grants_authority"] = True
+        else:
+            record["transitions"][0]["candidate_blob"] = "1" * 40
+        records = [record]
+    with pytest.raises((ValidationError, AssertionError)):
+        _resolve_programme_control_successor(
+            kf04,
+            [_load(EXECUTION_POINTER_SUCCESSOR_PATH), _load(EXECUTION_POINTER_CLOSURE_PATH), *records],
+        )
 
 
 def test_lifecycle_validator_successor_preserves_authenticated_history() -> None:
