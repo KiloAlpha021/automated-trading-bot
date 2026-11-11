@@ -10,6 +10,7 @@
     "artifact_role",
     "source_baseline",
     "non_authorizing_statement",
+    "current_execution_pointer",
     "control_lifecycle_vocabulary",
     "evidence_lifecycle_vocabulary",
     "programme_control_ledger",
@@ -571,6 +572,17 @@
         }
       }
     },
+    "producerAuthentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer_role", "produced_at", "archive_sha256", "manifest_sha256"],
+      "properties": {
+        "producer_role": {"type": "string", "minLength": 1, "maxLength": 128},
+        "produced_at": {"type": "string", "format": "date-time"},
+        "archive_sha256": {"$ref": "#/$defs/sha256Identity"},
+        "manifest_sha256": {"anyOf": [{"$ref": "#/$defs/sha256Identity"}, {"type": "null"}]}
+      }
+    },
     "immutableEvidenceReference": {
       "type": "object",
       "additionalProperties": false,
@@ -613,6 +625,9 @@
         },
         "receiver_authentication": {
           "$ref": "#/$defs/receiverAuthentication"
+        },
+        "producer_authentication": {
+          "anyOf": [{"$ref": "#/$defs/producerAuthentication"}, {"type": "null"}]
         }
       }
     },
@@ -701,6 +716,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "pointer_contract_version",
         "pointer_id",
         "task_id",
         "protected_baseline",
@@ -708,10 +724,19 @@
         "evidence",
         "disposition",
         "last_material_transition",
+        "candidate_identity",
+        "owner_authorization",
+        "execution_scope",
+        "continuation",
+        "completion_criteria",
+        "completion_evidence",
+        "terminal_disposition",
         "authority_granted",
-        "authority_not_granted"
+        "authority_not_granted",
+        "historical_pointer_reference"
       ],
       "properties": {
+        "pointer_contract_version": {"const": 2},
         "pointer_id": {
           "const": "ATIS-CURRENT-EXECUTION-POINTER-001"
         },
@@ -736,6 +761,108 @@
         "last_material_transition": {
           "$ref": "#/$defs/materialTransition"
         },
+        "candidate_identity": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["kind", "baseline", "authorized_paths", "scope_sha256", "artifact_id", "artifact_sha256", "manifest_sha256", "git_blobs"],
+              "properties": {
+                "kind": {"enum": ["AUTHORIZED_WORKING_TREE", "GIT_COMMIT", "ARTIFACT"]},
+                "baseline": {"$ref": "#/$defs/baseline"},
+                "authorized_paths": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+                "scope_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "artifact_id": {"type": "string", "minLength": 1},
+                "artifact_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "manifest_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "git_blobs": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/gitIdentity"}}
+              }
+            }
+          ]
+        },
+        "owner_authorization": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["decision_id", "source", "source_reference", "authorized_scope_sha256", "authorized_at"],
+              "properties": {
+                "decision_id": {"type": "string", "minLength": 1},
+                "source": {"const": "CURRENT_OWNER_INSTRUCTION"},
+                "source_reference": {"type": "string", "minLength": 1},
+                "authorized_scope_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "authorized_at": {"type": "string", "format": "date-time"}
+              }
+            }
+          ]
+        },
+        "execution_scope": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["executor", "agent_count", "scope_sha256", "permitted_operations", "prohibited_operations"],
+              "properties": {
+                "executor": {"enum": ["CHATGPT_WORK_ONLY", "CODEX_ONLY"]},
+                "agent_count": {"type": "integer", "minimum": 1},
+                "scope_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "permitted_operations": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+                "prohibited_operations": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+              }
+            }
+          ]
+        },
+        "continuation": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["checkpoint_sha256", "predecessor_pointer_sha256", "predecessor_task_id", "predecessor_disposition", "resume_conditions"],
+              "properties": {
+                "checkpoint_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "predecessor_pointer_sha256": {"$ref": "#/$defs/sha256Identity"},
+                "predecessor_task_id": {"type": "string", "minLength": 1},
+                "predecessor_disposition": {"const": "CLOSED_PROTECTED_PUBLICATION"},
+                "resume_conditions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+              }
+            }
+          ]
+        },
+        "completion_criteria": {
+          "anyOf": [
+            {"type": "null"},
+            {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+          ]
+        },
+        "completion_evidence": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["artifact_id", "sha256", "receiver_verified", "satisfied_criteria"],
+              "properties": {
+                "artifact_id": {"type": "string", "minLength": 1},
+                "sha256": {"$ref": "#/$defs/sha256Identity"},
+                "receiver_verified": {"const": true},
+                "satisfied_criteria": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+              }
+            }
+          ]
+        },
+        "terminal_disposition": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["state", "reason", "occurred_at"],
+              "properties": {
+                "state": {"enum": ["CLOSED", "INVALIDATED"]},
+                "reason": {"type": "string", "minLength": 1},
+                "occurred_at": {"type": "string", "format": "date-time"}
+              }
+            }
+          ]
+        },
         "authority_granted": {
           "type": "array",
           "maxItems": 0
@@ -747,6 +874,16 @@
           "items": {
             "type": "string",
             "minLength": 1
+          }
+        },
+        "historical_pointer_reference": {
+          "type": "object", "additionalProperties": false,
+          "required": ["record_id", "canonical_pointer_sha256", "state", "latest_verified_gate"],
+          "properties": {
+            "record_id": {"const": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002"},
+            "canonical_pointer_sha256": {"$ref": "#/$defs/sha256Identity"},
+            "state": {"const": "CLOSED"},
+            "latest_verified_gate": {"const": "PROTECTED_PUBLICATION"}
           }
         }
       }

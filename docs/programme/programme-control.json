@@ -8,39 +8,129 @@
   },
   "non_authorizing_statement": "This index records attributable programme controls and evidence. It grants no implementation, trading, financial, broker, OMS, risk, ledger, capital-allocation, execution or AI authority.",
   "current_execution_pointer": {
+    "pointer_contract_version": 2,
     "pointer_id": "ATIS-CURRENT-EXECUTION-POINTER-001",
-    "task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+    "task_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001",
     "protected_baseline": {
-      "commit": "e553a715f80f1bb5704861c04af47f3336e8fd11",
-      "tree": "e0eb50506e168904ebb8f07f77a6fce685b4d85b"
+      "commit": "96c753459759d47ab267e547166ba0ecbc5e8d1e",
+      "tree": "c902c988cd8654b305ba1cc0fedd3ed86675ce25"
     },
-    "latest_verified_gate": "PROTECTED_PUBLICATION",
+    "latest_verified_gate": "BOUNDED_ENGINEERING",
     "evidence": {
-      "artifact_id": "ATIS-EXECUTION-POINTER-PR124-CLOSURE-EVIDENCE-001.ZIP",
-      "source_system": "CHATGPT_LIBRARY",
-      "locator": "library:libfile_fde3_f-6f8fb5d8d3dc81919bcf7f40bb9daec7_9d75b74aec208191bd3bc15d54d5e55e",
-      "sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
-      "manifest_sha256": "59c077542d8974ebefd9f2b0b571a84c17de9996a5f0aa6994351254eb8eeedd",
+      "artifact_id": "ATIS-SIX-FILE-EXECUTION-STATE-EVIDENCE-2026-11-11.ZIP",
+      "source_system": "GOOGLE_DRIVE",
+      "locator": "gdrive:file/1BQZXVjU-CuWw-b4hAZyzUfvEgaTrJsiD",
+      "sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
+      "manifest_sha256": "2f01b271509ce941e6627028f259ed6ac69a109ba7f655bed8c2fb00fcfc8c0e",
       "receiver_authentication": {
         "status": "VERIFIED",
-        "receiver_role": "CHATGPT_WORK_INDEPENDENT_CLOSURE_RECEIVER",
-        "verified_at": "2026-11-07T15:38:58.724511328Z",
-        "archive_sha256": "6db1ec76c8f2789a8f88a68b1e4cf51579b323a3707919fbbb2922912ec50b61",
+        "receiver_role": "CHATGPT_WORK_EVIDENCE_TRANSFER_RECEIVER",
+        "verified_at": "2026-11-11T15:33:15.993Z",
+        "archive_sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
         "manifest_status": "VERIFIED"
+      },
+      "producer_authentication": {
+        "producer_role": "CHATGPT_WORK_PRODUCER",
+        "produced_at": "2026-11-11T15:33:08.597Z",
+        "archive_sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
+        "manifest_sha256": "2f01b271509ce941e6627028f259ed6ac69a109ba7f655bed8c2fb00fcfc8c0e"
       }
     },
     "disposition": {
-      "state": "CLOSED",
+      "state": "ACTIVE",
       "blocker_ids": [],
       "invalidation_reason": null,
       "invalidated_at": null
     },
     "last_material_transition": {
-      "sequence": 5,
-      "reason": "PROTECTED_PUBLICATION",
-      "occurred_at": "2026-11-07T15:39:04.005518860Z",
-      "predecessor_pointer_sha256": "fef979808e68bb12fa453c47822b3b7b4e6dc54d22d8970e634ec9d5ee2a8639"
+      "sequence": 1,
+      "reason": "TASK_ENTRY",
+      "occurred_at": "2026-11-11T15:45:00Z",
+      "predecessor_pointer_sha256": null
     },
+    "candidate_identity": {
+      "kind": "ARTIFACT",
+      "baseline": {
+        "commit": "96c753459759d47ab267e547166ba0ecbc5e8d1e",
+        "tree": "c902c988cd8654b305ba1cc0fedd3ed86675ce25"
+      },
+      "authorized_paths": [
+        "docs/programme/master-recovery-successor-execution-state-003.json",
+        "docs/programme/master-recovery-successor-execution-state-003.schema.json",
+        "docs/programme/programme-control.json",
+        "docs/programme/programme-control.schema.json",
+        "tests/test_master_recovery_packet.py",
+        "tests/test_programme_control.py"
+      ],
+      "scope_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "artifact_id": "1BQZXVjU-CuWw-b4hAZyzUfvEgaTrJsiD",
+      "artifact_sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
+      "manifest_sha256": "2f01b271509ce941e6627028f259ed6ac69a109ba7f655bed8c2fb00fcfc8c0e",
+      "git_blobs": {
+        "docs/programme/master-recovery-successor-execution-state-003.json": "6e076a255904dbd0ff5cf256c6f2e739097e2f0f",
+        "docs/programme/master-recovery-successor-execution-state-003.schema.json": "8d8b7383d4a15055a8b0e3788f49fbc69f3d0060",
+        "docs/programme/programme-control.json": "8a04ea881383af43487bb84a79c044b956c26816",
+        "docs/programme/programme-control.schema.json": "bfca0e4a4f4b20a6a3d4928a1cf70cd6603399f5",
+        "tests/test_master_recovery_packet.py": "ab8a6d42e6c0fe462044567581fc8423e23cf4d1",
+        "tests/test_programme_control.py": "984bf6ed2bf0b5998e573639abd44665a8512ecc"
+      }
+    },
+    "owner_authorization": {
+      "decision_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001",
+      "source": "CURRENT_OWNER_INSTRUCTION",
+      "source_reference": "OWNER_INSTRUCTION_2026-11-11_REJECTED_CANDIDATE_REMEDIATION",
+      "authorized_scope_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "authorized_at": "2026-11-11T00:00:00Z"
+    },
+    "execution_scope": {
+      "executor": "CHATGPT_WORK_ONLY",
+      "agent_count": 1,
+      "scope_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "permitted_operations": [
+        "APPROPRIATE_BROADER_OFFLINE_REGRESSION",
+        "BOUNDED_IMPLEMENTATION",
+        "EVIDENCE_PREPARATION",
+        "FOCUSED_OFFLINE_TESTING",
+        "GOOGLE_DRIVE_EVIDENCE_TRANSFER",
+        "NEGATIVE_TESTING"
+      ],
+      "prohibited_operations": [
+        "ADDITIONAL_REPOSITORY_PATHS",
+        "BRANCH_CREATION",
+        "COMMITS",
+        "DEPLOYMENT",
+        "GITHUB_PUBLICATION",
+        "GITHUB_WRITES",
+        "MERGE",
+        "MERGES",
+        "NATIVE_WINDOWS_EXECUTION",
+        "POSTGRESQL_EXECUTION",
+        "PULL_REQUESTS",
+        "PUSHES",
+        "STAGE5_WORK",
+        "TRADING_ACTIVITY"
+      ]
+    },
+    "continuation": {
+      "checkpoint_sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
+      "predecessor_pointer_sha256": "082414d8a9afe47a3b08ba3f1baa9e5abb9693a78828c4e2843dfc58676057b6",
+      "predecessor_task_id": "ATIS-EXECUTION-POINTER-IMPLEMENTATION",
+      "predecessor_disposition": "CLOSED_PROTECTED_PUBLICATION",
+      "resume_conditions": [
+        "AUTHENTICATE_REJECTED_CANDIDATE_ARCHIVE",
+        "PRESERVE_HISTORICAL_CLOSED_POINTER",
+        "REJECT_SCOPE_OR_AUTHORITY_DRIFT"
+      ]
+    },
+    "completion_criteria": [
+      "ALL_FOUR_ADVERSARIAL_INPUTS_REJECTED",
+      "AUTHENTICATED_COMPLETION_EVIDENCE",
+      "FOCUSED_AND_BROADER_TESTS_PASS",
+      "INDEPENDENT_ASSURANCE_COMPLETE",
+      "PROTECTED_PUBLICATION_GATE_COMPLETE"
+    ],
+    "completion_evidence": null,
+    "terminal_disposition": null,
     "authority_granted": [],
     "authority_not_granted": [
       "OWNER_ACCEPTANCE",
@@ -49,7 +139,13 @@
       "BROKER_CONNECTION",
       "FINANCIAL_EFFECTS",
       "TRADING_ACTIVATION"
-    ]
+    ],
+    "historical_pointer_reference": {
+      "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-EXECUTION-POINTER-CLOSURE-002",
+      "canonical_pointer_sha256": "082414d8a9afe47a3b08ba3f1baa9e5abb9693a78828c4e2843dfc58676057b6",
+      "state": "CLOSED",
+      "latest_verified_gate": "PROTECTED_PUBLICATION"
+    }
   },
   "control_lifecycle_vocabulary": [
     "PROPOSED",
