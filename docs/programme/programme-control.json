@@ -62,7 +62,7 @@
         "tests/test_master_recovery_packet.py",
         "tests/test_programme_control.py"
       ],
-      "scope_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "scope_sha256": "4635e1339508eb08251d8be3d4115e55c7754bb488feb11581bc9976f3f72b1f",
       "artifact_id": "1BQZXVjU-CuWw-b4hAZyzUfvEgaTrJsiD",
       "artifact_sha256": "7e45fcc7854bf2f23e3ff57653f04410c44b512a6f9817b1b13fd83e3f1780a8",
       "manifest_sha256": "2f01b271509ce941e6627028f259ed6ac69a109ba7f655bed8c2fb00fcfc8c0e",
@@ -79,13 +79,13 @@
       "decision_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001",
       "source": "CURRENT_OWNER_INSTRUCTION",
       "source_reference": "OWNER_INSTRUCTION_2026-11-11_REJECTED_CANDIDATE_REMEDIATION",
-      "authorized_scope_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "authorized_scope_sha256": "4635e1339508eb08251d8be3d4115e55c7754bb488feb11581bc9976f3f72b1f",
       "authorized_at": "2026-11-11T00:00:00Z"
     },
     "execution_scope": {
       "executor": "CHATGPT_WORK_ONLY",
       "agent_count": 1,
-      "scope_sha256": "c87c2f7654e88c5eb40d58bbd5f9217bbaaf5d47933cbd90af35c64ee9b03957",
+      "scope_sha256": "4635e1339508eb08251d8be3d4115e55c7754bb488feb11581bc9976f3f72b1f",
       "permitted_operations": [
         "APPROPRIATE_BROADER_OFFLINE_REGRESSION",
         "BOUNDED_IMPLEMENTATION",
@@ -129,6 +129,12 @@
       "INDEPENDENT_ASSURANCE_COMPLETE",
       "PROTECTED_PUBLICATION_GATE_COMPLETE"
     ],
+    "completion_requirements": {
+      "oracle_id": "ATIS-EXECUTION-STATE-RELIABILITY-CORRECTION-001-COMPLETION-ORACLE",
+      "success_status": "PASS",
+      "success_exit_code": 0,
+      "evidence_member_path": "completion-result.json"
+    },
     "completion_evidence": null,
     "terminal_disposition": null,
     "authority_granted": [],

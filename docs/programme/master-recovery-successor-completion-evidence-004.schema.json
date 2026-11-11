@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://atis.invalid/schemas/master-recovery-successor-completion-evidence-004.schema.json",
+  "title": "ATIS completion-evidence authentication recovery successor",
+  "description": "Exact non-authorising append-only successor to execution-state record 003, binding the bounded V6-C implementation candidate.",
+  "const": {
+    "schema_version": 1,
+    "record_id": "ATIS-MASTER-RECOVERY-SUCCESSOR-COMPLETION-EVIDENCE-004",
+    "task_id": "ATIS-ENGINEERING-PRACTICAL-RELIABILITY-VALIDATION-001",
+    "record_role": "PROPOSED_PROGRAMME_CONTROL_SUCCESSOR_PREPARATION_ONLY",
+    "predecessor_evidence": {
+      "record": {"path": "docs/programme/master-recovery-successor-execution-state-003.json", "git_blob": "0e48000c77dd9f1dcc0b5fb9bee2d36cffe75cb4", "sha256": "6a23f5ca08263ee7c28ca109344b3c521cab81a28d019ff4e58d51c696f745ab"},
+      "schema": {"path": "docs/programme/master-recovery-successor-execution-state-003.schema.json", "git_blob": "b96ac732eda13848836cd8bcddc3aafe0fca6808", "sha256": "ce793489af5986b53cdcc37a68b61b127562469beb18f4db917221c513ed55c4"}
+    },
+    "protected_predecessor": {"commit": "204f902807c39e5f542d099d816a0da065b1e3e5", "tree": "9acb04ca2476e3e8d2e55a44ac746440b247af9c"},
+    "transitions": [
+      {"path": "docs/programme/programme-control.json", "historical_blob": "d5dc24d5cee002f8827213effca3db8c0afe9e42", "candidate_blob": "6d897c240779f947b80033c622be741c36485384"},
+      {"path": "docs/programme/programme-control.schema.json", "historical_blob": "a908497214f1d005e78cf95b22da802f3d48d69b", "candidate_blob": "f87ca187d293b9d8b8d5c9e0e24041518936eb84"},
+      {"path": "tests/test_programme_control.py", "historical_blob": "149059054263d6a867824e6d1e398c0932ac668e", "candidate_blob": "49a317d0744fd94e2404cb926f9025da9f3231e7"}
+    ],
+    "trust_state": "LOCAL_V6_C_IMPLEMENTATION_CANDIDATE_PENDING_INDEPENDENT_ASSURANCE",
+    "protected_active": false,
+    "authorization_reference": {"task_id": "ATIS-ENGINEERING-PRACTICAL-RELIABILITY-VALIDATION-001", "decision": "V6_C_COMPLETION_EVIDENCE_AUTHENTICATION_IMPLEMENTATION_ONLY", "source": "CURRENT_OWNER_INSTRUCTION"},
+    "authority_limitations": ["NO_GITHUB_PUBLICATION_AUTHORITY", "NO_BRANCH_AUTHORITY", "NO_COMMIT_AUTHORITY", "NO_PULL_REQUEST_AUTHORITY", "NO_MERGE_AUTHORITY", "NO_DEPLOYMENT_AUTHORITY", "NO_STAGE5_AUTHORITY", "NO_O3_AUTHORITY", "NO_TRADING_AUTHORITY"],
+    "grants_authority": false
+  }
+}
