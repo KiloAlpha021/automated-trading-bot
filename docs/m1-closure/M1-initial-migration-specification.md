@@ -30,7 +30,7 @@ require later workload evidence and must never replace correctness constraints.
   "predecessor": null,
   "status": "SPECIFICATION_ONLY",
   "design_id": "M1-EVENT-STORAGE-01",
-  "design_sha256": "e7e5563c061d7a7b3afffba98b492d93acc4c8c2d2b5b6c1dbcfbd3bb937eebb",
+  "design_sha256": "b4c1603ea6b26342aa129f4dd57cacf988815327637750689728da01fd01a5fa",
   "source_sha256": "4e3f144b12dbdcd43a29b15ccc99aaf9f5611bf51bbda2d1a3b3891d76a7bbe7",
   "creation_order": [
     "event_history",
