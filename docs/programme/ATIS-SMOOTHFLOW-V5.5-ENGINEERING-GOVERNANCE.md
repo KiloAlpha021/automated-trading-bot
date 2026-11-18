@@ -1,294 +1,256 @@
 # ATIS Smoothflow V5.5 Engineering Governance
 
-## Document status and purpose
+**Final consolidated review candidate · 18 November 2026**
 
-This document is the proposed canonical engineering-governance standard for ATIS under Smoothflow V5.5. It consolidates the seventeen controls from Unified Engineering Standard Governance Integration 035 with the approved efficiency and evidence-based anti-loop operating rules.
+**Effectiveness:** this preparation changes no authority. This document becomes standing governance only for the exact published identity explicitly accepted by the owner after the existing independent-review and protected-publication conditions in §9. Publication or a passing check alone is insufficient.
 
-This candidate is `DOCUMENTED_ONLY`. It is not authoritative, accepted, or technically enforced merely because it exists. It becomes effective only after source authentication, separately attributable independent review, protected publication with all required checks, and explicit owner acceptance.
+**Replacement path:** `docs/programme/ATIS-SMOOTHFLOW-V5.5-ENGINEERING-GOVERNANCE.md`. This review copy proposes replacement of that file’s contents, not a second governing document, additional framework or new control. Source references in §10 identify the accepted requirements and their historical scope; the accompanying 88-row disposition table records every consolidation decision.
 
-Source document: Unified Engineering Standard Governance Integration 035, dated 31 October 2026. Authenticated source SHA256: `7550e5c09fc11ef605b6b674be78bd9d2e9796ba3b150f7fe0db342deff00102`.
+## 1. Authority, objective and status
 
-Preparation task: `ATIS-SMOOTHFLOW-GOVERNANCE-019`. This task grants local governance preparation only. It grants no publication, merge, acceptance, deployment, broker, financial, trading, or operational authority.
+### 1.1 Owner authority and objective
 
-## 1 Governing identity and scope
+Preserve the owner’s engineering objective and bounded task. Do not replace it with a supporting investigation, process project or assistant-generated task. The owner retains sole internal authority over scope, source mutation, privileged/native execution, commissioning, acceptance, publication, merge, deployment, stage progression and trading. No assistant, test, receipt, register or review grants these permissions. Existing authority persists within unchanged scope; do not infer new authority from silence, an assessment, preparation approval or a lower-level PASS. [D00; X01 §1; D03 §1; D04]
 
-Smoothflow V5.5 remains the governing ATIS engineering framework. This document does not create a new framework, execution guard, task-lock service, retry controller, evidence database, authority service, or autonomous acceptance mechanism.
+### 1.2 Select the applicable authority
 
-The requirements in this document apply to bounded ATIS engineering work only after the document completes the effectiveness conditions stated above. Existing protected technical controls, accepted contracts and amendments, and explicit bounded task authorities remain unchanged.
+Use the current explicit owner directive for the bounded action together with applicable protected controls and accepted contracts. Select standing governance and task checkpoints by exact source identity, accepted scope, attributable owner decision and explicit predecessor/successor relationship. Dates, filenames, search ranking, memory and master HEAD alone do not establish acceptance. Historical instructions cannot override accepted successors. A material contradiction stops the affected action for one consolidated decision; it does not justify unrelated work. Preserve stricter accepted component requirements unless an exact owner decision changes them. [G00 §2; L08; D04]
 
-Stage 5 is excluded from preparation under `ATIS-SMOOTHFLOW-GOVERNANCE-019`. This candidate neither inspects nor changes Stage 5 source, evidence, worktrees, task state, authority, checkpoints, or acceptance status.
+### 1.3 State only the level proved
 
-## 2 Authority precedence and supersession
+Use canonical control statuses `ENFORCED`, `DOCUMENTED_ONLY`, `BLOCKED`, `NOT_IMPLEMENTED`. Name the actual mechanism, candidate and governed path before claiming enforcement; describe partial coverage explicitly. Earlier `TECHNICALLY_ENFORCED` wording refers to that bounded condition. `HISTORICAL`/`SUPERSEDED` describe records, not enforcement. Preserve historical `SELF_TESTED` receipts and all existing schema enums unchanged.
 
-When requirements conflict, apply this precedence order:
+Keep the C07 progress states and C16 readiness levels distinct. In particular, `ENGINEERING_COMPLETE`, `EVIDENCE_DELIVERED`, `RECEIVER_VERIFIED`, `INDEPENDENT_QUALIFIED` and `OWNER_ACCEPTED` are different claims. Apply the current task’s prescribed terminal vocabulary. Distinguish verified facts, producer reports, inferences and unknowns; no missing fact becomes permission. [D00 C07/C16; 034 R7; D03 §4]
 
-1. The current explicit owner directive for the bounded action.
-2. Protected technical controls and repository protection rules that apply to the action.
-3. Accepted contracts and amendments within their stated scope.
-4. The current bounded task authority and its exclusions.
-5. Current accepted governance that is consistent with items 1 through 4.
-6. Historical or superseded instructions, retained only as evidence.
+## 2. Canonical C01–C17 — mandatory
 
-Later material does not supersede earlier authority merely because it is newer. Supersession must be explicit, attributable to the owner or another accepted authority, scoped, and evidence-backed. Historical evidence must not be rewritten or deleted to simplify the current record.
 
-No current-state record, programme register, recovery packet, evidence successor, test result, reviewer recommendation, or automated check grants authority beyond its explicit accepted contract.
+The following operative requirements reproduce the canonical 035 paragraphs, with whitespace normalised only. Their policy authority is preserved; this consolidation does not make them universally executable or enforced. Evidence of component-local enforcement must be named separately.
 
-## 3 Governance status vocabulary
+### C01 — Engineering readiness qualification
 
-Every governance finding or control status must use one of the following classifications:
+Before editing, verify governing contracts, actual worktree and baseline, exact scope, owner authority, environment, dependencies, evidence access, negative oracles, and stop conditions. Missing or contradictory prerequisites prevent the affected work.
 
-- `DOCUMENTED_ONLY`: the requirement is written but no current executable evidence establishes enforcement.
-- `TECHNICALLY_ENFORCED`: current executable evidence establishes the control on the actual applicable path and candidate identity.
-- `BLOCKED`: verification or operation cannot proceed because a named evidence, authority, environment, security, or scope prerequisite is unresolved.
-- `NOT_IMPLEMENTED`: an accepted requirement exists, but its required technical implementation is absent.
-- `SUPERSEDED`: a current explicit authority replaces the instruction for active use while the original remains preserved.
-- `HISTORICAL`: the artifact is retained for provenance, audit, or reconstruction and is not current operating authority.
+### C02 — Complete subsystem testing
 
-Documentation, design intent, source presence, local tests, self-verification, independent assurance, owner acceptance, protected publication, and operational authority are distinct states. No lower state may be promoted without its required evidence.
+Qualification must exercise actual issuer, consumer, persistence, recovery, security, concurrency, and financial paths applicable to the subsystem. Required malformed, failure, restart, and adverse-order cases must not be silently skipped or counted as passing.
 
-## 4 Seventeen engineering controls
+### C03 — Executable contract verification
 
-The following controls preserve the requirements of Governance Integration 035. Unless current executable evidence proves otherwise for a particular protected path, their status in this candidate is `DOCUMENTED_ONLY`.
+Every accepted requirement must trace to actual source and to positive and negative oracles. Design intent, comments, types, mocks, and prior PASS labels are not substitutes for reachable executable evidence.
 
-### C01 Engineering readiness qualification
+### C04 — Continuous quality checks
 
-Verify contracts, the actual worktree, exact scope, authority, environment, dependencies, and evidence before editing. Missing or contradictory prerequisites must be classified rather than assumed.
+Run scoped formatting, lint, typing, security, and regression checks during work and at the final candidate boundary. Separate inherited findings from findings introduced by the current authorized delta.
 
-### C02 Complete subsystem testing
+### C05 — Consolidated root-cause management
 
-Test actual issuer, consumer, and financial paths, including malformed input, concurrency, persistence, and recovery. A fixture or design assertion does not qualify an untested actual path.
+Maintain one deduplicated issue register across task handoffs. Record source evidence, root cause, invariant, correction, oracle, dependencies, status, and next action. Address shared causes rather than opening disconnected symptom corrections.
 
-### C03 Executable contract verification
+### C06 — Automated evidence authentication
 
-Trace each accepted requirement to source and to positive and negative executable oracles. Record unexecutable requirements as gaps rather than passes.
+Hash exact delivered bytes, authenticate manifests and archive members, verify safe archive structure, and distinguish source formats. A PDF, Markdown file, DOCX, archive, or reconstructed copy must not inherit another artifact's digest or authority.
 
-### C04 Continuous quality checks
+### C07 — Capability-based progress
 
-Run scoped lint, typing, security, and regression checks during authorised work. Distinguish inherited findings from newly introduced findings and preserve mandatory final qualification.
+Use the states `PREPARED`, `OWNER_AUTHORISED`, `IMPLEMENTING`, `SELF_VERIFIED`, `INDEPENDENTLY_ASSURED`, and `OWNER_ACCEPTED`, with explicit blockers and evidence. No result may be silently promoted to a higher authority state.
 
-### C05 Consolidated root-cause management
+### C08 — Dependency and integration mapping
 
-Track causal defects and corrections across tasks. Address shared causes rather than repeatedly treating isolated symptoms. Preserve stable defect and root-cause identities.
+Maintain upstream and downstream interfaces, trust boundaries, durable owners, environment prerequisites, status, accepted versions, and qualification dependencies. Implementation readiness requires every critical dependency to have an accepted path.
 
-### C06 Automated evidence authentication
+### C09 — Change-impact analysis
 
-Hash exact delivered bytes and verify file accessibility, manifests, and formats. Never cross-use hashes for different representations, including PDF, DOCX, and Markdown derivatives.
+Before mutation, identify affected interfaces, accepted units, invariants, evidence, tests, and consumers. Preserve unrelated work and rerun only the justified regression set plus mandatory subsystem gates.
 
-### C07 Capability-based progress
+### C10 — Deterministic test environments
 
-Record progress using `PREPARED`, `OWNER_AUTHORISED`, `IMPLEMENTING`, `SELF_VERIFIED`, `INDEPENDENTLY_ASSURED`, and `OWNER_ACCEPTED`, with blockers and authority boundaries. Do not infer a higher state.
+Record operating system, interpreter, dependencies, database/runtime versions, security capabilities, fixtures, configuration, commands, time sources, and cleanup state. Missing or substituted prerequisites must be reported rather than simulated.
 
-### C08 Dependency and integration mapping
+### C11 — Security and financial invariant register
 
-Maintain upstream and downstream interfaces, trust boundaries, status, prerequisites, and actual-path dependencies. Unverified dependencies must remain explicit.
+Track fail-closed authorization, replay protection, identity separation, capital and liability conservation, recovery holds, key ownership, trusted time, evidence integrity, and prohibited side effects. Every applicable invariant requires a negative oracle.
 
-### C09 Change-impact analysis
+### C12 — Controlled checkpoints and recovery
 
-Identify affected interfaces, accepted units, invariants, consumers, and required regressions before mutation. Preserve unrelated accepted work.
+Preserve the accepted candidate, source and evidence hashes, current authority, passing tests, blockers, failure history, and next action. Resume from authenticated state without repeating verified work or converting uncertainty into permission.
 
-### C10 Deterministic test environments
+### C13 — Contract change control
 
-Record Python, dependencies, database, Windows capabilities, fixtures, and reproducible commands. Environment limitations must not be reported as source passes or failures without evidence.
+Identify governing versions and approval provenance, preserve superseded history, reject contradictory active contracts, and require explicit owner authority for material amendments. A proposal is not an accepted contract.
 
-### C11 Security and financial invariant register
+### C14 — Risk-based assurance
 
-Track fail-closed authorisation, replay resistance, capital and liability conservation, recovery holds, key separation, trusted identities, and evidence. Safety invariants must not be weakened to obtain a passing result.
+Require genuinely independent assurance for financial authority, cryptographic trust, security boundaries, durable recovery, and other high-impact changes. Apply proportionate review elsewhere. Self-verification must remain labelled as such.
 
-### C12 Controlled checkpoints and recovery
+### C15 — Automated regression selection
 
-Preserve the accepted candidate, tests, authority, blockers, and next action. Resume from authenticated checkpoints without repeating verified work or discarding unresolved failures.
+Use a verified source-to-test and source-to-consumer mapping to select directly affected tests while retaining mandatory safety and final subsystem suites. Selection must not silently omit an applicable oracle.
 
-### C13 Contract change control
+### C16 — Operational readiness levels
 
-Identify accepted versions, stop on contradictions, preserve superseded history, and require explicit authority for material contract amendments.
+Keep component testing, integrated qualification, independent assurance, owner acceptance, protected publication, deployment readiness, broker authority, and trading authority separate. Success at one level never implies success at a higher level.
 
-### C14 Risk-based assurance
+### C17 — Efficiency and cost control
 
-Require separately attributable independent review for financial authority, cryptographic trust, security boundaries, and durable recovery. Use proportionate review elsewhere. An implementation agent must not self-certify independent assurance.
+Maintain one bounded active engineering unit, reuse authenticated evidence, avoid duplicate searches, packages, and broad investigations, define stop conditions, and measure progress by retired blockers and accepted interfaces rather than report count.
 
-### C15 Automated regression selection
+## 3. Existing five-gate model — mandatory where applicable
 
-Use verified source-to-test mapping to select affected regressions. Retain mandatory safety suites and final subsystem qualification; focused diagnosis must not erase final qualification obligations.
 
-### C16 Operational readiness levels
+1. **Authenticate task entry:** protected baseline, exact candidate, requirements, production entrypoint where relevant, owner authority and stop conditions.
+2. **Bounded engineering:** one authorised mutation scope; focused failure reproduction and causal correction before broad regression.
+3. **Real-environment qualification when applicable:** actual native/integration paths in separately authorised disposable environments.
+4. **Independent assurance:** exact candidate bytes, raw tests, negative controls, manifest and receiver readback.
+5. **Protected publication and owner acceptance:** bounded PR, required CI, separate merge authorisation, post-merge verification and evidence custody.
 
-Keep component, integration, and deployed operational qualification separate. Never infer a higher qualification, deployment readiness, or trading authority from a lower level.
+These are the accepted engineering gates, not five new approvals for every conversational reply. Apply only the gates required by the current accepted task. Do not reopen an already satisfied gate without material contradictory evidence, changed bound inputs or explicit owner authority. Audit closure preserves residual limitations; it does not claim universal reliability. [L28; D04 §§5,7; D00 C12/C17]
 
-### C17 Efficiency and cost control
+## 4. Prepare and perform authorised work
 
-Use one bounded active mutation unit, reuse authenticated evidence, avoid redundant packages and investigations, and define evidence-based stop conditions. Efficiency must not weaken security, financial safety, protected checks, or independent assurance.
+### 4.1 One task, one accountable executor
 
-## 5 Efficiency operating rules
+Use one primary agent and one bounded active engineering unit, with one authorised successor. Do not interleave conflicting mutation or launch parallel Codex agents without explicit owner authority. ChatGPT/Work prepares and reviews technical decisions and performs only work within its verified capability and authority; Codex implements only approved bounded changes. Owner-reserved operations require the approved owner context. Independent assurance remains a separately attributable reviewer role, not the producer’s self-verification. [034; G00 R01–R02; X06]
 
-### R01 Single-agent default
+### 4.2 Verify the complete executable contract
 
-Use one primary agent per bounded engineering task. Subagents require explicit owner authorisation. Separately attributable independent assurance remains a separate role and must not be represented as the implementation agent's assurance.
+Before an executable handoff, establish the objective, owner authority, accepted checkpoint, exact source/candidate, permitted paths/operations, actual executor identity/runtime/permissions, required inputs, dependencies, positive/negative oracles, evidence return and stop conditions. Name each critical input’s original filename, authoritative location, expected size and SHA256 where available. Verify capability rather than assuming cloud access implies local access or one SID can substitute for another.
 
-### R02 One active mutation task per workstream
+Before mutation inspect affected source/tests, workflow references, suite oracles, locks, audit requirements, Git identities and applicable protections, including the next two applicable gates. Do not invent extra gates when fewer remain. Carry the existing forward-progress information—active unit, blocker, new evidence, expected transition, change boundary, authority, next gates and duplicate/reentry checks—in the existing instruction/checkpoint, not a new certificate or register. [C01/C03/C08–C11; 034 R6; X06; D03]
 
-Permit one active source-mutation task per workstream. Record its task identity, candidate identity, and mutation boundary. Separately authorised read-only review may proceed only when it cannot conflict with or obscure the active candidate.
+### 4.3 Release only within authority
 
-### R03 Evidence-first preflight
+If the action needs new authority, first present its exact objective, executor, scope/exclusions, baseline, dependencies and proposed outcomes for one concise owner decision. Do not release an executable implementation instruction as already approved before that decision. Resume unchanged, already-authorised work without asking again. Ordinary read-only lookups and explanations do not require a new execution package or approval; this does not waive task-specific restrictions. [X01 §1; D04 §§1,4]
 
-Before implementation, authenticate the protected baseline, current candidate, owner authority, accepted contracts, required evidence, environment, dependencies, and allowed paths. Reuse verified evidence when its bound inputs are unchanged.
+### 4.4 Preserve the issued-command boundary
 
-### R04 Engineering readiness
+Do not resend or rewrite an issued command without evidence that it did not execute or authority for bounded recovery. Record actual operation identity, command SHA256 when computed, execution receipt, evidence, blocker and exit condition in existing permitted records. Never invent a fingerprint or receipt. Interruption/failure stays within the same task; first recover the actual execution state. [X06 permanent controls 1–3; D03 §6]
 
-Verify upstream capability producers, interfaces, trust boundaries, qualified environments, and executable positive and negative oracles before coding. Classify missing prerequisites instead of manufacturing readiness.
+### 4.5 Correct within scope; stop at genuine boundaries
 
-### R05 Investigation reuse
+Classify the failure from authentic source and evidence: source defect, contract drift, authority gap, environment/capability problem or unresolved dependency. For ordinary defects inside an authorised writable boundary, pursue the smallest causal correction, authorised focused positive/negative checks, introduced failures, justified regressions and required final qualification. Every further attempt needs new causal evidence or a defensible changed hypothesis. Never weaken quality/security checks to obtain PASS.
 
-Assign a stable fingerprint to each completed investigation. Do not repeat it without changed evidence, source, environment, authority, or a precise unresolved question that the prior investigation did not answer.
+Stop the affected action for out-of-scope operations, unauthorised privilege, security/financial weakening, materially contradictory contracts, unauthenticated indispensable evidence, a new architecture/trust-root decision, separately reserved operational authority, or no defensible diagnostic path. Identify the exact requirement and smallest resolving action. Recover ordinary missing artifacts within existing read-only authority; do not turn a transfer gap into a speculative source defect or rerun. The later autonomy amendment supersedes blanket new-owner-approval requirements for every ordinary in-scope failure. [D04 §§1–6; X06; C05/C09/C14/C15]
 
-### R06 Focused failure diagnosis
+## 5. Evidence and cross-executor handoffs
 
-Preserve the original failure and diagnose the exact failing positive control or negative oracle before broad test reruns. Focused diagnosis does not remove any mandatory final qualification suite.
+### 5.1 Required inputs and receiver access
 
-### R07 Autonomous in-scope correction
+Use the established Engineering Evidence — Shared exchange: `https://drive.google.com/drive/folders/13j2TuGT-6HRmf-pzvr-sQVtqWm_CWlx_`. Library is reference/recovery, not a competing authoritative exchange. Before releasing a dependent executable instruction, upload/read back required transferable evidence with byte-size/SHA256 verification. The intended executor’s critical-input access must be verified or explicitly remain a preflight stop; the receiver independently retrieves/authenticates those inputs before mutation. Sender access, upload and producer readback do not prove receiver access. An input-verification instruction must not be represented as mutation-ready while access is unresolved.
 
-Permit ordinary recoverable corrections inside explicitly authorised source, test, and environment boundaries. Escalate material security, architecture, authority, safety, or scope blockers. Do not expand authority by interpreting silence or missing evidence.
+Reuse existing authenticated artifacts and direct protected-source references where applicable; do not make unnecessary ZIPs or duplicate historical reports. Preserve original bytes and versioned/immutable custody. Distinguish archive/member, source-format and parent/child execution identities; authenticate safe structure and manifests. Missing historical evidence remains missing: another artifact’s digest or a later readback does not fabricate an earlier event. Apply the actual governing evidence requirement, without inventing additional receipt requirements. [C06/C12/C13; 034 R6; X01 §§2–4; D03 §2; RC-02/04]
 
-### R08 Evidence and progress preservation
+### 5.2 Define complete return before execution
 
-Preserve accepted checkpoints, passing results, original failures, immutable source identities, correction history, and historical audit records. Keep self-verification, independent assurance, owner acceptance, protected publication, and operational authority distinct.
+Specify required archive/report, raw results, changed-file manifest, evidence index, terminal disposition, exact approved destination and supported transfer method before execution. Preserve producer byte count/hash/file ID and receiving-side download/readback, comparison and accessibility status. Qualification evidence includes actual commands, environment, stdout/stderr, exits, intended negative rejection and primary/secondary failures as required by the applicable contract. Do not substitute screenshots, assertions, fabricated records or local-only paths for required evidence.
 
-### R09 Compact persistent handover
+If a required upload/readback fails, preserve completed work and return `EVIDENCE_HANDOFF_BLOCKED` under the applicable task contract. Do not claim full completion, regenerate evidence to match a hash, rerun qualification merely to repair custody, or automatically create another transfer task. [X01 §3; D03 §§4,6; D04 §§6,8; C02/C06/C12]
 
-Use schema-permitted programme-control records to record the current task, candidate, last accepted and independently verified checkpoints, blockers, latest authenticated evidence, next single action, stale-source exclusions, and authority not granted. Link to immutable evidence rather than duplicating complete packages. The master-recovery packet remains a fixed recovery index, with its existing `current_state.details_source` relationship pointing to `docs/programme/programme-control.json`; it is not an extensible live-task register.
+### 5.3 One complete executable Codex instruction
 
-### R10 Owner-controlled progression
+Use one consistent, copyable text block containing task ID, framework, owner authority, executor and agent count, one objective, exact input URLs/hashes, allowed paths/operations, positive/negative acceptance criteria, prohibitions, evidence destination, terminal format and one continuation pointer. Reference accepted contracts rather than copying entire histories. Do not fragment the instruction across messages. [D03 §3; X01 §4]
 
-No task, record, test, agent, or automated mechanism grants implicit publication, merge, acceptance, deployment, broker, financial, or trading authority. Each progression requiring owner authority must be explicit and bounded.
+### 5.4 One complete terminal handoff
 
-## 6 Evidence-based anti-loop rules
+Require one complete plain-text fenced block retaining the combined 11 November fields:
 
-The anti-loop rules are operating requirements and measurements, not an execution engine, automatic stop, acceptance gate, or retry ceiling.
+`TASK_ID`, `FRAMEWORK`, `OWNER_AUTHORISATION`, `AUTHORISED_SCOPE`, `EXECUTOR`, `FINAL_STATUS`, `OBJECTIVE`, `SOURCE_BASELINE`, `ORIGINAL_FAILURE`, `ROOT_CAUSE`, `CORRECTIONS_PERFORMED`, `EXACT_CHANGED_PATHS`, `SOURCE_SHA256`, `TEST_COMMANDS_AND_RESULTS`, `POSITIVE_TEST_RESULTS`, `NEGATIVE_TEST_RESULTS`, `REGRESSION_RESULTS`, `FIRST_FAILING_ORACLE`, `SECURITY_PRESERVATION`, `EVIDENCE_ARCHIVE`, `EVIDENCE_SHA256`, `DRIVE_FOLDER_URL`, `DRIVE_FILE_IDS`, `DRIVE_FILE_IDS_AND_URLS`, `RECEIVER_VERIFICATION_STATUS`, `REMAINING_BLOCKERS`, `SINGLE_CONTINUATION_POINTER`.
 
-### AL01 Repeated investigation
+Preserve these accepted labels and machine-readable schema fields. Overlapping entries may reference the same complete information within the block rather than duplicate logs. Generic `FINAL_STATUS` is COMPLETE/FAILED unless the current owner task specifies another vocabulary. Raw evidence remains in approved custody. These terminal-handoff requirements are not a demand for a full artifact package on every ordinary reply. [D03 §4; D04 §8]
 
-Detect a proposed investigation whose stable fingerprint matches a completed investigation and whose bound source, evidence, environment, authority, and question have not changed. Reuse the prior result or identify the precise new question. Measure duplicate investigations avoided and justified repeats.
+## 6. Continuity, judgement and engineering efficiency
 
-### AL02 Unchanged-root-cause failures
+### 6.1 Recover and preserve one current checkpoint
 
-Use stable defect and root-cause identifiers. Before another correction attempt, record the new causal hypothesis or new evidence. Escalate genuine blockers based on evidence, safety, authority, or scope rather than an attempt count. Measure attempts that added no new causal evidence.
+At task entry recover the exact accepted governance version, then the matching task checkpoint and critical evidence for the next unresolved action. Preserve objective, owner authority/exclusions, accepted predecessor, source/candidate/evidence identities, passing results, original failures, first unresolved oracle and one next bounded action. Reuse verified inputs while their bindings remain unchanged. Old task snippets, familiarity, search order and memory cannot replace current authority. Preserve the task ID through ordinary correction, interruption and evidence recovery. [C12; L08; D03 §6; D04 §5]
 
-### AL03 Unnecessary full-suite reruns
+Update existing authorised checkpoints on material authority, identity, pass/fail, closure or successor changes; preserve historical entries. Do not produce an unchanged checkpoint on each reply. State if persistence was not performed. Standing governance describes rules, the checkpoint describes task state, and immutable evidence supports outcomes. Do not embed changing task counts or live pointers in this standing document. [L00; X06; G00 R09]
 
-Do not rerun a broad suite solely because a prior run failed. Diagnose the focused oracle first, then run affected regressions and any mandatory final qualification. Measure broad reruns without relevant source, dependency, environment, or oracle change.
+### 6.2 Reuse accepted work; reject loops and drift
 
-### AL04 Repeated preparation without progress
+Use existing cause/issue/investigation identities and fingerprints in permitted records. Before repeating work identify changed source, evidence, environment, authority or a precise unanswered question. Without one, reuse the prior result. A downstream failure does not reopen an unchanged accepted predecessor. Formal reentry into closed/protected work requires material contradictory evidence and applicable owner authority; ordinary correction within an open authorised task follows §4.5.
 
-Record whether each cycle retired a blocker, produced verified evidence, completed an authorised correction, or identified one precise owner decision. If none occurred, investigate missing readiness or authority rather than preparing another equivalent task. Measure preparation-only cycles with unchanged blockers.
+Diagnose the focused failing oracle before impact-based regression and mandatory final suites. Do not repeat a broad suite solely because an earlier run failed. Do not start work merely because it is possible: it must retire a genuine blocker, supply required evidence, complete authorised work or resolve one necessary owner decision. Avoid new tasks, audits, packages and handoffs that do none of these. [C05/C09/C12/C15/C17; X06/X08; D03 §§6–7; D04]
 
-### AL05 Conversation handover loss
+### 6.3 Existing effectiveness observations
 
-Maintain a compact current-state handover in schema-permitted programme-control records, bound to immutable source and evidence identities. Each handover must identify the current candidate, accepted checkpoint, open blocker, authority exclusions, and next single action using permitted record content, without assuming dedicated JSON fields exist. Preserve the master-recovery packet's existing `current_state.details_source` relationship to `docs/programme/programme-control.json`. Measure handovers that omit or contradict this required content.
+Record actual missing critical inputs, receiver verification/readback, avoidable transfer blocks, duplicate investigations, attempts without new causal evidence, unjustified broad reruns, unchanged preparation cycles, incomplete handovers, false completion claims, unnecessary escalation and elapsed time from defect identification to independent qualification. Use existing task evidence; do not fabricate gains or create another metrics service/register. Metrics inform review, not permission, acceptance or automatic stop counts. [G00 AL01–AL06; X01 §7; D03 §7; C17]
 
-### AL06 Unnecessary escalation
+### 6.4 Required reply and independent judgement
 
-Correct ordinary in-scope defects autonomously where authorised. Escalate only genuine evidence, safety, architecture, environment, authority, or scope blockers. Fixed retry ceilings are prohibited. Metrics must inform review and must not themselves stop, approve, or accept work.
+Every ATIS engineering reply visibly includes the existing Smoothflow V5.5 Control Board, explicit loop/drift assessments and one continuation pointer. Report actual facts, not compliance by listing controls. Keep the presentation concise without omitting the accepted response requirement; no new register is required. [L00/L01]
 
-## 7 Existing register reuse
+The owner-accepted provision historically labelled **C18 — Independent Engineering Judgement** remains additive to, not a renumbering of, the canonical seventeen controls or five gates:
 
-No new register, database, service, task-lock system, or ECG replacement is authorised. Existing structures remain the only proposed persistence points, subject to their accepted schemas and separate authority for record mutation.
+> For every material engineering decision, the assistant must independently test the proposal against authenticated evidence, governing requirements, security and financial invariants, credible alternatives and the smallest sufficient implementation. It must constructively challenge weak owner, assistant or executor proposals; distinguish verified facts, reported claims, assumptions, inferences and recommendations; compare credible alternatives with explicit trade-offs; and give one preferred evidence-based recommendation. It must not fabricate authority, obstruct an authorised objective, dilute owner decisions, silently expand scope or substitute its judgement for the owner’s sole authority over acceptance, publication, deployment, stage progression and trading. When evidence cannot support a choice, it must identify the smallest exact decision or missing evidence rather than begin a general investigation.
 
-### programme-control.json
+The associated Master Register MVP remains planning-only; this document does not implement or activate it. [X14/L03]
 
-Use the existing programme-control ledger, milestone gate register, decision register, blocker and deferral register, evidence invalidation register, provenance gap register, and reality assumption register for:
+## 7. Existing enforcement and qualification contracts
 
-- active workstream and task references;
-- owner authority and exclusions;
-- readiness prerequisites and decisions;
-- stable blocker and root-cause identifiers;
-- investigation fingerprints in permitted evidence or narrative fields, never as replacements for constrained record IDs; and
-- governance supersession references.
+### 7.1 Preserve executable safeguards
 
-### master-recovery-packet.json
+Keep `docs/programme/programme-control.json`, its schema, `tests/test_programme_control.py`, `tests/test_master_recovery_packet.py`, recovery records/schemas, immutable successor evidence, trusted workflows and accepted component contracts intact. These govern different boundaries and are not redundant prose. Use only schema-permitted existing records/fields for task references, authority, blockers, fingerprints and supersession; do not replace constrained IDs/enums. The fixed master-recovery index retains `current_state.details_source` pointing to programme control. Do not add live-task fields, rewrite historical pins or turn successor evidence into a mutable authority register. [G00 §7; G03–G10]
 
-`master-recovery-packet.json` is a fixed recovery index, not an extensible live-task register. Its existing `current_state` schema is closed and must not receive unapproved task, blocker, candidate, or next-action fields. Preserve the existing `current_state.details_source` relationship pointing to `docs/programme/programme-control.json`.
+### 7.2 Preserve RC-01–RC-05 and AC-01–AC-10
 
-New handover details and immutable evidence references must use schema-permitted programme-control records for:
+| Accepted correction | Required decision predicate | Frozen semantic acceptance pair retained |
+|---|---|---|
+| RC-01 | Actual tested subject, exact oracle, expected/observed result and authenticated proof | AC-01 valid claim accepted; AC-02 substitute/superficial/arbitrary-exception proof rejected |
+| RC-02 | Correct artifact/archive-member and execution lineage; correct hash domains | AC-03 complete lineage accepted; AC-04 broken/ambiguous/stale lineage rejected |
+| RC-03 | Genuine authority/safety/capability stop distinguished from ordinary authorised correction | AC-05 legitimate blocker accepted; AC-06 false owner blocker rejected |
+| RC-04 | Recipient capability, artifact availability and independent receipt established | AC-07 receiver-qualified handoff accepted; AC-08 inaccessible/unqualified handoff rejected |
+| RC-05 | Current objective/pointer, prior oracle, material change, progress and loop/drift evidence support the decision | AC-09 valid progress accepted; AC-10 stale/loop/drift/premature readiness rejected |
 
-- current candidate identity;
-- last owner-accepted checkpoint;
-- last independently verified checkpoint;
-- open blocker references;
-- latest authenticated evidence;
-- next single authorised action; and
-- stale-source and authority exclusions.
+Preserve the qualified four-file external implementation, real schema/CLI, independently controlled checkpoint, original fixtures, exact rejection/exit semantics and accepted qualification evidence. The table summarises existing predicates; it does not replace fixture bytes or reopen preparation-stage dependencies. Preserve V1–V7, G0, Day1 and all accepted passing/failing evidence. No test or universal invocation rule is added here. [X19; X20; L17]
 
-### successor-evidence.json
+### 7.3 Existing sustained programme — scoped requirements
 
-Use successor evidence only for immutable predecessor and successor evidence relationships and their authority statements. It must not become a mutable current-state register or an authority source.
+Retain the existing 14 consecutive calendar days, at least 10 authenticated fresh-session continuations, 6 independently receiver-qualified handoffs, 3 bounded disposable tasks, all original failure/coverage thresholds and zero false terminal acceptances. Preserve S1 competing historical/current authority; S2 extended-interaction drift; S3 unnecessary reopening; S4 repeated known-failure investigation; S5 cross-session scope/checkpoint loss. Additional RC stress examples do not replace S1–S5. Do not reset/restart accepted observations, backdate a window or infer sustained PASS from elapsed time or offline tests.
 
-The current schemas do not expose a dedicated investigation-fingerprint field. Investigation fingerprints must use permitted evidence or narrative fields and must not replace constrained record IDs. Governance status labels must not be substituted into existing JSON lifecycle enums. Any direct recovery-packet field or list extension, dedicated typed field, or other schema extension requires a separate justified proposal, explicit owner authorisation for the schema change, protected validation, and protected publication. Existing closed property sets, fixed list cardinalities, and enumerated values remain binding. This candidate makes no schema change.
+Within that programme’s accepted contract, invoke the existing qualified validator where technically available and retain input, source identity, command, streams, exit and receipt. Missing invocation is `NOT_VALIDATED`; a manual receiver check is `MANUAL_RECEIVER_CHECK_ONLY`, not mechanically validated PASS. Preserve the original programme’s stop/extension and independent-review conditions. Its task-specific requirements do not impose new checks before every ordinary instruction or a general engineering freeze. [X12; X19–X20; L17]
 
-## 8 Security financial safety and fail-closed preservation
+### 7.4 State enforcement limits accurately
 
-This governance candidate does not change protected technical controls. All accepted security, financial-safety, provenance, branch-protection, trusted-evaluator, independent-assurance, and fail-closed requirements remain in force within their accepted scopes.
+Repository validators govern admitted repository state. The external validator checks supplied envelopes against its independently controlled checkpoint when invoked. Neither intercepts every assistant message, proves unobserved capability, discovers all omitted requirements, guarantees semantic judgement or grants owner authority. GitHub storage alone does not guarantee retrieval or model compliance. Actual interfaces, positive integration and intended negative rejection must be proved in the authorised environment; mocks, static parsing, unavailable production hooks and synthetic positives cannot establish operational commissioning. [C03/C14/C16; D03 §5; D04 §7; L17]
 
-Missing, stale, conflicting, unauthenticated, or ambiguous evidence must not grant permission, clear a restriction, release a liability, manufacture a terminal outcome, or advance an acceptance state. Existing owner acceptance authority remains exclusive.
+## 8. Security and retired instructions
 
-## 9 Permanent ECG retirement
+Preserve financial containment, protected predecessor interfaces, identity separation, cryptographic trust, evidence custody, durable recovery, repository protections and fail-closed operational boundaries. Missing/stale/conflicting evidence cannot clear a hold or manufacture authority. [C11/C13/C16]
 
-The Engineering Execution Guard is unfinished, retired, and prohibited. It must not be activated, executed, invoked, repaired, completed, relied on for decisions, used for failure ceilings, or treated as an approval or acceptance authority. Historical ECG records may be retained solely as evidence.
+ECG is retired from engineering use and prohibited: do not activate, execute, invoke, repair/complete, rely on it for decisions/retries/acceptance, or make it a dependency. Preserve historical evidence; this preparation authorises no ECG code/configuration/evidence mutation or cleanup. Only a new explicit owner decision can reverse the prohibition. [034; X13; X04; G00 §9]
 
-ECG source removal, historical evidence preservation, or later technical completion does not authorise ECG use. Only a new explicit owner decision may reverse this prohibition. This document does not recreate ECG or an equivalent component.
+Generic two-failure, two-retry or other arbitrary attempt-count ceilings are superseded. Use evidence, scope and safety stops instead. Specific accepted native/recovery one-attempt limits remain binding operational authority boundaries. The older blanket owner-recovery gate is superseded only for ordinary already-authorised correction. Historical live task states and unaccepted Q0–Q8/register/enforcement drafts do not become standing requirements. Preserve their original records and scoped facts. [D04; X06–X14; G00 §10]
 
-## 10 Permanent exclusion of fixed retry ceilings
+## 9. Adoption, publication and archival
 
-Historical fixed two-failure, two-retry, or other attempt-count ceilings are `SUPERSEDED` and prohibited. No fixed retry ceiling may be reintroduced through governance, metrics, tooling, or task instructions.
+The sole proposed publication delta is the contents of the existing governance Markdown file. No validator/schema/workflow, product, recovery record/pin, host, credential, key, lock or task-state change is included. Use existing protected branch/PR and required-check processes, separately attributable read-only review of exact bytes and mapping, and explicit owner acceptance of the published identity. This adds no new administrative gate.
 
-Repeated work must instead be governed by evidence: diagnose the actual cause, reuse unchanged evidence, focus verification, correct within authority, and escalate material safety, evidence, architecture, environment, authority, or scope blockers.
+The reviewed source baseline is commit `ea1e13aaecdcbb66f3351d05cb43362516971a91`, governance blob `5d5f08e12502712ed97b136c05503abdf8ac2018`, SHA256 `e96296c6e1a2fb5c1bf7e9e5f9b24f57312fe1c7298187a61d13f3aed879512c`. README’s acceptance of those earlier bytes for bounded housekeeping remains valid in that scope, not acceptance of this replacement. Preserve its historical digest and Git history. [G00; X00]
 
-## 11 Independent assurance and owner acceptance
+After exact adoption, withdraw earlier copies’ competing standing-instruction role only for requirements consolidated here. Their evidence, acceptance provenance, active task authority and technical contracts remain scoped records. Do not select an old task-specific “read this checkpoint” instruction as global authority. Physical archival requires the existing publication, independent preservation verification and explicit owner approval conditions. Preserve IDs/version history, manifests, package membership, links and recovery dependencies; no automatic move or deletion follows adoption. [C12/C13; existing archive plan]
 
-Independent assurance must be separately attributable and must inspect the exact candidate and evidence without inheriting the implementation agent's pass labels. It must not modify the candidate while acting as independent reviewer.
+ChatGPT/Work and Codex use the same accepted Git version and applicable task checkpoint. Reference history only for provenance or an exact unresolved issue. Local/Project/Custom instruction copies, where accessible, must be reconciled by accepted scope; this document does not claim those settings were inspected or changed. Existing schemas and validators remain available at their real governed transitions. Ordinary explanations, unchanged continuation and read-only retrieval do not require another audit, package, approval or test suite. [C17; L08; D04]
 
-The owner remains the sole internal acceptance authority. Independent assurance may recommend acceptance but cannot confer it. Protected publication and successful required checks do not themselves constitute owner acceptance, deployment authority, or operational authority.
+## 10. Source references and authority limits
 
-## 12 Publication and effectiveness conditions
+These are supporting provenance references, not additional governing documents after adoption. Original task permissions and recorded implementation states remain historical where superseded. No source gains acceptance merely by being cited. The retained 88-row mapping supplies exact clause and duplicate locations.
 
-This candidate may be proposed for authority only after all of the following are evidenced:
-
-1. Exact source authentication and source-to-clause traceability.
-2. Separately attributable independent read-only review of the exact candidate bytes.
-3. Protected publication under the applicable repository controls.
-4. Successful required checks on the published candidate.
-5. Explicit owner acceptance of the published identity.
-
-Until those conditions are complete, this file remains `DOCUMENTED_ONLY`. It must not be cited as current accepted authority.
-
-## 13 Source-to-clause traceability
-
-| Source requirement | Candidate clause | Preservation result |
-| --- | --- | --- |
-| Governance identity, owner-authorised integration, not repository-enforced | Document status and purpose; Sections 1 and 12 | Preserved with stricter effectiveness conditions |
-| C01 Engineering readiness qualification | Section 4 C01; R03; R04 | Preserved |
-| C02 Complete subsystem testing | Section 4 C02 | Preserved |
-| C03 Executable contract verification | Section 4 C03 | Preserved |
-| C04 Continuous quality checks | Section 4 C04 | Preserved |
-| C05 Consolidated root-cause management | Section 4 C05; AL02 | Preserved and operationally clarified |
-| C06 Automated evidence authentication | Section 4 C06; R03; R08 | Preserved |
-| C07 Capability-based progress | Section 4 C07; Section 3 | Preserved |
-| C08 Dependency and integration mapping | Section 4 C08; R04 | Preserved |
-| C09 Change-impact analysis | Section 4 C09 | Preserved |
-| C10 Deterministic test environments | Section 4 C10 | Preserved |
-| C11 Security and financial invariant register | Section 4 C11; Section 8 | Preserved |
-| C12 Controlled checkpoints and recovery | Section 4 C12; R08; R09 | Preserved |
-| C13 Contract change control | Section 4 C13; Section 2 | Preserved |
-| C14 Risk-based assurance | Section 4 C14; Section 11 | Preserved |
-| C15 Automated regression selection | Section 4 C15; R06; AL03 | Preserved |
-| C16 Operational readiness levels | Section 4 C16; Section 3 | Preserved |
-| C17 Efficiency and cost control | Section 4 C17; Sections 5 and 6 | Preserved and expanded without weakening |
-| Permanent ECG prohibition | Section 9 | Preserved and made explicit |
-| One-agent and governance-only boundaries | R01; document status; Sections 1 and 12 | Preserved |
-| Status evidence and no false enforcement claim | Section 3; Section 12 | Preserved and clarified |
-| Protected change control and no automatic integration | Sections 2, 11, and 12 | Preserved |
-| Completion requires verified controls and separate owner acceptance | Sections 11 and 12 | Preserved |
-
-## 14 Preparation exclusions
-
-Preparation task `ATIS-SMOOTHFLOW-GOVERNANCE-019` authorises only the isolated local candidate at this path. It does not authorise changes to programme-control, master-recovery, successor-evidence, schemas, workflows, rulesets, protected branches, historical records, Stage 5, application source, tests, dependencies, security settings, financial systems, broker systems, or production environments.
-
-No GitHub publication, pull request, merge, deployment, broker connection, trading action, or automatic acceptance is authorised by this candidate.
+- **D00** — [ATIS-SMOOTHFLOW-V5.5-UNIFIED-17-CONTROL-GOVERNANCE-035.md](https://drive.google.com/file/d/1F46tXYEZHxWRd-KL7kZYT_XP-FTMyy2K/view). Canonical 035, owner-approved 31 October; canonical seventeen paragraphs.
+- **L10** — [ATIS-SMOOTHFLOW-V5.5-GOVERNANCE-UPDATE-034(1).txt](https://chatgpt.com/library?file_id=libfile_bcc8a5659fa4819180b1b4beed9b0cce&account_id=personal). 034 refinements; L11/L12 are duplicate representations.
+- **L28** — [ATIS_ENGINEERING_ROOT_CAUSE_AUDIT_CLOSURE_2026-11-08.md](https://chatgpt.com/library?file_id=libfile_fde3_f-e8c2f9d327c48191a75a64bcb8c090de_9d75b74aec208191bd3bc15d54d5e55e&account_id=personal). Accepted five-gate closure; not a claim of universal effectiveness.
+- **X01** — [ATIS_Smoothflow_V5_5_Owner_Authorisation_and_Evidence_Handoff_Amendment_2026-11-08.md](https://drive.google.com/file/d/1juLaa5GeA92SAR6RMQWFiEotvxweENPH/view). Accepted 8 November authorisation and handoff amendment.
+- **D03** — [ATIS-SMOOTHFLOW-V5.5-CROSS-EXECUTOR-RELIABILITY-AMENDMENT-2026-11-11.md](https://drive.google.com/file/d/1YexNk_U0Gqf2TQpSHT48nefh-79XLjYm/view). Accepted 11 November cross-executor amendment; old Task012 pointer historical.
+- **D04** — [ATIS-SMOOTHFLOW-V5.5-AUTONOMOUS-ENGINEERING-EXECUTION-AMENDMENT-2026-11-11.md](https://drive.google.com/file/d/1f2CdNUNYlHvH7sIidI8Fq7zLYpMbg0JZ/view). Accepted 11 November autonomy amendment.
+- **L00** — [ATIS_SMOOTHFLOW_RESPONSE_AND_CHECKPOINT_DIRECTIVE_2026-11-13.md](https://chatgpt.com/library?file_id=libfile_fde3_f-4a13e45dba90819193d19a1041af00f5_9d75b74aec208191bd3bc15d54d5e55e&account_id=personal). 13 November reply/checkpoint directive; L01 duplicate.
+- **X14** — [ATIS-SMOOTHFLOW-V5.5-DECISION-001-C18-REGISTER-MVP-2026-11-11.md](https://drive.google.com/file/d/1Tw81s5SCuG2klwHNQ-i_b7hopokYMYTO/view). Accepted independent-judgement wording; L03 equivalent text; register MVP planning only.
+- **L08** — [ATIS_ENGINEERING_AUTHORITY_AND_ARCHIVE_INDEX_2026-11-12.md](https://chatgpt.com/library?file_id=libfile_fde3_f-e477f0daf9508191922f812233d1823c_9d75b74aec208191bd3bc15d54d5e55e&account_id=personal). Authority/archive selection index; L16 duplicate.
+- **X06** — [ATIS_Smoothflow_V5_Continuity_Checkpoint.md](https://chatgpt.com/library?file_id=libfile_e6077f3a8360819196d6a95737655d47&account_id=personal). Permanent V5.1 discipline; old task state and superseded recovery gate historical.
+- **X08** — [ATIS_Smoothflow_V5_1_Closure_AntiLoop_Checkpoint_2026-10-08.md](https://chatgpt.com/library?file_id=libfile_27702299b4b88191b9c6ea27d12acf82&account_id=personal). Prior closure/anti-loop requirements; obsolete numerical circuits excluded.
+- **X13** — [ATIS-SMOOTHFLOW-V5.5-ECG-PROHIBITION-001.md](https://drive.google.com/file/d/1Op3Nw2hQfr5grR1VEWbyMObSB84TcRIF/view). ECG prohibition; X04 cleanup record grants no action here.
+- **G00** — [ATIS-SMOOTHFLOW-V5.5-ENGINEERING-GOVERNANCE.md](https://github.com/KiloAlpha021/automated-trading-bot/blob/ea1e13aaecdcbb66f3351d05cb43362516971a91/docs/programme/ATIS-SMOOTHFLOW-V5.5-ENGINEERING-GOVERNANCE.md). Existing repository governance and protected mechanism constraints.
+- **X00** — [README.md](https://github.com/KiloAlpha021/automated-trading-bot/blob/ea1e13aaecdcbb66f3351d05cb43362516971a91/README.md). README scoped acceptance of historical governance bytes.
+- **X19** — [ATIS_ENGINEERING_ASSISTANT_RELIABILITY_CORRECTION_READINESS_SPECIFICATION_V1.md](https://drive.google.com/file/d/1hfPAKmaN0351pjal6LJVhO204ioO_Rry/view). Accepted correction contract; historical preparation dependencies superseded by qualified implementation.
+- **X20** — [ATIS_RELIABILITY_CORRECTION_PREIMPLEMENTATION_DEPENDENCY_RECONCILIATION_20261115.md](https://chatgpt.com/library?file_id=libfile_fde3_f-1d9c7c69e7e88191a3d7f420015d6d8d_9d75b74aec208191bd3bc15d54d5e55e&account_id=personal). Scenario reconciliation; later accepted implementation preserved.
+- **X12** — [ATIS_SUSTAINED_RELIABILITY_VALIDATION_PREPARATION_V1.md](https://chatgpt.com/library?file_id=libfile_fde3_f-8196641197a88191b8d48b819dd51200_9d75b74aec208191bd3bc15d54d5e55e&account_id=personal). Existing sustained programme; later execution authority remains task-specific.
+- **L17** — [ATIS_Assistant_Recurrence_Audit_20261118.md](https://chatgpt.com/library?file_id=libfile_fde3_f-ed14f2f89068819184d5abbab58fa2b9_9d75b74aec208191bd3bc15d54d5e55e&account_id=personal). Reused recurrence findings and authenticated qualification references; recommendations are not new authority.
